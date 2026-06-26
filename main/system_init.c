@@ -9,6 +9,7 @@
 #include "vision_app.h"
 #include "vision_preview.h"
 #include "ethernet_app.h"
+#include "sorting_sim_control.h"
 #include "SEGGER_RTT.h"
 #include "ui_realtime_clock.h"
 
@@ -63,6 +64,7 @@ void System_Init(void)
 
     //启动以太网链路和静态 IP；当前只启用基础 IPv4 网络，没有创建 TCP/UDP 应用服务
     ethernet_app_start();
+    sorting_sim_debug_start();
 
     vision_app_start();
     

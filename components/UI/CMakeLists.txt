@@ -35,4 +35,5 @@ idf_component_register(
         "sdk"
     REQUIRES
         lvgl
+        Sorter_app
 )

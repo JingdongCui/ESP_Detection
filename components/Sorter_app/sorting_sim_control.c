@@ -3,6 +3,7 @@
 #include "bsp_encoder.h"
 #include "bsp_motor.h"
 #include "bsp_sort_sensor.h"
+#include "sorter_debug_config.h"
 #include "sorter_core/sorter_scheduler.h"
 
 #include "driver/usb_serial_jtag.h"
@@ -29,9 +30,13 @@ static bool s_vision_s1_active;
 static int s_vision_package_id;
 static bool s_vision_classified;
 static bool s_vision_failed_seen;
+static sorting_debug_mode_t s_debug_mode = SORTING_DEBUG_MODE_ETHERNET_SIM;
+static bool s_motor_output_enabled = true;
+static bool s_sensor_input_enabled = true;
 static bool s_real_io_enabled;
 static bool s_real_io_task_started;
 static bool s_motor_ready;
+static bool s_motor_init_attempted;
 static bool s_encoder_ready;
 static bool s_sensor_ready;
 static TaskHandle_t s_real_io_task;
@@ -52,6 +57,8 @@ typedef struct {
 static real_sensor_state_t s_real_sensors[5];
 static float s_real_motor3_distance_mm;
 static int64_t s_last_encoder_sample_ms;
+
+static void ensure_motor_ready_locked(void);
 
 static void ensure_initialized(void)
 {
@@ -83,6 +90,7 @@ static float parse_float_field(const char *line, const char *key, float fallback
 
 static int clamp_percent(int value) { return value < 0 ? 0 : value > 100 ? 100 : value; }
 static uint32_t clamp_ms(int value, uint32_t fallback) { return value < 0 ? fallback : value > 30000 ? 30000U : (uint32_t)value; }
+static uint32_t clamp_timeout_ms(int value, uint32_t fallback) { return value < 50 ? fallback : value > 30000 ? 30000U : (uint32_t)value; }
 
 static void ensure_control_lock(void) { if (!s_control_lock) s_control_lock = xSemaphoreCreateMutex(); }
 static void lock_control(void) { ensure_control_lock(); if (s_control_lock) xSemaphoreTake(s_control_lock, portMAX_DELAY); }
@@ -103,9 +111,26 @@ static void reset_real_io_state(void)
     s_last_encoder_sample_ms = esp_timer_get_time() / 1000;
 }
 
+static bool external_sim_input_allowed(void)
+{
+    return s_debug_mode == SORTING_DEBUG_MODE_ETHERNET_SIM;
+}
+
+static bool real_sensor_input_allowed(void)
+{
+    return s_debug_mode == SORTING_DEBUG_MODE_REAL_SENSOR && s_sensor_input_enabled;
+}
+
+static bool real_encoder_input_allowed(void)
+{
+    return s_debug_mode == SORTING_DEBUG_MODE_REAL_SENSOR && s_sensor_input_enabled;
+}
+
 static void apply_motor_command_line(const char *line)
 {
-    if (!s_real_io_enabled || !s_motor_ready || strncmp(line, "MOTOR", 5) != 0) return;
+    if (!s_motor_output_enabled || strncmp(line, "MOTOR", 5) != 0) return;
+    ensure_motor_ready_locked();
+    if (!s_motor_ready) return;
     int motor_id = parse_int_field(line, "id=", 0);
     int speed = clamp_percent(parse_int_field(line, "speed=", 0));
     if (motor_id < 1 || motor_id > 3) return;
@@ -149,7 +174,7 @@ static void real_io_task(void *arg)
     while (true) {
         if (!s_real_io_enabled) { vTaskDelay(pdMS_TO_TICKS(100)); continue; }
         int64_t now = esp_timer_get_time() / 1000;
-        if (s_sensor_ready) {
+        if (real_sensor_input_allowed() && s_sensor_ready) {
             for (size_t i = 0; i < sizeof(sensor_ids) / sizeof(sensor_ids[0]); ++i) {
                 bsp_sort_sensor_id_t sensor_id = sensor_ids[i];
                 bool active = false;
@@ -171,7 +196,7 @@ static void real_io_task(void *arg)
                 }
             }
         }
-        if (s_encoder_ready) {
+        if (real_encoder_input_allowed() && s_encoder_ready) {
             float speed_cm_s = 0;
             esp_err_t ret = bsp_encoder_get_speed_cm_s(BSP_ENCODER_0, &speed_cm_s);
             if (ret == ESP_OK) {
@@ -201,23 +226,105 @@ static void start_real_io_task_locked(void)
     else ESP_LOGE(TAG, "create real IO task failed");
 }
 
+static void ensure_motor_ready_locked(void)
+{
+    if (!s_motor_output_enabled || s_motor_ready || s_motor_init_attempted) return;
+    s_motor_init_attempted = true;
+    esp_err_t ret = bsp_motor_init();
+    s_motor_ready = ret == ESP_OK;
+    if (!s_motor_ready) ESP_LOGW(TAG, "real motor output disabled: %s", esp_err_to_name(ret));
+}
+
+static void ensure_real_input_ready_locked(void)
+{
+    if (!real_sensor_input_allowed()) return;
+    esp_err_t ret = bsp_encoder_init();
+    s_encoder_ready = ret == ESP_OK;
+    if (!s_encoder_ready) ESP_LOGW(TAG, "real IO encoder distance disabled: %s", esp_err_to_name(ret));
+    ret = bsp_sort_sensor_init();
+    s_sensor_ready = ret == ESP_OK;
+    if (!s_sensor_ready) ESP_LOGW(TAG, "real IO sort sensors disabled: %s", esp_err_to_name(ret));
+    reset_real_io_state();
+    start_real_io_task_locked();
+}
+
 static void set_real_io_enabled_locked(bool enabled)
 {
     if (enabled) {
-        esp_err_t ret = bsp_motor_init();
-        s_motor_ready = ret == ESP_OK;
-        if (!s_motor_ready) ESP_LOGW(TAG, "real IO motor output disabled: %s", esp_err_to_name(ret));
-        ret = bsp_encoder_init();
-        s_encoder_ready = ret == ESP_OK;
-        if (!s_encoder_ready) ESP_LOGW(TAG, "real IO encoder distance disabled: %s", esp_err_to_name(ret));
-        ret = bsp_sort_sensor_init();
-        s_sensor_ready = ret == ESP_OK;
-        if (!s_sensor_ready) ESP_LOGW(TAG, "real IO sort sensors disabled: %s", esp_err_to_name(ret));
-        reset_real_io_state();
-        start_real_io_task_locked();
+        ensure_motor_ready_locked();
+        ensure_real_input_ready_locked();
     }
     s_real_io_enabled = enabled;
-    ESP_LOGI(TAG, "real IO %s", enabled ? "enabled" : "disabled");
+    ESP_LOGI(TAG, "real IO task %s", enabled ? "enabled" : "disabled");
+}
+
+static void fill_settings_locked(sorting_debug_settings_t *settings)
+{
+    if (!settings) return;
+    *settings = (sorting_debug_settings_t){
+        .mode = s_debug_mode,
+        .motor_output_enabled = s_motor_output_enabled,
+        .sensor_input_enabled = s_sensor_input_enabled,
+        .motor_speed_percent = {
+            s_config.motor_a_speed_percent,
+            s_config.motor_b_speed_percent,
+            s_config.motor_c_speed_percent,
+        },
+        .handoff_delay_ms = s_config.handoff_delay_ms,
+        .belt_timeout_ms = {
+            s_config.belt_a_timeout_ms,
+            s_config.belt_b_timeout_ms,
+            s_config.belt_c_timeout_ms,
+        },
+    };
+}
+
+static void apply_settings_locked(const sorting_debug_settings_t *settings)
+{
+    if (!settings) return;
+    sorting_debug_mode_t mode = settings->mode;
+    if (mode < SORTING_DEBUG_MODE_ETHERNET_SIM || mode > SORTING_DEBUG_MODE_TIMED_ONLY) {
+        mode = SORTING_DEBUG_MODE_ETHERNET_SIM;
+    }
+
+    s_debug_mode = mode;
+    s_motor_output_enabled = settings->motor_output_enabled;
+    s_sensor_input_enabled = mode == SORTING_DEBUG_MODE_TIMED_ONLY ? false : settings->sensor_input_enabled;
+    s_config.motor_a_speed_percent = clamp_percent(settings->motor_speed_percent[0]);
+    s_config.motor_b_speed_percent = clamp_percent(settings->motor_speed_percent[1]);
+    s_config.motor_c_speed_percent = clamp_percent(settings->motor_speed_percent[2]);
+    s_config.handoff_delay_ms = clamp_timeout_ms((int)settings->handoff_delay_ms, s_config.handoff_delay_ms);
+    s_config.belt_a_timeout_ms = clamp_timeout_ms((int)settings->belt_timeout_ms[0], s_config.belt_a_timeout_ms);
+    s_config.belt_b_timeout_ms = clamp_timeout_ms((int)settings->belt_timeout_ms[1], s_config.belt_b_timeout_ms);
+    s_config.belt_c_timeout_ms = clamp_timeout_ms((int)settings->belt_timeout_ms[2], s_config.belt_c_timeout_ms);
+    sorter_scheduler_configure(&s_scheduler, &s_config);
+
+    ensure_motor_ready_locked();
+    set_real_io_enabled_locked(real_sensor_input_allowed());
+}
+
+static const char *debug_mode_name(sorting_debug_mode_t mode)
+{
+    switch (mode) {
+    case SORTING_DEBUG_MODE_REAL_SENSOR: return "real";
+    case SORTING_DEBUG_MODE_TIMED_ONLY: return "timed";
+    default: return "ethernet";
+    }
+}
+
+static sorting_debug_mode_t parse_debug_mode(const char *line, sorting_debug_mode_t fallback)
+{
+    const char *p = strstr(line, "mode=");
+    if (!p) return fallback;
+    p += strlen("mode=");
+    if (strncmp(p, "real", 4) == 0) return SORTING_DEBUG_MODE_REAL_SENSOR;
+    if (strncmp(p, "timed", 5) == 0) return SORTING_DEBUG_MODE_TIMED_ONLY;
+    if (strncmp(p, "ethernet", 8) == 0) return SORTING_DEBUG_MODE_ETHERNET_SIM;
+    int value = (int)strtol(p, NULL, 10);
+    if (value >= SORTING_DEBUG_MODE_ETHERNET_SIM && value <= SORTING_DEBUG_MODE_TIMED_ONLY) {
+        return (sorting_debug_mode_t)value;
+    }
+    return fallback;
 }
 
 static sorter_package_class_t parse_vision_class(const char *line)
@@ -264,32 +371,37 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
 
 #define RETURN_UNLOCK() do { unlock_control(); return; } while (0)
     if (strncmp(buf, "HELP", 4) == 0) {
-        send_line(send_fn, send_ctx, "HELP,VISION_FRAME s1/free/class | CONFIG a_speed/b_speed/c_speed/handoff_delay_ms/lost_timeout_min_ms/lost_timeout_max_ms/real_io | PACKAGE_NEW id | VISION_RESULT id/free/class | SENSOR id/state | DISTANCE motor/dist | RESET | ESTOP");
+        send_line(send_fn, send_ctx, "HELP,VISION_FRAME s1/free/class | CONFIG mode=ethernet|real|timed a_speed/b_speed/c_speed/handoff_delay_ms/a_timeout_ms/b_timeout_ms/c_timeout_ms/motor_output/sensor_input/real_io | PACKAGE_NEW id | VISION_RESULT id/free/class | SENSOR id/state | DISTANCE motor/dist | RESET | ESTOP");
         RETURN_UNLOCK();
     }
     if (strncmp(buf, "CONFIG", 6) == 0) {
+        sorting_debug_settings_t settings;
+        fill_settings_locked(&settings);
         bool real_io_field_present = strstr(buf, "real_io=") != NULL;
-        bool next_real_io = parse_int_field(buf, "real_io=", s_real_io_enabled ? 1 : 0) != 0;
-        s_config.motor_a_speed_percent = clamp_percent(parse_int_field(buf, "a_speed=", s_config.motor_a_speed_percent));
-        s_config.motor_b_speed_percent = clamp_percent(parse_int_field(buf, "b_speed=", s_config.motor_b_speed_percent));
-        s_config.motor_c_speed_percent = clamp_percent(parse_int_field(buf, "c_speed=", s_config.motor_c_speed_percent));
-        s_config.handoff_delay_ms = clamp_ms(parse_int_field(buf, "handoff_delay_ms=", (int)s_config.handoff_delay_ms), s_config.handoff_delay_ms);
+        if (real_io_field_present) {
+            settings.mode = parse_int_field(buf, "real_io=", s_real_io_enabled ? 1 : 0) != 0 ?
+                            SORTING_DEBUG_MODE_REAL_SENSOR : SORTING_DEBUG_MODE_ETHERNET_SIM;
+        }
+        settings.mode = parse_debug_mode(buf, settings.mode);
+        settings.motor_output_enabled = parse_int_field(buf, "motor_output=", settings.motor_output_enabled ? 1 : 0) != 0;
+        settings.sensor_input_enabled = parse_int_field(buf, "sensor_input=", settings.sensor_input_enabled ? 1 : 0) != 0;
+        settings.motor_speed_percent[0] = parse_int_field(buf, "a_speed=", settings.motor_speed_percent[0]);
+        settings.motor_speed_percent[1] = parse_int_field(buf, "b_speed=", settings.motor_speed_percent[1]);
+        settings.motor_speed_percent[2] = parse_int_field(buf, "c_speed=", settings.motor_speed_percent[2]);
+        settings.handoff_delay_ms = clamp_ms(parse_int_field(buf, "handoff_delay_ms=", (int)settings.handoff_delay_ms), settings.handoff_delay_ms);
+        settings.belt_timeout_ms[0] = clamp_timeout_ms(parse_int_field(buf, "a_timeout_ms=", (int)settings.belt_timeout_ms[0]), settings.belt_timeout_ms[0]);
+        settings.belt_timeout_ms[1] = clamp_timeout_ms(parse_int_field(buf, "b_timeout_ms=", (int)settings.belt_timeout_ms[1]), settings.belt_timeout_ms[1]);
+        settings.belt_timeout_ms[2] = clamp_timeout_ms(parse_int_field(buf, "c_timeout_ms=", (int)settings.belt_timeout_ms[2]), settings.belt_timeout_ms[2]);
         s_config.lost_timeout_min_ms = clamp_ms(parse_int_field(buf, "lost_timeout_min_ms=", (int)s_config.lost_timeout_min_ms), s_config.lost_timeout_min_ms);
         s_config.lost_timeout_max_ms = clamp_ms(parse_int_field(buf, "lost_timeout_max_ms=", (int)s_config.lost_timeout_max_ms), s_config.lost_timeout_max_ms);
-        sorter_scheduler_configure(&s_scheduler, &s_config);
-        if (next_real_io != s_real_io_enabled) set_real_io_enabled_locked(next_real_io);
-        char out[240];
-        if (real_io_field_present) {
-            snprintf(out, sizeof(out), "STATUS,packages=%u,state=running,reason=config,a_speed=%d,b_speed=%d,c_speed=%d,handoff_delay_ms=%u,lost_timeout_min_ms=%u,lost_timeout_max_ms=%u,real_io=%d",
-                     (unsigned)sorter_scheduler_active_count(&s_scheduler), s_config.motor_a_speed_percent,
-                     s_config.motor_b_speed_percent, s_config.motor_c_speed_percent, (unsigned)s_config.handoff_delay_ms,
-                     (unsigned)s_config.lost_timeout_min_ms, (unsigned)s_config.lost_timeout_max_ms, s_real_io_enabled ? 1 : 0);
-        } else {
-            snprintf(out, sizeof(out), "STATUS,packages=%u,state=running,reason=config,a_speed=%d,b_speed=%d,c_speed=%d,handoff_delay_ms=%u,lost_timeout_min_ms=%u,lost_timeout_max_ms=%u",
-                     (unsigned)sorter_scheduler_active_count(&s_scheduler), s_config.motor_a_speed_percent,
-                     s_config.motor_b_speed_percent, s_config.motor_c_speed_percent, (unsigned)s_config.handoff_delay_ms,
-                     (unsigned)s_config.lost_timeout_min_ms, (unsigned)s_config.lost_timeout_max_ms);
-        }
+        apply_settings_locked(&settings);
+        char out[320];
+        snprintf(out, sizeof(out), "STATUS,packages=%u,state=running,reason=config,mode=%s,a_speed=%d,b_speed=%d,c_speed=%d,handoff_delay_ms=%u,a_timeout_ms=%u,b_timeout_ms=%u,c_timeout_ms=%u,motor_output=%d,sensor_input=%d,real_io=%d",
+                 (unsigned)sorter_scheduler_active_count(&s_scheduler), debug_mode_name(s_debug_mode),
+                 s_config.motor_a_speed_percent, s_config.motor_b_speed_percent, s_config.motor_c_speed_percent,
+                 (unsigned)s_config.handoff_delay_ms, (unsigned)s_config.belt_a_timeout_ms,
+                 (unsigned)s_config.belt_b_timeout_ms, (unsigned)s_config.belt_c_timeout_ms,
+                 s_motor_output_enabled ? 1 : 0, s_sensor_input_enabled ? 1 : 0, s_real_io_enabled ? 1 : 0);
         send_line(send_fn, send_ctx, out);
         RETURN_UNLOCK();
     }
@@ -300,6 +412,7 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
         sorter_scheduler_estop(&s_scheduler, parse_int_field(buf, "state=", 0) != 0); RETURN_UNLOCK();
     }
     if (strncmp(buf, "PACKAGE_NEW", 11) == 0) {
+        if (!external_sim_input_allowed()) { ESP_LOGI(TAG, "ignore simulated PACKAGE_NEW while mode=%s", debug_mode_name(s_debug_mode)); RETURN_UNLOCK(); }
         int id = parse_int_field(buf, "id=", 0);
         if (id <= 0) id = s_next_package_id++;
         else if (id >= s_next_package_id) s_next_package_id = id + 1;
@@ -309,9 +422,11 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
         send_line(send_fn, send_ctx, "STATUS,packages=0,state=running,reason=legacy_package_lost_rejected"); RETURN_UNLOCK();
     }
     if (strncmp(buf, "VISION_RESULT", 13) == 0) {
+        if (!external_sim_input_allowed()) { ESP_LOGI(TAG, "ignore simulated VISION_RESULT while mode=%s", debug_mode_name(s_debug_mode)); RETURN_UNLOCK(); }
         sorter_scheduler_vision_result(&s_scheduler, parse_int_field(buf, "id=", 0), parse_vision_class(buf)); RETURN_UNLOCK();
     }
     if (strncmp(buf, "VISION_FRAME", 12) == 0) {
+        if (!external_sim_input_allowed()) { ESP_LOGI(TAG, "ignore simulated VISION_FRAME while mode=%s", debug_mode_name(s_debug_mode)); RETURN_UNLOCK(); }
         bool s1_active = parse_int_field(buf, "s1=", 0) != 0;
         sorter_package_class_t cls = parse_vision_class(buf);
         if (s1_active && !s_vision_s1_active) {
@@ -329,7 +444,7 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
         s_vision_s1_active = s1_active; RETURN_UNLOCK();
     }
     if (strncmp(buf, "SENSOR", 6) == 0) {
-        if (s_real_io_enabled) { ESP_LOGI(TAG, "ignore simulated SENSOR while real_io=1"); RETURN_UNLOCK(); }
+        if (!external_sim_input_allowed()) { ESP_LOGI(TAG, "ignore simulated SENSOR while mode=%s", debug_mode_name(s_debug_mode)); RETURN_UNLOCK(); }
         int sensor_id = parse_int_field(buf, "id=", 0);
         bool active = parse_int_field(buf, "state=", 0) != 0;
         int package_id = parse_int_field(buf, "package=", 0);
@@ -343,7 +458,7 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
         RETURN_UNLOCK();
     }
     if (strncmp(buf, "DISTANCE", 8) == 0) {
-        if (s_real_io_enabled) { ESP_LOGI(TAG, "ignore simulated DISTANCE while real_io=1"); RETURN_UNLOCK(); }
+        if (!external_sim_input_allowed()) { ESP_LOGI(TAG, "ignore simulated DISTANCE while mode=%s", debug_mode_name(s_debug_mode)); RETURN_UNLOCK(); }
         sorter_scheduler_distance(&s_scheduler, parse_int_field(buf, "motor=", 0), parse_float_field(buf, "dist=", 0));
         RETURN_UNLOCK();
     }
@@ -357,6 +472,66 @@ void sorting_sim_control_tick(sorting_sim_send_fn_t send_fn, void *send_ctx)
     ensure_initialized();
     lock_control();
     set_scheduler_sender_locked(send_fn, send_ctx);
+    sorter_scheduler_tick(&s_scheduler);
+    unlock_control();
+}
+
+void sorting_sim_control_get_settings(sorting_debug_settings_t *settings)
+{
+    ensure_initialized();
+    lock_control();
+    fill_settings_locked(settings);
+    unlock_control();
+}
+
+void sorting_sim_control_apply_settings(const sorting_debug_settings_t *settings)
+{
+    ensure_initialized();
+    lock_control();
+    apply_settings_locked(settings);
+    unlock_control();
+}
+
+void sorting_sim_control_set_mode(sorting_debug_mode_t mode)
+{
+    sorting_debug_settings_t settings;
+    sorting_sim_control_get_settings(&settings);
+    settings.mode = mode;
+    sorting_sim_control_apply_settings(&settings);
+}
+
+void sorting_sim_control_set_motor_output_enabled(bool enabled)
+{
+    sorting_debug_settings_t settings;
+    sorting_sim_control_get_settings(&settings);
+    settings.motor_output_enabled = enabled;
+    sorting_sim_control_apply_settings(&settings);
+}
+
+void sorting_sim_control_set_sensor_input_enabled(bool enabled)
+{
+    sorting_debug_settings_t settings;
+    sorting_sim_control_get_settings(&settings);
+    settings.sensor_input_enabled = enabled;
+    if (!enabled && settings.mode == SORTING_DEBUG_MODE_REAL_SENSOR) {
+        settings.mode = SORTING_DEBUG_MODE_TIMED_ONLY;
+    }
+    sorting_sim_control_apply_settings(&settings);
+}
+
+void sorting_sim_control_simulate_class(sorter_package_class_t cls, sorting_sim_send_fn_t send_fn, void *send_ctx)
+{
+    ensure_initialized();
+    lock_control();
+    set_scheduler_sender_locked(send_fn, send_ctx);
+    fail_current_vision_window();
+    int id = s_next_package_id++;
+    s_vision_package_id = id;
+    s_vision_classified = true;
+    s_vision_failed_seen = cls == SORTER_CLASS_ERROR || cls == SORTER_CLASS_VISION_FAILED;
+    s_vision_s1_active = false;
+    sorter_scheduler_package_new(&s_scheduler, id);
+    sorter_scheduler_vision_result(&s_scheduler, id, cls);
     sorter_scheduler_tick(&s_scheduler);
     unlock_control();
 }
@@ -419,10 +594,14 @@ static void debug_task(void *arg)
 
 void sorting_sim_debug_start(void)
 {
+#if SORTER_DEBUG_ENABLE_USB_SERIAL
     if (s_debug_task) return;
     usb_serial_jtag_driver_config_t config = { .rx_buffer_size = 512, .tx_buffer_size = 512 };
     esp_err_t ret = usb_serial_jtag_driver_install(&config);
     if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE)
         ESP_LOGW(TAG, "USB Serial/JTAG debug driver install failed: %s", esp_err_to_name(ret));
     xTaskCreatePinnedToCore(debug_task, "sort_dbg", 4096, NULL, 3, &s_debug_task, 0);
+#else
+    ESP_LOGI(TAG, "USB Serial/JTAG sorter debug disabled");
+#endif
 }

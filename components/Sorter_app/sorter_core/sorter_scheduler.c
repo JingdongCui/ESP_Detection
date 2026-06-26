@@ -9,6 +9,7 @@ static int64_t now_ms(void) { return esp_timer_get_time() / 1000; }
 static void schedule(sorter_scheduler_t *s);
 static bool service_state_timeouts(sorter_scheduler_t *s);
 static void service_pending_transfers(sorter_scheduler_t *s);
+static uint32_t timeout_for_state(const sorter_scheduler_t *s, sorter_package_state_t state);
 
 void sorter_config_default(sorter_config_t *c)
 {
@@ -20,6 +21,7 @@ void sorter_config_default(sorter_config_t *c)
         .transfer_timeout_mm = 700.0f, .c_min_busy_ms = 2500,
         .c_fallback_busy_ms = 8000, .handoff_delay_ms = 1000,
         .lost_timeout_min_ms = 3000, .lost_timeout_max_ms = 6000,
+        .belt_a_timeout_ms = 2000, .belt_b_timeout_ms = 750, .belt_c_timeout_ms = 750,
         .motor_a_speed_percent = 30, .motor_b_speed_percent = 35,
         .motor_c_speed_percent = 35, .max_packages = SORTER_MAX_PACKAGES,
     };
@@ -42,7 +44,14 @@ void sorter_scheduler_reset(sorter_scheduler_t *s)
     s->send_ctx = send_ctx;
 }
 
-void sorter_scheduler_configure(sorter_scheduler_t *s, const sorter_config_t *c) { s->config = *c; }
+void sorter_scheduler_configure(sorter_scheduler_t *s, const sorter_config_t *c)
+{
+    s->config = *c;
+    for (int i = 0; i < SORTER_MAX_PACKAGES; ++i) {
+        sorter_package_track_t *p = &s->tracks[i];
+        if (p->occupied) p->state_timeout_ms = timeout_for_state(s, p->state);
+    }
+}
 void sorter_scheduler_set_sender(sorter_scheduler_t *s, sorter_send_fn_t fn, void *ctx) { s->send_fn = fn; s->send_ctx = ctx; }
 
 size_t sorter_scheduler_active_count(const sorter_scheduler_t *s)
@@ -166,9 +175,15 @@ static uint32_t timeout_for_speed(const sorter_scheduler_t *s, int speed)
 
 static uint32_t timeout_for_state(const sorter_scheduler_t *s, sorter_package_state_t state)
 {
-    if (state == SORTER_STATE_WAITING_VISION || state == SORTER_STATE_WAITING_AB) return timeout_for_speed(s, s->config.motor_a_speed_percent);
-    if (state == SORTER_STATE_HOLDING_AT_S2 || state == SORTER_STATE_ON_B_TO_CLASS1 || state == SORTER_STATE_ON_B_TO_S4) return timeout_for_speed(s, s->config.motor_b_speed_percent);
-    if (state == SORTER_STATE_HOLDING_AT_S4) return timeout_for_speed(s, s->config.motor_c_speed_percent);
+    if (state == SORTER_STATE_WAITING_VISION || state == SORTER_STATE_WAITING_AB) {
+        return s->config.belt_a_timeout_ms ? s->config.belt_a_timeout_ms : timeout_for_speed(s, s->config.motor_a_speed_percent);
+    }
+    if (state == SORTER_STATE_HOLDING_AT_S2 || state == SORTER_STATE_ON_B_TO_CLASS1 || state == SORTER_STATE_ON_B_TO_S4) {
+        return s->config.belt_b_timeout_ms ? s->config.belt_b_timeout_ms : timeout_for_speed(s, s->config.motor_b_speed_percent);
+    }
+    if (state == SORTER_STATE_HOLDING_AT_S4 || state == SORTER_STATE_ON_C_EXIT) {
+        return s->config.belt_c_timeout_ms ? s->config.belt_c_timeout_ms : timeout_for_speed(s, s->config.motor_c_speed_percent);
+    }
     return 0;
 }
 

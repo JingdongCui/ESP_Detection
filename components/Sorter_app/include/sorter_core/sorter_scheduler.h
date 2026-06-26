@@ -51,6 +51,9 @@ typedef struct {
     uint32_t handoff_delay_ms;
     uint32_t lost_timeout_min_ms;
     uint32_t lost_timeout_max_ms;
+    uint32_t belt_a_timeout_ms;
+    uint32_t belt_b_timeout_ms;
+    uint32_t belt_c_timeout_ms;
     int motor_a_speed_percent;
     int motor_b_speed_percent;
     int motor_c_speed_percent;

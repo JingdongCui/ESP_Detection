@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "bsp_motor.h"
+#include "sorter_debug_config.h"
 #include "driver/gpio.h"
 #include "driver/mcpwm_prelude.h"
 #include "esp_check.h"
@@ -17,13 +18,6 @@
 #define BSP_MOTOR_PWM_COMPARE_MAX 100                        //比较器的最大值
 #define BSP_MOTOR_PWM_PERIOD_TICKS BSP_MOTOR_PWM_COMPARE_MAX //PWM 周期对应的计数器 ticks
 #define BSP_MOTOR_PWM_TIMER_RESOLUTION_HZ (BSP_MOTOR_PWM_FREQ_HZ * BSP_MOTOR_PWM_PERIOD_TICKS) //定时器分辨率
-
-#define BSP_MOTOR0_PWM_A_GPIO -1
-#define BSP_MOTOR0_PWM_B_GPIO -1
-#define BSP_MOTOR1_PWM_A_GPIO -1
-#define BSP_MOTOR1_PWM_B_GPIO -1
-#define BSP_MOTOR2_PWM_A_GPIO -1
-#define BSP_MOTOR2_PWM_B_GPIO -1
 
 static const char *TAG = "bsp_motor";
 
@@ -43,9 +37,15 @@ typedef struct {
 
 // 三个电机的双路 PWM 引脚配置；当前用 -1 占位，后续接线确定后改这里的宏。
 static const bsp_motor_gpio_config_t s_motor_gpio_configs[3] = {
-    { .pwm_a_gpio = BSP_MOTOR0_PWM_A_GPIO, .pwm_b_gpio = BSP_MOTOR0_PWM_B_GPIO },
-    { .pwm_a_gpio = BSP_MOTOR1_PWM_A_GPIO, .pwm_b_gpio = BSP_MOTOR1_PWM_B_GPIO },
-    { .pwm_a_gpio = BSP_MOTOR2_PWM_A_GPIO, .pwm_b_gpio = BSP_MOTOR2_PWM_B_GPIO },
+    { .pwm_a_gpio = SORTER_MOTOR0_PWM_A_GPIO, .pwm_b_gpio = SORTER_MOTOR0_PWM_B_GPIO },
+    { .pwm_a_gpio = SORTER_MOTOR1_PWM_A_GPIO, .pwm_b_gpio = SORTER_MOTOR1_PWM_B_GPIO },
+    { .pwm_a_gpio = SORTER_MOTOR2_PWM_A_GPIO, .pwm_b_gpio = SORTER_MOTOR2_PWM_B_GPIO },
+};
+
+static const bool s_motor_reverse[3] = {
+    SORTER_MOTOR0_REVERSE != 0,
+    SORTER_MOTOR1_REVERSE != 0,
+    SORTER_MOTOR2_REVERSE != 0,
 };
 
 static bsp_motor_mcpwm_t s_motors[3];
@@ -185,10 +185,14 @@ esp_err_t bsp_motor_set_speed_direction(uint8_t motor_id, uint32_t speed, uint8_
 {
     ESP_RETURN_ON_FALSE(direction <= 1, ESP_ERR_INVALID_ARG, TAG, "invalid motor direction: %u", direction);
     ESP_RETURN_ON_ERROR(validate_compare_value(speed), TAG, "motor speed validation failed");
+    ESP_RETURN_ON_ERROR(validate_motor_id(motor_id), TAG, "motor id validation failed");
+
+    if (s_motor_reverse[motor_id]) {
+        direction = direction ? 0 : 1;
+    }
 
     if (direction == 0) {
         return bsp_motor_set_compare(motor_id, 0, speed);
     }
     return bsp_motor_set_compare(motor_id, speed, 0);
 }
-

@@ -1,5 +1,6 @@
 #include "bsp_sort_sensor.h"
 
+#include "sorter_debug_config.h"
 #include "driver/gpio.h"
 #include "esp_check.h"
 #include "esp_log.h"
@@ -17,19 +18,19 @@
 #endif
 
 #define BSP_SORT_SENSOR_COUNT 3
-#define BSP_SORT_SENSOR_ACTIVE_LEVEL 1
 
 static const char *TAG = "bsp_sort_sensor";
 
 typedef struct {
     bsp_sort_sensor_id_t id;
     int gpio;
+    int active_level;
 } bsp_sort_sensor_gpio_config_t;
 
 static const bsp_sort_sensor_gpio_config_t s_sensor_gpio_configs[BSP_SORT_SENSOR_COUNT] = {
-    { .id = BSP_SORT_SENSOR_S2, .gpio = CONFIG_SORT_SENSOR_S2_GPIO },
-    { .id = BSP_SORT_SENSOR_S3, .gpio = CONFIG_SORT_SENSOR_S3_GPIO },
-    { .id = BSP_SORT_SENSOR_S4, .gpio = CONFIG_SORT_SENSOR_S4_GPIO },
+    { .id = BSP_SORT_SENSOR_S2, .gpio = SORTER_SENSOR_S2_GPIO, .active_level = SORTER_SENSOR_S2_ACTIVE_LEVEL },
+    { .id = BSP_SORT_SENSOR_S3, .gpio = SORTER_SENSOR_S3_GPIO, .active_level = SORTER_SENSOR_S3_ACTIVE_LEVEL },
+    { .id = BSP_SORT_SENSOR_S4, .gpio = SORTER_SENSOR_S4_GPIO, .active_level = SORTER_SENSOR_S4_ACTIVE_LEVEL },
 };
 
 static bool s_initialized;
@@ -67,7 +68,8 @@ esp_err_t bsp_sort_sensor_init(void)
             .intr_type = GPIO_INTR_DISABLE,
         };
         ESP_RETURN_ON_ERROR(gpio_config(&io_config), TAG, "configure sort sensor S%u failed", (unsigned)config->id);
-        ESP_LOGI(TAG, "sort sensor S%u configured on GPIO %d, active high", (unsigned)config->id, config->gpio);
+        ESP_LOGI(TAG, "sort sensor S%u configured on GPIO %d, active level %d",
+                 (unsigned)config->id, config->gpio, config->active_level);
     }
 
     s_initialized = true;
@@ -87,6 +89,6 @@ esp_err_t bsp_sort_sensor_get_state(bsp_sort_sensor_id_t sensor_id, bool *active
         return ESP_ERR_NOT_FOUND;
     }
 
-    *active = gpio_get_level(config->gpio) == BSP_SORT_SENSOR_ACTIVE_LEVEL;
+    *active = gpio_get_level(config->gpio) == config->active_level;
     return ESP_OK;
 }
