@@ -1,0 +1,28 @@
+# 构建产物
+build/
+
+# Agent/AI 本地工具
+agentic/
+skills/
+Skills/
+.agents/
+.codex/
+.claude/
+AGENTS.md
+esp-agent.sh
+test-full-toolchain.sh
+
+# 编辑器/IDE 本地配置
+.vscode/
+
+# 临时缓存
+.cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 系统文件
+.DS_Store
+Thumbs.db
