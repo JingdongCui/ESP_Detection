@@ -28,8 +28,8 @@ typedef struct {
 
 typedef struct {
     bool motor_test_running;
-    bool sensor_valid[3];
-    bool sensor_active[3];
+    bool sensor_valid[4];
+    bool sensor_active[4];
     bool encoder_valid[3];
     float encoder_distance_mm[3];
 } sorting_hardware_status_t;

@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 typedef enum {
+    BSP_SORT_SENSOR_S1 = 1,
     BSP_SORT_SENSOR_S2 = 2,
     BSP_SORT_SENSOR_S3 = 3,
     BSP_SORT_SENSOR_S4 = 4,

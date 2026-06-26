@@ -69,6 +69,7 @@ static void ensure_hardware_observer_locked(void);
 static void fill_hardware_status_locked(sorting_hardware_status_t *status);
 static void clear_encoder_distance_locked(int index);
 static void start_motor_test_locked(void);
+static void update_vision_s1_locked(bool active);
 
 static void ensure_initialized(void)
 {
@@ -182,7 +183,7 @@ static void reset_control_locked(void)
 static void real_io_task(void *arg)
 {
     (void)arg;
-    const bsp_sort_sensor_id_t sensor_ids[] = { BSP_SORT_SENSOR_S2, BSP_SORT_SENSOR_S3, BSP_SORT_SENSOR_S4 };
+    const bsp_sort_sensor_id_t sensor_ids[] = { BSP_SORT_SENSOR_S1, BSP_SORT_SENSOR_S2, BSP_SORT_SENSOR_S3, BSP_SORT_SENSOR_S4 };
     while (true) {
         if (!s_real_io_enabled && !s_hardware_observer_enabled) { vTaskDelay(pdMS_TO_TICKS(100)); continue; }
         int64_t now = esp_timer_get_time() / 1000;
@@ -201,6 +202,9 @@ static void real_io_task(void *arg)
                     state->raw = active; state->stable = active; state->raw_changed_ms = now; state->initialized = true;
                     lock_control();
                     s_sensor_valid[(size_t)sensor_id] = valid;
+                    if (real_sensor_input_allowed() && valid && sensor_id == BSP_SORT_SENSOR_S1 && active) {
+                        update_vision_s1_locked(active);
+                    }
                     unlock_control();
                     continue;
                 }
@@ -210,7 +214,11 @@ static void real_io_task(void *arg)
                     lock_control();
                     s_sensor_valid[(size_t)sensor_id] = valid;
                     if (real_sensor_input_allowed() && valid) {
-                        sorter_scheduler_sensor(&s_scheduler, (int)sensor_id, state->stable, 0);
+                        if (sensor_id == BSP_SORT_SENSOR_S1) {
+                            update_vision_s1_locked(state->stable);
+                        } else {
+                            sorter_scheduler_sensor(&s_scheduler, (int)sensor_id, state->stable, 0);
+                        }
                     }
                     unlock_control();
                 } else {
@@ -388,6 +396,35 @@ static void fail_current_vision_window(void)
     s_vision_classified = true;
 }
 
+static void open_vision_window_locked(void)
+{
+    fail_current_vision_window();
+    s_vision_package_id = s_next_package_id++;
+    s_vision_classified = false;
+    s_vision_failed_seen = false;
+    sorter_scheduler_package_new(&s_scheduler, s_vision_package_id);
+}
+
+static void update_vision_s1_locked(bool active)
+{
+    if (active && !s_vision_s1_active) {
+        open_vision_window_locked();
+    }
+    s_vision_s1_active = active;
+}
+
+static void classify_current_vision_window_locked(sorter_package_class_t cls)
+{
+    if (s_vision_package_id <= 0 || s_vision_classified) return;
+    if (is_success_class(cls)) {
+        sorter_scheduler_vision_result(&s_scheduler, s_vision_package_id, cls);
+        s_vision_classified = true;
+    } else if (cls == SORTER_CLASS_ERROR) {
+        s_vision_failed_seen = true;
+        fail_current_vision_window();
+    }
+}
+
 void sorting_sim_control_reset(void)
 {
     ensure_initialized();
@@ -462,26 +499,28 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
         send_line(send_fn, send_ctx, "STATUS,packages=0,state=running,reason=legacy_package_lost_rejected"); RETURN_UNLOCK();
     }
     if (strncmp(buf, "VISION_RESULT", 13) == 0) {
-        if (!external_sim_input_allowed()) { ESP_LOGI(TAG, "ignore simulated VISION_RESULT while mode=%s", debug_mode_name(s_debug_mode)); RETURN_UNLOCK(); }
-        sorter_scheduler_vision_result(&s_scheduler, parse_int_field(buf, "id=", 0), parse_vision_class(buf)); RETURN_UNLOCK();
+        sorter_package_class_t cls = parse_vision_class(buf);
+        if (external_sim_input_allowed()) {
+            sorter_scheduler_vision_result(&s_scheduler, parse_int_field(buf, "id=", 0), cls);
+        } else if (real_sensor_input_allowed()) {
+            classify_current_vision_window_locked(cls);
+        } else {
+            ESP_LOGI(TAG, "ignore VISION_RESULT while mode=%s", debug_mode_name(s_debug_mode));
+        }
+        RETURN_UNLOCK();
     }
     if (strncmp(buf, "VISION_FRAME", 12) == 0) {
-        if (!external_sim_input_allowed()) { ESP_LOGI(TAG, "ignore simulated VISION_FRAME while mode=%s", debug_mode_name(s_debug_mode)); RETURN_UNLOCK(); }
         bool s1_active = parse_int_field(buf, "s1=", 0) != 0;
         sorter_package_class_t cls = parse_vision_class(buf);
-        if (s1_active && !s_vision_s1_active) {
-            fail_current_vision_window(); s_vision_package_id = s_next_package_id++;
-            s_vision_classified = false; s_vision_failed_seen = false;
-            sorter_scheduler_package_new(&s_scheduler, s_vision_package_id);
+        if (external_sim_input_allowed()) {
+            update_vision_s1_locked(s1_active);
+            classify_current_vision_window_locked(cls);
+        } else if (real_sensor_input_allowed()) {
+            classify_current_vision_window_locked(cls);
+        } else {
+            ESP_LOGI(TAG, "ignore VISION_FRAME while mode=%s", debug_mode_name(s_debug_mode));
         }
-        if (s_vision_package_id > 0 && !s_vision_classified) {
-            if (is_success_class(cls)) {
-                sorter_scheduler_vision_result(&s_scheduler, s_vision_package_id, cls); s_vision_classified = true;
-            } else if (cls == SORTER_CLASS_ERROR) {
-                s_vision_failed_seen = true; fail_current_vision_window();
-            }
-        }
-        s_vision_s1_active = s1_active; RETURN_UNLOCK();
+        RETURN_UNLOCK();
     }
     if (strncmp(buf, "SENSOR", 6) == 0) {
         if (!external_sim_input_allowed()) { ESP_LOGI(TAG, "ignore simulated SENSOR while mode=%s", debug_mode_name(s_debug_mode)); RETURN_UNLOCK(); }
@@ -510,12 +549,12 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
     if (strncmp(buf, "HW_STATUS", 9) == 0) {
         sorting_hardware_status_t status;
         fill_hardware_status_locked(&status);
-        char out[192];
+        char out[224];
         snprintf(out, sizeof(out),
-                 "HW_STATUS,mtest=%d,s2=%d,s3=%d,s4=%d,s2_valid=%d,s3_valid=%d,s4_valid=%d,enc_a=%.1f,enc_b=%.1f,enc_c=%.1f,enc_a_valid=%d,enc_b_valid=%d,enc_c_valid=%d",
+                 "HW_STATUS,mtest=%d,s1=%d,s2=%d,s3=%d,s4=%d,s1_valid=%d,s2_valid=%d,s3_valid=%d,s4_valid=%d,enc_a=%.1f,enc_b=%.1f,enc_c=%.1f,enc_a_valid=%d,enc_b_valid=%d,enc_c_valid=%d",
                  status.motor_test_running ? 1 : 0,
-                 status.sensor_active[0] ? 1 : 0, status.sensor_active[1] ? 1 : 0, status.sensor_active[2] ? 1 : 0,
-                 status.sensor_valid[0] ? 1 : 0, status.sensor_valid[1] ? 1 : 0, status.sensor_valid[2] ? 1 : 0,
+                 status.sensor_active[0] ? 1 : 0, status.sensor_active[1] ? 1 : 0, status.sensor_active[2] ? 1 : 0, status.sensor_active[3] ? 1 : 0,
+                 status.sensor_valid[0] ? 1 : 0, status.sensor_valid[1] ? 1 : 0, status.sensor_valid[2] ? 1 : 0, status.sensor_valid[3] ? 1 : 0,
                  (double)status.encoder_distance_mm[0], (double)status.encoder_distance_mm[1], (double)status.encoder_distance_mm[2],
                  status.encoder_valid[0] ? 1 : 0, status.encoder_valid[1] ? 1 : 0, status.encoder_valid[2] ? 1 : 0);
         send_line(send_fn, send_ctx, out);
@@ -607,13 +646,15 @@ static void fill_hardware_status_locked(sorting_hardware_status_t *status)
     ensure_hardware_observer_locked();
     memset(status, 0, sizeof(*status));
     status->motor_test_running = s_motor_test_running;
-    const int sensor_ids[3] = { BSP_SORT_SENSOR_S2, BSP_SORT_SENSOR_S3, BSP_SORT_SENSOR_S4 };
-    for (int i = 0; i < 3; ++i) {
+    const int sensor_ids[4] = { BSP_SORT_SENSOR_S1, BSP_SORT_SENSOR_S2, BSP_SORT_SENSOR_S3, BSP_SORT_SENSOR_S4 };
+    for (int i = 0; i < 4; ++i) {
         int sensor_id = sensor_ids[i];
         status->sensor_valid[i] = s_sensor_valid[sensor_id];
         status->sensor_active[i] = s_real_sensors[sensor_id].stable;
-        status->encoder_valid[i] = s_encoder_valid[i];
-        status->encoder_distance_mm[i] = s_encoder_distance_mm[i];
+        if (i < 3) {
+            status->encoder_valid[i] = s_encoder_valid[i];
+            status->encoder_distance_mm[i] = s_encoder_distance_mm[i];
+        }
     }
 }
 
@@ -704,6 +745,14 @@ static int serial_send(void *ctx, const char *line)
     printf("SIMOUT %s\n", line); fflush(stdout); return 0;
 }
 
+static void debug_wait_and_tick(uint32_t wait_ms)
+{
+    if (wait_ms > 0) {
+        vTaskDelay(pdMS_TO_TICKS(wait_ms));
+    }
+    sorting_sim_control_tick(serial_send, NULL);
+}
+
 static void run_debug_script(const char *name, int cls)
 {
     char line[96];
@@ -714,13 +763,29 @@ static void run_debug_script(const char *name, int cls)
     sorting_sim_control_handle_line(line, strlen(line), serial_send, NULL);
     sorting_sim_control_handle_line("VISION_FRAME,s1=0,free=0,class=none", strlen("VISION_FRAME,s1=0,free=0,class=none"), serial_send, NULL);
     sorting_sim_control_handle_line("SENSOR,id=2,state=1", strlen("SENSOR,id=2,state=1"), serial_send, NULL);
+    sorting_sim_control_handle_line("SENSOR,id=2,state=0", strlen("SENSOR,id=2,state=0"), serial_send, NULL);
+    debug_wait_and_tick(s_config.handoff_delay_ms + 100);
     if (cls == 1) sorting_sim_control_handle_line("SENSOR,id=3,state=1", strlen("SENSOR,id=3,state=1"), serial_send, NULL);
     else {
         sorting_sim_control_handle_line("SENSOR,id=4,state=1", strlen("SENSOR,id=4,state=1"), serial_send, NULL);
+        sorting_sim_control_handle_line("SENSOR,id=4,state=0", strlen("SENSOR,id=4,state=0"), serial_send, NULL);
+        debug_wait_and_tick(s_config.handoff_delay_ms + 100);
         sorting_sim_control_handle_line("DISTANCE,motor=3,dist=0.0", strlen("DISTANCE,motor=3,dist=0.0"), serial_send, NULL);
+        debug_wait_and_tick(s_config.c_min_busy_ms + 100);
         sorting_sim_control_handle_line("DISTANCE,motor=3,dist=370.0", strlen("DISTANCE,motor=3,dist=370.0"), serial_send, NULL);
     }
     printf("SIMTEST %s end\n", name); fflush(stdout);
+}
+
+static void serial_tick_active(void)
+{
+    ensure_initialized();
+    lock_control();
+    if (sorter_scheduler_active_count(&s_scheduler) > 0) {
+        set_scheduler_sender_locked(serial_send, NULL);
+        sorter_scheduler_tick(&s_scheduler);
+    }
+    unlock_control();
 }
 
 static void debug_task(void *arg)
@@ -728,28 +793,35 @@ static void debug_task(void *arg)
     (void)arg;
     char line[192];
     size_t len = 0;
+    int64_t next_tick_ms = 0;
     printf("\nSORTDBG ready. Commands: help, reset, test1, test2, test3, or raw protocol lines.\n"); fflush(stdout);
     while (true) {
         uint8_t bytes[32];
         int got = usb_serial_jtag_read_bytes(bytes, sizeof(bytes), pdMS_TO_TICKS(100));
-        if (got <= 0) continue;
-        for (int i = 0; i < got; ++i) {
-            int ch = bytes[i];
-            if (ch == '\r' || ch == '\n') {
-                line[len] = '\0';
-                if (len > 0) {
-                    if (strcmp(line, "help") == 0) sorting_sim_control_handle_line("HELP", 4, serial_send, NULL);
-                    else if (strcmp(line, "reset") == 0) sorting_sim_control_handle_line("RESET", 5, serial_send, NULL);
-                    else if (strcmp(line, "test1") == 0) run_debug_script("class1", 1);
-                    else if (strcmp(line, "test2") == 0) run_debug_script("class2", 2);
-                    else if (strcmp(line, "test3") == 0) run_debug_script("class3", 3);
-                    else sorting_sim_control_handle_line(line, len, serial_send, NULL);
+        if (got > 0) {
+            for (int i = 0; i < got; ++i) {
+                int ch = bytes[i];
+                if (ch == '\r' || ch == '\n') {
+                    line[len] = '\0';
+                    if (len > 0) {
+                        if (strcmp(line, "help") == 0) sorting_sim_control_handle_line("HELP", 4, serial_send, NULL);
+                        else if (strcmp(line, "reset") == 0) sorting_sim_control_handle_line("RESET", 5, serial_send, NULL);
+                        else if (strcmp(line, "test1") == 0) run_debug_script("class1", 1);
+                        else if (strcmp(line, "test2") == 0) run_debug_script("class2", 2);
+                        else if (strcmp(line, "test3") == 0) run_debug_script("class3", 3);
+                        else sorting_sim_control_handle_line(line, len, serial_send, NULL);
+                    }
+                    len = 0;
+                } else if (len < sizeof(line) - 1) {
+                    if (ch == 8 || ch == 127) { if (len > 0) --len; }
+                    else line[len++] = (char)ch;
                 }
-                len = 0;
-            } else if (len < sizeof(line) - 1) {
-                if (ch == 8 || ch == 127) { if (len > 0) --len; }
-                else line[len++] = (char)ch;
             }
+        }
+        int64_t now_ms = esp_timer_get_time() / 1000;
+        if (now_ms >= next_tick_ms) {
+            serial_tick_active();
+            next_tick_ms = now_ms + 100;
         }
     }
 }

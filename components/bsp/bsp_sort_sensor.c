@@ -5,6 +5,10 @@
 #include "esp_check.h"
 #include "esp_log.h"
 
+#ifndef CONFIG_SORT_SENSOR_S1_GPIO
+#define CONFIG_SORT_SENSOR_S1_GPIO -1
+#endif
+
 #ifndef CONFIG_SORT_SENSOR_S2_GPIO
 #define CONFIG_SORT_SENSOR_S2_GPIO -1
 #endif
@@ -17,7 +21,7 @@
 #define CONFIG_SORT_SENSOR_S4_GPIO -1
 #endif
 
-#define BSP_SORT_SENSOR_COUNT 3
+#define BSP_SORT_SENSOR_COUNT 4
 
 static const char *TAG = "bsp_sort_sensor";
 
@@ -28,6 +32,7 @@ typedef struct {
 } bsp_sort_sensor_gpio_config_t;
 
 static const bsp_sort_sensor_gpio_config_t s_sensor_gpio_configs[BSP_SORT_SENSOR_COUNT] = {
+    { .id = BSP_SORT_SENSOR_S1, .gpio = SORTER_SENSOR_S1_GPIO, .active_level = SORTER_SENSOR_S1_ACTIVE_LEVEL },
     { .id = BSP_SORT_SENSOR_S2, .gpio = SORTER_SENSOR_S2_GPIO, .active_level = SORTER_SENSOR_S2_ACTIVE_LEVEL },
     { .id = BSP_SORT_SENSOR_S3, .gpio = SORTER_SENSOR_S3_GPIO, .active_level = SORTER_SENSOR_S3_ACTIVE_LEVEL },
     { .id = BSP_SORT_SENSOR_S4, .gpio = SORTER_SENSOR_S4_GPIO, .active_level = SORTER_SENSOR_S4_ACTIVE_LEVEL },

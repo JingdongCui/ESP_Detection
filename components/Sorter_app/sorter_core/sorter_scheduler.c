@@ -229,6 +229,15 @@ static bool s2_blocks_a(const sorter_scheduler_t *s)
     return false;
 }
 
+static bool s2_clearing_a(const sorter_scheduler_t *s)
+{
+    for (int i = 0; i < SORTER_MAX_PACKAGES; ++i) {
+        const sorter_package_track_t *p = &s->tracks[i];
+        if (p->occupied && p->state == SORTER_STATE_HOLDING_AT_S2 && p->handoff_ready_ms == 0 && s->b_owner == p->id) return true;
+    }
+    return false;
+}
+
 static bool release_s2_to_b(sorter_scheduler_t *s, sorter_package_track_t *p)
 {
     if (p->state != SORTER_STATE_HOLDING_AT_S2 || p->handoff_ready_ms != 0) return false;
@@ -479,7 +488,7 @@ static void schedule(sorter_scheduler_t *s)
 {
     if (s->estop || s->paused_after_estop) return;
     service_pending_transfers(s);
-    bool should_run = !s2_blocks_a(s), has_package = false, movable = false;
+    bool should_run = !s2_blocks_a(s), has_package = false, movable = s2_clearing_a(s);
     if (should_run) {
         for (int i = 0; i < SORTER_MAX_PACKAGES; ++i) {
             sorter_package_track_t *p = &s->tracks[i];

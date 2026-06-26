@@ -48,6 +48,13 @@ endmenu
 
 menu "Sorter Hardware IO"
 
+    config SORT_SENSOR_S1_GPIO
+        int "Sorter S1 vision trigger sensor GPIO (-1 = disabled)"
+        range -1 ENV_GPIO_IN_RANGE_MAX
+        default -1
+        help
+            GPIO for the S1 vision trigger sensor. The input is active high and debounced in software.
+
     config SORT_SENSOR_S2_GPIO
         int "Sorter S2 sensor GPIO (-1 = disabled)"
         range -1 ENV_GPIO_IN_RANGE_MAX
