@@ -78,6 +78,7 @@ lv_obj_t * scr_dashboard_label_text_log = NULL;
 lv_obj_t * scr_dashboard_cont_under1 = NULL;
 lv_obj_t * scr_dashboard_cont_log_line = NULL;
 lv_obj_t * scr_dashboard_cont_set = NULL;
+lv_obj_t * scr_dashboard_cont_sys_debug = NULL;
 lv_obj_t * scr_dashboard_cont_bright = NULL;
 lv_obj_t * scr_dashboard_slider_bright = NULL;
 lv_obj_t * scr_dashboard_label_bright = NULL;
@@ -157,6 +158,12 @@ static lv_obj_t * scr_dashboard_debug_label_sensor = NULL;
 static lv_obj_t * scr_dashboard_debug_label_speed = NULL;
 static lv_obj_t * scr_dashboard_debug_label_delay = NULL;
 static lv_obj_t * scr_dashboard_debug_label_timeout = NULL;
+static lv_obj_t * scr_dashboard_debug_label_hw_sensors = NULL;
+static lv_obj_t * scr_dashboard_debug_label_enc_a = NULL;
+static lv_obj_t * scr_dashboard_debug_label_enc_b = NULL;
+static lv_obj_t * scr_dashboard_debug_label_enc_c = NULL;
+static lv_obj_t * scr_dashboard_debug_label_mtest = NULL;
+static lv_timer_t * scr_dashboard_debug_timer = NULL;
 static sorting_debug_settings_t s_dashboard_debug_settings;
 static void register_sys_events(event_table_t *table);
 static void init_states(void);
@@ -179,6 +186,9 @@ static void dashboard_debug_motor_event_handler(lv_event_t * e);
 static void dashboard_debug_sensor_event_handler(lv_event_t * e);
 static void dashboard_debug_adjust_event_handler(lv_event_t * e);
 static void dashboard_debug_sim_event_handler(lv_event_t * e);
+static void dashboard_debug_motor_test_event_handler(lv_event_t * e);
+static void dashboard_debug_encoder_clear_event_handler(lv_event_t * e);
+static void dashboard_debug_timer_cb(lv_timer_t *timer);
 static void create_dashboard_debug_panel(lv_obj_t *parent);
 static lv_obj_t * create_ui(void);
 
@@ -196,6 +206,7 @@ static void scr_dashboard_imgbtn_sys_event_handler(lv_event_t * e) {
         ui_flag_modify(scr_dashboard_cont_dashboard, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
         ui_flag_modify(scr_dashboard_cont_set, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
         ui_flag_modify(scr_dashboard_cont_log, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
+        ui_flag_modify(scr_dashboard_cont_sys_debug, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_REMOVE);
         lv_imgbtn_set_src(scr_dashboard_imgbtn_sys, LV_IMGBTN_STATE_CHECKED_RELEASED, NULL, &sys_a_212x66, NULL);
         ui_state_modify(scr_dashboard_imgbtn_sys, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
         lv_imgbtn_set_src(scr_dashboard_imgbtn_log, LV_IMGBTN_STATE_RELEASED, NULL, &logc_212x66, NULL);
@@ -218,6 +229,7 @@ static void scr_dashboard_imgbtn_log_event_handler(lv_event_t * e) {
         ui_flag_modify(scr_dashboard_cont_log, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_REMOVE);
         ui_flag_modify(scr_dashboard_cont_set, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
         ui_flag_modify(scr_dashboard_cont_dashboard, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
+        ui_flag_modify(scr_dashboard_cont_sys_debug, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
         lv_imgbtn_set_src(scr_dashboard_imgbtn_sys, LV_IMGBTN_STATE_RELEASED, NULL, &sysc_212x66, NULL);
         ui_state_modify(scr_dashboard_imgbtn_sys, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
         lv_imgbtn_set_src(scr_dashboard_imgbtn_log, LV_IMGBTN_STATE_CHECKED_RELEASED, NULL, &log_a_212x66, NULL);
@@ -240,6 +252,7 @@ static void scr_dashboard_imgbtn_set_event_handler(lv_event_t * e) {
         ui_flag_modify(scr_dashboard_cont_log, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
         ui_flag_modify(scr_dashboard_cont_set, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_REMOVE);
         ui_flag_modify(scr_dashboard_cont_dashboard, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
+        ui_flag_modify(scr_dashboard_cont_sys_debug, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
         lv_imgbtn_set_src(scr_dashboard_imgbtn_sys, LV_IMGBTN_STATE_RELEASED, NULL, &sysc_212x66, NULL);
         ui_state_modify(scr_dashboard_imgbtn_sys, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
         lv_imgbtn_set_src(scr_dashboard_imgbtn_log, LV_IMGBTN_STATE_RELEASED, NULL, &logc_212x66, NULL);
@@ -262,6 +275,7 @@ static void scr_dashboard_imgbtn_dash_event_handler(lv_event_t * e) {
         ui_flag_modify(scr_dashboard_cont_dashboard, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_REMOVE);
         ui_flag_modify(scr_dashboard_cont_set, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
         ui_flag_modify(scr_dashboard_cont_log, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
+        ui_flag_modify(scr_dashboard_cont_sys_debug, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
         lv_imgbtn_set_src(scr_dashboard_imgbtn_dash, LV_IMGBTN_STATE_CHECKED_RELEASED, NULL, &dash_a_212x66, NULL);
         ui_state_modify(scr_dashboard_imgbtn_dash, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
         lv_imgbtn_set_src(scr_dashboard_imgbtn_sys, LV_IMGBTN_STATE_RELEASED, NULL, &sysc_212x66, NULL);
@@ -536,9 +550,17 @@ static void dashboard_debug_apply(void)
     sorting_sim_control_get_settings(&s_dashboard_debug_settings);
 }
 
+static const char *dashboard_debug_state_text(bool valid, bool active)
+{
+    if (!valid) return "--";
+    return active ? "ON" : "OFF";
+}
+
 static void dashboard_debug_refresh(void)
 {
     sorting_sim_control_get_settings(&s_dashboard_debug_settings);
+    sorting_hardware_status_t hw_status;
+    sorting_sim_control_get_hardware_status(&hw_status);
     char text[96];
     snprintf(text, sizeof(text), "MODE %s", dashboard_debug_mode_text(s_dashboard_debug_settings.mode));
     lv_label_set_text(scr_dashboard_debug_label_mode, text);
@@ -558,6 +580,22 @@ static void dashboard_debug_refresh(void)
              (unsigned)s_dashboard_debug_settings.belt_timeout_ms[1],
              (unsigned)s_dashboard_debug_settings.belt_timeout_ms[2]);
     lv_label_set_text(scr_dashboard_debug_label_timeout, text);
+    snprintf(text, sizeof(text), "S2 %s  S3 %s  S4 %s",
+             dashboard_debug_state_text(hw_status.sensor_valid[0], hw_status.sensor_active[0]),
+             dashboard_debug_state_text(hw_status.sensor_valid[1], hw_status.sensor_active[1]),
+             dashboard_debug_state_text(hw_status.sensor_valid[2], hw_status.sensor_active[2]));
+    lv_label_set_text(scr_dashboard_debug_label_hw_sensors, text);
+    snprintf(text, sizeof(text), "ENC A %s%.1f mm", hw_status.encoder_valid[0] ? "" : "-- ",
+             (double)hw_status.encoder_distance_mm[0]);
+    lv_label_set_text(scr_dashboard_debug_label_enc_a, text);
+    snprintf(text, sizeof(text), "ENC B %s%.1f mm", hw_status.encoder_valid[1] ? "" : "-- ",
+             (double)hw_status.encoder_distance_mm[1]);
+    lv_label_set_text(scr_dashboard_debug_label_enc_b, text);
+    snprintf(text, sizeof(text), "ENC C %s%.1f mm", hw_status.encoder_valid[2] ? "" : "-- ",
+             (double)hw_status.encoder_distance_mm[2]);
+    lv_label_set_text(scr_dashboard_debug_label_enc_c, text);
+    snprintf(text, sizeof(text), "MTEST %s", hw_status.motor_test_running ? "RUN" : "IDLE");
+    lv_label_set_text(scr_dashboard_debug_label_mtest, text);
 }
 
 static void dashboard_debug_mode_event_handler(lv_event_t * e)
@@ -618,11 +656,31 @@ static void dashboard_debug_sim_event_handler(lv_event_t * e)
     dashboard_debug_refresh();
 }
 
+static void dashboard_debug_motor_test_event_handler(lv_event_t * e)
+{
+    (void)e;
+    sorting_sim_control_start_motor_test();
+    dashboard_debug_refresh();
+}
+
+static void dashboard_debug_encoder_clear_event_handler(lv_event_t * e)
+{
+    intptr_t index = (intptr_t)lv_event_get_user_data(e);
+    sorting_sim_control_clear_encoder_distance((int)index);
+    dashboard_debug_refresh();
+}
+
+static void dashboard_debug_timer_cb(lv_timer_t *timer)
+{
+    (void)timer;
+    dashboard_debug_refresh();
+}
+
 static void create_dashboard_debug_panel(lv_obj_t *parent)
 {
     scr_dashboard_debug_panel = lv_obj_create(parent);
-    lv_obj_set_pos(scr_dashboard_debug_panel, 257, 184);
-    lv_obj_set_size(scr_dashboard_debug_panel, 700, 220);
+    lv_obj_set_pos(scr_dashboard_debug_panel, 24, 12);
+    lv_obj_set_size(scr_dashboard_debug_panel, 962, 392);
     lv_obj_set_scrollbar_mode(scr_dashboard_debug_panel, LV_SCROLLBAR_MODE_OFF);
     lv_obj_set_style_bg_color(scr_dashboard_debug_panel, lv_color_hex(0x172323), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(scr_dashboard_debug_panel, 210, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -630,39 +688,52 @@ static void create_dashboard_debug_panel(lv_obj_t *parent)
     lv_obj_set_style_border_color(scr_dashboard_debug_panel, lv_color_hex(0x45666A), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_radius(scr_dashboard_debug_panel, 8, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    dashboard_debug_create_label(scr_dashboard_debug_panel, 12, 10, 120, "SORT DEBUG");
-    scr_dashboard_debug_label_mode = dashboard_debug_create_label(scr_dashboard_debug_panel, 140, 10, 90, "MODE ETH");
-    scr_dashboard_debug_label_motor = dashboard_debug_create_label(scr_dashboard_debug_panel, 238, 10, 95, "MOTOR ON");
-    scr_dashboard_debug_label_sensor = dashboard_debug_create_label(scr_dashboard_debug_panel, 340, 10, 105, "SENSOR ON");
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 462, 6, 62, 28, "MODE", dashboard_debug_mode_event_handler, NULL);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 530, 6, 62, 28, "MOTOR", dashboard_debug_motor_event_handler, NULL);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 598, 6, 62, 28, "SENS", dashboard_debug_sensor_event_handler, NULL);
+    dashboard_debug_create_label(scr_dashboard_debug_panel, 18, 14, 130, "SORT DEBUG");
+    scr_dashboard_debug_label_mode = dashboard_debug_create_label(scr_dashboard_debug_panel, 162, 14, 90, "MODE ETH");
+    scr_dashboard_debug_label_motor = dashboard_debug_create_label(scr_dashboard_debug_panel, 258, 14, 95, "MOTOR ON");
+    scr_dashboard_debug_label_sensor = dashboard_debug_create_label(scr_dashboard_debug_panel, 360, 14, 110, "SENSOR ON");
+    scr_dashboard_debug_label_mtest = dashboard_debug_create_label(scr_dashboard_debug_panel, 478, 14, 100, "MTEST IDLE");
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 596, 8, 68, 30, "MODE", dashboard_debug_mode_event_handler, NULL);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 672, 8, 76, 30, "MOTOR", dashboard_debug_motor_event_handler, NULL);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 756, 8, 68, 30, "SENS", dashboard_debug_sensor_event_handler, NULL);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 832, 8, 96, 30, "MTEST", dashboard_debug_motor_test_event_handler, NULL);
 
-    scr_dashboard_debug_label_speed = dashboard_debug_create_label(scr_dashboard_debug_panel, 12, 50, 180, "SPD A30 B35 C35");
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 205, 44, 42, 28, "A-", dashboard_debug_adjust_event_handler, (void *)10);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 251, 44, 42, 28, "A+", dashboard_debug_adjust_event_handler, (void *)0);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 302, 44, 42, 28, "B-", dashboard_debug_adjust_event_handler, (void *)11);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 348, 44, 42, 28, "B+", dashboard_debug_adjust_event_handler, (void *)1);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 399, 44, 42, 28, "C-", dashboard_debug_adjust_event_handler, (void *)12);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 445, 44, 42, 28, "C+", dashboard_debug_adjust_event_handler, (void *)2);
+    scr_dashboard_debug_label_speed = dashboard_debug_create_label(scr_dashboard_debug_panel, 18, 64, 180, "SPD A30 B35 C35");
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 220, 58, 46, 30, "A-", dashboard_debug_adjust_event_handler, (void *)10);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 272, 58, 46, 30, "A+", dashboard_debug_adjust_event_handler, (void *)0);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 336, 58, 46, 30, "B-", dashboard_debug_adjust_event_handler, (void *)11);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 388, 58, 46, 30, "B+", dashboard_debug_adjust_event_handler, (void *)1);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 452, 58, 46, 30, "C-", dashboard_debug_adjust_event_handler, (void *)12);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 504, 58, 46, 30, "C+", dashboard_debug_adjust_event_handler, (void *)2);
 
-    scr_dashboard_debug_label_delay = dashboard_debug_create_label(scr_dashboard_debug_panel, 12, 88, 120, "SAFE 1000ms");
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 138, 82, 42, 28, "-S", dashboard_debug_adjust_event_handler, (void *)21);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 184, 82, 42, 28, "+S", dashboard_debug_adjust_event_handler, (void *)20);
-    scr_dashboard_debug_label_timeout = dashboard_debug_create_label(scr_dashboard_debug_panel, 244, 88, 190, "TO A2000 B750 C750");
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 430, 82, 38, 28, "A-", dashboard_debug_adjust_event_handler, (void *)40);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 472, 82, 38, 28, "A+", dashboard_debug_adjust_event_handler, (void *)30);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 516, 82, 38, 28, "B-", dashboard_debug_adjust_event_handler, (void *)41);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 558, 82, 38, 28, "B+", dashboard_debug_adjust_event_handler, (void *)31);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 602, 82, 38, 28, "C-", dashboard_debug_adjust_event_handler, (void *)42);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 644, 82, 38, 28, "C+", dashboard_debug_adjust_event_handler, (void *)32);
+    scr_dashboard_debug_label_delay = dashboard_debug_create_label(scr_dashboard_debug_panel, 18, 108, 130, "SAFE 1000ms");
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 154, 102, 46, 30, "-S", dashboard_debug_adjust_event_handler, (void *)21);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 206, 102, 46, 30, "+S", dashboard_debug_adjust_event_handler, (void *)20);
+    scr_dashboard_debug_label_timeout = dashboard_debug_create_label(scr_dashboard_debug_panel, 286, 108, 210, "TO A2000 B750 C750");
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 506, 102, 42, 30, "A-", dashboard_debug_adjust_event_handler, (void *)40);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 552, 102, 42, 30, "A+", dashboard_debug_adjust_event_handler, (void *)30);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 604, 102, 42, 30, "B-", dashboard_debug_adjust_event_handler, (void *)41);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 650, 102, 42, 30, "B+", dashboard_debug_adjust_event_handler, (void *)31);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 702, 102, 42, 30, "C-", dashboard_debug_adjust_event_handler, (void *)42);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 748, 102, 42, 30, "C+", dashboard_debug_adjust_event_handler, (void *)32);
 
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 12, 136, 82, 36, "CLASS1", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_1);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 104, 136, 82, 36, "CLASS2", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_2);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 196, 136, 82, 36, "CLASS3", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_3);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 288, 136, 82, 36, "FREE", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_FREE);
-    dashboard_debug_create_button(scr_dashboard_debug_panel, 380, 136, 82, 36, "ERROR", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_ERROR);
+    scr_dashboard_debug_label_hw_sensors = dashboard_debug_create_label(scr_dashboard_debug_panel, 18, 158, 330, "S2 --  S3 --  S4 --");
+    scr_dashboard_debug_label_enc_a = dashboard_debug_create_label(scr_dashboard_debug_panel, 18, 204, 190, "ENC A --");
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 214, 198, 58, 30, "CLR", dashboard_debug_encoder_clear_event_handler, (void *)0);
+    scr_dashboard_debug_label_enc_b = dashboard_debug_create_label(scr_dashboard_debug_panel, 304, 204, 190, "ENC B --");
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 500, 198, 58, 30, "CLR", dashboard_debug_encoder_clear_event_handler, (void *)1);
+    scr_dashboard_debug_label_enc_c = dashboard_debug_create_label(scr_dashboard_debug_panel, 590, 204, 190, "ENC C --");
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 786, 198, 58, 30, "CLR", dashboard_debug_encoder_clear_event_handler, (void *)2);
+
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 18, 294, 92, 40, "CLASS1", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_1);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 122, 294, 92, 40, "CLASS2", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_2);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 226, 294, 92, 40, "CLASS3", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_3);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 330, 294, 92, 40, "FREE", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_FREE);
+    dashboard_debug_create_button(scr_dashboard_debug_panel, 434, 294, 92, 40, "ERROR", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_ERROR);
     dashboard_debug_refresh();
+    if (!scr_dashboard_debug_timer) {
+        scr_dashboard_debug_timer = lv_timer_create(dashboard_debug_timer_cb, 500, NULL);
+    }
 }
 
 static lv_obj_t * create_ui(void) {
@@ -1816,7 +1887,27 @@ static lv_obj_t * create_ui(void) {
     ui_flag_modify(scr_dashboard_cont_set_line, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_set_line, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_set_line, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
-    create_dashboard_debug_panel(scr_dashboard_cont_set);
+    // Create scr_dashboard_cont_sys_debug
+    scr_dashboard_cont_sys_debug = lv_obj_create(scr_dashboard_cont_background2);
+    lv_obj_set_x(scr_dashboard_cont_sys_debug, 3);
+    lv_obj_set_y(scr_dashboard_cont_sys_debug, 85);
+    lv_obj_set_width(scr_dashboard_cont_sys_debug, 1010);
+    lv_obj_set_height(scr_dashboard_cont_sys_debug, 423);
+    lv_obj_set_scrollbar_mode(scr_dashboard_cont_sys_debug, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_layout(scr_dashboard_cont_sys_debug, LV_LAYOUT_NONE);
+    lv_obj_set_style_bg_opa(scr_dashboard_cont_sys_debug, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(scr_dashboard_cont_sys_debug, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(scr_dashboard_cont_sys_debug, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(scr_dashboard_cont_sys_debug, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(scr_dashboard_cont_sys_debug, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(scr_dashboard_cont_sys_debug, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_flag_modify(scr_dashboard_cont_sys_debug, LV_OBJ_FLAG_SCROLLABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_sys_debug, LV_OBJ_FLAG_SCROLL_ELASTIC, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_sys_debug, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_sys_debug, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_sys_debug, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_sys_debug, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
+    create_dashboard_debug_panel(scr_dashboard_cont_sys_debug);
     // Create scr_dashboard_cont_button
     scr_dashboard_cont_button = lv_obj_create(scr_dashboard_cont_background2);
     lv_obj_set_x(scr_dashboard_cont_button, -1);

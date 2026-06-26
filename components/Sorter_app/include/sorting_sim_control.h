@@ -26,6 +26,14 @@ typedef struct {
     uint32_t belt_timeout_ms[3];
 } sorting_debug_settings_t;
 
+typedef struct {
+    bool motor_test_running;
+    bool sensor_valid[3];
+    bool sensor_active[3];
+    bool encoder_valid[3];
+    float encoder_distance_mm[3];
+} sorting_hardware_status_t;
+
 void sorting_sim_control_reset(void);
 void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_send_fn_t send_fn, void *send_ctx);
 void sorting_sim_control_tick(sorting_sim_send_fn_t send_fn, void *send_ctx);
@@ -36,6 +44,9 @@ void sorting_sim_control_set_mode(sorting_debug_mode_t mode);
 void sorting_sim_control_set_motor_output_enabled(bool enabled);
 void sorting_sim_control_set_sensor_input_enabled(bool enabled);
 void sorting_sim_control_simulate_class(sorter_package_class_t cls, sorting_sim_send_fn_t send_fn, void *send_ctx);
+void sorting_sim_control_get_hardware_status(sorting_hardware_status_t *status);
+void sorting_sim_control_start_motor_test(void);
+void sorting_sim_control_clear_encoder_distance(int index);
 
 #ifdef __cplusplus
 }

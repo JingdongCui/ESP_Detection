@@ -34,12 +34,16 @@ static sorting_debug_mode_t s_debug_mode = SORTING_DEBUG_MODE_ETHERNET_SIM;
 static bool s_motor_output_enabled = true;
 static bool s_sensor_input_enabled = true;
 static bool s_real_io_enabled;
+static bool s_hardware_observer_enabled;
+static bool s_hardware_observer_init_attempted;
 static bool s_real_io_task_started;
 static bool s_motor_ready;
 static bool s_motor_init_attempted;
 static bool s_encoder_ready;
 static bool s_sensor_ready;
 static TaskHandle_t s_real_io_task;
+static TaskHandle_t s_motor_test_task;
+static bool s_motor_test_running;
 static SemaphoreHandle_t s_control_lock;
 static sorting_sim_send_fn_t s_downstream_send_fn;
 static void *s_downstream_send_ctx;
@@ -55,10 +59,16 @@ typedef struct {
 } real_sensor_state_t;
 
 static real_sensor_state_t s_real_sensors[5];
-static float s_real_motor3_distance_mm;
+static bool s_sensor_valid[5];
+static float s_encoder_distance_mm[3];
+static bool s_encoder_valid[3];
 static int64_t s_last_encoder_sample_ms;
 
 static void ensure_motor_ready_locked(void);
+static void ensure_hardware_observer_locked(void);
+static void fill_hardware_status_locked(sorting_hardware_status_t *status);
+static void clear_encoder_distance_locked(int index);
+static void start_motor_test_locked(void);
 
 static void ensure_initialized(void)
 {
@@ -107,7 +117,9 @@ static void reset_vision_window(void)
 static void reset_real_io_state(void)
 {
     memset(s_real_sensors, 0, sizeof(s_real_sensors));
-    s_real_motor3_distance_mm = 0;
+    memset(s_sensor_valid, 0, sizeof(s_sensor_valid));
+    memset(s_encoder_valid, 0, sizeof(s_encoder_valid));
+    memset(s_encoder_distance_mm, 0, sizeof(s_encoder_distance_mm));
     s_last_encoder_sample_ms = esp_timer_get_time() / 1000;
 }
 
@@ -172,46 +184,63 @@ static void real_io_task(void *arg)
     (void)arg;
     const bsp_sort_sensor_id_t sensor_ids[] = { BSP_SORT_SENSOR_S2, BSP_SORT_SENSOR_S3, BSP_SORT_SENSOR_S4 };
     while (true) {
-        if (!s_real_io_enabled) { vTaskDelay(pdMS_TO_TICKS(100)); continue; }
+        if (!s_real_io_enabled && !s_hardware_observer_enabled) { vTaskDelay(pdMS_TO_TICKS(100)); continue; }
         int64_t now = esp_timer_get_time() / 1000;
-        if (real_sensor_input_allowed() && s_sensor_ready) {
+        if (s_sensor_ready) {
             for (size_t i = 0; i < sizeof(sensor_ids) / sizeof(sensor_ids[0]); ++i) {
                 bsp_sort_sensor_id_t sensor_id = sensor_ids[i];
                 bool active = false;
                 esp_err_t ret = bsp_sort_sensor_get_state(sensor_id, &active);
+                bool valid = ret == ESP_OK;
                 if (ret != ESP_OK && ret != ESP_ERR_NOT_FOUND) {
                     ESP_LOGW(TAG, "read sort sensor S%u failed: %s", (unsigned)sensor_id, esp_err_to_name(ret));
                     continue;
                 }
                 real_sensor_state_t *state = &s_real_sensors[(size_t)sensor_id];
                 if (!state->initialized) {
-                    state->raw = active; state->stable = active; state->raw_changed_ms = now; state->initialized = true; continue;
+                    state->raw = active; state->stable = active; state->raw_changed_ms = now; state->initialized = true;
+                    lock_control();
+                    s_sensor_valid[(size_t)sensor_id] = valid;
+                    unlock_control();
+                    continue;
                 }
                 if (state->raw != active) { state->raw = active; state->raw_changed_ms = now; continue; }
                 if (state->stable != state->raw && now - state->raw_changed_ms >= SENSOR_DEBOUNCE_MS) {
                     state->stable = state->raw;
                     lock_control();
-                    sorter_scheduler_sensor(&s_scheduler, (int)sensor_id, state->stable, 0);
+                    s_sensor_valid[(size_t)sensor_id] = valid;
+                    if (real_sensor_input_allowed() && valid) {
+                        sorter_scheduler_sensor(&s_scheduler, (int)sensor_id, state->stable, 0);
+                    }
+                    unlock_control();
+                } else {
+                    lock_control();
+                    s_sensor_valid[(size_t)sensor_id] = valid;
                     unlock_control();
                 }
             }
         }
-        if (real_encoder_input_allowed() && s_encoder_ready) {
-            float speed_cm_s = 0;
-            esp_err_t ret = bsp_encoder_get_speed_cm_s(BSP_ENCODER_0, &speed_cm_s);
-            if (ret == ESP_OK) {
-                if (s_last_encoder_sample_ms == 0) s_last_encoder_sample_ms = now;
-                float dt_s = (float)(now - s_last_encoder_sample_ms) / 1000.0f;
-                s_last_encoder_sample_ms = now;
-                if (dt_s > 0 && dt_s < 1) {
-                    s_real_motor3_distance_mm += fabsf(speed_cm_s) * 10.0f * dt_s;
+        if (s_encoder_ready) {
+            if (s_last_encoder_sample_ms == 0) s_last_encoder_sample_ms = now;
+            float dt_s = (float)(now - s_last_encoder_sample_ms) / 1000.0f;
+            s_last_encoder_sample_ms = now;
+            if (dt_s > 0 && dt_s < 1) {
+                for (bsp_encoder_id_t i = BSP_ENCODER_0; i <= BSP_ENCODER_2; ++i) {
+                    float speed_cm_s = 0;
+                    esp_err_t ret = bsp_encoder_get_speed_cm_s(i, &speed_cm_s);
                     lock_control();
-                    sorter_scheduler_distance(&s_scheduler, 3, s_real_motor3_distance_mm);
+                    s_encoder_valid[i] = ret == ESP_OK;
+                    if (ret == ESP_OK) {
+                        s_encoder_distance_mm[i] += fabsf(speed_cm_s) * 10.0f * dt_s;
+                        if (i == BSP_ENCODER_2 && real_encoder_input_allowed()) {
+                            sorter_scheduler_distance(&s_scheduler, 3, s_encoder_distance_mm[i]);
+                        }
+                    }
                     unlock_control();
+                    if (ret != ESP_OK) {
+                        ESP_LOGW(TAG, "read encoder %d speed failed: %s", (int)i, esp_err_to_name(ret));
+                    }
                 }
-            } else {
-                ESP_LOGW(TAG, "read encoder 0 speed failed: %s", esp_err_to_name(ret));
-                s_encoder_ready = false;
             }
         }
         vTaskDelay(pdMS_TO_TICKS(REAL_IO_POLL_MS));
@@ -238,13 +267,24 @@ static void ensure_motor_ready_locked(void)
 static void ensure_real_input_ready_locked(void)
 {
     if (!real_sensor_input_allowed()) return;
+    ensure_hardware_observer_locked();
+}
+
+static void ensure_hardware_observer_locked(void)
+{
+    if (s_hardware_observer_init_attempted) {
+        start_real_io_task_locked();
+        return;
+    }
+    s_hardware_observer_init_attempted = true;
     esp_err_t ret = bsp_encoder_init();
     s_encoder_ready = ret == ESP_OK;
-    if (!s_encoder_ready) ESP_LOGW(TAG, "real IO encoder distance disabled: %s", esp_err_to_name(ret));
+    if (!s_encoder_ready) ESP_LOGW(TAG, "hardware encoder observation disabled: %s", esp_err_to_name(ret));
     ret = bsp_sort_sensor_init();
     s_sensor_ready = ret == ESP_OK;
-    if (!s_sensor_ready) ESP_LOGW(TAG, "real IO sort sensors disabled: %s", esp_err_to_name(ret));
-    reset_real_io_state();
+    if (!s_sensor_ready) ESP_LOGW(TAG, "hardware sort sensor observation disabled: %s", esp_err_to_name(ret));
+    if (s_last_encoder_sample_ms == 0) s_last_encoder_sample_ms = esp_timer_get_time() / 1000;
+    s_hardware_observer_enabled = s_encoder_ready || s_sensor_ready;
     start_real_io_task_locked();
 }
 
@@ -371,7 +411,7 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
 
 #define RETURN_UNLOCK() do { unlock_control(); return; } while (0)
     if (strncmp(buf, "HELP", 4) == 0) {
-        send_line(send_fn, send_ctx, "HELP,VISION_FRAME s1/free/class | CONFIG mode=ethernet|real|timed a_speed/b_speed/c_speed/handoff_delay_ms/a_timeout_ms/b_timeout_ms/c_timeout_ms/motor_output/sensor_input/real_io | PACKAGE_NEW id | VISION_RESULT id/free/class | SENSOR id/state | DISTANCE motor/dist | RESET | ESTOP");
+        send_line(send_fn, send_ctx, "HELP,VISION_FRAME s1/free/class | CONFIG mode=ethernet|real|timed a_speed/b_speed/c_speed/handoff_delay_ms/a_timeout_ms/b_timeout_ms/c_timeout_ms/motor_output/sensor_input/real_io | PACKAGE_NEW id | VISION_RESULT id/free/class | SENSOR id/state | DISTANCE motor/dist | MOTOR_TEST | HW_STATUS | ENC_CLEAR index | RESET | ESTOP");
         RETURN_UNLOCK();
     }
     if (strncmp(buf, "CONFIG", 6) == 0) {
@@ -462,6 +502,31 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
         sorter_scheduler_distance(&s_scheduler, parse_int_field(buf, "motor=", 0), parse_float_field(buf, "dist=", 0));
         RETURN_UNLOCK();
     }
+    if (strncmp(buf, "MOTOR_TEST", 10) == 0) {
+        start_motor_test_locked();
+        send_line(send_fn, send_ctx, "STATUS,packages=0,state=running,reason=motor_test_started");
+        RETURN_UNLOCK();
+    }
+    if (strncmp(buf, "HW_STATUS", 9) == 0) {
+        sorting_hardware_status_t status;
+        fill_hardware_status_locked(&status);
+        char out[192];
+        snprintf(out, sizeof(out),
+                 "HW_STATUS,mtest=%d,s2=%d,s3=%d,s4=%d,s2_valid=%d,s3_valid=%d,s4_valid=%d,enc_a=%.1f,enc_b=%.1f,enc_c=%.1f,enc_a_valid=%d,enc_b_valid=%d,enc_c_valid=%d",
+                 status.motor_test_running ? 1 : 0,
+                 status.sensor_active[0] ? 1 : 0, status.sensor_active[1] ? 1 : 0, status.sensor_active[2] ? 1 : 0,
+                 status.sensor_valid[0] ? 1 : 0, status.sensor_valid[1] ? 1 : 0, status.sensor_valid[2] ? 1 : 0,
+                 (double)status.encoder_distance_mm[0], (double)status.encoder_distance_mm[1], (double)status.encoder_distance_mm[2],
+                 status.encoder_valid[0] ? 1 : 0, status.encoder_valid[1] ? 1 : 0, status.encoder_valid[2] ? 1 : 0);
+        send_line(send_fn, send_ctx, out);
+        RETURN_UNLOCK();
+    }
+    if (strncmp(buf, "ENC_CLEAR", 9) == 0) {
+        int index = parse_int_field(buf, "index=", 0);
+        clear_encoder_distance_locked(index);
+        send_line(send_fn, send_ctx, "STATUS,packages=0,state=running,reason=encoder_clear");
+        RETURN_UNLOCK();
+    }
     send_line(send_fn, send_ctx, "STATUS,packages=0,state=running,reason=unknown_command");
     RETURN_UNLOCK();
 #undef RETURN_UNLOCK
@@ -533,6 +598,103 @@ void sorting_sim_control_simulate_class(sorter_package_class_t cls, sorting_sim_
     sorter_scheduler_package_new(&s_scheduler, id);
     sorter_scheduler_vision_result(&s_scheduler, id, cls);
     sorter_scheduler_tick(&s_scheduler);
+    unlock_control();
+}
+
+static void fill_hardware_status_locked(sorting_hardware_status_t *status)
+{
+    if (!status) return;
+    ensure_hardware_observer_locked();
+    memset(status, 0, sizeof(*status));
+    status->motor_test_running = s_motor_test_running;
+    const int sensor_ids[3] = { BSP_SORT_SENSOR_S2, BSP_SORT_SENSOR_S3, BSP_SORT_SENSOR_S4 };
+    for (int i = 0; i < 3; ++i) {
+        int sensor_id = sensor_ids[i];
+        status->sensor_valid[i] = s_sensor_valid[sensor_id];
+        status->sensor_active[i] = s_real_sensors[sensor_id].stable;
+        status->encoder_valid[i] = s_encoder_valid[i];
+        status->encoder_distance_mm[i] = s_encoder_distance_mm[i];
+    }
+}
+
+void sorting_sim_control_get_hardware_status(sorting_hardware_status_t *status)
+{
+    ensure_initialized();
+    lock_control();
+    fill_hardware_status_locked(status);
+    unlock_control();
+}
+
+static void clear_encoder_distance_locked(int index)
+{
+    if (index < 0 || index >= 3) return;
+    s_encoder_distance_mm[index] = 0.0f;
+}
+
+void sorting_sim_control_clear_encoder_distance(int index)
+{
+    ensure_initialized();
+    lock_control();
+    clear_encoder_distance_locked(index);
+    unlock_control();
+}
+
+static void motor_test_task(void *arg)
+{
+    (void)arg;
+    int speeds[3];
+    lock_control();
+    speeds[0] = s_config.motor_a_speed_percent;
+    speeds[1] = s_config.motor_b_speed_percent;
+    speeds[2] = s_config.motor_c_speed_percent;
+    ensure_motor_ready_locked();
+    bool ready = s_motor_ready && s_motor_output_enabled;
+    unlock_control();
+
+    if (ready) {
+        for (uint8_t i = 0; i < 3; ++i) {
+            esp_err_t ret = bsp_motor_set_speed_direction(i, (uint32_t)clamp_percent(speeds[i]), 0);
+            if (ret != ESP_OK) {
+                ESP_LOGW(TAG, "motor test start motor %u failed: %s", (unsigned)i + 1, esp_err_to_name(ret));
+                break;
+            }
+            vTaskDelay(pdMS_TO_TICKS(500));
+            ret = bsp_motor_set_speed_direction(i, 0, 0);
+            if (ret != ESP_OK) {
+                ESP_LOGW(TAG, "motor test stop motor %u failed: %s", (unsigned)i + 1, esp_err_to_name(ret));
+                break;
+            }
+            vTaskDelay(pdMS_TO_TICKS(80));
+        }
+        for (uint8_t i = 0; i < 3; ++i) {
+            (void)bsp_motor_set_speed_direction(i, 0, 0);
+        }
+    }
+
+    lock_control();
+    s_motor_test_running = false;
+    s_motor_test_task = NULL;
+    unlock_control();
+    vTaskDelete(NULL);
+}
+
+static void start_motor_test_locked(void)
+{
+    if (s_motor_test_running) return;
+    s_motor_test_running = true;
+    BaseType_t ok = xTaskCreatePinnedToCore(motor_test_task, "motor_test", 4096, NULL, 5, &s_motor_test_task, 0);
+    if (ok != pdPASS) {
+        s_motor_test_running = false;
+        s_motor_test_task = NULL;
+        ESP_LOGE(TAG, "create motor test task failed");
+    }
+}
+
+void sorting_sim_control_start_motor_test(void)
+{
+    ensure_initialized();
+    lock_control();
+    start_motor_test_locked();
     unlock_control();
 }
 
