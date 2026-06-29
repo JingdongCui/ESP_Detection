@@ -47,6 +47,20 @@ cd /home/kazeform/2026esp/merge_project
 idf.py flash monitor
 ```
 
+## Merge Project Sensor Chain
+
+- `merge_project` 分拣传感器硬件映射位于 `components/bsp/include/sorter_debug_config.h`：
+  - S1 GPIO37, S2 GPIO23, S3 GPIO38, S4 GPIO22。
+  - 当前四路 active level 均为 1。
+- 传感器 BSP 初始化后将 S1-S4 配为 GPIO input，下拉开启；未配置 GPIO 为 -1 时视为 disabled。
+- `bsp_sort_sensor_get_level()` 返回 GPIO 原始电平和按 active level 换算后的 active 状态；`bsp_sort_sensor_get_state()` 保持兼容，只返回 active。
+- `sorting_sim_control.c` 的 `real_io_task` 每 10 ms 轮询 S1-S4，20 ms 防抖，稳定跳变后才送入调度器。
+- 实时日志关键字：
+  - `sort sensor Sx init raw_level=... active=... valid=...`
+  - `sort sensor Sx raw change raw_level=... active=... stable=... valid=...`
+  - `sort sensor Sx stable change raw_level=... active=... debounce_ms=20`
+- UI 调试面板显示 S1-S4 四个状态块：绿色填充表示 ON，深色/无明显颜色表示 OFF，`--` 表示当前未有效读取。
+
 ## Blue-Screen Long-Term Findings
 
 - 蓝屏问题当前最像 LCD DSI/DPI scanout starvation，而不是应用层画蓝或 framebuffer 被写坏。
