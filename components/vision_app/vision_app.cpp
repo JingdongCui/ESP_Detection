@@ -4,6 +4,7 @@
 #include "bsp_touch.h"
 #include "bsp_cam_sensor.h"
 #include "roi_tuning.h"
+#include "sorting_sim_control.h"
 #include "vision_preview.h"
 
 #include <vector>
@@ -37,6 +38,42 @@ static const char *TAG = "vision_app";
 #define VISION_CAM_HEIGHT       600
 
 static TaskHandle_t s_task_handle = nullptr;
+
+static sorter_package_class_t sorter_class_from_detection_class(int class_id)
+{
+    switch (class_id) {
+    case 0:
+        return SORTER_CLASS_1;
+    case 1:
+        return SORTER_CLASS_2;
+    case 2:
+        return SORTER_CLASS_3;
+    default:
+        return SORTER_CLASS_UNKNOWN;
+    }
+}
+
+static void submit_best_detection_to_sorter(const std::vector<Detection> &detections)
+{
+    if (detections.empty()) {
+        return;
+    }
+
+    const Detection *best = &detections[0];
+    for (const Detection &d : detections) {
+        if (d.confidence > best->confidence) {
+            best = &d;
+        }
+    }
+
+    sorter_package_class_t cls = sorter_class_from_detection_class(best->class_id);
+    if (cls == SORTER_CLASS_UNKNOWN) {
+        ESP_LOGW(TAG, "ignore detection with unknown sorter class_id=%d conf=%.3f",
+                 best->class_id, (double)best->confidence);
+        return;
+    }
+    sorting_sim_control_submit_vision_class(cls, best->confidence);
+}
 
 static esp_err_t mount_model_storage(void)
 {
@@ -155,6 +192,9 @@ static void vision_task(void *arg)
         detections.clear();
         bool ok = yolo->detect(frame, frame_w, frame_h, detections);
         YOLOPerfStats perf = yolo->get_last_perf_stats();
+        if (ok) {
+            submit_best_detection_to_sorter(detections);
+        }
         if (perf.roi_success) {
             for (int i = 0; i < YOLOPerfStats::kClassProbCount; i++) {
                 prob_sum[i] += perf.class_prob[i];

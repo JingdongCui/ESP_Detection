@@ -49,6 +49,7 @@ static sorting_sim_send_fn_t s_downstream_send_fn;
 static void *s_downstream_send_ctx;
 
 #define REAL_IO_POLL_MS 10
+#define REAL_SCHEDULER_TICK_MS 100
 #define SENSOR_DEBOUNCE_MS 20
 
 typedef struct {
@@ -63,6 +64,7 @@ static bool s_sensor_valid[5];
 static float s_encoder_distance_mm[3];
 static bool s_encoder_valid[3];
 static int64_t s_last_encoder_sample_ms;
+static int64_t s_last_real_scheduler_tick_ms;
 
 static void ensure_motor_ready_locked(void);
 static void ensure_hardware_observer_locked(void);
@@ -70,6 +72,9 @@ static void fill_hardware_status_locked(sorting_hardware_status_t *status);
 static void clear_encoder_distance_locked(int index);
 static void start_motor_test_locked(void);
 static void update_vision_s1_locked(bool active);
+static void set_motor_output_enabled_locked(bool enabled);
+static void process_real_sensor_event_locked(bsp_sort_sensor_id_t sensor_id, bool active);
+static void tick_scheduler_locked(void);
 
 static void ensure_initialized(void)
 {
@@ -122,6 +127,12 @@ static void reset_real_io_state(void)
     memset(s_encoder_valid, 0, sizeof(s_encoder_valid));
     memset(s_encoder_distance_mm, 0, sizeof(s_encoder_distance_mm));
     s_last_encoder_sample_ms = esp_timer_get_time() / 1000;
+    s_last_real_scheduler_tick_ms = s_last_encoder_sample_ms;
+}
+
+static void clear_scheduler_motor_cache_locked(void)
+{
+    memset(s_scheduler.last_commands, 0, sizeof(s_scheduler.last_commands));
 }
 
 static bool external_sim_input_allowed(void)
@@ -141,7 +152,8 @@ static bool real_encoder_input_allowed(void)
 
 static void apply_motor_command_line(const char *line)
 {
-    if (!s_motor_output_enabled || strncmp(line, "MOTOR", 5) != 0) return;
+    if (strncmp(line, "MOTOR", 5) != 0) return;
+    if (!s_motor_output_enabled) return;
     ensure_motor_ready_locked();
     if (!s_motor_ready) return;
     int motor_id = parse_int_field(line, "id=", 0);
@@ -170,6 +182,17 @@ static void set_scheduler_sender_locked(sorting_sim_send_fn_t fn, void *ctx)
     s_downstream_send_fn = fn;
     s_downstream_send_ctx = ctx;
     sorter_scheduler_set_sender(&s_scheduler, scheduler_send, NULL);
+}
+
+static void ensure_scheduler_motor_sender_locked(void)
+{
+    sorter_scheduler_set_sender(&s_scheduler, scheduler_send, NULL);
+}
+
+static void tick_scheduler_locked(void)
+{
+    ensure_scheduler_motor_sender_locked();
+    sorter_scheduler_tick(&s_scheduler);
 }
 
 static void reset_control_locked(void)
@@ -201,9 +224,10 @@ static void real_io_task(void *arg)
                 if (!state->initialized) {
                     state->raw = active; state->stable = active; state->raw_changed_ms = now; state->initialized = true;
                     lock_control();
+                    ensure_scheduler_motor_sender_locked();
                     s_sensor_valid[(size_t)sensor_id] = valid;
-                    if (real_sensor_input_allowed() && valid && sensor_id == BSP_SORT_SENSOR_S1 && active) {
-                        update_vision_s1_locked(active);
+                    if (real_sensor_input_allowed() && valid) {
+                        process_real_sensor_event_locked(sensor_id, active);
                     }
                     unlock_control();
                     continue;
@@ -212,13 +236,10 @@ static void real_io_task(void *arg)
                 if (state->stable != state->raw && now - state->raw_changed_ms >= SENSOR_DEBOUNCE_MS) {
                     state->stable = state->raw;
                     lock_control();
+                    ensure_scheduler_motor_sender_locked();
                     s_sensor_valid[(size_t)sensor_id] = valid;
                     if (real_sensor_input_allowed() && valid) {
-                        if (sensor_id == BSP_SORT_SENSOR_S1) {
-                            update_vision_s1_locked(state->stable);
-                        } else {
-                            sorter_scheduler_sensor(&s_scheduler, (int)sensor_id, state->stable, 0);
-                        }
+                        process_real_sensor_event_locked(sensor_id, state->stable);
                     }
                     unlock_control();
                 } else {
@@ -237,6 +258,7 @@ static void real_io_task(void *arg)
                     float speed_cm_s = 0;
                     esp_err_t ret = bsp_encoder_get_speed_cm_s(i, &speed_cm_s);
                     lock_control();
+                    ensure_scheduler_motor_sender_locked();
                     s_encoder_valid[i] = ret == ESP_OK;
                     if (ret == ESP_OK) {
                         s_encoder_distance_mm[i] += fabsf(speed_cm_s) * 10.0f * dt_s;
@@ -250,6 +272,14 @@ static void real_io_task(void *arg)
                     }
                 }
             }
+        }
+        if (now - s_last_real_scheduler_tick_ms >= REAL_SCHEDULER_TICK_MS) {
+            lock_control();
+            if (real_sensor_input_allowed() && sorter_scheduler_active_count(&s_scheduler) > 0) {
+                tick_scheduler_locked();
+            }
+            unlock_control();
+            s_last_real_scheduler_tick_ms = now;
         }
         vTaskDelay(pdMS_TO_TICKS(REAL_IO_POLL_MS));
     }
@@ -265,10 +295,17 @@ static void start_real_io_task_locked(void)
 
 static void ensure_motor_ready_locked(void)
 {
-    if (!s_motor_output_enabled || s_motor_ready || s_motor_init_attempted) return;
+    if (s_motor_ready || s_motor_init_attempted) return;
     s_motor_init_attempted = true;
     esp_err_t ret = bsp_motor_init();
     s_motor_ready = ret == ESP_OK;
+    if (s_motor_ready) {
+        ret = bsp_motor_set_output_enabled(s_motor_output_enabled);
+        if (ret != ESP_OK) {
+            ESP_LOGW(TAG, "set initial motor output state failed: %s", esp_err_to_name(ret));
+            s_motor_ready = false;
+        }
+    }
     if (!s_motor_ready) ESP_LOGW(TAG, "real motor output disabled: %s", esp_err_to_name(ret));
 }
 
@@ -293,17 +330,36 @@ static void ensure_hardware_observer_locked(void)
     if (!s_sensor_ready) ESP_LOGW(TAG, "hardware sort sensor observation disabled: %s", esp_err_to_name(ret));
     if (s_last_encoder_sample_ms == 0) s_last_encoder_sample_ms = esp_timer_get_time() / 1000;
     s_hardware_observer_enabled = s_encoder_ready || s_sensor_ready;
+    s_last_real_scheduler_tick_ms = esp_timer_get_time() / 1000;
     start_real_io_task_locked();
 }
 
 static void set_real_io_enabled_locked(bool enabled)
 {
     if (enabled) {
-        ensure_motor_ready_locked();
         ensure_real_input_ready_locked();
     }
     s_real_io_enabled = enabled;
     ESP_LOGI(TAG, "real IO task %s", enabled ? "enabled" : "disabled");
+}
+
+static void set_motor_output_enabled_locked(bool enabled)
+{
+    bool changed = s_motor_output_enabled != enabled;
+    s_motor_output_enabled = enabled;
+    if (changed) {
+        clear_scheduler_motor_cache_locked();
+    }
+    ensure_motor_ready_locked();
+    if (!s_motor_ready) {
+        return;
+    }
+    esp_err_t ret = bsp_motor_set_output_enabled(enabled);
+    if (ret != ESP_OK) {
+        ESP_LOGW(TAG, "set motor output %s failed: %s",
+                 enabled ? "enabled" : "disabled", esp_err_to_name(ret));
+        s_motor_ready = false;
+    }
 }
 
 static void fill_settings_locked(sorting_debug_settings_t *settings)
@@ -336,7 +392,7 @@ static void apply_settings_locked(const sorting_debug_settings_t *settings)
     }
 
     s_debug_mode = mode;
-    s_motor_output_enabled = settings->motor_output_enabled;
+    set_motor_output_enabled_locked(settings->motor_output_enabled);
     s_sensor_input_enabled = mode == SORTING_DEBUG_MODE_TIMED_ONLY ? false : settings->sensor_input_enabled;
     s_config.motor_a_speed_percent = clamp_percent(settings->motor_speed_percent[0]);
     s_config.motor_b_speed_percent = clamp_percent(settings->motor_speed_percent[1]);
@@ -349,6 +405,9 @@ static void apply_settings_locked(const sorting_debug_settings_t *settings)
 
     ensure_motor_ready_locked();
     set_real_io_enabled_locked(real_sensor_input_allowed());
+    if (s_motor_output_enabled) {
+        tick_scheduler_locked();
+    }
 }
 
 static const char *debug_mode_name(sorting_debug_mode_t mode)
@@ -411,6 +470,25 @@ static void update_vision_s1_locked(bool active)
         open_vision_window_locked();
     }
     s_vision_s1_active = active;
+}
+
+static void process_real_sensor_event_locked(bsp_sort_sensor_id_t sensor_id, bool active)
+{
+    if (sensor_id == BSP_SORT_SENSOR_S1) {
+        update_vision_s1_locked(active);
+        return;
+    }
+
+    bool close_current_at_s2 = false;
+    if (sensor_id == BSP_SORT_SENSOR_S2 && active && s_vision_package_id > 0 &&
+        !sorter_scheduler_has_s2_candidate_before(&s_scheduler, s_vision_package_id)) {
+        fail_current_vision_window();
+        close_current_at_s2 = true;
+    }
+    sorter_scheduler_sensor(&s_scheduler, (int)sensor_id, active, 0);
+    if (close_current_at_s2) {
+        reset_vision_window();
+    }
 }
 
 static void classify_current_vision_window_locked(sorter_package_class_t cls)
@@ -623,6 +701,29 @@ void sorting_sim_control_set_sensor_input_enabled(bool enabled)
     sorting_sim_control_apply_settings(&settings);
 }
 
+void sorting_sim_control_submit_vision_class(sorter_package_class_t cls, float confidence)
+{
+    ensure_initialized();
+    lock_control();
+    if (!real_sensor_input_allowed()) {
+        ESP_LOGD(TAG, "ignore local vision class while mode=%s sensor_input=%d",
+                 debug_mode_name(s_debug_mode), s_sensor_input_enabled ? 1 : 0);
+        unlock_control();
+        return;
+    }
+    ensure_scheduler_motor_sender_locked();
+    if (s_vision_package_id <= 0 || s_vision_classified) {
+        ESP_LOGD(TAG, "ignore local vision class=%d conf=%.3f package=%d classified=%d",
+                 (int)cls, (double)confidence, s_vision_package_id, s_vision_classified ? 1 : 0);
+        unlock_control();
+        return;
+    }
+    ESP_LOGI(TAG, "local vision class=%d conf=%.3f package=%d",
+             (int)cls, (double)confidence, s_vision_package_id);
+    classify_current_vision_window_locked(cls);
+    unlock_control();
+}
+
 void sorting_sim_control_simulate_class(sorter_package_class_t cls, sorting_sim_send_fn_t send_fn, void *send_ctx)
 {
     ensure_initialized();
@@ -782,6 +883,10 @@ static void serial_tick_active(void)
     ensure_initialized();
     lock_control();
     if (sorter_scheduler_active_count(&s_scheduler) > 0) {
+        if (s_downstream_send_fn && s_downstream_send_fn != serial_send) {
+            unlock_control();
+            return;
+        }
         set_scheduler_sender_locked(serial_send, NULL);
         sorter_scheduler_tick(&s_scheduler);
     }

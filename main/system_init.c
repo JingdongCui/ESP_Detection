@@ -44,11 +44,6 @@ void System_Init(void)
 
     BSP_Touch_Init();
 
-    esp_err_t motor_ret = bsp_motor_init();
-    if (motor_ret != ESP_OK) {
-        ESP_LOGW(TAG, "Motor BSP init failed: %s", esp_err_to_name(motor_ret));
-    }
-
     esp_err_t encoder_ret = bsp_encoder_init();
     if (encoder_ret != ESP_OK) {
         ESP_LOGW(TAG, "Encoder BSP init failed: %s", esp_err_to_name(encoder_ret));
@@ -65,6 +60,7 @@ void System_Init(void)
     //启动以太网链路和静态 IP；当前只启用基础 IPv4 网络，没有创建 TCP/UDP 应用服务
     ethernet_app_start();
     sorting_sim_debug_start();
+    sorting_sim_control_set_motor_output_enabled(true);
 
     vision_app_start();
     

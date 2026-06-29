@@ -5,22 +5,6 @@
 #include "esp_check.h"
 #include "esp_log.h"
 
-#ifndef CONFIG_SORT_SENSOR_S1_GPIO
-#define CONFIG_SORT_SENSOR_S1_GPIO -1
-#endif
-
-#ifndef CONFIG_SORT_SENSOR_S2_GPIO
-#define CONFIG_SORT_SENSOR_S2_GPIO -1
-#endif
-
-#ifndef CONFIG_SORT_SENSOR_S3_GPIO
-#define CONFIG_SORT_SENSOR_S3_GPIO -1
-#endif
-
-#ifndef CONFIG_SORT_SENSOR_S4_GPIO
-#define CONFIG_SORT_SENSOR_S4_GPIO -1
-#endif
-
 #define BSP_SORT_SENSOR_COUNT 4
 
 static const char *TAG = "bsp_sort_sensor";

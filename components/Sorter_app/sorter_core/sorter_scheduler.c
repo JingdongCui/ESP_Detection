@@ -470,12 +470,12 @@ static bool service_state_timeouts(sorter_scheduler_t *s)
             emit_motor(s, 2, SORTER_MOTOR_STOP, 0, false); release_reservations(s, p->id); emit_status(s, "timeout_class1"); release_package(s, p, SORTER_STATE_DONE); emit_status(s, "class1_done"); service_pending_transfers(s); return true;
         case SORTER_STATE_ON_B_TO_S4:
             transition_state(s, p, SORTER_STATE_HOLDING_AT_S4); emit_motor(s, 2, SORTER_MOTOR_STOP, 0, false);
-            if (release_s4_to_c(s, p)) { s->s4_sensor_active = false; complete_s4_handoff(s, p); emit_status(s, "timeout_b_to_c"); service_pending_transfers(s); }
+            if (release_s4_to_c(s, p)) { s->s4_sensor_active = false; emit_status(s, "timeout_b_to_c"); service_pending_transfers(s); }
             else { s->s4_held_package_id = p->id; emit_status(s, "timeout_s4_held"); service_pending_transfers(s); } return true;
         case SORTER_STATE_HOLDING_AT_S4:
             if (p->handoff_ready_ms > 0 && now >= p->handoff_ready_ms) { complete_s4_handoff(s, p); emit_status(s, "s4_released"); service_pending_transfers(s); return true; }
             if (p->handoff_ready_ms == 0 && s->c_owner == p->id) { s->s4_sensor_active = false; complete_s4_handoff(s, p); emit_status(s, "timeout_s4_released"); service_pending_transfers(s); return true; }
-            if (p->handoff_ready_ms == 0 && release_s4_to_c(s, p)) { s->s4_sensor_active = false; complete_s4_handoff(s, p); emit_status(s, "timeout_b_to_c"); service_pending_transfers(s); return true; }
+            if (p->handoff_ready_ms == 0 && release_s4_to_c(s, p)) { s->s4_sensor_active = false; emit_status(s, "timeout_b_to_c"); service_pending_transfers(s); return true; }
             s->s4_held_package_id = p->id; transition_state(s, p, SORTER_STATE_HOLDING_AT_S4); emit_status(s, "timeout_s4_held"); return true;
         case SORTER_STATE_ON_C_EXIT: emit_status(s, "timeout_c_exit"); complete_c_package(s, p); return true;
         default: break;

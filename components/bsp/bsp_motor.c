@@ -50,6 +50,7 @@ static const bool s_motor_reverse[3] = {
 
 static bsp_motor_mcpwm_t s_motors[3];
 static bool s_initialized;
+static bool s_output_enabled;
 
 //id编号0-2分别对应三个电机，函数内会验证id合法性
 static esp_err_t validate_motor_id(uint8_t motor_id)
@@ -83,10 +84,9 @@ static esp_err_t validate_motor_gpio(uint8_t motor_id, const bsp_motor_gpio_conf
     return ESP_OK;
 }
 
-// Generator 的配置：计数器归零时拉低 PWM，计数高于比较值后拉高 PWM，实现正向占空比控制。
+// Generator 的配置：恢复之前的 PWM 形式，计数器归零时拉低 PWM，计数高于比较值后拉高 PWM。
 static esp_err_t configure_generator(mcpwm_gen_handle_t gen, mcpwm_cmpr_handle_t cmp)
 {
-    // 计数器归零时拉低 PWM，计数高于比较值后拉高 PWM。
     ESP_RETURN_ON_ERROR(mcpwm_generator_set_action_on_timer_event(gen,
                         MCPWM_GEN_TIMER_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP,
                                                      MCPWM_TIMER_EVENT_EMPTY,
@@ -96,6 +96,24 @@ static esp_err_t configure_generator(mcpwm_gen_handle_t gen, mcpwm_cmpr_handle_t
                         MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP,
                                                        cmp,
                                                        MCPWM_GEN_ACTION_HIGH));
+}
+
+static esp_err_t force_motor_output(uint8_t motor_id, int level)
+{
+    ESP_RETURN_ON_ERROR(validate_motor_id(motor_id), TAG, "motor id validation failed");
+    bsp_motor_mcpwm_t *motor = &s_motors[motor_id];
+    ESP_RETURN_ON_ERROR(mcpwm_generator_set_force_level(motor->gen_a, level, true),
+                        TAG, "force motor %u PWM A failed", motor_id);
+    return mcpwm_generator_set_force_level(motor->gen_b, level, true);
+}
+
+static esp_err_t release_motor_output(uint8_t motor_id)
+{
+    ESP_RETURN_ON_ERROR(validate_motor_id(motor_id), TAG, "motor id validation failed");
+    bsp_motor_mcpwm_t *motor = &s_motors[motor_id];
+    ESP_RETURN_ON_ERROR(mcpwm_generator_set_force_level(motor->gen_a, -1, true),
+                        TAG, "release motor %u PWM A failed", motor_id);
+    return mcpwm_generator_set_force_level(motor->gen_b, -1, true);
 }
 
 // 初始化指定电机的 MCPWM 资源：一个 timer、一个 operator、两个 comparator 和两个 generator，并把它们正确连接起来。
@@ -108,6 +126,8 @@ static esp_err_t init_motor_mcpwm(uint8_t motor_id)
     bsp_motor_mcpwm_t *motor = &s_motors[motor_id];
 
     ESP_RETURN_ON_ERROR(validate_motor_gpio(motor_id, gpio_config), TAG, "motor GPIO validation failed");
+    ESP_LOGI(TAG, "motor %u PWM GPIO A=%d B=%d", (unsigned)motor_id + 1,
+             gpio_config->pwm_a_gpio, gpio_config->pwm_b_gpio);
 
     // Timer 是 PWM 时基：分辨率由频率和 0-1000 精度自动计算。
     mcpwm_timer_config_t timer_config = {
@@ -132,7 +152,7 @@ static esp_err_t init_motor_mcpwm(uint8_t motor_id)
     };
     ESP_RETURN_ON_ERROR(mcpwm_new_comparator(motor->oper, &comparator_config, &motor->cmp_a), TAG, "create MCPWM comparator A failed");
     ESP_RETURN_ON_ERROR(mcpwm_new_comparator(motor->oper, &comparator_config, &motor->cmp_b), TAG, "create MCPWM comparator B failed");
-    // 初始比较值设为 0，计数值高于 0 后输出高电平，实现初始化 3.3V 输出。
+    // 初始比较值设为 0，保持之前的 PWM 初始行为。
     ESP_RETURN_ON_ERROR(mcpwm_comparator_set_compare_value(motor->cmp_a, 0), TAG, "set comparator A initial value failed");
     ESP_RETURN_ON_ERROR(mcpwm_comparator_set_compare_value(motor->cmp_b, 0), TAG, "set comparator B initial value failed");
 
@@ -146,6 +166,7 @@ static esp_err_t init_motor_mcpwm(uint8_t motor_id)
 
     ESP_RETURN_ON_ERROR(configure_generator(motor->gen_a, motor->cmp_a), TAG, "configure generator A failed");
     ESP_RETURN_ON_ERROR(configure_generator(motor->gen_b, motor->cmp_b), TAG, "configure generator B failed");
+    ESP_RETURN_ON_ERROR(force_motor_output(motor_id, 0), TAG, "force motor output disabled failed");
     // 启动 timer 后 MCPWM 硬件按比较值产生波形，不使用 force level 覆盖输出。
     ESP_RETURN_ON_ERROR(mcpwm_timer_enable(motor->timer), TAG, "enable MCPWM timer failed");
     return mcpwm_timer_start_stop(motor->timer, MCPWM_TIMER_START_NO_STOP);
@@ -163,7 +184,27 @@ esp_err_t bsp_motor_init(void)
     }
 
     s_initialized = true;
+    s_output_enabled = false;
     ESP_LOGI(TAG, "motor BSP initialized");
+    return bsp_motor_set_output_enabled(true);
+}
+
+esp_err_t bsp_motor_set_output_enabled(bool enabled)
+{
+    ESP_RETURN_ON_FALSE(s_initialized, ESP_ERR_INVALID_STATE, TAG, "motor BSP is not initialized");
+    if (s_output_enabled == enabled) {
+        return ESP_OK;
+    }
+
+    for (uint8_t i = 0; i < 3; ++i) {
+        if (enabled) {
+            ESP_RETURN_ON_ERROR(release_motor_output(i), TAG, "enable motor %u output failed", i);
+        } else {
+            ESP_RETURN_ON_ERROR(force_motor_output(i, 0), TAG, "disable motor %u output failed", i);
+        }
+    }
+    s_output_enabled = enabled;
+    ESP_LOGI(TAG, "motor output %s", enabled ? "enabled" : "disabled");
     return ESP_OK;
 }
 
@@ -171,11 +212,14 @@ esp_err_t bsp_motor_init(void)
 esp_err_t bsp_motor_set_compare(uint8_t motor_id, uint32_t pwm_a_compare, uint32_t pwm_b_compare)
 {
     ESP_RETURN_ON_FALSE(s_initialized, ESP_ERR_INVALID_STATE, TAG, "motor BSP is not initialized");
+    ESP_RETURN_ON_FALSE(s_output_enabled, ESP_ERR_INVALID_STATE, TAG, "motor output is disabled");
     ESP_RETURN_ON_ERROR(validate_motor_id(motor_id), TAG, "motor id validation failed");
     ESP_RETURN_ON_ERROR(validate_compare_value(pwm_a_compare), TAG, "PWM A compare validation failed");
     ESP_RETURN_ON_ERROR(validate_compare_value(pwm_b_compare), TAG, "PWM B compare validation failed");
 
     bsp_motor_mcpwm_t *motor = &s_motors[motor_id];
+    ESP_LOGI(TAG, "motor %u compare A=%lu B=%lu", (unsigned)motor_id + 1,
+             (unsigned long)pwm_a_compare, (unsigned long)pwm_b_compare);
     ESP_RETURN_ON_ERROR(mcpwm_comparator_set_compare_value(motor->cmp_a, pwm_a_compare), TAG, "set PWM A compare failed");
     return mcpwm_comparator_set_compare_value(motor->cmp_b, pwm_b_compare);
 }

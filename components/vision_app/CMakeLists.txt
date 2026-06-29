@@ -10,6 +10,7 @@ idf_component_register(
     REQUIRES
         UI
         bsp
+        Sorter_app
         esp-dl
         esp_timer
         spiffs

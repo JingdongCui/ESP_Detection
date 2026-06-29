@@ -32,6 +32,7 @@ static const char *TAG = "eth_example";
 #define TCP_TASK_STACK_BYTES    8192
 #define TCP_TASK_PRIORITY       4
 #define TCP_SEND_INTERVAL_MS    300000
+#define TCP_SEND_WAIT_MS        1000
 #define TCP_CONNECT_READY_BIT   BIT0
 #ifndef SORTING_SIM_TCP_SEND_IMAGES
 #define SORTING_SIM_TCP_SEND_IMAGES 0
@@ -64,6 +65,7 @@ typedef struct __attribute__((packed)) {
 static EventGroupHandle_t s_eth_events;
 static TaskHandle_t s_tcp_task;
 static uint32_t s_tx_seq;
+static volatile bool s_tcp_send_failed;
 #if SORTING_SIM_TCP_SEND_IMAGES
 static uint8_t *s_image_copy_buf;
 static size_t s_image_copy_capacity;
@@ -76,6 +78,19 @@ static uint64_t unix_time_ms(void)
     return (uint64_t)tv.tv_sec * 1000ULL + (uint64_t)(tv.tv_usec / 1000);
 }
 
+static int wait_socket_writable(int sock)
+{
+    fd_set write_set;
+    FD_ZERO(&write_set);
+    FD_SET(sock, &write_set);
+    struct timeval timeout = {
+        .tv_sec = TCP_SEND_WAIT_MS / 1000,
+        .tv_usec = (TCP_SEND_WAIT_MS % 1000) * 1000,
+    };
+    int ret = select(sock + 1, NULL, &write_set, NULL, &timeout);
+    return ret > 0 && FD_ISSET(sock, &write_set) ? 0 : -1;
+}
+
 static int send_all(int sock, const void *data, size_t len)
 {
     const uint8_t *p = (const uint8_t *)data;
@@ -84,6 +99,9 @@ static int send_all(int sock, const void *data, size_t len)
         int sent = send(sock, p + sent_total, len - sent_total, 0);
         if (sent < 0) {
             if (errno == EINTR) {
+                continue;
+            }
+            if ((errno == EAGAIN || errno == EWOULDBLOCK) && wait_socket_writable(sock) == 0) {
                 continue;
             }
             return -1;
@@ -287,7 +305,12 @@ static void apply_time_sync(const char *json, size_t len)
 static int send_sim_line_packet(void *ctx, const char *line)
 {
     int sock = (int)(intptr_t)ctx;
-    return send_packet(sock, ESP_HOST_TYPE_SIM_LINE, line, (uint32_t)strlen(line), 0, 0, 0);
+    int ret = send_packet(sock, ESP_HOST_TYPE_SIM_LINE, line, (uint32_t)strlen(line), 0, 0, 0);
+    if (ret != 0) {
+        s_tcp_send_failed = true;
+        ESP_LOGW(TAG, "SIM line send failed errno=%d line=%s", errno, line);
+    }
+    return ret;
 }
 
 static void process_rx_packet(int sock, const esp_host_packet_header_t *header, const uint8_t *payload)
@@ -396,6 +419,14 @@ static int connect_to_host(void)
     }
 
     ESP_LOGI(TAG, "connected to host");
+    if (flags >= 0) {
+        fcntl(sock, F_SETFL, flags & ~O_NONBLOCK);
+    }
+    struct timeval send_timeout = {
+        .tv_sec = TCP_SEND_WAIT_MS / 1000,
+        .tv_usec = (TCP_SEND_WAIT_MS % 1000) * 1000,
+    };
+    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &send_timeout, sizeof(send_timeout));
     return sock;
 }
 
@@ -411,6 +442,7 @@ static void tcp_client_task(void *arg)
             continue;
         }
         poll_incoming_packets(sock, true);
+        s_tcp_send_failed = false;
 
         int64_t next_send_ms = esp_timer_get_time() / 1000 + TCP_SEND_INTERVAL_MS;
         while (true) {
@@ -418,7 +450,15 @@ static void tcp_client_task(void *arg)
                 ESP_LOGW(TAG, "TCP peer closed");
                 break;
             }
+            if (s_tcp_send_failed) {
+                ESP_LOGW(TAG, "TCP SIM line send failed; reconnecting");
+                break;
+            }
             sorting_sim_control_tick(send_sim_line_packet, (void *)(intptr_t)sock);
+            if (s_tcp_send_failed) {
+                ESP_LOGW(TAG, "TCP SIM line send failed during tick; reconnecting");
+                break;
+            }
 
             int64_t now_ms = esp_timer_get_time() / 1000;
             if (now_ms >= next_send_ms) {

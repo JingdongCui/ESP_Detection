@@ -43,6 +43,7 @@ void sorting_sim_control_apply_settings(const sorting_debug_settings_t *settings
 void sorting_sim_control_set_mode(sorting_debug_mode_t mode);
 void sorting_sim_control_set_motor_output_enabled(bool enabled);
 void sorting_sim_control_set_sensor_input_enabled(bool enabled);
+void sorting_sim_control_submit_vision_class(sorter_package_class_t cls, float confidence);
 void sorting_sim_control_simulate_class(sorter_package_class_t cls, sorting_sim_send_fn_t send_fn, void *send_ctx);
 void sorting_sim_control_get_hardware_status(sorting_hardware_status_t *status);
 void sorting_sim_control_start_motor_test(void);
