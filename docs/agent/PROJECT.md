@@ -3,9 +3,9 @@
 ## Workspace
 
 - 根目录：`/home/kazeform/2026esp`
-- 当前主任务工程：`bug_project`
-- 相关对照工程：`merge_project`
-- 根目录 `.git` 目录不完整，不能正常 `git status`；`bug_project` 和 `merge_project` 各自有独立 git 仓库。
+- 当前主任务工程：`merge_project`
+- 相关对照工程：`bug_project`
+- 根目录 git 仓库已初始化，用于跟踪根目录 agent 文档；`bug_project` 和 `merge_project` 各自仍有独立 git 仓库。
 
 ## Hardware
 
@@ -26,10 +26,24 @@ cd /home/kazeform/2026esp/bug_project
 idf.py build
 ```
 
+`merge_project` 构建：
+
+```bash
+cd /home/kazeform/2026esp/merge_project
+idf.py build
+```
+
 烧录和实机监控：
 
 ```bash
 cd /home/kazeform/2026esp/bug_project
+idf.py flash monitor
+```
+
+`merge_project` 烧录和实机监控：
+
+```bash
+cd /home/kazeform/2026esp/merge_project
 idf.py flash monitor
 ```
 
@@ -117,3 +131,4 @@ RGB565 必须确认整条显示路径都变成 16 bpp：
 - 旧 sorter hardware 文档已归档到 `docs/agent/archive/2026-06-27-sorter-hardware-changes.md`
 - 旧 simulator 文档已归档到 `docs/agent/archive/2026-06-27-sorter-simulator-changes.md`
 - 原蓝屏长文档已归档到 `docs/agent/archive/2026-06-27-blue-screen-debug-plan.md`
+- 2026-06-28 蓝屏/相机链路诊断阶段已归档到 `docs/agent/archive/2026-06-29-blue-screen-camera-diagnostics.md`
