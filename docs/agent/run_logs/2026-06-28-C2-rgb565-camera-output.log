@@ -1,0 +1,951 @@
+Script started on 2026-06-28 12:22:36+08:00 [COMMAND="idf.py -p /dev/ttyACM0 flash monitor" TERM="dumb" TTY="/dev/pts/4" COLUMNS="80" LINES="24"]
+Executing action: flash
+Running ninja in directory /home/kazeform/2026esp/bug_project/build
+Executing "ninja flash"...
+[1/6] cd /home/kazeform/2026esp/bug_pr...p/bug_project/build/sample_project.bin[K
+sample_project.bin binary size 0x205c50 bytes. Smallest app partition is 0x600000 bytes. 0x3fa3b0 bytes (66%) free.
+[2/6] Performing build step for 'bootloader'[K[1/1] cd /home/kazeform/2026esp/bug_pr...roject/build/bootloader/bootloader.bin[K
+Bootloader binary size 0x5a20 bytes. 0x5e0 bytes (6%) free.
+[3/6] No install step for 'bootloader'[K[4/6] Completed 'bootloader'[K[5/6] cd /home/kazeform/2026esp/bug_pr...meta-len=4 --use-magic --use-magic-len[K[5/6] cd /home/kazeform/ProgramFiles/e...nents/esptool_py/run_serial_tool.cmake[K
+esptool.py --chip esp32p4 -p /dev/ttyACM0 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 16MB 0x2000 bootloader/bootloader.bin 0x10000 sample_project.bin 0x8000 partition_table/partition-table.bin 0xb00000 storage.bin
+esptool.py v4.12.dev2
+Serial port /dev/ttyACM0
+Connecting...
+Chip is ESP32-P4 (revision v3.1)
+Features: High-Performance MCU
+Crystal is 40MHz
+USB mode: USB-Serial/JTAG
+MAC: e8:f6:0a:e1:7a:d1
+Using the new stub flasher.
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00002000 to 0x00007fff...
+Flash will be erased from 0x00010000 to 0x00215fff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x00b00000 to 0x00ffffff...
+SHA digest in image updated
+Compressed 23072 bytes to 14335...
+Writing at 0x00002000... (100 %)[K
+Wrote 23072 bytes (14335 compressed) at 0x00002000 in 0.3 seconds (effective 623.3 kbit/s)...
+Hash of data verified.
+Compressed 2120784 bytes to 749690...
+Writing at 0x00010000... (2 %)[KWriting at 0x0001db84... (4 %)[KWriting at 0x0002a2d5... (6 %)[KWriting at 0x00039c13... (8 %)[KWriting at 0x000639c0... (10 %)[KWriting at 0x0008c473... (13 %)[KWriting at 0x000c3b24... (15 %)[KWriting at 0x000ffe66... (17 %)[KWriting at 0x00106bd4... (19 %)[KWriting at 0x0010eec6... (21 %)[KWriting at 0x00116393... (23 %)[KWriting at 0x0011d7a3... (26 %)[KWriting at 0x00126425... (28 %)[KWriting at 0x0012d739... (30 %)[KWriting at 0x00133eec... (32 %)[KWriting at 0x0013b874... (34 %)[KWriting at 0x00142275... (36 %)[KWriting at 0x0014a057... (39 %)[KWriting at 0x00150c18... (41 %)[KWriting at 0x0015933f... (43 %)[KWriting at 0x0015fda6... (45 %)[KWriting at 0x00166fc8... (47 %)[KWriting at 0x0016d156... (50 %)[KWriting at 0x0017398e... (52 %)[KWriting at 0x00179d93... (54 %)[KWriting at 0x00180bc0... (56 %)[KWriting at 0x0018713d... (58 %)[KWriting at 0x0018e909... (60 %)[KWriting at 0x0019492a... (63 %)[KWriting at 0x0019aa4a... (65 %)[KWriting at 0x001a0c5d... (67 %)[KWriting at 0x001a92cb... (69 %)[KWriting at 0x001b14f7... (71 %)[KWriting at 0x001b913c... (73 %)[KWriting at 0x001c0a5c... (76 %)[KWriting at 0x001c8cf2... (78 %)[KWriting at 0x001cf783... (80 %)[KWriting at 0x001d695a... (82 %)[KWriting at 0x001dd97a... (84 %)[KWriting at 0x001e4914... (86 %)[KWriting at 0x001eb3c4... (89 %)[KWriting at 0x001f1133... (91 %)[KWriting at 0x001f965c... (93 %)[KWriting at 0x0020059e... (95 %)[KWriting at 0x0020749b... (97 %)[KWriting at 0x0020e7bd... (100 %)[K
+Wrote 2120784 bytes (749690 compressed) at 0x00010000 in 11.1 seconds (effective 1534.0 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 119...
+Writing at 0x00008000... (100 %)[K
+Wrote 3072 bytes (119 compressed) at 0x00008000 in 0.0 seconds (effective 3669.6 kbit/s)...
+Hash of data verified.
+Compressed 5242880 bytes to 750905...
+Writing at 0x00b00000... (2 %)[KWriting at 0x00b06e29... (4 %)[KWriting at 0x00b0d790... (6 %)[KWriting at 0x00b143d6... (8 %)[KWriting at 0x00b1a256... (10 %)[KWriting at 0x00b20619... (13 %)[KWriting at 0x00b26748... (15 %)[KWriting at 0x00b2e6bf... (17 %)[KWriting at 0x00b34747... (19 %)[KWriting at 0x00b3ac1a... (21 %)[KWriting at 0x00b4074f... (23 %)[KWriting at 0x00b4690a... (26 %)[KWriting at 0x00b4cf7b... (28 %)[KWriting at 0x00b52bef... (30 %)[KWriting at 0x00b59de4... (32 %)[KWriting at 0x00b5fd0b... (34 %)[KWriting at 0x00b64e23... (36 %)[KWriting at 0x00b6c225... (39 %)[KWriting at 0x00b7277e... (41 %)[KWriting at 0x00b786cf... (43 %)[KWriting at 0x00b7e51d... (45 %)[KWriting at 0x00b8319a... (47 %)[KWriting at 0x00b8cd89... (50 %)[KWriting at 0x00b9f61e... (52 %)[KWriting at 0x00ba4795... (54 %)[KWriting at 0x00ba9e88... (56 %)[KWriting at 0x00baf575... (58 %)[KWriting at 0x00bb6945... (60 %)[KWriting at 0x00bbccc8... (63 %)[KWriting at 0x00bc3f2e... (65 %)[KWriting at 0x00bc9b56... (67 %)[KWriting at 0x00bcee65... (69 %)[KWriting at 0x00bd5628... (71 %)[KWriting at 0x00bdacbd... (73 %)[KWriting at 0x00be15b7... (76 %)[KWriting at 0x00be65a4... (78 %)[KWriting at 0x00beb935... (80 %)[KWriting at 0x00bf15dc... (82 %)[KWriting at 0x00bf84f0... (84 %)[KWriting at 0x00c00709... (86 %)[KWriting at 0x00c05b9d... (89 %)[KWriting at 0x00c0babe... (91 %)[KWriting at 0x00c12937... (93 %)[KWriting at 0x00c189f3... (95 %)[KWriting at 0x00c1e76f... (97 %)[KWriting at 0x00c2c538... (100 %)[K
+Wrote 5242880 bytes (750905 compressed) at 0x00b00000 in 18.2 seconds (effective 2302.3 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/kazeform/2026esp/bug_project
+Executing "/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 301 --decode-panic backtrace /home/kazeform/2026esp/bug_project/build/sample_project.elf /home/kazeform/2026esp/bug_project/build/bootloader/bootloader.elf -m '/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python' '/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf.py' '-p' '/dev/ttyACM0'"...
+[0;33m--- esp-idf-monitor 1.9.0 on /dev/ttyACM0 115200[0m
+[0;33m--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H[0m
+ESP-ROM:esp32p4-eco6-20251011
+Build:Oct 11 2025
+rst:0x17 (CHIP_USB_UART_RESET),boot:0x10c (SPI_FAST_FLASH_BOOT)
+Core0 Saved PC:0x4fc04830
+Core1 Saved PC:0x4fc06020
+SPI mode:DIO, clock div:2
+load:0x4ffb60d0,len:0x15e4
+load:0x4ffac2c0,len:0xe88
+[0m--- 0x4ffac2c0: [0;33mesp_bootloader_get_description[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_bootloader_format/esp_bootloader_desc.c[0m[0m:[1;31m39[0m
+load:0x4ffaefc0,len:0x3560
+[0m--- 0x4ffaefc0: [0;33mesp_flash_encryption_enabled[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader_support/src/flash_encrypt.c[0m[0m:[1;31m89[0m
+entry 0x4ffac2ca
+[0m--- 0x4ffac2ca: [0;33mcall_start_cpu0[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader/subproject/main/bootloader_start.c[0m[0m:[1;31m27[0m
+[0;32mI (27) boot: ESP-IDF v5.5.4 2nd stage bootloader[0m
+[0;32mI (28) boot: compile time Jun 27 2026 17:33:42[0m
+[0;32mI (28) boot: Multicore bootloader[0m
+[0;32mI (30) boot: chip revision: v3.1[0m
+[0;32mI (31) boot: efuse block revision: v1.2[0m
+[0;32mI (34) boot.esp32p4: SPI Speed      : 40MHz[0m
+[0;32mI (38) boot.esp32p4: SPI Mode       : DIO[0m
+[0;32mI (42) boot.esp32p4: SPI Flash Size : 16MB[0m
+[0;32mI (46) boot: Enabling RNG early entropy source...[0m
+[0;32mI (50) boot: Partition Table:[0m
+[0;32mI (53) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (59) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (72) boot:  2 factory          factory app      00 00 00010000 00600000[0m
+[0;32mI (79) boot:  3 storage          Unknown data     01 82 00b00000 00500000[0m
+[0;32mI (86) boot: End of partition table[0m
+[0;32mI (89) esp_image: segment 0: paddr=00010020 vaddr=480e0020 size=1195d4h (1152468) map[0m
+[0;32mI (278) esp_image: segment 1: paddr=001295fc vaddr=30100000 size=00164h (   356) load[0m
+[0;32mI (280) esp_image: segment 2: paddr=00129768 vaddr=30100170 size=00048h (    72) load[0m
+[0;32mI (283) esp_image: segment 3: paddr=001297b8 vaddr=4ff40000 size=06860h ( 26720) load[0m
+[0;32mI (295) esp_image: segment 4: paddr=00130020 vaddr=48000020 size=d1060h (856160) map[0m
+[0;32mI (433) esp_image: segment 5: paddr=00201088 vaddr=4ff46860 size=109d0h ( 68048) load[0m
+[0;32mI (447) esp_image: segment 6: paddr=00211a60 vaddr=4ff57280 size=041c4h ( 16836) load[0m
+[0;32mI (456) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (456) boot: Disabling RNG early entropy source...[0m
+[0;32mI (468) hex_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (468) hex_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (468) hex_psram: DriveStr.    : 0x00 (25 Ohm)[0m
+[0;32mI (469) hex_psram: dev id       : 0x03 (generation 4)[0m
+[0;32mI (473) hex_psram: density      : 0x07 (256 Mbit)[0m
+[0;32mI (478) hex_psram: good-die     : 0x06 (Pass)[0m
+[0;32mI (482) hex_psram: SRF          : 0x02 (Slow Refresh)[0m
+[0;32mI (487) hex_psram: BurstType    : 0x00 ( Wrap)[0m
+[0;32mI (491) hex_psram: BurstLen     : 0x03 (2048 Byte)[0m
+[0;32mI (495) hex_psram: BitMode      : 0x01 (X16 Mode)[0m
+[0;32mI (500) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)[0m
+[0;32mI (505) hex_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (509) MSPI Timing: Enter psram timing tuning[0m
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+[0;32mI (817) mmu_psram: .rodata xip on psram[0m
+[0;32mI (929) mmu_psram: .text xip on psram[0m
+[0;32mI (930) hex_psram: psram CS IO is dedicated[0m
+[0;32mI (930) cpu_start: Multicore app[0m
+[0;32mI (1383) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (1393) cpu_start: GPIO 38 and 37 are used as console UART I/O pins[0m
+[0;32mI (1393) cpu_start: Pro cpu start user code[0m
+[0;32mI (1393) cpu_start: cpu freq: 400000000 Hz[0m
+[0;32mI (1395) app_init: Application information:[0m
+[0;32mI (1399) app_init: Project name:     sample_project[0m
+[0;32mI (1404) app_init: App version:      f2ac998[0m
+[0;32mI (1408) app_init: Compile time:     Jun 28 2026 12:20:18[0m
+[0;32mI (1413) app_init: ELF file SHA256:  705c61e8a...[0m
+[0;32mI (1417) app_init: ESP-IDF:          v5.5.4[0m
+[0;32mI (1421) efuse_init: Min chip rev:     v3.1[0m
+[0;32mI (1425) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (1429) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (1433) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (1440) heap_init: At 4FF5FCC0 len 0005B300 (364 KiB): RETENT_RAM[0m
+[0;32mI (1445) heap_init: At 4FFBAFC0 len 00004BF0 (18 KiB): RAM[0m
+[0;32mI (1455) heap_init: At 50108080 len 00007F80 (31 KiB): RTCRAM[0m
+[0;32mI (1456) heap_init: At 301001B8 len 00001E48 (7 KiB): TCM[0m
+[0;32mI (1614) esp_psram: Adding pool of 30720K of PSRAM memory to heap allocator[0m
+[0;32mI (1614) esp_psram: Adding pool of 59K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator[0m
+[0;32mI (1620) esp_psram: Adding pool of 26K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator[0m
+[0;32mI (1632) spi_flash: detected chip: gd[0m
+[0;32mI (1635) spi_flash: flash io: dio[0m
+[0;32mI (1638) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (1644) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (1651) main_task: Started on CPU0[0m
+[0;32mI (1654) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (1662) main_task: Calling app_main()[0m
+[0;32mI (1665) system: System initialization start[0m
+[0;32mI (1669) PSRAM_ARB: [PSRAM_ARB] apply display_first=1 psram_read_first=0 camera_write_regulator=1[0m
+[0;32mI (1678) PSRAM_ARB: [PSRAM_ARB] source=apply mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (1689) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (1699) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (1707) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[0;32mI (1715) bsp_lcd: Backlight on[0m
+[0;32mI (1718) bsp_lcd: MIPI DSI PHY powered on[0m
+[0;32mI (1723) ek79007: version: 1.0.4[0m
+[0;32mI (1930) bsp_lcd: LCD init done[0m
+[0;32mI (1930) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (1930) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x48200a80 fb1=0x4832cb00 fb2=0x48458b80 psram_free=27201KB internal_free=387KB[0m
+[0;33mW (1942) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (1954) bsp_touch: I2C bus initialized[0m
+[0;32mI (1957) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[1;31mE (1985) lcd_panel.io.i2c: panel_io_i2c_rx_buffer(145): i2c transaction failed[0m
+[1;31mE (1985) GT911: touch_gt911_read_cfg(419): GT911 read error![0m
+[1;31mE (1986) GT911: esp_lcd_touch_new_i2c_gt911(169): GT911 init failed[0m
+[1;31mE (1992) GT911: Error (0x103)! Touch controller GT911 initialization failed![0m
+[0;33mW (1999) bsp_touch: GT911 init at 0x5D failed: ESP_ERR_INVALID_STATE[0m
+[0;32mI (2005) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[0;32mI (2034) GT911: TouchPad_ID:0x39,0x31,0x31[0m
+[0;32mI (2034) GT911: TouchPad_Config_Version:89[0m
+[0;32mI (2034) bsp_touch: GT911 detected at I2C address 0x14[0m
+[0;32mI (2035) bsp_touch: Touch init done[0m
+[1;31mE (2038) bsp_motor: validate_motor_gpio(73): motor 0 PWM A GPIO is not configured[0m
+[1;31mE (2046) bsp_motor: init_motor_mcpwm(110): motor GPIO validation failed[0m
+[1;31mE (2052) bsp_motor: bsp_motor_init(162): init motor 0 MCPWM failed[0m
+[0;32mI (2058) bsp_encoder: encoder BSP initialized[0m
+[0;32mI (2063) esp_lvgl:adapter: LVGL adapter initialized successfully[0m
+[0;32mI (2071) esp_lvgl:bridge_v9: Initializing hardware resources[0m
+[0;32mI (2073) esp_lvgl:bridge_v9: Hardware resources initialized successfully[0m
+[0;32mI (2080) bsp_lvgl: Display registered (1024x600)[0m
+[0;33mW (2084) esp_lvgl:touch: LV_USE_GESTURE_RECOGNITION is disabled; only single-point pointer events are available[0m
+[0;32mI (2094) esp_lvgl:touch: Touch input device registered successfully (IRQ mode: disabled)[0m
+[0;32mI (2102) bsp_lvgl: Touch registered[0m
+[0;32mI (2105) esp_lvgl:adapter: LVGL task started successfully[0m
+[0;32mI (2106) esp_lvgl:bridge: Initializing hardware resources[0m
+[0;32mI (2110) bsp_lvgl: LVGL adapter started[0m
+[0;32mI (2115) esp_lvgl:bridge: Hardware resources initialized successfully[0m
+[0;32mI (2253) vision_preview: preview initialized: 640x375[0m
+[0;32mI (2255) app_ui_dashboard: [BLUE_MARK] UI marker button installed[0m
+[0;32mI (2304) esp_eth.netif.netif_glue: e8:f6:0a:e1:7a:d1[0m
+[0;32mI (2304) esp_eth.netif.netif_glue: ethernet attached to netif[0m
+[0;32mI (6305) eth_example: Ethernet Started[0m
+[0;32mI (6305) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C[0m
+[0;33mW (6308) vision_app: YOLO inference disabled for bandwidth A/B test[0m
+[0;32mI (6309) cam_sensor: MIPI PHY LDO ch3 = 2500 mV[0m
+[0;32mI (6314) cam_sensor: Using shared I2C bus for SCCB[0m
+[0;32mI (6319) sc2336: Detected Camera sensor PID=0xcb3a[0m
+[0;32mI (6322) cam_sensor: Detected: SC2336[0m
+[0;32mI (6326) cam_sensor: Format: MIPI_2lane_24Minput_RAW10_640x480_50fps  640x480  50fps[0m
+[0;32mI (6428) cam_sensor: [CAM_DIAG] active_write=600KB/s frame=600KB fps=50 write_fps=1 period=800ms duty=800ms buffers=3 psram_free=23852KB[0m
+[0;32mI (6436) cam_sensor: cam_sensor_init OK  [640x480 RGB565, 600 KB/frame][0m
+[0;32mI (6442) cam_sensor: Streaming started (capture task priority=10 core=0 duty=800ms)[0m
+[0;32mI (6443) cam_sensor: [CAM_DIAG] capture #1 receive=0ms max=0ms timeouts=0 core=0 prio=10 stack_hwm=3240[0m
+[0;32mI (6459) vision_app: vision task created priority=3 core=1 stack=32768B[0m
+[0;32mI (6459) vision_app: vision task started core=1 priority=3 stack_hwm=31880[0m
+[0;32mI (6465) system: System initialization done[0m
+[0;32mI (7282) cam_sensor: [CAM_DIAG] capture #2 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2200[0m
+[0;32mI (8082) cam_sensor: [CAM_DIAG] capture #3 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2200[0m
+[0;32mI (8083) pipe_diag: [PIPE_DIAG] uptime=6621ms frame=3 fps=3 last=3 640x480 cam_timeout=0/0 max_cam_wait=809ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (8099) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (8119) vision_app: [VISION_DIAG] latest #3 fps=1.85 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (8142) vision_app: [VISION_DIAG] avg samples=3 fps=1.85 ppa=0 images=0 cam_wait=536.1ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=536.2ms max_run=0ms max_loop=809ms[0m
+[0;32mI (8882) cam_sensor: [CAM_DIAG] capture #4 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2200[0m
+[0;32mI (9682) cam_sensor: [CAM_DIAG] capture #5 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2200[0m
+[0;32mI (9683) pipe_diag: [PIPE_DIAG] uptime=8221ms frame=5 fps=2 last=5 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (9699) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (9719) vision_app: [VISION_DIAG] latest #5 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (9742) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=759.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=759.3ms max_run=0ms max_loop=799ms[0m
+[0;32mI (11283) pipe_diag: [PIPE_DIAG] uptime=9821ms frame=7 fps=2 last=7 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (11291) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (11311) vision_app: [VISION_DIAG] latest #7 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (11334) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=758.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=758.3ms max_run=0ms max_loop=798ms[0m
+[0;32mI (12883) pipe_diag: [PIPE_DIAG] uptime=11421ms frame=9 fps=2 last=9 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (12891) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (12911) vision_app: [VISION_DIAG] latest #9 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (12934) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=798ms[0m
+[0;32mI (14483) pipe_diag: [PIPE_DIAG] uptime=13021ms frame=11 fps=2 last=11 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (14491) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (14512) vision_app: [VISION_DIAG] latest #11 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (14535) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.8ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=798ms[0m
+[0;32mI (16083) pipe_diag: [PIPE_DIAG] uptime=14621ms frame=13 fps=2 last=13 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (16091) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (16111) vision_app: [VISION_DIAG] latest #13 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (16134) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (17683) pipe_diag: [PIPE_DIAG] uptime=16221ms frame=15 fps=2 last=15 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (17691) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (17712) vision_app: [VISION_DIAG] latest #15 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (17735) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=798ms[0m
+[0;32mI (19283) pipe_diag: [PIPE_DIAG] uptime=17821ms frame=17 fps=2 last=17 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (19291) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (19312) vision_app: [VISION_DIAG] latest #17 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (19335) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (20883) pipe_diag: [PIPE_DIAG] uptime=19421ms frame=19 fps=2 last=19 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (20891) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (20912) vision_app: [VISION_DIAG] latest #19 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (20935) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (22483) pipe_diag: [PIPE_DIAG] uptime=21021ms frame=21 fps=2 last=21 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (22491) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (22512) vision_app: [VISION_DIAG] latest #21 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (22535) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (24083) pipe_diag: [PIPE_DIAG] uptime=22622ms frame=23 fps=2 last=23 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (24091) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (24112) vision_app: [VISION_DIAG] latest #23 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (24135) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (25684) pipe_diag: [PIPE_DIAG] uptime=24222ms frame=25 fps=2 last=25 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (25692) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (25713) vision_app: [VISION_DIAG] latest #25 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (25736) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.4ms max_run=0ms max_loop=799ms[0m
+[0;32mI (27284) pipe_diag: [PIPE_DIAG] uptime=25822ms frame=27 fps=2 last=27 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (27292) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (27313) vision_app: [VISION_DIAG] latest #27 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (27336) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (28884) pipe_diag: [PIPE_DIAG] uptime=27422ms frame=29 fps=2 last=29 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (28892) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (28913) vision_app: [VISION_DIAG] latest #29 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (28936) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (30484) pipe_diag: [PIPE_DIAG] uptime=29022ms frame=31 fps=2 last=31 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (30492) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (30513) vision_app: [VISION_DIAG] latest #31 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (30536) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=799ms[0m
+[0;32mI (32085) pipe_diag: [PIPE_DIAG] uptime=30623ms frame=33 fps=2 last=33 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=0 internal=97KB psram=23817KB[0m
+[0;32mI (32093) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (32113) vision_app: [VISION_DIAG] latest #33 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (32136) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.2ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.2ms max_run=0ms max_loop=798ms[0m
+[1;31mE (33681) bsp_lcd: [BLUE_MARK] #1 source=ui_button time_us=32220423 tick=32030 core=1 psram_free=23817KB internal_free=96KB[0m
+[0;32mI (33682) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (33690) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x48200a80 fb1=0x4832cb00 fb2=0x48458b80 psram_free=23817KB internal_free=96KB[0m
+[0;33mW (33702) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (33714) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (33726) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (33735) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (33743) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (33752) pipe_diag: [PIPE_DIAG] blue_dump source=ui_button blue=1 frame=34 total_frames=34 camera_timeouts=0 roi_ok=0 roi_skip=0 model_runs=0 preview_ok=0/0 yolo_ppa=0 preview_ppa=0[0m
+[1;31mE (33767) pipe_diag: [PPA_TRACE] recent count=0[0m
+[1;31mE (33772) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (33780) bsp_lcd: [BLUE_MARK] fb_hash t_us=30097455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33788) bsp_lcd: [BLUE_MARK] fb_hash t_us=30197455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33796) bsp_lcd: [BLUE_MARK] fb_hash t_us=30297455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33804) bsp_lcd: [BLUE_MARK] fb_hash t_us=30397455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33812) bsp_lcd: [BLUE_MARK] fb_hash t_us=30497455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33820) bsp_lcd: [BLUE_MARK] fb_hash t_us=30597455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33829) bsp_lcd: [BLUE_MARK] fb_hash t_us=30697456 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33837) bsp_lcd: [BLUE_MARK] fb_hash t_us=30797459 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33845) bsp_lcd: [BLUE_MARK] fb_hash t_us=30897455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33853) bsp_lcd: [BLUE_MARK] fb_hash t_us=30997455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33861) bsp_lcd: [BLUE_MARK] fb_hash t_us=31097455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33869) bsp_lcd: [BLUE_MARK] fb_hash t_us=31197455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33877) bsp_lcd: [BLUE_MARK] fb_hash t_us=31297455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33885) bsp_lcd: [BLUE_MARK] fb_hash t_us=31397455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33893) bsp_lcd: [BLUE_MARK] fb_hash t_us=31497455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33901) bsp_lcd: [BLUE_MARK] fb_hash t_us=31597455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33909) bsp_lcd: [BLUE_MARK] fb_hash t_us=31697455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33917) bsp_lcd: [BLUE_MARK] fb_hash t_us=31797455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33925) bsp_lcd: [BLUE_MARK] fb_hash t_us=31897456 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33933) bsp_lcd: [BLUE_MARK] fb_hash t_us=31997455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33942) bsp_lcd: [BLUE_MARK] fb_hash t_us=32097455 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (33950) bsp_lcd: [BLUE_MARK] fb_hash t_us=32197455 fb0=58fc0805 fb1=58fc0805 fb2=50764105[0m
+[1;31mE (33958) bsp_lcd: [BLUE_MARK] fb_hash t_us=32297456 fb0=58fc0805 fb1=58fc0805 fb2=50764105[0m
+[1;31mE (33966) bsp_lcd: [BLUE_MARK] fb_hash t_us=32310695 fb0=58fc0805 fb1=58fc0805 fb2=50764105[0m
+[0;32mI (33974) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=600KB/s count=35 timeouts=0 last_receive=38ms max_receive=38ms age=289ms latest=1 app=-1 psram_free=23817KB[0m
+[1;31mE (33992) app_ui_dashboard: [BLUE_MARK] dashboard status=未检测到目标 company=无 conf=0 threshold=25 fps=1 infer=0ms cpu1=0 cpu2=0 mem=0 sorted=0 boxes=0 heap=96KB psram=23817KB[0m
+[0;32mI (34010) pipe_diag: [PIPE_DIAG] uptime=32548ms frame=35 fps=2 last=35 640x480 cam_timeout=0/0 max_cam_wait=1124ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=92KB psram=23817KB[0m
+[0;32mI (34028) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (34047) vision_app: [VISION_DIAG] latest #35 fps=1.04 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=1124ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=1124ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (34071) vision_app: [VISION_DIAG] avg samples=2 fps=1.04 ppa=0 images=0 cam_wait=925.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=925.7ms max_run=0ms max_loop=1124ms[0m
+[0;32mI (35287) pipe_diag: [PIPE_DIAG] uptime=33825ms frame=37 fps=2 last=37 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (35295) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (35316) vision_app: [VISION_DIAG] latest #37 fps=1.57 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (35339) vision_app: [VISION_DIAG] avg samples=2 fps=1.57 ppa=0 images=0 cam_wait=596.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=596.9ms max_run=0ms max_loop=799ms[0m
+[0;32mI (36887) pipe_diag: [PIPE_DIAG] uptime=35426ms frame=39 fps=2 last=39 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (36895) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (36916) vision_app: [VISION_DIAG] latest #39 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (36939) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (38488) pipe_diag: [PIPE_DIAG] uptime=37026ms frame=41 fps=2 last=41 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (38496) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (38517) vision_app: [VISION_DIAG] latest #41 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (38540) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.4ms max_run=0ms max_loop=799ms[0m
+[0;32mI (40088) pipe_diag: [PIPE_DIAG] uptime=38626ms frame=43 fps=2 last=43 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (40096) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (40117) vision_app: [VISION_DIAG] latest #43 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (40140) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (41688) pipe_diag: [PIPE_DIAG] uptime=40226ms frame=45 fps=2 last=45 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (41696) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (41717) vision_app: [VISION_DIAG] latest #45 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (41740) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (43288) pipe_diag: [PIPE_DIAG] uptime=41826ms frame=47 fps=2 last=47 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (43296) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (43317) vision_app: [VISION_DIAG] latest #47 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (43340) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=799ms[0m
+[0;32mI (44889) pipe_diag: [PIPE_DIAG] uptime=43427ms frame=49 fps=2 last=49 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (44897) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (44918) vision_app: [VISION_DIAG] latest #49 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (44941) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.2ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.2ms max_run=0ms max_loop=798ms[0m
+[0;32mI (46489) pipe_diag: [PIPE_DIAG] uptime=45027ms frame=51 fps=2 last=51 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (46497) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (46518) vision_app: [VISION_DIAG] latest #51 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (46541) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (48089) pipe_diag: [PIPE_DIAG] uptime=46627ms frame=53 fps=2 last=53 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (48097) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (48117) vision_app: [VISION_DIAG] latest #53 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (48140) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (49689) pipe_diag: [PIPE_DIAG] uptime=48227ms frame=55 fps=2 last=55 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (49697) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (49718) vision_app: [VISION_DIAG] latest #55 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (49741) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=798ms[0m
+[0;32mI (51289) pipe_diag: [PIPE_DIAG] uptime=49827ms frame=57 fps=2 last=57 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms
+[0;32mI (51318) vision_app: [VISION_DIAG] latest #57 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (51341) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (52889) pipe_diag: [PIPE_DIAG] uptime=51427ms frame=59 fps=2 last=59 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (52897) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (52918) vision_app: [VISION_DIAG] latest #59 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (52941) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (54489) pipe_diag: [PIPE_DIAG] uptime=53027ms frame=61 fps=2 last=61 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (54497) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (54518) vision_app: [VISION_DIAG] latest #61 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (54541) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (56089) pipe_diag: [PIPE_DIAG] uptime=54628ms frame=63 fps=2 last=63 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (56097) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (56118) vision_app: [VISION_DIAG] latest #63 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (56141) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (57690) pipe_diag: [PIPE_DIAG] uptime=56228ms frame=65 fps=2 last=65 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (57698) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (57719) vision_app: [VISION_DIAG] latest #65 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (57742) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.4ms max_run=0ms max_loop=799ms[0m
+[0;32mI (59290) pipe_diag: [PIPE_DIAG] uptime=57828ms frame=67 fps=2 last=67 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (59298) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (59319) vision_app: [VISION_DIAG] latest #67 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (59342) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=799ms[0m
+[0;32mI (60890) pipe_diag: [PIPE_DIAG] uptime=59428ms frame=69 fps=2 last=69 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (60898) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (60919) vision_app: [VISION_DIAG] latest #69 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (60942) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (62490) pipe_diag: [PIPE_DIAG] uptime=61028ms frame=71 fps=2 last=71 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (62498) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (62519) vision_app: [VISION_DIAG] latest #71 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (62542) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=799ms[0m
+[0;32mI (64091) pipe_diag: [PIPE_DIAG] uptime=62629ms frame=73 fps=2 last=73 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (64099) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (64120) vision_app: [VISION_DIAG] latest #73 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (64143) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.2ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.2ms max_run=0ms max_loop=798ms[0m
+[0;32mI (65692) pipe_diag: [PIPE_DIAG] uptime=64230ms frame=75 fps=2 last=75 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (65700) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (65721) vision_app: [VISION_DIAG] latest #75 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (65744) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.4ms max_run=0ms max_loop=799ms[0m
+[0;32mI (67292) pipe_diag: [PIPE_DIAG] uptime=65831ms frame=77 fps=2 last=77 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (67300) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (67321) vision_app: [VISION_DIAG] latest #77 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (67344) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (68892) pipe_diag: [PIPE_DIAG] uptime=67430ms frame=79 fps=2 last=79 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (68900) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (68921) vision_app: [VISION_DIAG] latest #79 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (68944) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (70492) pipe_diag: [PIPE_DIAG] uptime=69030ms frame=81 fps=2 last=81 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (70500) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (70521) vision_app: [VISION_DIAG] latest #81 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (70544) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (72092) pipe_diag: [PIPE_DIAG] uptime=70630ms frame=83 fps=2 last=83 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (72100) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (72121) vision_app: [VISION_DIAG] latest #83 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (72144) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (73693) pipe_diag: [PIPE_DIAG] uptime=72231ms frame=85 fps=2 last=85 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (73701) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (73722) vision_app: [VISION_DIAG] latest #85 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (73745) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.4ms max_run=0ms max_loop=799ms[0m
+[0;32mI (75293) pipe_diag: [PIPE_DIAG] uptime=73831ms frame=87 fps=2 last=87 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (75301) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (75322) vision_app: [VISION_DIAG] latest #87 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (75345) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=799ms[0m
+[0;32mI (76893) pipe_diag: [PIPE_DIAG] uptime=75431ms frame=89 fps=2 last=89 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (76901) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (76922) vision_app: [VISION_DIAG] latest #89 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (76945) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (78493) pipe_diag: [PIPE_DIAG] uptime=77031ms frame=91 fps=2 last=91 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (78501) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (78522) vision_app: [VISION_DIAG] latest #91 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (78545) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (80093) pipe_diag: [PIPE_DIAG] uptime=78631ms frame=93 fps=2 last=93 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (80101) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (80122) vision_app: [VISION_DIAG] latest #93 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (80145) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (81693) pipe_diag: [PIPE_DIAG] uptime=80231ms frame=95 fps=2 last=95 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (81701) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (81721) vision_app: [VISION_DIAG] latest #95 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (81744) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (83294) pipe_diag: [PIPE_DIAG] uptime=81832ms frame=97 fps=2 last=97 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (83302) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (83323) vision_app: [VISION_DIAG] latest #97 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (83346) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.6ms max_run=0ms max_loop=799ms[0m
+[0;32mI (84894) pipe_diag: [PIPE_DIAG] uptime=83432ms frame=99 fps=2 last=99 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (84902) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (84923) vision_app: [VISION_DIAG] latest #99 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (84946) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (86494) pipe_diag: [PIPE_DIAG] uptime=85032ms frame=101 fps=2 last=101 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (86502) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (86523) vision_app: [VISION_DIAG] latest #101 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (86546) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.7ms max_run=0ms max_loop=798ms[0m
+[0;32mI (88094) pipe_diag: [PIPE_DIAG] uptime=86632ms frame=103 fps=2 last=103 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (88102) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (88123) vision_app: [VISION_DIAG] latest #103 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (88146) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.8ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.8ms max_run=0ms max_loop=799ms[0m
+[0;32mI (89694) pipe_diag: [PIPE_DIAG] uptime=88232ms frame=105 fps=2 last=105 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (89702) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (89723) vision_app: [VISION_DIAG] latest #105 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (89746) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=798ms[0m
+[0;32mI (91294) pipe_diag: [PIPE_DIAG] uptime=89832ms frame=107 fps=2 last=107 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (91302) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (91323) vision_app: [VISION_DIAG] latest #107 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (91346) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=798ms[0m
+[0;32mI (92894) pipe_diag: [PIPE_DIAG] uptime=91432ms frame=109 fps=2 last=109 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (92902) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (92923) vision_app: [VISION_DIAG] latest #109 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (92946) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=798ms[0m
+[0;32mI (94494) pipe_diag: [PIPE_DIAG] uptime=93032ms frame=111 fps=2 last=111 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (94502) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (94523) vision_app: [VISION_DIAG] latest #111 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (94546) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=798ms[0m
+[0;32mI (96094) pipe_diag: [PIPE_DIAG] uptime=94632ms frame=113 fps=2 last=113 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (96102) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (96123) vision_app: [VISION_DIAG] latest #113 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (96146) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=798ms[0m
+[0;32mI (97694) pipe_diag: [PIPE_DIAG] uptime=96233ms frame=115 fps=2 last=115 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (97702) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (97723) vision_app: [VISION_DIAG] latest #115 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (97746) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=798ms[0m
+[0;32mI (99295) pipe_diag: [PIPE_DIAG] uptime=97833ms frame=117 fps=2 last=117 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (99303) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (99324) vision_app: [VISION_DIAG] latest #117 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (99347) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.3ms max_run=0ms max_loop=799ms[0m
+[0;32mI (100895) pipe_diag: [PIPE_DIAG] uptime=99433ms frame=119 fps=2 last=119 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (100903) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (100924) vision_app: [VISION_DIAG] latest #119 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (100947) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=798ms[0m
+[0;32mI (101694) cam_sensor: [CAM_DIAG] capture #120 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2200[0m
+[0;32mI (102495) pipe_diag: [PIPE_DIAG] uptime=101033ms frame=121 fps=2 last=121 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (102503) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (102524) vision_app: [VISION_DIAG] latest #121 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (102547) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (104095) pipe_diag: [PIPE_DIAG] uptime=102633ms frame=123 fps=2 last=123 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (104103) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (104124) vision_app: [VISION_DIAG] latest #123 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (104147) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (105695) pipe_diag: [PIPE_DIAG] uptime=104233ms frame=125 fps=2 last=125 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (105703) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (105724) vision_app: [VISION_DIAG] latest #125 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (105747) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.5ms max_run=0ms max_loop=799ms[0m
+[0;32mI (107295) pipe_diag: [PIPE_DIAG] uptime=105833ms frame=127 fps=2 last=127 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (107303) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (107324) vision_app: [VISION_DIAG] latest #127 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (107347) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (108895) pipe_diag: [PIPE_DIAG] uptime=107433ms frame=129 fps=2 last=129 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (108903) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (108924) vision_app: [VISION_DIAG] latest #129 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (108947) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.5ms max_run=0ms max_loop=798ms[0m
+[0;32mI (110495) pipe_diag: [PIPE_DIAG] uptime=109033ms frame=131 fps=2 last=131 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (110503) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (110524) vision_app: [VISION_DIAG] latest #131 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (110547) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (112095) pipe_diag: [PIPE_DIAG] uptime=110633ms frame=133 fps=2 last=133 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (112103) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (112124) vision_app: [VISION_DIAG] latest #133 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (112147) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.5ms max_run=0ms max_loop=798ms[0m
+[0;32mI (113695) pipe_diag: [PIPE_DIAG] uptime=112233ms frame=135 fps=2 last=135 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (113703) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (113724) vision_app: [VISION_DIAG] latest #135 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (113747) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (115295) pipe_diag: [PIPE_DIAG] uptime=113833ms frame=137 fps=2 last=137 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (115303) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (115324) vision_app: [VISION_DIAG] latest #137 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (115347) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (116895) pipe_diag: [PIPE_DIAG] uptime=115433ms frame=139 fps=2 last=139 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (116903) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (116924) vision_app: [VISION_DIAG] latest #139 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (116947) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.3ms max_run=0ms max_loop=798ms[0m
+[0;32mI (118495) pipe_diag: [PIPE_DIAG] uptime=117033ms frame=141 fps=2 last=141 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (118503) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (118524) vision_app: [VISION_DIAG] latest #141 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (118547) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=799ms[0m
+[0;32mI (120096) pipe_diag: [PIPE_DIAG] uptime=118634ms frame=143 fps=2 last=143 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (120104) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (120125) vision_app: [VISION_DIAG] latest #143 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (120148) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=798ms[0m
+[0;32mI (121696) pipe_diag: [PIPE_DIAG] uptime=120234ms frame=145 fps=2 last=145 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (121704) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (121725) vision_app: [VISION_DIAG] latest #145 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (121748) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (123296) pipe_diag: [PIPE_DIAG] uptime=121835ms frame=147 fps=2 last=147 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (123304) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (123325) vision_app: [VISION_DIAG] latest #147 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (123348) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (124896) pipe_diag: [PIPE_DIAG] uptime=123434ms frame=149 fps=2 last=149 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (124904) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (124925) vision_app: [VISION_DIAG] latest #149 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (124948) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (126496) pipe_diag: [PIPE_DIAG] uptime=125034ms frame=151 fps=2 last=151 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (126504) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (126525) vision_app: [VISION_DIAG] latest #151 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (126548) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (128096) pipe_diag: [PIPE_DIAG] uptime=126634ms frame=153 fps=2 last=153 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (128104) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (128125) vision_app: [VISION_DIAG] latest #153 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (128148) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (129696) pipe_diag: [PIPE_DIAG] uptime=128234ms frame=155 fps=2 last=155 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (129704) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (129725) vision_app: [VISION_DIAG] latest #155 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (129748) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (131296) pipe_diag: [PIPE_DIAG] uptime=129834ms frame=157 fps=2 last=157 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (131304) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (131325) vision_app: [VISION_DIAG] latest #157 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (131348) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=799ms[0m
+[0;32mI (132897) pipe_diag: [PIPE_DIAG] uptime=131436ms frame=159 fps=2 last=159 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (132905) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (132926) vision_app: [VISION_DIAG] latest #159 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (132949) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=798ms[0m
+[0;32mI (134497) pipe_diag: [PIPE_DIAG] uptime=133035ms frame=161 fps=2 last=161 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (134505) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (134526) vision_app: [VISION_DIAG] latest #161 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (134549) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (136097) pipe_diag: [PIPE_DIAG] uptime=134635ms frame=163 fps=2 last=163 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (136105) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (136126) vision_app: [VISION_DIAG] latest #163 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (136149) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (137697) pipe_diag: [PIPE_DIAG] uptime=136235ms frame=165 fps=2 last=165 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (137705) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (137726) vision_app: [VISION_DIAG] latest #165 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (137749) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (139297) pipe_diag: [PIPE_DIAG] uptime=137835ms frame=167 fps=2 last=167 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (139305) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (139326) vision_app: [VISION_DIAG] latest #167 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (139349) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (140897) pipe_diag: [PIPE_DIAG] uptime=139435ms frame=169 fps=2 last=169 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (140905) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (140926) vision_app: [VISION_DIAG] latest #169 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (140949) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (142498) pipe_diag: [PIPE_DIAG] uptime=141036ms frame=171 fps=2 last=171 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (142506) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (142527) vision_app: [VISION_DIAG] latest #171 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (142550) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.2ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.3ms max_run=0ms max_loop=799ms[0m
+[0;32mI (144098) pipe_diag: [PIPE_DIAG] uptime=142636ms frame=173 fps=2 last=173 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (144106) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (144127) vision_app: [VISION_DIAG] latest #173 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (144150) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (145698) pipe_diag: [PIPE_DIAG] uptime=144236ms frame=175 fps=2 last=175 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (145706) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (145726) vision_app: [VISION_DIAG] latest #175 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (145750) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (147298) pipe_diag: [PIPE_DIAG] uptime=145836ms frame=177 fps=2 last=177 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (147307) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (147327) vision_app: [VISION_DIAG] latest #177 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (147350) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.8ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.8ms max_run=0ms max_loop=799ms[0m
+[0;32mI (148899) pipe_diag: [PIPE_DIAG] uptime=147437ms frame=179 fps=2 last=179 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (148907) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (148928) vision_app: [VISION_DIAG] latest #179 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (148951) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=798ms[0m
+[0;32mI (150499) pipe_diag: [PIPE_DIAG] uptime=149037ms frame=181 fps=2 last=181 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (150507) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (150528) vision_app: [VISION_DIAG] latest #181 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (150551) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=799ms[0m
+[0;32mI (152100) pipe_diag: [PIPE_DIAG] uptime=150638ms frame=183 fps=2 last=183 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (152108) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (152129) vision_app: [VISION_DIAG] latest #183 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (152152) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=798ms[0m
+[0;32mI (153700) pipe_diag: [PIPE_DIAG] uptime=152238ms frame=185 fps=2 last=185 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (153708) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (153729) vision_app: [VISION_DIAG] latest #185 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (153752) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (155300) pipe_diag: [PIPE_DIAG] uptime=153839ms frame=187 fps=2 last=187 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (155308) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (155329) vision_app: [VISION_DIAG] latest #187 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (155352) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (156901) pipe_diag: [PIPE_DIAG] uptime=155439ms frame=189 fps=2 last=189 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (156909) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (156930) vision_app: [VISION_DIAG] latest #189 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (156953) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.1ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.1ms max_run=0ms max_loop=799ms[0m
+[0;32mI (158501) pipe_diag: [PIPE_DIAG] uptime=157039ms frame=191 fps=2 last=191 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (158509) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (158530) vision_app: [VISION_DIAG] latest #191 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (158553) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (160101) pipe_diag: [PIPE_DIAG] uptime=158639ms frame=193 fps=2 last=193 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (160109) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (160130) vision_app: [VISION_DIAG] latest #193 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (160153) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (161701) pipe_diag: [PIPE_DIAG] uptime=160239ms frame=195 fps=2 last=195 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (161709) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (161730) vision_app: [VISION_DIAG] latest #195 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (161753) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.3ms max_run=0ms max_loop=798ms[0m
+[0;32mI (163301) pipe_diag: [PIPE_DIAG] uptime=161839ms frame=197 fps=2 last=197 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (163309) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (163330) vision_app: [VISION_DIAG] latest #197 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (163353) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (164901) pipe_diag: [PIPE_DIAG] uptime=163439ms frame=199 fps=2 last=199 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (164909) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (164930) vision_app: [VISION_DIAG] latest #199 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (164953) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (166501) pipe_diag: [PIPE_DIAG] uptime=165039ms frame=201 fps=2 last=201 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (166509) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (166530) vision_app: [VISION_DIAG] latest #201 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (166553) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (168101) pipe_diag: [PIPE_DIAG] uptime=166640ms frame=203 fps=2 last=203 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (168109) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (168130) vision_app: [VISION_DIAG] latest #203 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (168153) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (169702) pipe_diag: [PIPE_DIAG] uptime=168240ms frame=205 fps=2 last=205 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (169710) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (169731) vision_app: [VISION_DIAG] latest #205 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (169754) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.1ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.1ms max_run=0ms max_loop=799ms[0m
+[0;32mI (171302) pipe_diag: [PIPE_DIAG] uptime=169840ms frame=207 fps=2 last=207 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (171310) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (171331) vision_app: [VISION_DIAG] latest #207 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (171354) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (172902) pipe_diag: [PIPE_DIAG] uptime=171440ms frame=209 fps=2 last=209 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (172910) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (172931) vision_app: [VISION_DIAG] latest #209 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (172954) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (174502) pipe_diag: [PIPE_DIAG] uptime=173040ms frame=211 fps=2 last=211 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (174511) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (174531) vision_app: [VISION_DIAG] latest #211 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (174554) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (176102) pipe_diag: [PIPE_DIAG] uptime=174640ms frame=213 fps=2 last=213 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (176110) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (176131) vision_app: [VISION_DIAG] latest #213 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (176154) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (177702) pipe_diag: [PIPE_DIAG] uptime=176240ms frame=215 fps=2 last=215 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (177710) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (177731) vision_app: [VISION_DIAG] latest #215 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (177754) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (179302) pipe_diag: [PIPE_DIAG] uptime=177840ms frame=217 fps=2 last=217 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (179310) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (179331) vision_app: [VISION_DIAG] latest #217 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (179354) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.2ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.2ms max_run=0ms max_loop=798ms[0m
+[0;32mI (180902) pipe_diag: [PIPE_DIAG] uptime=179440ms frame=219 fps=2 last=219 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (180910) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (180931) vision_app: [VISION_DIAG] latest #219 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (180954) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (182502) pipe_diag: [PIPE_DIAG] uptime=181040ms frame=221 fps=2 last=221 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (182510) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (182531) vision_app: [VISION_DIAG] latest #221 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (182554) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (184102) pipe_diag: [PIPE_DIAG] uptime=182640ms frame=223 fps=2 last=223 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (184110) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (184131) vision_app: [VISION_DIAG] latest #223 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (184154) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (185702) pipe_diag: [PIPE_DIAG] uptime=184240ms frame=225 fps=2 last=225 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (185710) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (185731) vision_app: [VISION_DIAG] latest #225 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (185754) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (187303) pipe_diag: [PIPE_DIAG] uptime=185841ms frame=227 fps=2 last=227 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (187311) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (187332) vision_app: [VISION_DIAG] latest #227 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (187355) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.2ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.3ms max_run=0ms max_loop=799ms[0m
+[0;32mI (188903) pipe_diag: [PIPE_DIAG] uptime=187442ms frame=229 fps=2 last=229 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (188911) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (188932) vision_app: [VISION_DIAG] latest #229 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (188955) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (190503) pipe_diag: [PIPE_DIAG] uptime=189041ms frame=231 fps=2 last=231 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (190511) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (190532) vision_app: [VISION_DIAG] latest #231 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (190555) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (192103) pipe_diag: [PIPE_DIAG] uptime=190641ms frame=233 fps=2 last=233 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (192111) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (192132) vision_app: [VISION_DIAG] latest #233 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (192155) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.5ms max_run=0ms max_loop=799ms[0m
+[0;32mI (193704) pipe_diag: [PIPE_DIAG] uptime=192242ms frame=235 fps=2 last=235 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (193712) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (193733) vision_app: [VISION_DIAG] latest #235 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (193756) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.8ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.8ms max_run=0ms max_loop=798ms[0m
+[0;32mI (195304) pipe_diag: [PIPE_DIAG] uptime=193842ms frame=237 fps=2 last=237 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (195312) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (195333) vision_app: [VISION_DIAG] latest #237 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (195356) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.5ms max_run=0ms max_loop=798ms[0m
+[0;32mI (196904) pipe_diag: [PIPE_DIAG] uptime=195442ms frame=239 fps=2 last=239 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23817KB[0m
+[0;32mI (196912) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (196933) vision_app: [VISION_DIAG] latest #239 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=97KB psram=23817KB[0m
+[0;32mI (196956) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=799ms[0m
+[0;32mI (197703) cam_sensor: [CAM_DIAG] capture #240 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2200[0m
+[0;32mI (198504) pipe_diag: [PIPE_DIAG] uptime=197043ms frame=241 fps=2 last=241 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (198512) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (198533) vision_app: [VISION_DIAG] latest #241 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (198556) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (200104) pipe_diag: [PIPE_DIAG] uptime=198642ms frame=243 fps=2 last=243 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (200112) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (200133) vision_app: [VISION_DIAG] latest #243 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (200156) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.5ms max_run=0ms max_loop=798ms[0m
+[0;32mI (201704) pipe_diag: [PIPE_DIAG] uptime=200242ms frame=245 fps=2 last=245 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (201712) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (201733) vision_app: [VISION_DIAG] latest #245 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (201756) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=799ms[0m
+[0;32mI (203305) pipe_diag: [PIPE_DIAG] uptime=201843ms frame=247 fps=2 last=247 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (203313) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (203334) vision_app: [VISION_DIAG] latest #247 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (203357) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.9ms max_run=0ms max_loop=798ms[0m
+[0;32mI (204905) pipe_diag: [PIPE_DIAG] uptime=203443ms frame=249 fps=2 last=249 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (204913) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (204934) vision_app: [VISION_DIAG] latest #249 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (204957) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.6ms max_run=0ms max_loop=799ms[0m
+[0;32mI (206505) pipe_diag: [PIPE_DIAG] uptime=205043ms frame=251 fps=2 last=251 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (206513) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (206534) vision_app: [VISION_DIAG] latest #251 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (206557) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (208105) pipe_diag: [PIPE_DIAG] uptime=206643ms frame=253 fps=2 last=253 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (208113) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (208134) vision_app: [VISION_DIAG] latest #253 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (208157) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.5ms max_run=0ms max_loop=798ms[0m
+[0;32mI (209705) pipe_diag: [PIPE_DIAG] uptime=208243ms frame=255 fps=2 last=255 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (209713) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (209734) vision_app: [VISION_DIAG] latest #255 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (209757) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (211305) pipe_diag: [PIPE_DIAG] uptime=209843ms frame=257 fps=2 last=257 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (211313) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (211334) vision_app: [VISION_DIAG] latest #257 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (211357) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (212905) pipe_diag: [PIPE_DIAG] uptime=211443ms frame=259 fps=2 last=259 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (212913) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (212934) vision_app: [VISION_DIAG] latest #259 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (212957) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.2ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.2ms max_run=0ms max_loop=798ms[0m
+[0;32mI (214505) pipe_diag: [PIPE_DIAG] uptime=213043ms frame=261 fps=2 last=261 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (214513) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (214534) vision_app: [VISION_DIAG] latest #261 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (214557) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (216105) pipe_diag: [PIPE_DIAG] uptime=214643ms frame=263 fps=2 last=263 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (216113) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (216134) vision_app: [VISION_DIAG] latest #263 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (216157) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (217705) pipe_diag: [PIPE_DIAG] uptime=216243ms frame=265 fps=2 last=265 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (217713) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (217734) vision_app: [VISION_DIAG] latest #265 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (217757) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (219305) pipe_diag: [PIPE_DIAG] uptime=217843ms frame=267 fps=2 last=267 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (219313) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (219334) vision_app: [VISION_DIAG] latest #267 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (219357) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (220905) pipe_diag: [PIPE_DIAG] uptime=219443ms frame=269 fps=2 last=269 640x480 cam_timeout=0/0 max_cam_wait=798ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (220913) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (220934) vision_app: [VISION_DIAG] latest #269 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=798ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=798ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (220957) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=762.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=762.4ms max_run=0ms max_loop=798ms[0m
+[0;32mI (222506) pipe_diag: [PIPE_DIAG] uptime=221044ms frame=271 fps=2 last=271 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (222514) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (222535) vision_app: [VISION_DIAG] latest #271 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (222558) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.1ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.1ms max_run=0ms max_loop=799ms[0m
+[0;32mI (224106) pipe_diag: [PIPE_DIAG] uptime=222644ms frame=273 fps=2 last=273 640x480 cam_timeout=0/0 max_cam_wait=797ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (224114) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (224135) vision_app: [VISION_DIAG] latest #273 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=797ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=797ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (224158) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=761.8ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=761.8ms max_run=0ms max_loop=797ms[0m
+[0;32mI (225707) pipe_diag: [PIPE_DIAG] uptime=224245ms frame=275 fps=2 last=275 640x480 cam_timeout=0/0 max_cam_wait=799ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (225715) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (225736) vision_app: [VISION_DIAG] latest #275 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=799ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=799ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (225759) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.1ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.1ms max_run=0ms max_loop=799ms[0m
+[0;32mI (227308) pipe_diag: [PIPE_DIAG] uptime=225846ms frame=277 fps=2 last=277 640x480 cam_timeout=0/0 max_cam_wait=800ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=96KB psram=23817KB[0m
+[0;32mI (227316) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (227337) vision_app: [VISION_DIAG] latest #277 fps=1.25 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=800ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=800ms core=1 prio=3 stack_hwm=29804 internal=96KB psram=23817KB[0m
+[0;32mI (227360) vision_app: [VISION_DIAG] avg samples=2 fps=1.25 ppa=0 images=0 cam_wait=763.1ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=763.1ms max_run=0ms max_loop=800ms[0m
+[0;33mW (229069) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (229069) cam_sensor: capture timeout count=1 core=0 prio=10 stack_hwm=2168[0m
+[0;33mW (229108) vision_app: camera frame timeout[0m
+[0;33mW (229274) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (229274) cam_sensor: capture timeout count=2 core=0 prio=10 stack_hwm=2168[0m
+[0;33mW (229479) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (229479) cam_sensor: capture timeout count=3 core=0 prio=10 stack_hwm=2168[0m
+[0;33mW (229684) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (229684) cam_sensor: capture timeout count=4 core=0 prio=10 stack_hwm=2168[0m
+[0;33mW (229889) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (229889) cam_sensor: capture timeout count=5 core=0 prio=10 stack_hwm=2168[0m
+[0;33mW (230094) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (230108) vision_app: camera frame timeout[0m
+[0;33mW (230295) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (230496) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (230698) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (230899) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (231100) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (231108) vision_app: camera frame timeout[0m
+[0;33mW (231301) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (231502) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (231703) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (231904) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (232105) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (232108) vision_app: camera frame timeout[0m
+[0;33mW (232307) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (232508) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (232709) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (232910) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (233108) vision_app: camera frame timeout[0m
+[0;33mW (233111) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (233312) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (233513) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (233714) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (233915) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (234108) vision_app: camera frame timeout[0m
+[0;33mW (234116) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (234317) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (234518) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (234719) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (234920) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (234920) cam_sensor: capture timeout count=30 core=0 prio=10 stack_hwm=2088[0m
+[0;33mW (235108) vision_app: camera frame timeout[0m
+[0;33mW (235125) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (235326) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (235527) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (235728) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (235929) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (236108) vision_app: camera frame timeout[0m
+[0;33mW (236130) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (236331) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (236533) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (236734) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (236935) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (237108) vision_app: camera frame timeout[0m
+[0;33mW (237136) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (237337) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (237538) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (237739) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (237940) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (238108) vision_app: camera frame timeout[0m
+[0;33mW (238142) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (238343) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (238544) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (238745) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (238946) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (239108) vision_app: camera frame timeout[0m
+[0;33mW (239148) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (239349) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (239550) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (239751) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (239952) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (240108) vision_app: camera frame timeout[0m
+[0;33mW (240153) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (240354) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (240555) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (240757) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (240958) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (240958) cam_sensor: capture timeout count=60 core=0 prio=10 stack_hwm=2088[0m
+[0;33mW (241108) vision_app: camera frame timeout[0m
+[0;33mW (241163) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (241364) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (241565) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (241766) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (241967) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (242108) vision_app: camera frame timeout[0m
+[0;33mW (242168) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (242369) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (242570) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (242772) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (242973) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (243108) vision_app: camera frame timeout[0m
+[0;33mW (243174) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (243375) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (243576) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (243777) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (243978) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (244108) vision_app: camera frame timeout[0m
+[0;33mW (244179) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (244380) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (244581) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (244782) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (244983) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (245108) vision_app: camera frame timeout[0m
+[0;33mW (245184) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (245385) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (245586) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (245787) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (245988) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (246108) vision_app: camera frame timeout[0m
+[0;33mW (246189) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (246390) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (246592) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (246793) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (246994) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (246994) cam_sensor: capture timeout count=90 core=0 prio=10 stack_hwm=2088[0m
+[0;33mW (247108) vision_app: camera frame timeout[0m
+[0;33mW (247199) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (247400) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (247601) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (247802) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (248003) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (248108) vision_app: camera frame timeout[0m
+[0;33mW (248204) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (248405) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (248607) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (248808) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (249009) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (249108) vision_app: camera frame timeout[0m
+[0;33mW (249210) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (249411) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (249612) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (249813) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (250014) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (250108) vision_app: camera frame timeout[0m
+[0;33mW (250215) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (250416) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (250617) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (250818) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (251019) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (251108) vision_app: camera frame timeout[0m
+[0;33mW (251220) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (251421) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (251622) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (251823) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (252024) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (252108) vision_app: camera frame timeout[0m
+[0;33mW (252225) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (252427) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (252628) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (252829) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (253030) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (253030) cam_sensor: capture timeout count=120 core=0 prio=10 stack_hwm=2088[0m
+[0;33mW (253108) vision_app: camera frame timeout[0m
+[0m
+Done
+
+Script done on 2026-06-28 12:27:30+08:00 [COMMAND_EXIT_CODE="0"]

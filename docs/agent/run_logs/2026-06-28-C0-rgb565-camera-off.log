@@ -1,0 +1,290 @@
+Executing action: flash
+Running ninja in directory /home/kazeform/2026esp/bug_project/build
+Executing "ninja flash"...
+[1/6] cd /home/kazeform/2026esp/bug_project/build/esp-idf/esptool_py && /home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/kazeform/2026esp/bug_project/build/partition_table/partition-table.bin /home/kazeform/2026esp/bug_project/build/sample_project.bin
+sample_project.bin binary size 0x1fcfd0 bytes. Smallest app partition is 0x600000 bytes. 0x403030 bytes (67%) free.
+[2/6] Performing build step for 'bootloader'
+[1/1] cd /home/kazeform/2026esp/bug_project/build/bootloader/esp-idf/esptool_py && /home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x2000 /home/kazeform/2026esp/bug_project/build/bootloader/bootloader.bin
+Bootloader binary size 0x5a20 bytes. 0x5e0 bytes (6%) free.
+[3/6] No install step for 'bootloader'
+[4/6] Completed 'bootloader'
+[5/6] cd /home/kazeform/2026esp/bug_project/build && /home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/spiffs/spiffsgen.py 0x500000 /home/kazeform/2026esp/bug_project/model /home/kazeform/2026esp/bug_project/build/storage.bin --page-size=256 --obj-name-len=32 --meta-len=4 --use-magic --use-magic-len
+[5/6] cd /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esptool_py && /usr/bin/cmake -D IDF_PATH=/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4 -D "SERIAL_TOOL=/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python;;/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esptool_py/esptool/esptool.py;--chip;esp32p4" -D "SERIAL_TOOL_ARGS=--before=default_reset;--after=hard_reset;write_flash;@flash_args" -D WORKING_DIRECTORY=/home/kazeform/2026esp/bug_project/build -P /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esptool_py/run_serial_tool.cmake
+esptool.py --chip esp32p4 -p /dev/ttyACM0 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 16MB 0x2000 bootloader/bootloader.bin 0x10000 sample_project.bin 0x8000 partition_table/partition-table.bin 0xb00000 storage.bin
+esptool.py v4.12.dev2
+Serial port /dev/ttyACM0
+Connecting...
+Chip is ESP32-P4 (revision v3.1)
+Features: High-Performance MCU
+Crystal is 40MHz
+USB mode: USB-Serial/JTAG
+MAC: e8:f6:0a:e1:7a:d1
+Using the new stub flasher.
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00002000 to 0x00007fff...
+Flash will be erased from 0x00010000 to 0x0020cfff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x00b00000 to 0x00ffffff...
+SHA digest in image updated
+Compressed 23072 bytes to 14335...
+Writing at 0x00002000... (100 %)
+Wrote 23072 bytes (14335 compressed) at 0x00002000 in 0.3 seconds (effective 618.2 kbit/s)...
+Hash of data verified.
+Compressed 2084816 bytes to 730412...
+Writing at 0x00010000... (2 %)
+Writing at 0x0001d9e9... (4 %)
+Writing at 0x00029398... (6 %)
+Writing at 0x00039013... (8 %)
+Writing at 0x00065010... (11 %)
+Writing at 0x00095563... (13 %)
+Writing at 0x000ccfa9... (15 %)
+Writing at 0x000fef7d... (17 %)
+Writing at 0x00105d73... (20 %)
+Writing at 0x0010e3c4... (22 %)
+Writing at 0x001153e4... (24 %)
+Writing at 0x0011cd41... (26 %)
+Writing at 0x00125b15... (28 %)
+Writing at 0x0012c32a... (31 %)
+Writing at 0x001331f6... (33 %)
+Writing at 0x0013a8c2... (35 %)
+Writing at 0x001424b9... (37 %)
+Writing at 0x00149a29... (40 %)
+Writing at 0x00151e00... (42 %)
+Writing at 0x0015906b... (44 %)
+Writing at 0x00160442... (46 %)
+Writing at 0x00166c71... (48 %)
+Writing at 0x0016d4a2... (51 %)
+Writing at 0x0017355e... (53 %)
+Writing at 0x00179e7b... (55 %)
+Writing at 0x001808c2... (57 %)
+Writing at 0x00186eed... (60 %)
+Writing at 0x0018e44c... (62 %)
+Writing at 0x00194425... (64 %)
+Writing at 0x0019a608... (66 %)
+Writing at 0x001a0bfc... (68 %)
+Writing at 0x001ab013... (71 %)
+Writing at 0x001b1770... (73 %)
+Writing at 0x001b9002... (75 %)
+Writing at 0x001c1731... (77 %)
+Writing at 0x001c7f6d... (80 %)
+Writing at 0x001ceffd... (82 %)
+Writing at 0x001d5ebe... (84 %)
+Writing at 0x001dd101... (86 %)
+Writing at 0x001e3f07... (88 %)
+Writing at 0x001e9d4a... (91 %)
+Writing at 0x001f1da9... (93 %)
+Writing at 0x001f8cd9... (95 %)
+Writing at 0x001ffa28... (97 %)
+Writing at 0x00206edb... (100 %)
+Wrote 2084816 bytes (730412 compressed) at 0x00010000 in 11.0 seconds (effective 1515.8 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 119...
+Writing at 0x00008000... (100 %)
+Wrote 3072 bytes (119 compressed) at 0x00008000 in 0.0 seconds (effective 3660.1 kbit/s)...
+Hash of data verified.
+Compressed 5242880 bytes to 750905...
+Writing at 0x00b00000... (2 %)
+Writing at 0x00b06e29... (4 %)
+Writing at 0x00b0d790... (6 %)
+Writing at 0x00b143d6... (8 %)
+Writing at 0x00b1a256... (10 %)
+Writing at 0x00b20619... (13 %)
+Writing at 0x00b26748... (15 %)
+Writing at 0x00b2e6bf... (17 %)
+Writing at 0x00b34747... (19 %)
+Writing at 0x00b3ac1a... (21 %)
+Writing at 0x00b4074f... (23 %)
+Writing at 0x00b4690a... (26 %)
+Writing at 0x00b4cf7b... (28 %)
+Writing at 0x00b52bef... (30 %)
+Writing at 0x00b59de4... (32 %)
+Writing at 0x00b5fd0b... (34 %)
+Writing at 0x00b64e23... (36 %)
+Writing at 0x00b6c225... (39 %)
+Writing at 0x00b7277e... (41 %)
+Writing at 0x00b786cf... (43 %)
+Writing at 0x00b7e51d... (45 %)
+Writing at 0x00b8319a... (47 %)
+Writing at 0x00b8cd89... (50 %)
+Writing at 0x00b9f61e... (52 %)
+Writing at 0x00ba4795... (54 %)
+Writing at 0x00ba9e88... (56 %)
+Writing at 0x00baf575... (58 %)
+Writing at 0x00bb6945... (60 %)
+Writing at 0x00bbccc8... (63 %)
+Writing at 0x00bc3f2e... (65 %)
+Writing at 0x00bc9b56... (67 %)
+Writing at 0x00bcee65... (69 %)
+Writing at 0x00bd5628... (71 %)
+Writing at 0x00bdacbd... (73 %)
+Writing at 0x00be15b7... (76 %)
+Writing at 0x00be65a4... (78 %)
+Writing at 0x00beb935... (80 %)
+Writing at 0x00bf15dc... (82 %)
+Writing at 0x00bf84f0... (84 %)
+Writing at 0x00c00709... (86 %)
+Writing at 0x00c05b9d... (89 %)
+Writing at 0x00c0babe... (91 %)
+Writing at 0x00c12937... (93 %)
+Writing at 0x00c189f3... (95 %)
+Writing at 0x00c1e76f... (97 %)
+Writing at 0x00c2c538... (100 %)
+Wrote 5242880 bytes (750905 compressed) at 0x00b00000 in 18.2 seconds (effective 2307.4 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+Error: Monitor requires standard input to be attached to TTY. Try using a different terminal.
+idf_monitor failed with exit code 1, output of the command is in the /home/kazeform/2026esp/bug_project/build/log/idf_py_stderr_output_717051 and /home/kazeform/2026esp/bug_project/build/log/idf_py_stdout_output_717051
+Executing action: monitor
+Running idf_monitor in directory /home/kazeform/2026esp/bug_project
+Executing "/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 301 --decode-panic backtrace /home/kazeform/2026esp/bug_project/build/sample_project.elf /home/kazeform/2026esp/bug_project/build/bootloader/bootloader.elf -m '/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python' '/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf.py' '-p' '/dev/ttyACM0'"...
+Script started on 2026-06-28 11:57:36+08:00 [COMMAND="idf.py -p /dev/ttyACM0 monitor" TERM="dumb" TTY="/dev/pts/4" COLUMNS="80" LINES="24"]
+Executing action: monitor
+Running idf_monitor in directory /home/kazeform/2026esp/bug_project
+Executing "/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 301 --decode-panic backtrace /home/kazeform/2026esp/bug_project/build/sample_project.elf /home/kazeform/2026esp/bug_project/build/bootloader/bootloader.elf -m '/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python' '/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf.py' '-p' '/dev/ttyACM0'"...
+[0;33m--- esp-idf-monitor 1.9.0 on /dev/ttyACM0 115200[0m
+[0;33m--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H[0m
+[0;32mI (277) esp_image: segment 1: paddr=0012748c vaddr=30100000 sizeESP-ROM:esp32p4-eco6-20251011[0m
+Build:Oct 11 2025
+rst:0x17 (CHIP_USB_UART_RESET),boot:0x10c (SPI_FAST_FLASH_BOOT)
+Core0 Saved PC:0x4ff444d6
+[0m--- 0x4ff444d6: [0;33mesp_cpu_wait_for_intr[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_hw_support/cpu.c[0m[0m:[1;31m57[0m
+Core1 Saved PC:0x4ff444d6
+[0m--- 0x4ff444d6: [0;33mesp_cpu_wait_for_intr[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_hw_support/cpu.c[0m[0m:[1;31m57[0m
+SPI mode:DIO, clock div:2
+load:0x4ffb60d0,len:0x15e4
+load:0x4ffac2c0,len:0xe88
+[0m--- 0x4ffac2c0: [0;33mesp_bootloader_get_description[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_bootloader_format/esp_bootloader_desc.c[0m[0m:[1;31m39[0m
+load:0x4ffaefc0,len:0x3560
+[0m--- 0x4ffaefc0: [0;33mesp_flash_encryption_enabled[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader_support/src/flash_encrypt.c[0m[0m:[1;31m89[0m
+entry 0x4ffac2ca
+[0m--- 0x4ffac2ca: [0;33mcall_start_cpu0[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader/subproject/main/bootloader_start.c[0m[0m:[1;31m27[0m
+[0;32mI (27) boot: ESP-IDF v5.5.4 2nd stage bootloader[0m
+[0;32mI (28) boot: compile time Jun 27 2026 17:33:42[0m
+[0;32mI (28) boot: Multicore bootloader[0m
+[0;32mI (29) boot: chip revision: v3.1[0m
+[0;32mI (30) boot: efuse block revision: v1.2[0m
+[0;32mI (34) boot.esp32p4: SPI Speed      : 40MHz[0m
+[0;32mI (38) boot.esp32p4: SPI Mode       : DIO[0m
+[0;32mI (42) boot.esp32p4: SPI Flash Size : 16MB[0m
+[0;32mI (46) boot: Enabling RNG early entropy source...[0m
+[0;32mI (50) boot: Partition Table:[0m
+[0;32mI (53) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (59) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (65) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (72) boot:  2 factory          factory app      00 00 00010000 00600000[0m
+[0;32mI (78) boot:  3 storage          Unknown data     01 82 00b00000 00500000[0m
+[0;32mI (86) boot: End of partition table[0m
+[0;32mI (89) esp_image: segment 0: paddr=00010020 vaddr=480d0020 size=117464h (1143908) map[0m
+[0;32mI (277) esp_image: segment 1: paddr=0012748c vaddr=30100000 size=00164h (   356) load[0m
+[0;32mI (278) esp_image: segment 2: paddr=001275f8 vaddr=30100170 size=00048h (    72) load[0m
+[0;32mI (281) esp_image: segment 3: paddr=00127648 vaddr=4ff40000 size=089d0h ( 35280) load[0m
+[0;32mI (295) esp_image: segment 4: paddr=00130020 vaddr=48000020 size=ca760h (829280) map[0m
+[0;32mI (428) esp_image: segment 5: paddr=001fa788 vaddr=4ff489d0 size=0e670h ( 58992) load[0m
+[0;32mI (440) esp_image: segment 6: paddr=00208e00 vaddr=4ff57080 size=041a4h ( 16804) load[0m
+[0;32mI (449) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (449) boot: Disabling RNG early entropy source...[0m
+[0;32mI (461) hex_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (461) hex_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (461) hex_psram: DriveStr.    : 0x00 (25 Ohm)[0m
+[0;32mI (462) hex_psram: dev id       : 0x03 (generation 4)[0m
+[0;32mI (466) hex_psram: density      : 0x07 (256 Mbit)[0m
+[0;32mI (471) hex_psram: good-die     : 0x06 (Pass)[0m
+[0;32mI (475) hex_psram: SRF          : 0x02 (Slow Refresh)[0m
+[0;32mI (480) hex_psram: BurstType    : 0x00 ( Wrap)[0m
+[0;32mI (484) hex_psram: BurstLen     : 0x03 (2048 Byte)[0m
+[0;32mI (488) hex_psram: BitMode      : 0x01 (X16 Mode)[0m
+[0;32mI (493) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)[0m
+[0;32mI (498) hex_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (502) MSPI Timing: Enter psram timing tuning[0m
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+[0;32mI (810) mmu_psram: .rodata xip on psram[0m
+[0;32mI (914) mmu_psram: .text xip on psram[0m
+[0;32mI (915) hex_psram: psram CS IO is dedicated[0m
+[0;32mI (915) cpu_start: Multicore app[0m
+[0;32mI (1369) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (1379) cpu_start: GPIO 38 and 37 are used as console UART I/O pins[0m
+[0;32mI (1379) cpu_start: Pro cpu start user code[0m
+[0;32mI (1379) cpu_start: cpu freq: 400000000 Hz[0m
+[0;32mI (1381) app_init: Application information:[0m
+[0;32mI (1385) app_init: Project name:     sample_project[0m
+[0;32mI (1390) app_init: App version:      f1f95e4[0m
+[0;32mI (1394) app_init: Compile time:     Jun 28 2026 11:55:46[0m
+[0;32mI (1399) app_init: ELF file SHA256:  7267c8ce0...[0m
+[0;32mI (1403) app_init: ESP-IDF:          v5.5.4[0m
+[0;32mI (1407) efuse_init: Min chip rev:     v3.1[0m
+[0;32mI (1411) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (1415) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (1419) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (1426) heap_init: At 4FF5FA80 len 0005B540 (365 KiB): RETENT_RAM[0m
+[0;32mI (1431) heap_init: At 4FFBAFC0 len 00004BF0 (18 KiB): RAM[0m
+[0;32mI (1441) heap_init: At 50108080 len 00007F80 (31 KiB): RTCRAM[0m
+[0;32mI (1442) heap_init: At 301001B8 len 00001E48 (7 KiB): TCM[0m
+[0;32mI (1600) esp_psram: Adding pool of 30784K of PSRAM memory to heap allocator[0m
+[0;32mI (1600) esp_psram: Adding pool of 22K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator[0m
+[0;32mI (1607) esp_psram: Adding pool of 34K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator[0m
+[0;32mI (1618) spi_flash: detected chip: gd[0m
+[0;32mI (1621) spi_flash: flash io: dio[0m
+[0;32mI (1624) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (1631) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (1637) main_task: Started on CPU0[0m
+[0;32mI (1640) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (1648) main_task: Calling app_main()[0m
+[0;32mI (1651) system: System initialization start[0m
+[0;32mI (1655) PSRAM_ARB: [PSRAM_ARB] apply display_first=1 psram_read_first=0 camera_write_regulator=1[0m
+[0;32mI (1664) PSRAM_ARB: [PSRAM_ARB] source=apply mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (1675) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (1685) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (1693) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[0;32mI (1701) bsp_lcd: Backlight on[0m
+[0;32mI (1704) bsp_lcd: MIPI DSI PHY powered on[0m
+[0;32mI (1709) ek79007: version: 1.0.4[0m
+[0;32mI (1916) bsp_lcd: LCD init done[0m
+[0;32mI (1916) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (1916) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x481f0a80 fb1=0x4831cb00 fb2=0x48448b80 psram_free=27235KB internal_free=387KB[0m
+[0;33mW (1928) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (1940) bsp_touch: I2C bus initialized[0m
+[0;32mI (1943) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[1;31mE (1971) lcd_panel.io.i2c: panel_io_i2c_rx_buffer(145): i2c transaction failed[0m
+[1;31mE (1971) GT911: touch_gt911_read_cfg(419): GT911 read error![0m
+[1;31mE (1972) GT911: esp_lcd_touch_new_i2c_gt911(169): GT911 init failed[0m
+[1;31mE (1978) GT911: Error (0x103)! Touch controller GT911 initialization failed![0m
+[0;33mW (1985) bsp_touch: GT911 init at 0x5D failed: ESP_ERR_INVALID_STATE[0m
+[0;32mI (1991) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[0;32mI (2020) GT911: TouchPad_ID:0x39,0x31,0x31[0m
+[0;32mI (2020) GT911: TouchPad_Config_Version:89[0m
+[0;32mI (2020) bsp_touch: GT911 detected at I2C address 0x14[0m
+[0;32mI (2021) bsp_touch: Touch init done[0m
+[1;31mE (2024) bsp_motor: validate_motor_gpio(73): motor 0 PWM A GPIO is not configured[0m
+[1;31mE (2032) bsp_motor: init_motor_mcpwm(110): motor GPIO validation failed[0m
+[1;31mE (2038) bsp_motor: bsp_motor_init(162): init motor 0 MCPWM failed[0m
+[0;32mI (2044) bsp_encoder: encoder BSP initialized[0m
+[0;32mI (2049) esp_lvgl:adapter: LVGL adapter initialized successfully[0m
+[0;32mI (2057) esp_lvgl:bridge_v9: Initializing hardware resources[0m
+[0;32mI (2059) esp_lvgl:bridge_v9: Hardware resources initialized successfully[0m
+[0;32mI (2066) bsp_lvgl: Display registered (1024x600)[0m
+[0;33mW (2070) esp_lvgl:touch: LV_USE_GESTURE_RECOGNITION is disabled; only single-point pointer events are available[0m
+[0;32mI (2080) esp_lvgl:touch: Touch input device registered successfully (IRQ mode: disabled)[0m
+[0;32mI (2087) bsp_lvgl: Touch registered[0m
+[0;32mI (2091) esp_lvgl:adapter: LVGL task started successfully[0m
+[0;32mI (2092) esp_lvgl:bridge: Initializing hardware resources[0m
+[0;32mI (2096) bsp_lvgl: LVGL adapter started[0m
+[0;32mI (2101) esp_lvgl:bridge: Hardware resources initialized successfully[0m
+[0;32mI (2240) vision_preview: preview initialized: 640x375[0m
+[0;32mI (2241) app_ui_dashboard: [BLUE_MARK] UI marker button installed[0m
+[0;32mI (2301) esp_eth.netif.netif_glue: e8:f6:0a:e1:7a:d1[0m
+[0;32mI (2301) esp_eth.netif.netif_glue: ethernet attached to netif[0m
+[0;32mI (6305) eth_example: Ethernet Started[0m
+[0;32mI (6305) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C[0m
+[0;33mW (6308) vision_app: camera stream disabled for bandwidth A/B test[0m
+[0;32mI (6309) system: System initialization done[0m
+[0m
+
+Script done on 2026-06-28 12:00:08+08:00 [COMMAND_EXIT_CODE="0"]

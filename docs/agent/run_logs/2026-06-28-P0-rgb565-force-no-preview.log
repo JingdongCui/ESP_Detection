@@ -1,0 +1,701 @@
+Executing action: flash
+Running ninja in directory /home/kazeform/2026esp/bug_project/build
+Executing "ninja flash"...
+[1/6] cd /home/kazeform/2026esp/bug_project/build/esp-idf/esptool_py && /home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/kazeform/2026esp/bug_project/build/partition_table/partition-table.bin /home/kazeform/2026esp/bug_project/build/sample_project.bin
+sample_project.bin binary size 0x320520 bytes. Smallest app partition is 0x600000 bytes. 0x2dfae0 bytes (48%) free.
+[2/6] Performing build step for 'bootloader'
+[1/1] cd /home/kazeform/2026esp/bug_project/build/bootloader/esp-idf/esptool_py && /home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x2000 /home/kazeform/2026esp/bug_project/build/bootloader/bootloader.bin
+Bootloader binary size 0x5a20 bytes. 0x5e0 bytes (6%) free.
+[3/6] No install step for 'bootloader'
+[4/6] Completed 'bootloader'
+[5/6] cd /home/kazeform/2026esp/bug_project/build && /home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/spiffs/spiffsgen.py 0x500000 /home/kazeform/2026esp/bug_project/model /home/kazeform/2026esp/bug_project/build/storage.bin --page-size=256 --obj-name-len=32 --meta-len=4 --use-magic --use-magic-len
+[5/6] cd /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esptool_py && /usr/bin/cmake -D IDF_PATH=/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4 -D "SERIAL_TOOL=/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python;;/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esptool_py/esptool/esptool.py;--chip;esp32p4" -D "SERIAL_TOOL_ARGS=--before=default_reset;--after=hard_reset;write_flash;@flash_args" -D WORKING_DIRECTORY=/home/kazeform/2026esp/bug_project/build -P /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esptool_py/run_serial_tool.cmake
+esptool.py --chip esp32p4 -p /dev/ttyACM0 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 16MB 0x2000 bootloader/bootloader.bin 0x10000 sample_project.bin 0x8000 partition_table/partition-table.bin 0xb00000 storage.bin
+esptool.py v4.12.dev2
+Serial port /dev/ttyACM0
+Connecting...
+Chip is ESP32-P4 (revision v3.1)
+Features: High-Performance MCU
+Crystal is 40MHz
+USB mode: USB-Serial/JTAG
+MAC: e8:f6:0a:e1:7a:d1
+Using the new stub flasher.
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00002000 to 0x00007fff...
+Flash will be erased from 0x00010000 to 0x00330fff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x00b00000 to 0x00ffffff...
+SHA digest in image updated
+Compressed 23072 bytes to 14335...
+Writing at 0x00002000... (100 %)
+Wrote 23072 bytes (14335 compressed) at 0x00002000 in 0.3 seconds (effective 620.8 kbit/s)...
+Hash of data verified.
+Compressed 3278112 bytes to 1045646...
+Writing at 0x00010000... (1 %)
+Writing at 0x0001e0c5... (3 %)
+Writing at 0x0002c806... (4 %)
+Writing at 0x0003ca88... (6 %)
+Writing at 0x00053638... (7 %)
+Writing at 0x00086764... (9 %)
+Writing at 0x000aff42... (10 %)
+Writing at 0x000f02b4... (12 %)
+Writing at 0x0010ac23... (14 %)
+Writing at 0x00112625... (15 %)
+Writing at 0x0011b299... (17 %)
+Writing at 0x001223f8... (18 %)
+Writing at 0x00129b14... (20 %)
+Writing at 0x00132f0a... (21 %)
+Writing at 0x001390ee... (23 %)
+Writing at 0x001400e4... (25 %)
+Writing at 0x00147586... (26 %)
+Writing at 0x0014e8f3... (28 %)
+Writing at 0x001542c5... (29 %)
+Writing at 0x0015a6ec... (31 %)
+Writing at 0x0016395b... (32 %)
+Writing at 0x0016c945... (34 %)
+Writing at 0x00174e08... (35 %)
+Writing at 0x0017ed60... (37 %)
+Writing at 0x00184c88... (39 %)
+Writing at 0x0018b5a8... (40 %)
+Writing at 0x0019467e... (42 %)
+Writing at 0x0019adec... (43 %)
+Writing at 0x001a1766... (45 %)
+Writing at 0x001a83df... (46 %)
+Writing at 0x001b1734... (48 %)
+Writing at 0x001bbd8a... (50 %)
+Writing at 0x001c528b... (51 %)
+Writing at 0x001e7eac... (53 %)
+Writing at 0x002577de... (54 %)
+Writing at 0x002642a6... (56 %)
+Writing at 0x0026a47e... (57 %)
+Writing at 0x002733c1... (59 %)
+Writing at 0x0027a053... (60 %)
+Writing at 0x00281152... (62 %)
+Writing at 0x002876bb... (64 %)
+Writing at 0x0028df04... (65 %)
+Writing at 0x002941c3... (67 %)
+Writing at 0x0029a933... (68 %)
+Writing at 0x002a1389... (70 %)
+Writing at 0x002a7e6c... (71 %)
+Writing at 0x002aef56... (73 %)
+Writing at 0x002b4f4b... (75 %)
+Writing at 0x002baf6d... (76 %)
+Writing at 0x002c24f2... (78 %)
+Writing at 0x002cb9b0... (79 %)
+Writing at 0x002d2422... (81 %)
+Writing at 0x002da1a2... (82 %)
+Writing at 0x002e2f05... (84 %)
+Writing at 0x002e98fa... (85 %)
+Writing at 0x002f09a4... (87 %)
+Writing at 0x002f7575... (89 %)
+Writing at 0x002fe99d... (90 %)
+Writing at 0x00305948... (92 %)
+Writing at 0x0030b8d6... (93 %)
+Writing at 0x003138f2... (95 %)
+Writing at 0x0031a236... (96 %)
+Writing at 0x00321605... (98 %)
+Writing at 0x00328947... (100 %)
+Wrote 3278112 bytes (1045646 compressed) at 0x00010000 in 16.7 seconds (effective 1573.4 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 119...
+Writing at 0x00008000... (100 %)
+Wrote 3072 bytes (119 compressed) at 0x00008000 in 0.0 seconds (effective 3685.3 kbit/s)...
+Hash of data verified.
+Compressed 5242880 bytes to 750905...
+Writing at 0x00b00000... (2 %)
+Writing at 0x00b06e29... (4 %)
+Writing at 0x00b0d790... (6 %)
+Writing at 0x00b143d6... (8 %)
+Writing at 0x00b1a256... (10 %)
+Writing at 0x00b20619... (13 %)
+Writing at 0x00b26748... (15 %)
+Writing at 0x00b2e6bf... (17 %)
+Writing at 0x00b34747... (19 %)
+Writing at 0x00b3ac1a... (21 %)
+Writing at 0x00b4074f... (23 %)
+Writing at 0x00b4690a... (26 %)
+Writing at 0x00b4cf7b... (28 %)
+Writing at 0x00b52bef... (30 %)
+Writing at 0x00b59de4... (32 %)
+Writing at 0x00b5fd0b... (34 %)
+Writing at 0x00b64e23... (36 %)
+Writing at 0x00b6c225... (39 %)
+Writing at 0x00b7277e... (41 %)
+Writing at 0x00b786cf... (43 %)
+Writing at 0x00b7e51d... (45 %)
+Writing at 0x00b8319a... (47 %)
+Writing at 0x00b8cd89... (50 %)
+Writing at 0x00b9f61e... (52 %)
+Writing at 0x00ba4795... (54 %)
+Writing at 0x00ba9e88... (56 %)
+Writing at 0x00baf575... (58 %)
+Writing at 0x00bb6945... (60 %)
+Writing at 0x00bbccc8... (63 %)
+Writing at 0x00bc3f2e... (65 %)
+Writing at 0x00bc9b56... (67 %)
+Writing at 0x00bcee65... (69 %)
+Writing at 0x00bd5628... (71 %)
+Writing at 0x00bdacbd... (73 %)
+Writing at 0x00be15b7... (76 %)
+Writing at 0x00be65a4... (78 %)
+Writing at 0x00beb935... (80 %)
+Writing at 0x00bf15dc... (82 %)
+Writing at 0x00bf84f0... (84 %)
+Writing at 0x00c00709... (86 %)
+Writing at 0x00c05b9d... (89 %)
+Writing at 0x00c0babe... (91 %)
+Writing at 0x00c12937... (93 %)
+Writing at 0x00c189f3... (95 %)
+Writing at 0x00c1e76f... (97 %)
+Writing at 0x00c2c538... (100 %)
+Wrote 5242880 bytes (750905 compressed) at 0x00b00000 in 18.2 seconds (effective 2307.6 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+[0;33m--- esp-idf-monitor 1.9.0 on /dev/ttyACM0 115200[0m
+[0;33m--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H[0m
+Executing action: monitor
+Running idf_monitor in directory /home/kazeform/2026esp/bug_project
+Executing "/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 301 --decode-panic backtrace /home/kazeform/2026esp/bug_project/build/sample_project.elf /home/kazeform/2026esp/bug_project/build/bootloader/bootloader.elf -m '/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python' '/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf.py' '-p' '/dev/ttyACM0'"...
+ESP-ROM:esp32p4-eco6-20251011
+Build:Oct 11 2025
+rst:0x17 (CHIP_USB_UART_RESET),boot:0x10c (SPI_FAST_FLASH_BOOT)
+Core0 Saved PC:0x4fc04830
+Core1 Saved PC:0x4fc06020
+SPI mode:DIO, clock div:2
+load:0x4ffb60d0,len:0x15e4
+load:0x4ffac2c0,len:0xe88
+[0m--- 0x4ffac2c0: [0;33mesp_bootloader_get_description[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_bootloader_format/esp_bootloader_desc.c[0m[0m:[1;31m39[0m
+load:0x4ffaefc0,len:0x3560
+[0m--- 0x4ffaefc0: [0;33mesp_flash_encryption_enabled[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader_support/src/flash_encrypt.c[0m[0m:[1;31m89[0m
+entry 0x4ffac2ca
+[0m--- 0x4ffac2ca: [0;33mcall_start_cpu0[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader/subproject/main/bootloader_start.c[0m[0m:[1;31m27[0m
+[0;32mI (27) boot: ESP-IDF v5.5.4 2nd stage bootloader[0m
+[0;32mI (28) boot: compile time Jun 27 2026 17:33:42[0m
+[0;32mI (28) boot: Multicore bootloader[0m
+[0;32mI (30) boot: chip revision: v3.1[0m
+[0;32mI (31) boot: efuse block revision: v1.2[0m
+[0;32mI (34) boot.esp32p4: SPI Speed      : 40MHz[0m
+[0;32mI (38) boot.esp32p4: SPI Mode       : DIO[0m
+[0;32mI (42) boot.esp32p4: SPI Flash Size : 16MB[0m
+[0;32mI (46) boot: Enabling RNG early entropy source...[0m
+[0;32mI (50) boot: Partition Table:[0m
+[0;32mI (53) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (59) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (72) boot:  2 factory          factory app      00 00 00010000 00600000[0m
+[0;32mI (79) boot:  3 storage          Unknown data     01 82 00b00000 00500000[0m
+[0;32mI (86) boot: End of partition table[0m
+[0;32mI (89) esp_image: segment 0: paddr=00010020 vaddr=481f0020 size=122808h (1189896) map[0m
+[0;32mI (284) esp_image: segment 1: paddr=00132830 vaddr=30100000 size=00164h (   356) load[0m
+[0;32mI (286) esp_image: segment 2: paddr=0013299c vaddr=30100170 size=00048h (    72) load[0m
+[0;32mI (289) esp_image: segment 3: paddr=001329ec vaddr=4ff40000 size=0d62ch ( 54828) load[0m
+[0;32mI (307) esp_image: segment 4: paddr=00140020 vaddr=48000020 size=1e1760h (1972064) map[0m
+[0;32mI (619) esp_image: segment 5: paddr=00321788 vaddr=4ff4d62c size=0aa50h ( 43600) load[0m
+[0;32mI (628) esp_image: segment 6: paddr=0032c1e0 vaddr=4ff58080 size=04310h ( 17168) load[0m
+[0;32mI (637) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (638) boot: Disabling RNG early entropy source...[0m
+[0;32mI (649) hex_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (650) hex_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (650) hex_psram: DriveStr.    : 0x00 (25 Ohm)[0m
+[0;32mI (651) hex_psram: dev id       : 0x03 (generation 4)[0m
+[0;32mI (655) hex_psram: density      : 0x07 (256 Mbit)[0m
+[0;32mI (660) hex_psram: good-die     : 0x06 (Pass)[0m
+[0;32mI (664) hex_psram: SRF          : 0x02 (Slow Refresh)[0m
+[0;32mI (668) hex_psram: BurstType    : 0x00 ( Wrap)[0m
+[0;32mI (673) hex_psram: BurstLen     : 0x03 (2048 Byte)[0m
+[0;32mI (677) hex_psram: BitMode      : 0x01 (X16 Mode)[0m
+[0;32mI (682) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)[0m
+[0;32mI (687) hex_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (691) MSPI Timing: Enter psram timing tuning[0m
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+[0;32mI (1007) mmu_psram: .rodata xip on psram[0m
+[0;32mI (1255) mmu_psram: .text xip on psram[0m
+[0;32mI (1256) hex_psram: psram CS IO is dedicated[0m
+[0;32mI (1256) cpu_start: Multicore app[0m
+[0;32mI (1692) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (1701) cpu_start: GPIO 38 and 37 are used as console UART I/O pins[0m
+[0;32mI (1702) cpu_start: Pro cpu start user code[0m
+[0;32mI (1702) cpu_start: cpu freq: 400000000 Hz[0m
+[0;32mI (1704) app_init: Application information:[0m
+[0;32mI (1708) app_init: Project name:     sample_project[0m
+[0;32mI (1713) app_init: App version:      ea24f0f[0m
+[0;32mI (1717) app_init: Compile time:     Jun 28 2026 11:02:32[0m
+[0;32mI (1722) app_init: ELF file SHA256:  14a014b7e...[0m
+[0;32mI (1726) app_init: ESP-IDF:          v5.5.4[0m
+[0;32mI (1730) efuse_init: Min chip rev:     v3.1[0m
+[0;32mI (1734) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (1738) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (1742) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (1749) heap_init: At 4FF60EF0 len 0005A0D0 (360 KiB): RETENT_RAM[0m
+[0;32mI (1754) heap_init: At 4FFBAFC0 len 00004BF0 (18 KiB): RAM[0m
+[0;32mI (1763) heap_init: At 50108080 len 00007F80 (31 KiB): RTCRAM[0m
+[0;32mI (1765) heap_init: At 301001B8 len 00001E48 (7 KiB): TCM[0m
+[0;32mI (1917) esp_psram: Adding pool of 29568K of PSRAM memory to heap allocator[0m
+[0;32mI (1917) esp_psram: Adding pool of 58K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator[0m
+[0;32mI (1924) esp_psram: Adding pool of 53K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator[0m
+[0;32mI (1935) spi_flash: detected chip: gd[0m
+[0;32mI (1938) spi_flash: flash io: dio[0m
+[0;32mI (1941) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (1947) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (1954) main_task: Started on CPU0[0m
+[0;32mI (1957) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (1965) main_task: Calling app_main()[0m
+[0;32mI (1968) system: System initialization start[0m
+[0;32mI (1972) PSRAM_ARB: [PSRAM_ARB] apply display_first=1 psram_read_first=0 camera_write_regulator=1[0m
+[0;32mI (1981) PSRAM_ARB: [PSRAM_ARB] source=apply mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (1992) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (2002) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (2010) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[0;32mI (2018) bsp_lcd: Backlight on[0m
+[0;32mI (2021) bsp_lcd: MIPI DSI PHY powered on[0m
+[0;32mI (2026) ek79007: version: 1.0.4[0m
+[0;32mI (2233) bsp_lcd: LCD init done[0m
+[0;32mI (2233) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (2233) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x48320a80 fb1=0x4844cb00 fb2=0x48578b80 psram_free=26075KB internal_free=382KB[0m
+[0;33mW (2245) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (2257) bsp_touch: I2C bus initialized[0m
+[0;32mI (2260) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[1;31mE (2288) lcd_panel.io.i2c: panel_io_i2c_rx_buffer(145): i2c transaction failed[0m
+[1;31mE (2288) GT911: touch_gt911_read_cfg(419): GT911 read error![0m
+[1;31mE (2289) GT911: esp_lcd_touch_new_i2c_gt911(169): GT911 init failed[0m
+[1;31mE (2295) GT911: Error (0x103)! Touch controller GT911 initialization failed![0m
+[0;33mW (2302) bsp_touch: GT911 init at 0x5D failed: ESP_ERR_INVALID_STATE[0m
+[0;32mI (2308) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[0;32mI (2337) GT911: TouchPad_ID:0x39,0x31,0x31[0m
+[0;32mI (2337) GT911: TouchPad_Config_Version:89[0m
+[0;32mI (2337) bsp_touch: GT911 detected at I2C address 0x14[0m
+[0;32mI (2338) bsp_touch: Touch init done[0m
+[1;31mE (2341) bsp_motor: validate_motor_gpio(73): motor 0 PWM A GPIO is not configured[0m
+[1;31mE (2349) bsp_motor: init_motor_mcpwm(110): motor GPIO validation failed[0m
+[1;31mE (2355) bsp_motor: bsp_motor_init(162): init motor 0 MCPWM failed[0m
+[0;32mI (2361) bsp_encoder: encoder BSP initialized[0m
+[0;32mI (2366) esp_lvgl:adapter: LVGL adapter initialized successfully[0m
+[0;32mI (2374) esp_lvgl:bridge_v9: Initializing hardware resources[0m
+[0;32mI (2376) esp_lvgl:bridge_v9: Hardware resources initialized successfully[0m
+[0;32mI (2383) bsp_lvgl: Display registered (1024x600)[0m
+[0;33mW (2387) esp_lvgl:touch: LV_USE_GESTURE_RECOGNITION is disabled; only single-point pointer events are available[0m
+[0;32mI (2397) esp_lvgl:touch: Touch input device registered successfully (IRQ mode: disabled)[0m
+[0;32mI (2404) bsp_lvgl: Touch registered[0m
+[0;32mI (2408) esp_lvgl:adapter: LVGL task started successfully[0m
+[0;32mI (2409) esp_lvgl:bridge: Initializing hardware resources[0m
+[0;32mI (2413) bsp_lvgl: LVGL adapter started[0m
+[0;32mI (2418) esp_lvgl:bridge: Hardware resources initialized successfully[0m
+[0;32mI (2554) vision_preview: preview initialized: 640x375[0m
+[0;32mI (2555) app_ui_dashboard: [BLUE_MARK] UI marker button installed[0m
+[0;32mI (2609) esp_eth.netif.netif_glue: e8:f6:0a:e1:7a:d1[0m
+[0;32mI (2609) esp_eth.netif.netif_glue: ethernet attached to netif[0m
+[0;32mI (6610) eth_example: Ethernet Started[0m
+[0;32mI (6610) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C[0m
+[0;32mI (6739) vision_app: SPIFFS mounted: 1138/4699 KB[0m
+[0;32mI (6739) app_yolo: Loading model from: /storage/roi224_515.espdl[0m
+[0;32mI (6750) app_yolo: Model file size: 575744 bytes[0m
+[0;32mI (7422) app_yolo: Model loaded. Input: 224x224x3, runtime: multi-core with single-core fallback[0m
+[0;32mI (7426) app_yolo: Input tensor: exponent=-7  scale=0.007812[0m
+[0;32mI (7431) app_yolo: Outputs (6):[0m
+[0;32mI (7434) app_yolo:   'box0' shape=[1, 28, 28, 4] exponent=-4[0m
+[0;32mI (7439) app_yolo:   'box1' shape=[1, 14, 14, 4] exponent=-5[0m
+[0;32mI (7445) app_yolo:   'box2' shape=[1, 7, 7, 4] exponent=-5[0m
+[0;32mI (7450) app_yolo:   'score0' shape=[1, 28, 28, 3] exponent=-1[0m
+[0;32mI (7455) app_yolo:   'score1' shape=[1, 14, 14, 3] exponent=-1[0m
+[0;32mI (7461) app_yolo:   'score2' shape=[1, 7, 7, 3] exponent=-1[0m
+[0;32mI (7466) cam_sensor: MIPI PHY LDO ch3 = 2500 mV[0m
+[0;32mI (7470) cam_sensor: Using shared I2C bus for SCCB[0m
+[0;32mI (7476) sc2336: Detected Camera sensor PID=0xcb3a[0m
+[0;32mI (7480) cam_sensor: Detected: SC2336[0m
+[0;32mI (7483) cam_sensor: Format: MIPI_2lane_24Minput_RAW10_640x480_50fps  640x480  50fps[0m
+[0;32mI (7597) cam_sensor: [CAM_DIAG] active_write=4500KB/s frame=900KB fps=50 write_fps=5 period=200ms duty=200ms buffers=3 psram_free=20098KB[0m
+[0;32mI (7605) cam_sensor: cam_sensor_init OK  [640x480 RGB888, 900 KB/frame][0m
+[0;32mI (7614) cam_sensor: Streaming started (capture task priority=10 core=0 duty=200ms)[0m
+[0;32mI (7614) cam_sensor: [CAM_DIAG] capture #1 receive=0ms max=0ms timeouts=0 core=0 prio=10 stack_hwm=3232[0m
+[0;32mI (7629) vision_app: vision task created priority=3 core=1 stack=32768B[0m
+[0;32mI (7629) vision_app: vision task started core=1 priority=3 stack_hwm=31488[0m
+[0;32mI (7634) system: System initialization done[0m
+[0;33mW (7654) app_yolo: ROI skip force-run enabled: using full frame for inference load test[0m
+[0;32mI (7655) app_yolo: PPA preprocess scale adjusted requested=0.35000 actual=0.31250 content=200x150 pad=12,37[0m
+[0;32mI (7854) cam_sensor: [CAM_DIAG] capture #2 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (8055) cam_sensor: [CAM_DIAG] capture #3 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (8256) cam_sensor: [CAM_DIAG] capture #4 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (8457) cam_sensor: [CAM_DIAG] capture #5 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (8730) pipe_diag: [PIPE_DIAG] uptime=6960ms frame=6 fps=6 last=6 640x480 cam_timeout=0/0 max_cam_wait=131ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=0 internal=68KB psram=20057KB[0m
+[0;32mI (8738) pipe_diag: [PIPE_DIAG] timing pre_avg=24.1ms pre_max=30ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=45.7ms run_max=50ms infer_avg=75.6ms infer_max=80ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (8759) vision_app: [VISION_DIAG] latest #6 fps=5.45 runtime=multi fallback=0 ppa=1 preview=0/3 cam_wait=121ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=43ms decode=5ms preview=0ms loop=193ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (8787) vision_app: [VISION_DIAG] avg samples=6 fps=5.45 ppa=6 images=0 cam_wait=104.9ms pre=24.1ms preprocess=24.1ms resize=6.2ms quant=3.1ms copy=0.0ms run=45.7ms decode=5.8ms preview=0.0ms loop=180.6ms max_run=50ms max_loop=211ms[0m
+[0;32mI (9736) pipe_diag: [PIPE_DIAG] uptime=7966ms frame=11 fps=5 last=11 640x480 cam_timeout=0/0 max_cam_wait=127ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=0 internal=67KB psram=20057KB[0m
+[0;32mI (9744) pipe_diag: [PIPE_DIAG] timing pre_avg=22.8ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=45.9ms run_max=49ms infer_avg=74.4ms infer_max=78ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (9777) vision_app: [VISION_DIAG] latest #11 fps=4.97 runtime=multi fallback=0 ppa=1 preview=0/3 cam_wait=127ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=48ms decode=5ms preview=0ms loop=204ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (9790) vision_app: [VISION_DIAG] avg samples=5 fps=4.97 ppa=5 images=0 cam_wait=111.2ms pre=22.8ms preprocess=22.8ms resize=6.2ms quant=3.1ms copy=0.0ms run=45.9ms decode=5.7ms preview=0.0ms loop=185.6ms max_run=49ms max_loop=204ms[0m
+[0;32mI (10763) pipe_diag: [PIPE_DIAG] uptime=8993ms frame=16 fps=5 last=16 640x480 cam_timeout=0/0 max_cam_wait=126ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=0 internal=66KB psram=20057KB[0m
+[0;32mI (10778) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=49.5ms run_max=66ms infer_avg=79.8ms infer_max=104ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (10798) vision_app: [VISION_DIAG] latest #16 fps=4.87 runtime=multi fallback=0 ppa=1 preview=0/3 cam_wait=126ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=66ms decode=15ms preview=0ms loop=231ms core=1 prio=3 stack_hwm=28972 internal=66KB psram=20057KB[0m
+[0;32mI (10818) vision_app: [VISION_DIAG] avg samples=5 fps=4.87 ppa=5 images=0 cam_wait=109.6ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.0ms copy=0.0ms run=49.5ms decode=7.6ms preview=0.0ms loop=189.4ms max_run=66ms max_loop=231ms[0m
+[1;31mE (10872) bsp_lcd: [BLUE_MARK] #1 source=ui_button time_us=9101816 tick=8918 core=1 psram_free=20057KB internal_free=66KB[0m
+[0;32mI (10872) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (10880) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x48320a80 fb1=0x4844cb00 fb2=0x48578b80 psram_free=20057KB internal_free=66KB[0m
+[0;33mW (10892) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (10903) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (10915) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (10925) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (10933) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (10942) pipe_diag: [PIPE_DIAG] blue_dump source=ui_button blue=1 frame=17 total_frames=17 camera_timeouts=0 roi_ok=0 roi_skip=16 model_runs=16 preview_ok=0/0 yolo_ppa=16 preview_ppa=0[0m
+[1;31mE (10958) pipe_diag: [PPA_TRACE] recent count=16[0m
+[1;31mE (10962) pipe_diag: [PPA_TRACE] t_us=5951646 kind=yolo_pre frame=1 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (10972) pipe_diag: [PPA_TRACE] t_us=6163388 kind=yolo_pre frame=2 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (10982) pipe_diag: [PPA_TRACE] t_us=6357196 kind=yolo_pre frame=3 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (10991) pipe_diag: [PPA_TRACE] t_us=6558442 kind=yolo_pre frame=4 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11001) pipe_diag: [PPA_TRACE] t_us=6764408 kind=yolo_pre frame=5 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11011) pipe_diag: [PPA_TRACE] t_us=6958995 kind=yolo_pre frame=6 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11020) pipe_diag: [PPA_TRACE] t_us=7159015 kind=yolo_pre frame=7 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11030) pipe_diag: [PPA_TRACE] t_us=7365039 kind=yolo_pre frame=8 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11040) pipe_diag: [PPA_TRACE] t_us=7559002 kind=yolo_pre frame=9 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11050) pipe_diag: [PPA_TRACE] t_us=7759728 kind=yolo_pre frame=10 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11059) pipe_diag: [PPA_TRACE] t_us=7965480 kind=yolo_pre frame=11 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11069) pipe_diag: [PPA_TRACE] t_us=8160163 kind=yolo_pre frame=12 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11079) pipe_diag: [PPA_TRACE] t_us=8360195 kind=yolo_pre frame=13 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11089) pipe_diag: [PPA_TRACE] t_us=8565820 kind=yolo_pre frame=14 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11099) pipe_diag: [PPA_TRACE] t_us=8760366 kind=yolo_pre frame=15 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11109) pipe_diag: [PPA_TRACE] t_us=8992357 kind=yolo_pre frame=16 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (11118) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (11127) bsp_lcd: [BLUE_MARK] fb_hash t_us=7098752 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11135) bsp_lcd: [BLUE_MARK] fb_hash t_us=7198752 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11143) bsp_lcd: [BLUE_MARK] fb_hash t_us=7298749 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11150) bsp_lcd: [BLUE_MARK] fb_hash t_us=7398750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11158) bsp_lcd: [BLUE_MARK] fb_hash t_us=7498750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11166) bsp_lcd: [BLUE_MARK] fb_hash t_us=7598750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11174) bsp_lcd: [BLUE_MARK] fb_hash t_us=7698751 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11182) bsp_lcd: [BLUE_MARK] fb_hash t_us=7798750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11190) bsp_lcd: [BLUE_MARK] fb_hash t_us=7898751 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11198) bsp_lcd: [BLUE_MARK] fb_hash t_us=7998755 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11206) bsp_lcd: [BLUE_MARK] fb_hash t_us=8098749 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11214) bsp_lcd: [BLUE_MARK] fb_hash t_us=8198750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11222) bsp_lcd: [BLUE_MARK] fb_hash t_us=8298750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11230) bsp_lcd: [BLUE_MARK] fb_hash t_us=8398750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11238) bsp_lcd: [BLUE_MARK] fb_hash t_us=8498752 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11246) bsp_lcd: [BLUE_MARK] fb_hash t_us=8598750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11254) bsp_lcd: [BLUE_MARK] fb_hash t_us=8698750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11262) bsp_lcd: [BLUE_MARK] fb_hash t_us=8798743 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11270) bsp_lcd: [BLUE_MARK] fb_hash t_us=8898742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (11278) bsp_lcd: [BLUE_MARK] fb_hash t_us=8998743 fb0=58fc0805 fb1=f516a805 fb2=cd96b745[0m
+[1;31mE (11286) bsp_lcd: [BLUE_MARK] fb_hash t_us=9098745 fb0=58fc0805 fb1=50764105 fb2=50764105[0m
+[1;31mE (11294) bsp_lcd: [BLUE_MARK] fb_hash t_us=9198742 fb0=58fc0805 fb1=50764105 fb2=50764105[0m
+[1;31mE (11302) bsp_lcd: [BLUE_MARK] fb_hash t_us=9298742 fb0=58fc0805 fb1=50764105 fb2=50764105[0m
+[1;31mE (11310) bsp_lcd: [BLUE_MARK] fb_hash t_us=9348546 fb0=58fc0805 fb1=50764105 fb2=50764105[0m
+[0;32mI (11318) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=4500KB/s count=19 timeouts=0 last_receive=38ms max_receive=38ms age=60ms latest=2 app=1 psram_free=20057KB[0m
+[1;31mE (11336) app_ui_dashboard: [BLUE_MARK] dashboard status=未检测到目标 company=无 conf=0 threshold=25 fps=5 infer=104ms cpu1=0 cpu2=0 mem=0 sorted=0 boxes=0 heap=66KB psram=20057KB[0m
+[0;32mI (11931) pipe_diag: [PIPE_DIAG] uptime=10161ms frame=21 fps=5 last=21 640x480 cam_timeout=0/0 max_cam_wait=105ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=1 internal=67KB psram=20057KB[0m
+[0;32mI (11939) pipe_diag: [PIPE_DIAG] timing pre_avg=135.5ms pre_max=533ms yolo_ppa_avg=7.7ms yolo_ppa_max=9ms run_avg=47.7ms run_max=56ms infer_avg=189.0ms infer_max=595ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (11960) vision_app: [VISION_DIAG] latest #21 fps=4.28 runtime=multi fallback=0 ppa=1 preview=0/3 cam_wait=105ms pre=22ms preprocess=22ms resize=6ms quant=2ms copy=0ms run=43ms decode=5ms preview=0ms loop=177ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (11995) vision_app: [VISION_DIAG] avg samples=5 fps=4.28 ppa=5 images=0 cam_wait=29.0ms pre=135.5ms preprocess=135.5ms resize=7.7ms quant=9.6ms copy=0.0ms run=47.7ms decode=5.7ms preview=0.0ms loop=218.0ms max_run=56ms max_loop=616ms[0m
+[0;32mI (12935) pipe_diag: [PIPE_DIAG] uptime=11165ms frame=26 fps=5 last=26 640x480 cam_timeout=0/0 max_cam_wait=127ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=1 internal=67KB psram=20057KB[0m
+[0;32mI (12943) pipe_diag: [PIPE_DIAG] timing pre_avg=24.5ms pre_max=27ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=43.6ms run_max=43ms infer_avg=73.9ms infer_max=77ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (12964) vision_app: [VISION_DIAG] latest #26 fps=4.98 runtime=multi fallback=0 ppa=1 preview=0/3 cam_wait=127ms pre=26ms preprocess=26ms resize=6ms quant=3ms copy=0ms run=43ms decode=5ms preview=0ms loop=203ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (13000) vision_app: [VISION_DIAG] avg samples=5 fps=4.98 ppa=5 images=0 cam_wait=110.9ms pre=24.5ms preprocess=24.5ms resize=6.2ms quant=3.1ms copy=0.0ms run=43.6ms decode=5.8ms preview=0.0ms loop=184.9ms max_run=43ms max_loop=203ms[0m
+[0;32mI (14136) pipe_diag: [PIPE_DIAG] uptime=12365ms frame=32 fps=6 last=32 640x480 cam_timeout=0/0 max_cam_wait=126ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=1 internal=67KB psram=20057KB[0m
+[0;32mI (14144) pipe_diag: [PIPE_DIAG] timing pre_avg=24.5ms pre_max=29ms yolo_ppa_avg=6.7ms yolo_ppa_max=8ms run_avg=43.7ms run_max=43ms infer_avg=74.0ms infer_max=78ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (14165) vision_app: [VISION_DIAG] latest #32 fps=5.00 runtime=multi fallback=0 ppa=1 preview=0/3 cam_wait=126ms pre=27ms preprocess=27ms resize=6ms quant=3ms copy=0ms run=43ms decode=5ms preview=0ms loop=203ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (14197) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=112.4ms pre=24.5ms preprocess=24.5ms resize=6.7ms quant=3.0ms copy=0.0ms run=43.7ms decode=5.8ms preview=0.0ms loop=186.5ms max_run=43ms max_loop=205ms[0m
+[0;32mI (15340) pipe_diag: [PIPE_DIAG] uptime=13570ms frame=38 fps=6 last=38 640x480 cam_timeout=0/0 max_cam_wait=127ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=1 internal=67KB psram=20057KB[0m
+[0;32mI (15348) pipe_diag: [PIPE_DIAG] timing pre_avg=24.6ms pre_max=29ms yolo_ppa_avg=6.8ms yolo_ppa_max=9ms run_avg=43.5ms run_max=43ms infer_avg=73.9ms infer_max=78ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (15369) vision_app: [VISION_DIAG] latest #38 fps=4.98 runtime=multi fallback=0 ppa=1 preview=0/3 cam_wait=126ms pre=29ms preprocess=29ms resize=9ms quant=3ms copy=0ms run=43ms decode=5ms preview=0ms loop=205ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (15400) vision_app: [VISION_DIAG] avg samples=6 fps=4.98 ppa=6 images=0 cam_wait=113.6ms pre=24.6ms preprocess=24.6ms resize=6.8ms quant=3.0ms copy=0.0ms run=43.5ms decode=5.8ms preview=0.0ms loop=187.5ms max_run=43ms max_loop=205ms[0m
+[1;31mE (15693) bsp_lcd: [BLUE_MARK] #2 source=ui_button time_us=13922915 tick=13739 core=1 psram_free=20057KB internal_free=66KB[0m
+[0;32mI (15693) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (15702) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x48320a80 fb1=0x4844cb00 fb2=0x48578b80 psram_free=20057KB internal_free=66KB[0m
+[0;33mW (15713) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (15725) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (15737) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (15746) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (15755) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (15763) pipe_diag: [PIPE_DIAG] blue_dump source=ui_button blue=2 frame=40 total_frames=40 camera_timeouts=0 roi_ok=0 roi_skip=39 model_runs=39 preview_ok=0/0 yolo_ppa=39 preview_ppa=0[0m
+[1;31mE (15779) pipe_diag: [PPA_TRACE] recent count=32[0m
+[1;31mE (15783) pipe_diag: [PPA_TRACE] t_us=7365039 kind=yolo_pre frame=8 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15793) pipe_diag: [PPA_TRACE] t_us=7559002 kind=yolo_pre frame=9 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15803) pipe_diag: [PPA_TRACE] t_us=7759728 kind=yolo_pre frame=10 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15813) pipe_diag: [PPA_TRACE] t_us=7965480 kind=yolo_pre frame=11 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15823) pipe_diag: [PPA_TRACE] t_us=8160163 kind=yolo_pre frame=12 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15832) pipe_diag: [PPA_TRACE] t_us=8360195 kind=yolo_pre frame=13 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15842) pipe_diag: [PPA_TRACE] t_us=8565820 kind=yolo_pre frame=14 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15852) pipe_diag: [PPA_TRACE] t_us=8760366 kind=yolo_pre frame=15 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15862) pipe_diag: [PPA_TRACE] t_us=8992357 kind=yolo_pre frame=16 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15872) pipe_diag: [PPA_TRACE] t_us=9683290 kind=yolo_pre frame=17 src=640x480 dst=224x224 dur=9ms ret=ESP_OK[0m
+[1;31mE (15881) pipe_diag: [PPA_TRACE] t_us=9775767 kind=yolo_pre frame=18 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15891) pipe_diag: [PPA_TRACE] t_us=9869999 kind=yolo_pre frame=19 src=640x480 dst=224x224 dur=7ms ret=ESP_OK[0m
+[1;31mE (15901) pipe_diag: [PPA_TRACE] t_us=9981698 kind=yolo_pre frame=20 src=640x480 dst=224x224 dur=9ms ret=ESP_OK[0m
+[1;31mE (15911) pipe_diag: [PPA_TRACE] t_us=10160067 kind=yolo_pre frame=21 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15921) pipe_diag: [PPA_TRACE] t_us=10360161 kind=yolo_pre frame=22 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15931) pipe_diag: [PPA_TRACE] t_us=10565039 kind=yolo_pre frame=23 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15940) pipe_diag: [PPA_TRACE] t_us=10760176 kind=yolo_pre frame=24 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15950) pipe_diag: [PPA_TRACE] t_us=10960133 kind=yolo_pre frame=25 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15960) pipe_diag: [PPA_TRACE] t_us=11164519 kind=yolo_pre frame=26 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15970) pipe_diag: [PPA_TRACE] t_us=11361416 kind=yolo_pre frame=27 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15980) pipe_diag: [PPA_TRACE] t_us=11560911 kind=yolo_pre frame=28 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (15990) pipe_diag: [PPA_TRACE] t_us=11767727 kind=yolo_pre frame=29 src=640x480 dst=224x224 dur=8ms ret=ESP_OK[0m
+[1;31mE (16000) pipe_diag: [PPA_TRACE] t_us=11961206 kind=yolo_pre frame=30 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (16010) pipe_diag: [PPA_TRACE] t_us=12161415 kind=yolo_pre frame=31 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (16020) pipe_diag: [PPA_TRACE] t_us=12365223 kind=yolo_pre frame=32 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (16030) pipe_diag: [PPA_TRACE] t_us=12561183 kind=yolo_pre frame=33 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (16039) pipe_diag: [PPA_TRACE] t_us=12761089 kind=yolo_pre frame=34 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (16049) pipe_diag: [PPA_TRACE] t_us=12965266 kind=yolo_pre frame=35 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (16059) pipe_diag: [PPA_TRACE] t_us=13162208 kind=yolo_pre frame=36 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (16069) pipe_diag: [PPA_TRACE] t_us=13362231 kind=yolo_pre frame=37 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (16079) pipe_diag: [PPA_TRACE] t_us=13568908 kind=yolo_pre frame=38 src=640x480 dst=224x224 dur=9ms ret=ESP_OK[0m
+[1;31mE (16089) pipe_diag: [PPA_TRACE] t_us=13761917 kind=yolo_pre frame=39 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (16099) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (16107) bsp_lcd: [BLUE_MARK] fb_hash t_us=12098750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16115) bsp_lcd: [BLUE_MARK] fb_hash t_us=12198749 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16123) bsp_lcd: [BLUE_MARK] fb_hash t_us=12298753 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16131) bsp_lcd: [BLUE_MARK] fb_hash t_us=12398750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16139) bsp_lcd: [BLUE_MARK] fb_hash t_us=12498750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16147) bsp_lcd: [BLUE_MARK] fb_hash t_us=12598750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16155) bsp_lcd: [BLUE_MARK] fb_hash t_us=12698749 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16164) bsp_lcd: [BLUE_MARK] fb_hash t_us=12798749 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16172) bsp_lcd: [BLUE_MARK] fb_hash t_us=12898751 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16180) bsp_lcd: [BLUE_MARK] fb_hash t_us=12998750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16188) bsp_lcd: [BLUE_MARK] fb_hash t_us=13098750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16196) bsp_lcd: [BLUE_MARK] fb_hash t_us=13198750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16204) bsp_lcd: [BLUE_MARK] fb_hash t_us=13298752 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16212) bsp_lcd: [BLUE_MARK] fb_hash t_us=13398749 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16220) bsp_lcd: [BLUE_MARK] fb_hash t_us=13498750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16228) bsp_lcd: [BLUE_MARK] fb_hash t_us=13598750 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16236) bsp_lcd: [BLUE_MARK] fb_hash t_us=13698749 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16244) bsp_lcd: [BLUE_MARK] fb_hash t_us=13798751 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (16252) bsp_lcd: [BLUE_MARK] fb_hash t_us=13898750 fb0=cd96b745 fb1=50764105 fb2=50764105[0m
+[1;31mE (16260) bsp_lcd: [BLUE_MARK] fb_hash t_us=13998743 fb0=cd96b745 fb1=50764105 fb2=50764105[0m
+[1;31mE (16268) bsp_lcd: [BLUE_MARK] fb_hash t_us=14098742 fb0=cd96b745 fb1=50764105 fb2=50764105[0m
+[1;31mE (16277) bsp_lcd: [BLUE_MARK] fb_hash t_us=14198742 fb0=cd96b745 fb1=50764105 fb2=50764105[0m
+[1;31mE (16285) bsp_lcd: [BLUE_MARK] fb_hash t_us=14298742 fb0=cd96b745 fb1=50764105 fb2=50764105[0m
+[1;31mE (16293) bsp_lcd: [BLUE_MARK] fb_hash t_us=14329028 fb0=cd96b745 fb1=50764105 fb2=50764105[0m
+[0;32mI (16301) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=4500KB/s count=44 timeouts=0 last_receive=38ms max_receive=38ms age=41ms latest=0 app=1 psram_free=20057KB[0m
+[1;31mE (16318) app_ui_dashboard: [BLUE_MARK] dashboard status=未检测到目标 company=无 conf=0 threshold=25 fps=5 infer=71ms cpu1=0 cpu2=0 mem=0 sorted=0 boxes=0 heap=66KB psram=20057KB[0m
+[0;33mW (16405) app_yolo: Multi-core run took 713ms; falling back to single-core runtime[0m
+[0;32mI (16412) pipe_diag: [PIPE_DIAG] uptime=14642ms frame=40 fps=2 last=40 640x480 cam_timeout=0/0 max_cam_wait=127ms roi_ok=0 roi_skip=2 model_run=2 yolo_ppa=2 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (16420) pipe_diag: [PIPE_DIAG] timing pre_avg=26.6ms pre_max=30ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=378.6ms run_max=713ms infer_avg=411.2ms infer_max=750ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (16442) vision_app: [VISION_DIAG] latest #40 fps=1.87 runtime=multi fallback=1 ppa=1 preview=0/3 cam_wait=127ms pre=30ms preprocess=30ms resize=6ms quant=3ms copy=0ms run=713ms decode=6ms preview=0ms loop=878ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (16465) vision_app: [VISION_DIAG] avg samples=2 fps=1.87 ppa=2 images=0 cam_wait=84.7ms pre=26.6ms preprocess=26.6ms resize=6.2ms quant=3.0ms copy=0.0ms run=378.6ms decode=5.9ms preview=0.0ms loop=495.9ms max_run=713ms max_loop=878ms[0m
+[0;32mI (17548) pipe_diag: [PIPE_DIAG] uptime=15778ms frame=46 fps=6 last=46 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (17556) pipe_diag: [PIPE_DIAG] timing pre_avg=25.7ms pre_max=40ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=55.3ms run_max=58ms infer_avg=86.7ms infer_max=100ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (17577) vision_app: [VISION_DIAG] latest #46 fps=5.28 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=116ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=58ms decode=5ms preview=0ms loop=203ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (17613) vision_app: [VISION_DIAG] avg samples=6 fps=5.28 ppa=6 images=0 cam_wait=89.2ms pre=25.7ms preprocess=25.7ms resize=6.2ms quant=3.0ms copy=0.0ms run=55.3ms decode=5.8ms preview=0.0ms loop=176.0ms max_run=58ms max_loop=203ms[0m
+[0;32mI (18744) pipe_diag: [PIPE_DIAG] uptime=16974ms frame=52 fps=6 last=52 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (18753) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.0ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (18773) vision_app: [VISION_DIAG] latest #52 fps=5.02 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=2ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (18810) vision_app: [VISION_DIAG] avg samples=6 fps=5.02 ppa=6 images=0 cam_wait=102.2ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=185.3ms max_run=54ms max_loop=198ms[0m
+[0;32mI (19744) pipe_diag: [PIPE_DIAG] uptime=17974ms frame=57 fps=5 last=57 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (19752) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=55.3ms run_max=58ms infer_avg=83.9ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (19773) vision_app: [VISION_DIAG] latest #57 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (19797) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=99.6ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.1ms copy=0.0ms run=55.3ms decode=5.8ms preview=0.0ms loop=183.5ms max_run=58ms max_loop=203ms[0m
+[0;32mI (20744) pipe_diag: [PIPE_DIAG] uptime=18974ms frame=62 fps=5 last=62 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (20752) pipe_diag: [PIPE_DIAG] timing pre_avg=22.8ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.0ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (20773) vision_app: [VISION_DIAG] latest #62 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (20797) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=100.9ms pre=22.8ms preprocess=22.8ms resize=6.2ms quant=3.1ms copy=0.0ms run=54.4ms decode=5.8ms preview=0.0ms loop=184.0ms max_run=54ms max_loop=198ms[0m
+[0;32mI (21748) pipe_diag: [PIPE_DIAG] uptime=19978ms frame=67 fps=5 last=67 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (21756) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=55.3ms run_max=58ms infer_avg=84.6ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (21777) vision_app: [VISION_DIAG] latest #67 fps=4.98 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=116ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=9ms preview=0ms loop=203ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (21801) vision_app: [VISION_DIAG] avg samples=5 fps=4.98 ppa=5 images=0 cam_wait=100.4ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.0ms copy=0.0ms run=55.3ms decode=6.5ms preview=0.0ms loop=185.0ms max_run=58ms max_loop=203ms[0m
+[0;32mI (22948) pipe_diag: [PIPE_DIAG] uptime=21178ms frame=73 fps=6 last=73 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (22956) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.7ms infer_max=86ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (22977) vision_app: [VISION_DIAG] latest #73 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=9ms preview=0ms loop=202ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (23001) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=102.9ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.1ms copy=0.0ms run=54.5ms decode=6.5ms preview=0.0ms loop=186.6ms max_run=54ms max_loop=202ms[0m
+[0;32mI (24148) pipe_diag: [PIPE_DIAG] uptime=22377ms frame=79 fps=6 last=79 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (24156) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=55.3ms run_max=58ms infer_avg=83.8ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (24177) vision_app: [VISION_DIAG] latest #79 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=58ms decode=5ms preview=0ms loop=203ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (24212) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=102.9ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.0ms copy=0.0ms run=55.3ms decode=5.8ms preview=0.0ms loop=186.7ms max_run=58ms max_loop=203ms[0m
+[0;32mI (25349) pipe_diag: [PIPE_DIAG] uptime=23579ms frame=85 fps=6 last=85 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (25357) pipe_diag: [PIPE_DIAG] timing pre_avg=22.8ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=84.3ms infer_max=86ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (25378) vision_app: [VISION_DIAG] latest #85 fps=4.99 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=9ms preview=0ms loop=202ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (25402) vision_app: [VISION_DIAG] avg samples=6 fps=4.99 ppa=6 images=0 cam_wait=102.1ms pre=22.8ms preprocess=22.8ms resize=6.2ms quant=3.1ms copy=0.0ms run=54.5ms decode=7.0ms preview=0.0ms loop=186.4ms max_run=54ms max_loop=203ms[0m
+[0;32mI (26549) pipe_diag: [PIPE_DIAG] uptime=24779ms frame=91 fps=6 last=91 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (26557) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=55.2ms run_max=58ms infer_avg=84.3ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+ psram=20057KB
+[0;32mI (26610) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=102.3ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.1ms copy=0.0ms run=55.2ms decode=6.4ms preview=0.0ms loop=186.6ms max_run=58ms max_loop=203ms[0m
+[0;32mI (27746) pipe_diag: [PIPE_DIAG] uptime=25976ms frame=97 fps=6 last=97 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (27755) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.0ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (27775) vision_app: [VISION_DIAG] latest #97 fps=5.01 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=116ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (27812) vision_app: [VISION_DIAG] avg samples=6 fps=5.01 ppa=6 images=0 cam_wait=101.9ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=185.0ms max_run=54ms max_loop=199ms[0m
+[0;32mI (28746) pipe_diag: [PIPE_DIAG] uptime=26976ms frame=102 fps=5 last=102 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (28754) pipe_diag: [PIPE_DIAG] timing pre_avg=22.8ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=55.3ms run_max=58ms infer_avg=83.9ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (28775) vision_app: [VISION_DIAG] latest #102 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=116ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (28799) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=99.7ms pre=22.8ms preprocess=22.8ms resize=6.2ms quant=3.0ms copy=0.0ms run=55.3ms decode=5.8ms preview=0.0ms loop=183.6ms max_run=58ms max_loop=203ms[0m
+[0;32mI (29747) pipe_diag: [PIPE_DIAG] uptime=27977ms frame=107 fps=5 last=107 640x480 cam_timeout=0/0 max_cam_wait=117ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (29755) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.0ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (29776) vision_app: [VISION_DIAG] latest #107 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (29800) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=101.6ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.1ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=184.7ms max_run=54ms max_loop=200ms[0m
+[0;32mI (30947) pipe_diag: [PIPE_DIAG] uptime=29177ms frame=113 fps=6 last=113 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (30955) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.6ms run_max=54ms infer_avg=83.7ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (30976) vision_app: [VISION_DIAG] latest #113 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=116ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (31010) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=102.9ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.6ms decode=6.4ms preview=0.0ms loop=186.7ms max_run=54ms max_loop=203ms[0m
+[0;32mI (31463) cam_sensor: [CAM_DIAG] capture #120 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (31952) pipe_diag: [PIPE_DIAG] uptime=30182ms frame=118 fps=5 last=118 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (31960) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.8ms infer_max=86ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (31981) vision_app: [VISION_DIAG] latest #118 fps=4.98 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=9ms preview=0ms loop=202ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (32019) vision_app: [VISION_DIAG] avg samples=5 fps=4.98 ppa=5 images=0 cam_wait=100.4ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.4ms decode=6.6ms preview=0.0ms loop=184.2ms max_run=54ms max_loop=202ms[0m
+[0;32mI (33148) pipe_diag: [PIPE_DIAG] uptime=31377ms frame=124 fps=6 last=124 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (33156) pipe_diag: [PIPE_DIAG] timing pre_avg=22.8ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.0ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (33177) vision_app: [VISION_DIAG] latest #124 fps=5.02 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=2ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (33213) vision_app: [VISION_DIAG] avg samples=6 fps=5.02 ppa=6 images=0 cam_wait=101.8ms pre=22.8ms preprocess=22.8ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=184.9ms max_run=54ms max_loop=198ms[0m
+[0;32mI (34148) pipe_diag: [PIPE_DIAG] uptime=32378ms frame=129 fps=5 last=129 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (34156) pipe_diag: [PIPE_DIAG] timing pre_avg=22.7ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.8ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (34177) vision_app: [VISION_DIAG] latest #129 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (34211) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=99.7ms pre=22.7ms preprocess=22.7ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=6.6ms preview=0.0ms loop=183.6ms max_run=54ms max_loop=202ms[0m
+[0;32mI (35149) pipe_diag: [PIPE_DIAG] uptime=33379ms frame=134 fps=5 last=134 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (35157) pipe_diag: [PIPE_DIAG] timing pre_avg=22.8ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.8ms infer_max=86ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (35178) vision_app: [VISION_DIAG] latest #134 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=116ms pre=22ms preprocess=22ms resize=6ms quant=2ms copy=0ms run=54ms decode=5ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (35209) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=99.8ms pre=22.8ms preprocess=22.8ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=6.5ms preview=0.0ms loop=183.6ms max_run=54ms max_loop=199ms[0m
+[0;32mI (36153) pipe_diag: [PIPE_DIAG] uptime=34383ms frame=139 fps=5 last=139 640x480 cam_timeout=0/0 max_cam_wait=117ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=2 internal=67KB psram=20057KB[0m
+[0;32mI (36161) pipe_diag: [PIPE_DIAG] timing pre_avg=22.8ms pre_max=22ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=55.4ms run_max=59ms infer_avg=84.8ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (36182) vision_app: [VISION_DIAG] latest #139 fps=4.98 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=117ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=9ms preview=0ms loop=204ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (36214) vision_app: [VISION_DIAG] avg samples=5 fps=4.98 ppa=5 images=0 cam_wait=99.6ms pre=22.8ms preprocess=22.8ms resize=6.2ms quant=3.1ms copy=0.0ms run=55.4ms decode=6.6ms preview=0.0ms loop=184.4ms max_run=59ms max_loop=204ms[0m
+[1;31mE (37109) bsp_lcd: [BLUE_MARK] #3 source=ui_button time_us=35338756 tick=35155 core=1 psram_free=20057KB internal_free=67KB[0m
+[0;32mI (37109) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (37117) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x48320a80 fb1=0x4844cb00 fb2=0x48578b80 psram_free=20057KB internal_free=67KB[0m
+[0;33mW (37129) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (37141) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (37153) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (37162) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (37170) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (37179) pipe_diag: [PIPE_DIAG] blue_dump source=ui_button blue=3 frame=144 total_frames=144 camera_timeouts=0 roi_ok=0 roi_skip=143 model_runs=143 preview_ok=0/0 yolo_ppa=143 preview_ppa=0[0m
+[1;31mE (37195) pipe_diag: [PPA_TRACE] recent count=32[0m
+[1;31mE (37200) pipe_diag: [PPA_TRACE] t_us=28976358 kind=yolo_pre frame=112 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37210) pipe_diag: [PPA_TRACE] t_us=29175953 kind=yolo_pre frame=113 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37220) pipe_diag: [PPA_TRACE] t_us=29375913 kind=yolo_pre frame=114 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37230) pipe_diag: [PPA_TRACE] t_us=29576212 kind=yolo_pre frame=115 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37240) pipe_diag: [PPA_TRACE] t_us=29776027 kind=yolo_pre frame=116 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37250) pipe_diag: [PPA_TRACE] t_us=29976863 kind=yolo_pre frame=117 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37260) pipe_diag: [PPA_TRACE] t_us=30180955 kind=yolo_pre frame=118 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37270) pipe_diag: [PPA_TRACE] t_us=30377070 kind=yolo_pre frame=119 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37280) pipe_diag: [PPA_TRACE] t_us=30576960 kind=yolo_pre frame=120 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37290) pipe_diag: [PPA_TRACE] t_us=30776964 kind=yolo_pre frame=121 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37300) pipe_diag: [PPA_TRACE] t_us=30976975 kind=yolo_pre frame=122 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37310) pipe_diag: [PPA_TRACE] t_us=31177168 kind=yolo_pre frame=123 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37320) pipe_diag: [PPA_TRACE] t_us=31376964 kind=yolo_pre frame=124 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37329) pipe_diag: [PPA_TRACE] t_us=31576889 kind=yolo_pre frame=125 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37339) pipe_diag: [PPA_TRACE] t_us=31777074 kind=yolo_pre frame=126 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37349) pipe_diag: [PPA_TRACE] t_us=31981149 kind=yolo_pre frame=127 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37359) pipe_diag: [PPA_TRACE] t_us=32176780 kind=yolo_pre frame=128 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37369) pipe_diag: [PPA_TRACE] t_us=32377062 kind=yolo_pre frame=129 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37379) pipe_diag: [PPA_TRACE] t_us=32581316 kind=yolo_pre frame=130 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37389) pipe_diag: [PPA_TRACE] t_us=32777783 kind=yolo_pre frame=131 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37399) pipe_diag: [PPA_TRACE] t_us=32978049 kind=yolo_pre frame=132 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37409) pipe_diag: [PPA_TRACE] t_us=33178171 kind=yolo_pre frame=133 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37419) pipe_diag: [PPA_TRACE] t_us=33377905 kind=yolo_pre frame=134 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37429) pipe_diag: [PPA_TRACE] t_us=33577753 kind=yolo_pre frame=135 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37439) pipe_diag: [PPA_TRACE] t_us=33782901 kind=yolo_pre frame=136 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37449) pipe_diag: [PPA_TRACE] t_us=33978528 kind=yolo_pre frame=137 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37459) pipe_diag: [PPA_TRACE] t_us=34177675 kind=yolo_pre frame=138 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37469) pipe_diag: [PPA_TRACE] t_us=34382314 kind=yolo_pre frame=139 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37479) pipe_diag: [PPA_TRACE] t_us=34579139 kind=yolo_pre frame=140 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37489) pipe_diag: [PPA_TRACE] t_us=34778811 kind=yolo_pre frame=141 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37499) pipe_diag: [PPA_TRACE] t_us=34979249 kind=yolo_pre frame=142 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37509) pipe_diag: [PPA_TRACE] t_us=35179017 kind=yolo_pre frame=143 src=640x480 dst=224x224 dur=6ms ret=ESP_OK[0m
+[1;31mE (37519) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (37527) bsp_lcd: [BLUE_MARK] fb_hash t_us=33498742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37535) bsp_lcd: [BLUE_MARK] fb_hash t_us=33598742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37544) bsp_lcd: [BLUE_MARK] fb_hash t_us=33698742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37552) bsp_lcd: [BLUE_MARK] fb_hash t_us=33798742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37560) bsp_lcd: [BLUE_MARK] fb_hash t_us=33898745 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37568) bsp_lcd: [BLUE_MARK] fb_hash t_us=33998742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37576) bsp_lcd: [BLUE_MARK] fb_hash t_us=34098742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37584) bsp_lcd: [BLUE_MARK] fb_hash t_us=34198743 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37592) bsp_lcd: [BLUE_MARK] fb_hash t_us=34298743 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37600) bsp_lcd: [BLUE_MARK] fb_hash t_us=34398743 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37608) bsp_lcd: [BLUE_MARK] fb_hash t_us=34498744 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37616) bsp_lcd: [BLUE_MARK] fb_hash t_us=34598742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37624) bsp_lcd: [BLUE_MARK] fb_hash t_us=34698744 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37632) bsp_lcd: [BLUE_MARK] fb_hash t_us=34798742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37640) bsp_lcd: [BLUE_MARK] fb_hash t_us=34898745 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37648) bsp_lcd: [BLUE_MARK] fb_hash t_us=34998742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37657) bsp_lcd: [BLUE_MARK] fb_hash t_us=35098744 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37665) bsp_lcd: [BLUE_MARK] fb_hash t_us=35198742 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37673) bsp_lcd: [BLUE_MARK] fb_hash t_us=35298743 fb0=cd96b745 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (37681) bsp_lcd: [BLUE_MARK] fb_hash t_us=35398743 fb0=cd96b745 fb1=b78aad45 fb2=58fc0805[0m
+[1;31mE (37689) bsp_lcd: [BLUE_MARK] fb_hash t_us=35498742 fb0=cd96b745 fb1=b78aad45 fb2=58fc0805[0m
+[1;31mE (37697) bsp_lcd: [BLUE_MARK] fb_hash t_us=35598742 fb0=cd96b745 fb1=b78aad45 fb2=58fc0805[0m
+[1;31mE (37705) bsp_lcd: [BLUE_MARK] fb_hash t_us=35698742 fb0=cd96b745 fb1=b78aad45 fb2=58fc0805[0m
+[1;31mE (37713) bsp_lcd: [BLUE_MARK] fb_hash t_us=35749390 fb0=cd96b745 fb1=b78aad45 fb2=58fc0805[0m
+[0;32mI (37721) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=4500KB/s count=151 timeouts=0 last_receive=38ms max_receive=38ms age=54ms latest=1 app=0 psram_free=20057KB[0m
+[1;31mE (37739) app_ui_dashboard: [BLUE_MARK] dashboard status=未检测到目标 company=无 conf=0 threshold=25 fps=5 infer=83ms cpu1=0 cpu2=0 mem=0 sorted=0 boxes=0 heap=67KB psram=20057KB[0m
+[0;32mI (37846) pipe_diag: [PIPE_DIAG] uptime=36076ms frame=144 fps=5 last=144 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (37854) pipe_diag: [PIPE_DIAG] timing pre_avg=159.5ms pre_max=706ms yolo_ppa_avg=136.7ms yolo_ppa_max=658ms run_avg=57.0ms run_max=66ms infer_avg=222.3ms infer_max=779ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (37876) vision_app: [VISION_DIAG] latest #144 fps=2.95 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=706ms preprocess=706ms resize=658ms quant=15ms copy=0ms run=66ms decode=5ms preview=0ms loop=894ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (37900) vision_app: [VISION_DIAG] avg samples=5 fps=2.95 ppa=5 images=0 cam_wait=99.5ms pre=159.5ms preprocess=159.5ms resize=136.7ms quant=5.4ms copy=0.0ms run=57.0ms decode=5.8ms preview=0.0ms loop=321.8ms max_run=66ms max_loop=894ms[0m
+[0;32mI (38951) pipe_diag: [PIPE_DIAG] uptime=37181ms frame=150 fps=6 last=150 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (38959) pipe_diag: [PIPE_DIAG] timing pre_avg=24.0ms pre_max=27ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=57.6ms run_max=73ms infer_avg=87.4ms infer_max=106ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (38980) vision_app: [VISION_DIAG] latest #150 fps=5.43 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=114ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=197ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (39016) vision_app: [VISION_DIAG] avg samples=6 fps=5.43 ppa=6 images=0 cam_wait=82.8ms pre=24.0ms preprocess=24.0ms resize=6.2ms quant=3.0ms copy=0.0ms run=57.6ms decode=5.8ms preview=0.0ms loop=170.2ms max_run=73ms max_loop=199ms[0m
+[0;32mI (39954) pipe_diag: [PIPE_DIAG] uptime=38184ms frame=155 fps=5 last=155 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (39962) pipe_diag: [PIPE_DIAG] timing pre_avg=23.6ms pre_max=26ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.9ms infer_max=86ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (39983) vision_app: [VISION_DIAG] latest #155 fps=4.99 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=26ms preprocess=26ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=202ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (40021) vision_app: [VISION_DIAG] avg samples=5 fps=4.99 ppa=5 images=0 cam_wait=100.5ms pre=23.6ms preprocess=23.6ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=184.4ms max_run=54ms max_loop=202ms[0m
+[0;32mI (41154) pipe_diag: [PIPE_DIAG] uptime=39384ms frame=161 fps=6 last=161 640x480 cam_timeout=0/0 max_cam_wait=117ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (41162) pipe_diag: [PIPE_DIAG] timing pre_avg=23.0ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.2ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (41183) vision_app: [VISION_DIAG] latest #161 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=117ms pre=23ms preprocess=23ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=201ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (41217) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=102.6ms pre=23.0ms preprocess=23.0ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.4ms decode=5.8ms preview=0.0ms loop=185.9ms max_run=54ms max_loop=201ms[0m
+[0;32mI (42354) pipe_diag: [PIPE_DIAG] uptime=40583ms frame=167 fps=6 last=167 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (42362) pipe_diag: [PIPE_DIAG] timing pre_avg=22.9ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.2ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (42383) vision_app: [VISION_DIAG] latest #167 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=23ms preprocess=23ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (42415) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=103.2ms pre=22.9ms preprocess=22.9ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.4ms decode=5.8ms preview=0.0ms loop=186.4ms max_run=54ms max_loop=199ms[0m
+[0;32mI (43354) pipe_diag: [PIPE_DIAG] uptime=41584ms frame=172 fps=5 last=172 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (43362) pipe_diag: [PIPE_DIAG] timing pre_avg=23.5ms pre_max=27ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.8ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (43383) vision_app: [VISION_DIAG] latest #172 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=116ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (43418) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=100.5ms pre=23.5ms preprocess=23.5ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=184.3ms max_run=54ms max_loop=203ms[0m
+[0;32mI (44354) pipe_diag: [PIPE_DIAG] uptime=42584ms frame=177 fps=5 last=177 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (44364) pipe_diag: [PIPE_DIAG] timing pre_avg=23.0ms pre_max=23ms yolo_ppa_avg=6.3ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.2ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (44383) vision_app: [VISION_DIAG] latest #177 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=114ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=197ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (44418) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=100.5ms pre=23.0ms preprocess=23.0ms resize=6.3ms quant=3.0ms copy=0.0ms run=54.4ms decode=5.8ms preview=0.0ms loop=183.7ms max_run=54ms max_loop=199ms[0m
+[0;32mI (45354) pipe_diag: [PIPE_DIAG] uptime=43584ms frame=182 fps=5 last=182 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (45362) pipe_diag: [PIPE_DIAG] timing pre_avg=23.7ms pre_max=26ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.9ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (45383) vision_app: [VISION_DIAG] latest #182 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=23ms preprocess=23ms resize=6ms quant=2ms copy=0ms run=54ms decode=5ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (45407) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=99.4ms pre=23.7ms preprocess=23.7ms resize=6.2ms quant=3.1ms copy=0.0ms run=54.4ms decode=5.8ms preview=0.0ms loop=183.4ms max_run=54ms max_loop=202ms[0m
+[0;32mI (46354) pipe_diag: [PIPE_DIAG] uptime=44584ms frame=187 fps=5 last=187 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (46362) pipe_diag: [PIPE_DIAG] timing pre_avg=22.9ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.1ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (46383) vision_app: [VISION_DIAG] latest #187 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (46416) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=100.9ms pre=22.9ms preprocess=22.9ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=184.0ms max_run=54ms max_loop=199ms[0m
+[0;32mI (47554) pipe_diag: [PIPE_DIAG] uptime=45784ms frame=193 fps=6 last=193 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (47562) pipe_diag: [PIPE_DIAG] timing pre_avg=23.5ms pre_max=26ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.7ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (47583) vision_app: [VISION_DIAG] latest #193 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (47607) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=102.7ms pre=23.5ms preprocess=23.5ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=186.5ms max_run=54ms max_loop=199ms[0m
+[0;32mI (48555) pipe_diag: [PIPE_DIAG] uptime=46785ms frame=198 fps=5 last=198 640x480 cam_timeout=0/0 max_cam_wait=117ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (48563) pipe_diag: [PIPE_DIAG] timing pre_avg=23.7ms pre_max=27ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.9ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (48584) vision_app: [VISION_DIAG] latest #198 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (48618) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=99.9ms pre=23.7ms preprocess=23.7ms resize=6.2ms quant=3.1ms copy=0.0ms run=54.4ms decode=5.8ms preview=0.0ms loop=183.9ms max_run=54ms max_loop=200ms[0m
+[0;32mI (49559) pipe_diag: [PIPE_DIAG] uptime=47789ms frame=203 fps=5 last=203 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (49567) pipe_diag: [PIPE_DIAG] timing pre_avg=23.8ms pre_max=26ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=84.0ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (49588) vision_app: [VISION_DIAG] latest #203 fps=4.98 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=116ms pre=27ms preI (49613) vision_app: [VISION_DIAG] avg samples=5 fps=4.98 ppa=5 images=0 cam_wait=100.6ms pre=23.8ms preprocess=23.8ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=184.6ms max_run=54ms max_loop=203ms[0m
+[0;32mI (50756) pipe_diag: [PIPE_DIAG] uptime=48986ms frame=209 fps=6 last=209 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (50764) pipe_diag: [PIPE_DIAG] timing pre_avg=23.0ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.3ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (50785) vision_app: [VISION_DIAG] latest #209 fps=5.01 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=116ms pre=23ms preprocess=23ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=200ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (50820) vision_app: [VISION_DIAG] avg samples=6 fps=5.01 ppa=6 images=0 cam_wait=102.7ms pre=23.0ms preprocess=23.0ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=186.1ms max_run=54ms max_loop=200ms[0m
+[0;32mI (51956) pipe_diag: [PIPE_DIAG] uptime=50186ms frame=215 fps=6 last=215 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (51964) pipe_diag: [PIPE_DIAG] timing pre_avg=22.9ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.1ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (51985) vision_app: [VISION_DIAG] latest #215 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=23ms preprocess=23ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (52018) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=103.1ms pre=22.9ms preprocess=22.9ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.4ms decode=5.8ms preview=0.0ms loop=186.2ms max_run=54ms max_loop=199ms[0m
+[0;32mI (53156) pipe_diag: [PIPE_DIAG] uptime=51386ms frame=221 fps=6 last=221 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (53164) pipe_diag: [PIPE_DIAG] timing pre_avg=23.6ms pre_max=27ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.8ms infer_max=87ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (53185) vision_app: [VISION_DIAG] latest #221 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=116ms pre=23ms preprocess=23ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=201ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (53216) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=102.9ms pre=23.6ms preprocess=23.6ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=186.7ms max_run=54ms max_loop=203ms[0m
+[0;32mI (54156) pipe_diag: [PIPE_DIAG] uptime=52386ms frame=226 fps=5 last=226 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (54164) pipe_diag: [PIPE_DIAG] timing pre_avg=23.3ms pre_max=25ms yolo_ppa_avg=6.3ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.5ms infer_max=85ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (54185) vision_app: [VISION_DIAG] latest #226 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (54219) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=100.7ms pre=23.3ms preprocess=23.3ms resize=6.3ms quant=3.0ms copy=0.0ms run=54.4ms decode=5.8ms preview=0.0ms loop=184.3ms max_run=54ms max_loop=202ms[0m
+[0;32mI (55356) pipe_diag: [PIPE_DIAG] uptime=53586ms frame=232 fps=6 last=232 640x480 cam_timeout=0/0 max_cam_wait=116ms roi_ok=0 roi_skip=6 model_run=6 yolo_ppa=6 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (55364) pipe_diag: [PIPE_DIAG] timing pre_avg=22.9ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.1ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (55385) vision_app: [VISION_DIAG] latest #232 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (55409) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=6 images=0 cam_wait=103.3ms pre=22.9ms preprocess=22.9ms resize=6.2ms quant=3.1ms copy=0.0ms run=54.4ms decode=5.8ms preview=0.0ms loop=186.4ms max_run=54ms max_loop=199ms[0m
+[0;32mI (55472) cam_sensor: [CAM_DIAG] capture #240 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (56357) pipe_diag: [PIPE_DIAG] uptime=54587ms frame=237 fps=5 last=237 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (56365) pipe_diag: [PIPE_DIAG] timing pre_avg=22.9ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.5ms run_max=54ms infer_avg=83.1ms infer_max=83ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (56386) vision_app: [VISION_DIAG] latest #237 fps=4.99 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=22ms preprocess=22ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (56417) vision_app: [VISION_DIAG] avg samples=5 fps=4.99 ppa=5 images=0 cam_wait=101.0ms pre=22.9ms preprocess=22.9ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.5ms decode=5.8ms preview=0.0ms loop=184.1ms max_run=54ms max_loop=198ms[0m
+[0;32mI (57358) pipe_diag: [PIPE_DIAG] uptime=55588ms frame=242 fps=5 last=242 640x480 cam_timeout=0/0 max_cam_wait=115ms roi_ok=0 roi_skip=5 model_run=5 yolo_ppa=5 preview=0/0 preview_ppa=0 blue=3 internal=67KB psram=20057KB[0m
+[0;32mI (57366) pipe_diag: [PIPE_DIAG] timing pre_avg=23.1ms pre_max=23ms yolo_ppa_avg=6.2ms yolo_ppa_max=6ms run_avg=54.4ms run_max=54ms infer_avg=83.3ms infer_max=84ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (57387) vision_app: [VISION_DIAG] latest #242 fps=5.00 runtime=single fallback=0 ppa=1 preview=0/3 cam_wait=115ms pre=23ms preprocess=23ms resize=6ms quant=3ms copy=0ms run=54ms decode=5ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=28972 internal=67KB psram=20057KB[0m
+[0;32mI (57421) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=5 images=0 cam_wait=100.8ms pre=23.1ms preprocess=23.1ms resize=6.2ms quant=3.0ms copy=0.0ms run=54.4ms decode=5.8ms preview=0.0ms loop=184.2ms max_run=54ms max_loop=199ms[0m
+[0m
+Done

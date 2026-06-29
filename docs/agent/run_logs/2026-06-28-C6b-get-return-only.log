@@ -1,0 +1,1154 @@
+Script started on 2026-06-28 13:59:52+08:00 [COMMAND="idf.py -p /dev/ttyACM0 flash monitor" TERM="dumb" TTY="/dev/pts/4" COLUMNS="80" LINES="24"]
+Executing action: flash
+Running ninja in directory /home/kazeform/2026esp/bug_project/build
+Executing "ninja flash"...
+[1/6] cd /home/kazeform/2026esp/bug_pr...p/bug_project/build/sample_project.bin[K
+sample_project.bin binary size 0x203b60 bytes. Smallest app partition is 0x600000 bytes. 0x3fc4a0 bytes (66%) free.
+[2/6] Performing build step for 'bootloader'[K[1/1] cd /home/kazeform/2026esp/bug_pr...roject/build/bootloader/bootloader.bin[K
+Bootloader binary size 0x5a20 bytes. 0x5e0 bytes (6%) free.
+[3/6] No install step for 'bootloader'[K[4/6] Completed 'bootloader'[K[5/6] cd /home/kazeform/2026esp/bug_pr...meta-len=4 --use-magic --use-magic-len[K[5/6] cd /home/kazeform/ProgramFiles/e...nents/esptool_py/run_serial_tool.cmake[K
+esptool.py --chip esp32p4 -p /dev/ttyACM0 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 16MB 0x2000 bootloader/bootloader.bin 0x10000 sample_project.bin 0x8000 partition_table/partition-table.bin 0xb00000 storage.bin
+esptool.py v4.12.dev2
+Serial port /dev/ttyACM0
+Connecting...
+Chip is ESP32-P4 (revision v3.1)
+Features: High-Performance MCU
+Crystal is 40MHz
+USB mode: USB-Serial/JTAG
+MAC: e8:f6:0a:e1:7a:d1
+Using the new stub flasher.
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00002000 to 0x00007fff...
+Flash will be erased from 0x00010000 to 0x00213fff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x00b00000 to 0x00ffffff...
+SHA digest in image updated
+Compressed 23072 bytes to 14335...
+Writing at 0x00002000... (100 %)[K
+Wrote 23072 bytes (14335 compressed) at 0x00002000 in 0.3 seconds (effective 615.0 kbit/s)...
+Hash of data verified.
+Compressed 2112352 bytes to 742764...
+Writing at 0x00010000... (2 %)[KWriting at 0x0001dbcf... (4 %)[KWriting at 0x0002a1f6... (6 %)[KWriting at 0x00039abb... (8 %)[KWriting at 0x00064724... (10 %)[KWriting at 0x0008c4d4... (13 %)[KWriting at 0x000c4be0... (15 %)[KWriting at 0x000ffcc5... (17 %)[KWriting at 0x001069b8... (19 %)[KWriting at 0x0010ed5c... (21 %)[KWriting at 0x0011615e... (23 %)[KWriting at 0x0011d5e8... (26 %)[KWriting at 0x0012635c... (28 %)[KWriting at 0x0012d50a... (30 %)[KWriting at 0x00133d0d... (32 %)[KWriting at 0x0013b54f... (34 %)[KWriting at 0x00143340... (36 %)[KWriting at 0x0014a500... (39 %)[KWriting at 0x001520b8... (41 %)[KWriting at 0x00159ccd... (43 %)[KWriting at 0x00160d13... (45 %)[KWriting at 0x0016771a... (47 %)[KWriting at 0x0016e066... (50 %)[KWriting at 0x00173eeb... (52 %)[KWriting at 0x0017a857... (54 %)[KWriting at 0x00181406... (56 %)[KWriting at 0x001879b9... (58 %)[KWriting at 0x0018f11d... (60 %)[KWriting at 0x00194fef... (63 %)[KWriting at 0x0019b233... (65 %)[KWriting at 0x001a12b6... (67 %)[KWriting at 0x001ab201... (69 %)[KWriting at 0x001b2308... (71 %)[KWriting at 0x001b9799... (73 %)[KWriting at 0x001c2976... (76 %)[KWriting at 0x001c967d... (78 %)[KWriting at 0x001d0478... (80 %)[KWriting at 0x001d7540... (82 %)[KWriting at 0x001de676... (84 %)[KWriting at 0x001e598c... (86 %)[KWriting at 0x001eb825... (89 %)[KWriting at 0x001f376b... (91 %)[KWriting at 0x001fa1f4... (93 %)[KWriting at 0x00201236... (95 %)[KWriting at 0x0020801e... (97 %)[KWriting at 0x0020f50e... (100 %)[K
+Wrote 2112352 bytes (742764 compressed) at 0x00010000 in 11.0 seconds (effective 1543.0 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 119...
+Writing at 0x00008000... (100 %)[K
+Wrote 3072 bytes (119 compressed) at 0x00008000 in 0.0 seconds (effective 3698.2 kbit/s)...
+Hash of data verified.
+Compressed 5242880 bytes to 750905...
+Writing at 0x00b00000... (2 %)[KWriting at 0x00b06e29... (4 %)[KWriting at 0x00b0d790... (6 %)[KWriting at 0x00b143d6... (8 %)[KWriting at 0x00b1a256... (10 %)[KWriting at 0x00b20619... (13 %)[KWriting at 0x00b26748... (15 %)[KWriting at 0x00b2e6bf... (17 %)[KWriting at 0x00b34747... (19 %)[KWriting at 0x00b3ac1a... (21 %)[KWriting at 0x00b4074f... (23 %)[KWriting at 0x00b4690a... (26 %)[KWriting at 0x00b4cf7b... (28 %)[KWriting at 0x00b52bef... (30 %)[KWriting at 0x00b59de4... (32 %)[KWriting at 0x00b5fd0b... (34 %)[KWriting at 0x00b64e23... (36 %)[KWriting at 0x00b6c225... (39 %)[KWriting at 0x00b7277e... (41 %)[KWriting at 0x00b786cf... (43 %)[KWriting at 0x00b7e51d... (45 %)[KWriting at 0x00b8319a... (47 %)[KWriting at 0x00b8cd89... (50 %)[KWriting at 0x00b9f61e... (52 %)[KWriting at 0x00ba4795... (54 %)[KWriting at 0x00ba9e88... (56 %)[KWriting at 0x00baf575... (58 %)[KWriting at 0x00bb6945... (60 %)[KWriting at 0x00bbccc8... (63 %)[KWriting at 0x00bc3f2e... (65 %)[KWriting at 0x00bc9b56... (67 %)[KWriting at 0x00bcee65... (69 %)[KWriting at 0x00bd5628... (71 %)[KWriting at 0x00bdacbd... (73 %)[KWriting at 0x00be15b7... (76 %)[KWriting at 0x00be65a4... (78 %)[KWriting at 0x00beb935... (80 %)[KWriting at 0x00bf15dc... (82 %)[KWriting at 0x00bf84f0... (84 %)[KWriting at 0x00c00709... (86 %)[KWriting at 0x00c05b9d... (89 %)[KWriting at 0x00c0babe... (91 %)[KWriting at 0x00c12937... (93 %)[KWriting at 0x00c189f3... (95 %)[KWriting at 0x00c1e76f... (97 %)[KWriting at 0x00c2c538... (100 %)[K
+Wrote 5242880 bytes (750905 compressed) at 0x00b00000 in 18.2 seconds (effective 2308.9 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/kazeform/2026esp/bug_project
+Executing "/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 301 --decode-panic backtrace /home/kazeform/2026esp/bug_project/build/sample_project.elf /home/kazeform/2026esp/bug_project/build/bootloader/bootloader.elf -m '/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python' '/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf.py' '-p' '/dev/ttyACM0'"...
+[0;33m--- esp-idf-monitor 1.9.0 on /dev/ttyACM0 115200[0m
+[0;33m--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H[0m
+ESP-ROM:esp32p4-eco6-20251011
+Build:Oct 11 2025
+rst:0x17 (CHIP_USB_UART_RESET),boot:0x10c (SPI_FAST_FLASH_BOOT)
+Core0 Saved PC:0x4fc04830
+Core1 Saved PC:0x4fc06020
+SPI mode:DIO, clock div:2
+load:0x4ffb60d0,len:0x15e4
+load:0x4ffac2c0,len:0xe88
+[0m--- 0x4ffac2c0: [0;33mesp_bootloader_get_description[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_bootloader_format/esp_bootloader_desc.c[0m[0m:[1;31m39[0m
+load:0x4ffaefc0,len:0x3560
+[0m--- 0x4ffaefc0: [0;33mesp_flash_encryption_enabled[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader_support/src/flash_encrypt.c[0m[0m:[1;31m89[0m
+entry 0x4ffac2ca
+[0m--- 0x4ffac2ca: [0;33mcall_start_cpu0[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader/subproject/main/bootloader_start.c[0m[0m:[1;31m27[0m
+[0;32mI (27) boot: ESP-IDF v5.5.4 2nd stage bootloader[0m
+[0;32mI (28) boot: compile time Jun 27 2026 17:33:42[0m
+[0;32mI (28) boot: Multicore bootloader[0m
+[0;32mI (30) boot: chip revision: v3.1[0m
+[0;32mI (31) boot: efuse block revision: v1.2[0m
+[0;32mI (34) boot.esp32p4: SPI Speed      : 40MHz[0m
+[0;32mI (38) boot.esp32p4: SPI Mode       : DIO[0m
+[0;32mI (42) boot.esp32p4: SPI Flash Size : 16MB[0m
+[0;32mI (46) boot: Enabling RNG early entropy source...[0m
+[0;32mI (50) boot: Partition Table:[0m
+[0;32mI (53) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (59) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (72) boot:  2 factory          factory app      00 00 00010000 00600000[0m
+[0;32mI (79) boot:  3 storage          Unknown data     01 82 00b00000 00500000[0m
+[0;32mI (86) boot: End of partition table[0m
+[0;32mI (89) esp_image: segment 0: paddr=00010020 vaddr=480d0020 size=1191fch (1151484) map[0m
+[0;32mI (278) esp_image: segment 1: paddr=00129224 vaddr=30100000 size=00164h (   356) load[0m
+[0;32mI (280) esp_image: segment 2: paddr=00129390 vaddr=30100170 size=00048h (    72) load[0m
+[0;32mI (283) esp_image: segment 3: paddr=001293e0 vaddr=4ff40000 size=06c38h ( 27704) load[0m
+[0;32mI (295) esp_image: segment 4: paddr=00130020 vaddr=48000020 size=cf360h (848736) map[0m
+[0;32mI (432) esp_image: segment 5: paddr=001ff388 vaddr=4ff46c38 size=105f8h ( 67064) load[0m
+[0;32mI (445) esp_image: segment 6: paddr=0020f988 vaddr=4ff57280 size=041b4h ( 16820) load[0m
+[0;32mI (454) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (454) boot: Disabling RNG early entropy source...[0m
+[0;32mI (466) hex_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (466) hex_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (467) hex_psram: DriveStr.    : 0x00 (25 Ohm)[0m
+[0;32mI (467) hex_psram: dev id       : 0x03 (generation 4)[0m
+[0;32mI (472) hex_psram: density      : 0x07 (256 Mbit)[0m
+[0;32mI (476) hex_psram: good-die     : 0x06 (Pass)[0m
+[0;32mI (480) hex_psram: SRF          : 0x02 (Slow Refresh)[0m
+[0;32mI (485) hex_psram: BurstType    : 0x00 ( Wrap)[0m
+[0;32mI (489) hex_psram: BurstLen     : 0x03 (2048 Byte)[0m
+[0;32mI (494) hex_psram: BitMode      : 0x01 (X16 Mode)[0m
+[0;32mI (498) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)[0m
+[0;32mI (503) hex_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (507) MSPI Timing: Enter psram timing tuning[0m
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+[0;32mI (815) mmu_psram: .rodata xip on psram[0m
+[0;32mI (919) mmu_psram: .text xip on psram[0m
+[0;32mI (920) hex_psram: psram CS IO is dedicated[0m
+[0;32mI (921) cpu_start: Multicore app[0m
+[0;32mI (1374) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (1384) cpu_start: GPIO 38 and 37 are used as console UART I/O pins[0m
+[0;32mI (1384) cpu_start: Pro cpu start user code[0m
+[0;32mI (1385) cpu_start: cpu freq: 400000000 Hz[0m
+[0;32mI (1387) app_init: Application information:[0m
+[0;32mI (1390) app_init: Project name:     sample_project[0m
+[0;32mI (1395) app_init: App version:      7b8fc2f[0m
+[0;32mI (1399) app_init: Compile time:     Jun 28 2026 13:59:34[0m
+[0;32mI (1404) app_init: ELF file SHA256:  7f909b825...[0m
+[0;32mI (1409) app_init: ESP-IDF:          v5.5.4[0m
+[0;32mI (1413) efuse_init: Min chip rev:     v3.1[0m
+[0;32mI (1416) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (1420) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (1424) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (1431) heap_init: At 4FF5FCB0 len 0005B310 (364 KiB): RETENT_RAM[0m
+[0;32mI (1437) heap_init: At 4FFBAFC0 len 00004BF0 (18 KiB): RAM[0m
+[0;32mI (1446) heap_init: At 50108080 len 00007F80 (31 KiB): RTCRAM[0m
+[0;32mI (1447) heap_init: At 301001B8 len 00001E48 (7 KiB): TCM[0m
+[0;32mI (1605) esp_psram: Adding pool of 30784K of PSRAM memory to heap allocator[0m
+[0;32mI (1605) esp_psram: Adding pool of 3K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator[0m
+[0;32mI (1612) esp_psram: Adding pool of 27K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator[0m
+[0;32mI (1623) spi_flash: detected chip: gd[0m
+[0;32mI (1626) spi_flash: flash io: dio[0m
+[0;32mI (1629) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (1636) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (1643) main_task: Started on CPU0[0m
+[0;32mI (1646) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (1654) main_task: Calling app_main()[0m
+[0;32mI (1657) system: System initialization start[0m
+[0;32mI (1661) PSRAM_ARB: [PSRAM_ARB] apply display_first=1 psram_read_first=0 camera_write_regulator=1[0m
+[0;32mI (1670) PSRAM_ARB: [PSRAM_ARB] source=apply mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (1681) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (1691) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (1699) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[0;32mI (1707) bsp_lcd: Backlight on[0m
+[0;32mI (1710) bsp_lcd: MIPI DSI PHY powered on[0m
+[0;32mI (1715) ek79007: version: 1.0.4[0m
+[0;32mI (1922) bsp_lcd: LCD init done[0m
+[0;32mI (1922) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (1922) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x481f0a80 fb1=0x4831cb00 fb2=0x48448b80 psram_free=27210KB internal_free=387KB[0m
+[0;33mW (1934) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (1946) bsp_touch: I2C bus initialized[0m
+[0;32mI (1949) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[1;31mE (1977) lcd_panel.io.i2c: panel_io_i2c_rx_buffer(145): i2c transaction failed[0m
+[1;31mE (1977) GT911: touch_gt911_read_cfg(419): GT911 read error![0m
+[1;31mE (1978) GT911: esp_lcd_touch_new_i2c_gt911(169): GT911 init failed[0m
+[1;31mE (1984) GT911: Error (0x103)! Touch controller GT911 initialization failed![0m
+[0;33mW (1991) bsp_touch: GT911 init at 0x5D failed: ESP_ERR_INVALID_STATE[0m
+[0;32mI (1997) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[0;32mI (2026) GT911: TouchPad_ID:0x39,0x31,0x31[0m
+[0;32mI (2026) GT911: TouchPad_Config_Version:89[0m
+[0;32mI (2026) bsp_touch: GT911 detected at I2C address 0x14[0m
+[0;32mI (2027) bsp_touch: Touch init done[0m
+[1;31mE (2030) bsp_motor: validate_motor_gpio(73): motor 0 PWM A GPIO is not configured[0m
+[1;31mE (2038) bsp_motor: init_motor_mcpwm(110): motor GPIO validation failed[0m
+[1;31mE (2044) bsp_motor: bsp_motor_init(162): init motor 0 MCPWM failed[0m
+[0;32mI (2050) bsp_encoder: encoder BSP initialized[0m
+[0;32mI (2055) esp_lvgl:adapter: LVGL adapter initialized successfully[0m
+[0;32mI (2063) esp_lvgl:bridge_v9: Initializing hardware resources[0m
+[0;32mI (2065) esp_lvgl:bridge_v9: Hardware resources initialized successfully[0m
+[0;32mI (2072) bsp_lvgl: Display registered (1024x600)[0m
+[0;33mW (2076) esp_lvgl:touch: LV_USE_GESTURE_RECOGNITION is disabled; only single-point pointer events are available[0m
+[0;32mI (2086) esp_lvgl:touch: Touch input device registered successfully (IRQ mode: disabled)[0m
+[0;32mI (2094) bsp_lvgl: Touch registered[0m
+[0;32mI (2097) esp_lvgl:adapter: LVGL task started successfully[0m
+[0;32mI (2098) esp_lvgl:bridge: Initializing hardware resources[0m
+[0;32mI (2102) bsp_lvgl: LVGL adapter started[0m
+[0;32mI (2107) esp_lvgl:bridge: Hardware resources initialized successfully[0m
+[0;32mI (2246) vision_preview: preview initialized: 640x375[0m
+[0;32mI (2247) app_ui_dashboard: [BLUE_MARK] UI marker button installed[0m
+[0;32mI (2307) esp_eth.netif.netif_glue: e8:f6:0a:e1:7a:d1[0m
+[0;32mI (2307) esp_eth.netif.netif_glue: ethernet attached to netif[0m
+[1;31mE (3863) bsp_lcd: [BLUE_MARK] #1 source=ui_button time_us=2410660 tick=2220 core=1 psram_free=26261KB internal_free=116KB[0m
+[0;32mI (3864) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (3872) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x481f0a80 fb1=0x4831cb00 fb2=0x48448b80 psram_free=26261KB internal_free=116KB[0m
+[0;33mW (3884) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (3895) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (3907) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (3916) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (3925) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (3933) pipe_diag: [PIPE_DIAG] blue_dump source=ui_button blue=1 frame=0 total_frames=0 camera_timeouts=0 roi_ok=0 roi_skip=0 model_runs=0 preview_ok=0/0 yolo_ppa=0 preview_ppa=0[0m
+[1;31mE (3949) pipe_diag: [PPA_TRACE] recent count=0[0m
+[1;31mE (3953) bsp_lcd: [BLUE_MARK] fb_hash_history samples=22 interval=100ms sample=512B blocks=8[0m
+[1;31mE (3961) bsp_lcd: [BLUE_MARK] fb_hash t_us=469691 fb0=4d7705c5 fb1=4d7705c5 fb2=4d7705c5[0m
+[1;31mE (3969) bsp_lcd: [BLUE_MARK] fb_hash t_us=569688 fb0=4d7705c5 fb1=4d7705c5 fb2=4d7705c5[0m
+[1;31mE (3977) bsp_lcd: [BLUE_MARK] fb_hash t_us=669689 fb0=4d7705c5 fb1=7bfdcb05 fb2=4d7705c5[0m
+[1;31mE (3984) bsp_lcd: [BLUE_MARK] fb_hash t_us=794692 fb0=4d7705c5 fb1=33a9f745 fb2=4d7705c5[0m
+[1;31mE (3992) bsp_lcd: [BLUE_MARK] fb_hash t_us=894974 fb0=4d7705c5 fb1=33a9f745 fb2=83564ec5[0m
+[1;31mE (4000) bsp_lcd: [BLUE_MARK] fb_hash t_us=995690 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4008) bsp_lcd: [BLUE_MARK] fb_hash t_us=1095689 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4016) bsp_lcd: [BLUE_MARK] fb_hash t_us=1195688 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4024) bsp_lcd: [BLUE_MARK] fb_hash t_us=1295689 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4032) bsp_lcd: [BLUE_MARK] fb_hash t_us=1395689 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4039) bsp_lcd: [BLUE_MARK] fb_hash t_us=1495688 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4047) bsp_lcd: [BLUE_MARK] fb_hash t_us=1595689 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4055) bsp_lcd: [BLUE_MARK] fb_hash t_us=1695689 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4063) bsp_lcd: [BLUE_MARK] fb_hash t_us=1795688 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4071) bsp_lcd: [BLUE_MARK] fb_hash t_us=1895690 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4079) bsp_lcd: [BLUE_MARK] fb_hash t_us=1995689 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4087) bsp_lcd: [BLUE_MARK] fb_hash t_us=2095689 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4095) bsp_lcd: [BLUE_MARK] fb_hash t_us=2195689 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4103) bsp_lcd: [BLUE_MARK] fb_hash t_us=2295689 fb0=58fc0805 fb1=33a9f745 fb2=58fc0805[0m
+[1;31mE (4111) bsp_lcd: [BLUE_MARK] fb_hash t_us=2396924 fb0=58fc0805 fb1=51fcdfe9 fb2=58fc0805[0m
+[1;31mE (4118) bsp_lcd: [BLUE_MARK] fb_hash t_us=2496698 fb0=58fc0805 fb1=51fcdfe9 fb2=58fc0805[0m
+[1;31mE (4126) bsp_lcd: [BLUE_MARK] fb_hash t_us=2499906 fb0=58fc0805 fb1=51fcdfe9 fb2=58fc0805[0m
+[0;33mW (4134) cam_sensor: [CAM_DIAG] source=blue_mark unavailable: ESP_ERR_INVALID_STATE[0m
+[1;31mE (4142) app_ui_dashboard: [BLUE_MARK] dashboard unavailable heap=116KB psram=26261KB[0m
+[0;32mI (6308) eth_example: Ethernet Started[0m
+[0;32mI (6308) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C[0m
+[0;33mW (6311) vision_app: YOLO inference disabled for bandwidth A/B test[0m
+[0;32mI (6312) cam_sensor: MIPI PHY LDO ch3 = 2500 mV[0m
+[0;32mI (6316) cam_sensor: Using shared I2C bus for SCCB[0m
+[0;32mI (6322) sc2336: Detected Camera sensor PID=0xcb3a[0m
+[0;32mI (6325) cam_sensor: Detected: SC2336[0m
+[0;32mI (6329) cam_sensor: Format: MIPI_2lane_24Minput_RAW10_640x480_50fps  640x480  50fps[0m
+[0;32mI (6434) cam_sensor: [CAM_DIAG] active_write=600KB/s frame=600KB fps=50 write_fps=1 period=1600ms duty=1600ms buffers=3 psram_free=23860KB[0m
+[0;32mI (6442) cam_sensor: cam_sensor_init OK  [640x480 RGB565, 600 KB/frame][0m
+[0;32mI (6449) cam_sensor: Streaming started (capture task priority=10 core=0 duty=1600ms)[0m
+[0;32mI (6449) cam_sensor: [CAM_DIAG] capture #1 receive=0ms max=0ms timeouts=0 core=0 prio=10 stack_hwm=3232[0m
+[0;32mI (6466) vision_app: vision task created priority=3 core=1 stack=32768B[0m
+[0;32mI (6466) vision_app: vision task started core=1 priority=3 stack_hwm=32264[0m
+[0;32mI (6472) system: System initialization done[0m
+[0;32mI (8089) pipe_diag: [PIPE_DIAG] uptime=6635ms frame=0 fps=0 last=0 0x0 cam_timeout=0/0 max_cam_wait=0ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23827KB[0m
+[0;32mI (8089) cam_sensor: [CAM_DIAG] capture #2 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (8096) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (8126) vision_app: [VISION_DIAG] get_return_only=1 frames=2 fps=1.23 cam_wait=1609ms returned_size=614400 returned_wh=640x480 core=1 prio=3 stack_hwm=30320 internal=97KB psram=23827KB[0m
+[0;32mI (8142) cam_sensor: [CAM_DIAG] source=vision_get_return streaming=1 frame=640x480 fps=50 active_write=600KB/s count=2 timeouts=0 last_receive=38ms max_receive=38ms age=52ms latest=0 app=-1 psram_free=23827KB[0m
+[0;32mI (9675) pipe_diag: [PIPE_DIAG] uptime=8222ms frame=0 fps=0 last=0 0x0 cam_timeout=0/0 max_cam_wait=0ms roi_ok=0 roi_skip=0 model_run=0 yolo_ppa=0 preview=0/0 preview_ppa=0 blue=1 internal=97KB psram=23827KB[0m
+[0;32mI (9675) cam_sensor: [CAM_DIAG] capture #3 receive=23ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (9682) pipe_diag: [PIPE_DIAG] timing pre_avg=0.0ms pre_max=0ms yolo_ppa_avg=0.0ms yolo_ppa_max=0ms run_avg=0.0ms run_max=0ms infer_avg=0.0ms infer_max=0ms preview_avg=0.0ms preview_max=0ms preview_ppa_avg=0.0ms preview_ppa_max=0ms[0m
+[0;32mI (9712) vision_app: [VISION_DIAG] get_return_only=1 frames=1 fps=0.63 cam_wait=1513ms returned_size=614400 returned_wh=640x480 core=1 prio=3 stack_hwm=30320 internal=97KB psram=23827KB[0m
+[0;32mI (9728) cam_sensor: [CAM_DIAG] source=vision_get_return streaming=1 frame=640x480 fps=50 active_write=600KB/s count=3 timeouts=0 last_receive=23ms max_receive=38ms age=52ms latest=1 app=-1 psram_free=23827KB[0m
+[0;33mW (11452) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (11452) cam_sensor: capture timeout count=1 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (11657) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (11657) cam_sensor: capture timeout count=2 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (11861) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (11861) cam_sensor: capture timeout count=3 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (12065) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (12065) cam_sensor: capture timeout count=4 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (12247) vision_app: camera frame timeout[0m
+[0;33mW (12269) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (12269) cam_sensor: capture timeout count=5 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (12473) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (12674) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (12875) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (13076) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (13277) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (13479) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (13680) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (13881) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (14082) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (14283) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (14484) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (14685) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (14747) vision_app: camera frame timeout[0m
+[0;33mW (14886) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (15087) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (15288) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (15489) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (15691) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (15892) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (16093) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (16294) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (16495) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (16697) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (16898) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (17099) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (17247) vision_app: camera frame timeout[0m
+[0;33mW (17300) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (17300) cam_sensor: capture timeout count=30 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (17505) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (17706) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (17907) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (18108) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (18309) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (18511) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (18712) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (18913) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (19114) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (19315) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (19516) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (19717) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (19747) vision_app: camera frame timeout[0m
+[0;33mW (19918) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (20119) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (20321) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (20522) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (20723) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (20924) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (21125) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (21326) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (21527) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (21728) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (21929) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (22130) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (22247) vision_app: camera frame timeout[0m
+[0;33mW (22331) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (22532) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (22733) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (22934) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (23135) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (23336) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (23336) cam_sensor: capture timeout count=60 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (23541) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (23742) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (23943) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (24145) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (24346) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (24547) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (24747) vision_app: camera frame timeout[0m
+[0;33mW (24748) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (24949) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (25150) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (25351) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (25552) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (25754) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (25955) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (26156) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (26357) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (26558) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (26759) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (26960) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (27161) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (27247) vision_app: camera frame timeout[0m
+[0;33mW (27363) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (27564) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (27765) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (27966) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (28167) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (28368) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (28569) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (28770) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (28972) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (29173) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (29374) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (29374) cam_sensor: capture timeout count=90 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (29579) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (29747) vision_app: camera frame timeout[0m
+[0;33mW (29780) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (29981) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (30182) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (30383) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (30584) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (30785) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (30986) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (31187) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (31388) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (31590) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (31791) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (31992) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (32193) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (32247) vision_app: camera frame timeout[0m
+[0;33mW (32394) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (32595) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (32796) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (32997) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (33198) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (33399) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (33600) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (33802) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (34003) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (34204) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (34405) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (34606) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (34747) vision_app: camera frame timeout[0m
+[0;33mW (34808) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (35009) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (35210) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (35411) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (35411) cam_sensor: capture timeout count=120 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (35616) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (35817) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (36018) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (36219) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (36420) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (36621) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (36822) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (37023) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (37224) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (37247) vision_app: camera frame timeout[0m
+[0;33mW (37425) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (37626) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (37827) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (38028) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (38229) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (38431) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (38632) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (38833) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (39034) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (39235) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (39436) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (39637) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (39747) vision_app: camera frame timeout[0m
+[0;33mW (39838) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (40040) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (40241) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (40442) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (40643) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (40844) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (41045) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (41246) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (41447) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (41447) cam_sensor: capture timeout count=150 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (41652) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (41853) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (42054) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (42247) vision_app: camera frame timeout[0m
+[0;33mW (42255) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (42456) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (42657) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (42858) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (43059) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (43260) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (43461) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (43662) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (43863) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (44064) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (44265) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (44466) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (44667) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (44747) vision_app: camera frame timeout[0m
+[0;33mW (44869) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (45070) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (45271) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (45472) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (45673) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (45874) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (46075) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (46276) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (46477) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (46678) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (46879) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (47080) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (47247) vision_app: camera frame timeout[0m
+[0;33mW (47281) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (47482) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (47482) cam_sensor: capture timeout count=180 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (47687) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (47888) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (48089) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (48290) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (48491) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (48692) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (48893) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (49094) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (49295) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (49496) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (49697) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (49747) vision_app: camera frame timeout[0m
+[0;33mW (49898) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (50100) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (50301) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (50502) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (50703) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (50904) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (51106) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (51307) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (51508) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (51709) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (51910) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (52111) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (52247) vision_app: camera frame timeout[0m
+[0;33mW (52312) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (52513) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (52714) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (52915) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (53116) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (53317) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (53518) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (53518) cam_sensor: capture timeout count=210 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (53724) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (53925) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (54126) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (54327) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (54528) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (54729) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (54747) vision_app: camera frame timeout[0m
+[0;33mW (54930) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (55131) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (55333) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (55534) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (55735) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (55936) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (56137) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (56338) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (56539) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (56740) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (56941) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (57142) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (57247) vision_app: camera frame timeout[0m
+[0;33mW (57343) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (57544) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (57745) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (57946) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (58147) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (58348) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (58550) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (58751) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (58952) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (59153) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (59354) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (59555) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (59555) cam_sensor: capture timeout count=240 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (59747) vision_app: camera frame timeout[0m
+[0;33mW (59760) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (59961) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (60162) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (60363) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (60564) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (60765) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (60966) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (61167) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (61368) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (61569) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (61770) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (61971) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (62172) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (62247) vision_app: camera frame timeout[0m
+[0;33mW (62373) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (62574) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (62775) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (62976) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (63177) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (63378) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (63579) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (63780) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (63982) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (64183) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (64384) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[1;31mE (64404) bsp_lcd: [BLUE_MARK] #2 source=ui_button time_us=62951656 tick=62761 core=1 psram_free=23827KB internal_free=96KB[0m
+[0;32mI (64405) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (64413) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x481f0a80 fb1=0x4831cb00 fb2=0x48448b80 psram_free=23827KB internal_free=96KB[0m
+[0;33mW (64425) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (64437) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (64449) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (64458) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (64466) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (64475) pipe_diag: [PIPE_DIAG] blue_dump source=ui_button blue=2 frame=0 total_frames=0 camera_timeouts=21 roi_ok=0 roi_skip=0 model_runs=0 preview_ok=0/0 yolo_ppa=0 preview_ppa=0[0m
+[1;31mE (64490) pipe_diag: [PPA_TRACE] recent count=0[0m
+[1;31mE (64495) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (64503) bsp_lcd: [BLUE_MARK] fb_hash t_us=60819689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64511) bsp_lcd: [BLUE_MARK] fb_hash t_us=60919952 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64519) bsp_lcd: [BLUE_MARK] fb_hash t_us=61019689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64527) bsp_lcd: [BLUE_MARK] fb_hash t_us=61119689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64535) bsp_lcd: [BLUE_MARK] fb_hash t_us=61219689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64543) bsp_lcd: [BLUE_MARK] fb_hash t_us=61319689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64551) bsp_lcd: [BLUE_MARK] fb_hash t_us=61419689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64559) bsp_lcd: [BLUE_MARK] fb_hash t_us=61519688 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64568) bsp_lcd: [BLUE_MARK] fb_hash t_us=61619689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64576) bsp_lcd: [BLUE_MARK] fb_hash t_us=61719689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64584) bsp_lcd: [BLUE_MARK] fb_hash t_us=61819689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[0;33mW (64587) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[1;31mE (64592) bsp_lcd: [BLUE_MARK] fb_hash t_us=61919689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64608) bsp_lcd: [BLUE_MARK] fb_hash t_us=62019689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64616) bsp_lcd: [BLUE_MARK] fb_hash t_us=62119689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64624) bsp_lcd: [BLUE_MARK] fb_hash t_us=62219689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64632) bsp_lcd: [BLUE_MARK] fb_hash t_us=62319689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64641) bsp_lcd: [BLUE_MARK] fb_hash t_us=62419689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64649) bsp_lcd: [BLUE_MARK] fb_hash t_us=62519689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64657) bsp_lcd: [BLUE_MARK] fb_hash t_us=62619689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64665) bsp_lcd: [BLUE_MARK] fb_hash t_us=62719689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64673) bsp_lcd: [BLUE_MARK] fb_hash t_us=62819689 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64681) bsp_lcd: [BLUE_MARK] fb_hash t_us=62920172 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64689) bsp_lcd: [BLUE_MARK] fb_hash t_us=63021690 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (64697) bsp_lcd: [BLUE_MARK] fb_hash t_us=63041825 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[0;32mI (64705) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=600KB/s count=3 timeouts=265 last_receive=23ms max_receive=38ms age=55030ms latest=1 app=-1 psram_free=23827KB[0m
+[1;31mE (64723) app_ui_dashboard: [BLUE_MARK] dashboard unavailable heap=96KB psram=23827KB[0m
+[0;33mW (64747) vision_app: camera frame timeout[0m
+[0;33mW (64801) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (65002) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (65203) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (65404) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (65605) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (65605) cam_sensor: capture timeout count=270 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (65810) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (66011) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (66212) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (66413) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (66614) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (66815) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (67016) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (67217) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (67247) vision_app: camera frame timeout[0m
+[0;33mW (67418) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (67619) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (67820) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (68021) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (68222) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (68423) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (68625) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (68826) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (69027) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (69228) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (69429) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (69630) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (69747) vision_app: camera frame timeout[0m
+[0;33mW (69831) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (70032) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (70234) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (70435) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (70636) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (70837) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (71038) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (71239) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (71440) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (71641) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (71641) cam_sensor: capture timeout count=300 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (71846) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (72047) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (72247) vision_app: camera frame timeout[0m
+[0;33mW (72249) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (72450) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (72651) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (72852) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (73053) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (73254) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (73455) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (73656) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (73858) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (74059) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (74260) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (74461) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (74662) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (74747) vision_app: camera frame timeout[0m
+[0;33mW (74863) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (75064) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (75265) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (75467) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (75668) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (75869) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (76070) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (76271) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (76472) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (76673) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (76874) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (77076) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (77247) vision_app: camera frame timeout[0m
+[0;33mW (77277) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (77478) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (77679) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (77679) cam_sensor: capture timeout count=330 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (77884) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (78085) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (78286) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (78487) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (78688) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (78889) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (79091) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (79292) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (79493) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (79694) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (79747) vision_app: camera frame timeout[0m
+[0;33mW (79895) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (80096) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (80297) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (80498) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (80699) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (80900) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (81101) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (81303) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (81504) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (81705) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (81906) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (82107) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (82247) vision_app: camera frame timeout[0m
+[0;33mW (82308) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (82510) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (82711) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (82912) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (83113) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (83314) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (83515) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[1;31mE (83654) bsp_lcd: [BLUE_MARK] #3 source=ui_button time_us=82201657 tick=82011 core=1 psram_free=23827KB internal_free=96KB[0m
+[0;32mI (83655) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (83663) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x481f0a80 fb1=0x4831cb00 fb2=0x48448b80 psram_free=23827KB internal_free=96KB[0m
+[0;33mW (83675) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (83687) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (83699) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (83708) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;33mW (83716) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;32mI (83716) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[0;33mW (83725) cam_sensor: capture timeout count=360 core=0 prio=10 stack_hwm=2080[0m
+[1;31mE (83733) pipe_diag: [PIPE_DIAG] blue_dump source=ui_button blue=3 frame=0 total_frames=0 camera_timeouts=29 roi_ok=0 roi_skip=0 model_runs=0 preview_ok=0/0 yolo_ppa=0 preview_ppa=0[0m
+[1;31mE (83756) pipe_diag: [PPA_TRACE] recent count=0[0m
+[1;31mE (83760) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (83768) bsp_lcd: [BLUE_MARK] fb_hash t_us=80021695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83776) bsp_lcd: [BLUE_MARK] fb_hash t_us=80121695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83784) bsp_lcd: [BLUE_MARK] fb_hash t_us=80221695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83792) bsp_lcd: [BLUE_MARK] fb_hash t_us=80321695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83801) bsp_lcd: [BLUE_MARK] fb_hash t_us=80421695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83809) bsp_lcd: [BLUE_MARK] fb_hash t_us=80521695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83817) bsp_lcd: [BLUE_MARK] fb_hash t_us=80621695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83825) bsp_lcd: [BLUE_MARK] fb_hash t_us=80721695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83833) bsp_lcd: [BLUE_MARK] fb_hash t_us=80821695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83841) bsp_lcd: [BLUE_MARK] fb_hash t_us=80921695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83849) bsp_lcd: [BLUE_MARK] fb_hash t_us=81021695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83857) bsp_lcd: [BLUE_MARK] fb_hash t_us=81121695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83865) bsp_lcd: [BLUE_MARK] fb_hash t_us=81221695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83873) bsp_lcd: [BLUE_MARK] fb_hash t_us=81321695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83881) bsp_lcd: [BLUE_MARK] fb_hash t_us=81421695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83889) bsp_lcd: [BLUE_MARK] fb_hash t_us=81521695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83897) bsp_lcd: [BLUE_MARK] fb_hash t_us=81621695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83905) bsp_lcd: [BLUE_MARK] fb_hash t_us=81721695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83914) bsp_lcd: [BLUE_MARK] fb_hash t_us=81821695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83922) bsp_lcd: [BLUE_MARK] fb_hash t_us=81921696 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83930) bsp_lcd: [BLUE_MARK] fb_hash t_us=82021695 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (83938) bsp_lcd: [BLUE_MARK] fb_hash t_us=82121696 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[0;33mW (83941) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[1;31mE (83946) bsp_lcd: [BLUE_MARK] fb_hash t_us=82221697 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (83962) bsp_lcd: [BLUE_MARK] fb_hash t_us=82307101 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[0;32mI (83970) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=600KB/s count=3 timeouts=361 last_receive=23ms max_receive=38ms age=74295ms latest=1 app=-1 psram_free=23827KB[0m
+[1;31mE (83988) app_ui_dashboard: [BLUE_MARK] dashboard unavailable heap=96KB psram=23827KB[0m
+[0;33mW (84155) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (84356) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (84557) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (84747) vision_app: camera frame timeout[0m
+[0;33mW (84758) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (84959) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (85160) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (85361) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (85562) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (85763) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (85964) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (86165) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (86366) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (86567) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (86768) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (86970) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (87171) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (87247) vision_app: camera frame timeout[0m
+[0;33mW (87372) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (87573) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (87774) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (87976) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (88177) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (88378) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (88579) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (88780) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (88981) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (89182) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (89383) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (89585) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (89747) vision_app: camera frame timeout[0m
+[0;33mW (89786) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (89786) cam_sensor: capture timeout count=390 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (89991) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (90192) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (90393) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (90594) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (90795) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (90996) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (91197) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (91398) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (91600) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (91801) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (92002) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (92203) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (92247) vision_app: camera frame timeout[0m
+[0;33mW (92404) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (92605) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (92806) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (93007) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (93209) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (93410) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (93611) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (93812) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (94013) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (94214) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (94415) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (94616) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (94747) vision_app: camera frame timeout[0m
+[0;33mW (94818) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (95019) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (95220) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (95421) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (95622) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (95823) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (95823) cam_sensor: capture timeout count=420 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (96028) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (96229) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (96430) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (96631) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (96833) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (97034) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (97235) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (97247) vision_app: camera frame timeout[0m
+[0;33mW (97436) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (97637) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (97838) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (98039) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (98240) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (98441) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (98642) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (98843) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (99044) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (99245) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (99447) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (99648) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (99747) vision_app: camera frame timeout[0m
+[0;33mW (99849) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (100050) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (100251) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (100452) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (100653) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (100854) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (101056) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (101257) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (101458) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (101659) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (101860) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (101860) cam_sensor: capture timeout count=450 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (102065) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (102247) vision_app: camera frame timeout[0m
+[0;33mW (102266) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (102467) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (102668) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (102869) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (103070) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (103271) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (103472) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[1;31mE (103582) bsp_lcd: [BLUE_MARK] #4 source=ui_button time_us=102129667 tick=101939 core=1 psram_free=23827KB internal_free=96KB[0m
+[0;32mI (103583) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (103592) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x481f0a80 fb1=0x4831cb00 fb2=0x48448b80 psram_free=23827KB internal_free=96KB[0m
+[0;33mW (103603) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (103615) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (103627) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (103637) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (103645) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (103653) pipe_diag: [PIPE_DIAG] blue_dump source=ui_button blue=4 frame=0 total_frames=0 camera_timeouts=37 roi_ok=0 roi_skip=0 model_runs=0 preview_ok=0/0 yolo_ppa=0 preview_ppa=0[0m
+[1;31mE (103669) pipe_diag: [PPA_TRACE] recent count=0[0m
+[0;33mW (103673) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[1;31mE (103674) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (103691) bsp_lcd: [BLUE_MARK] fb_hash t_us=102229535 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103699) bsp_lcd: [BLUE_MARK] fb_hash t_us=100021689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103707) bsp_lcd: [BLUE_MARK] fb_hash t_us=100121689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103715) bsp_lcd: [BLUE_MARK] fb_hash t_us=100221689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103724) bsp_lcd: [BLUE_MARK] fb_hash t_us=100321689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103732) bsp_lcd: [BLUE_MARK] fb_hash t_us=100421688 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103740) bsp_lcd: [BLUE_MARK] fb_hash t_us=100521689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103748) bsp_lcd: [BLUE_MARK] fb_hash t_us=100621689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103757) bsp_lcd: [BLUE_MARK] fb_hash t_us=100721688 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103765) bsp_lcd: [BLUE_MARK] fb_hash t_us=100821689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103773) bsp_lcd: [BLUE_MARK] fb_hash t_us=100921690 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103781) bsp_lcd: [BLUE_MARK] fb_hash t_us=101021689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103790) bsp_lcd: [BLUE_MARK] fb_hash t_us=101121688 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103798) bsp_lcd: [BLUE_MARK] fb_hash t_us=101221689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103806) bsp_lcd: [BLUE_MARK] fb_hash t_us=101321688 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103814) bsp_lcd: [BLUE_MARK] fb_hash t_us=101421689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103823) bsp_lcd: [BLUE_MARK] fb_hash t_us=101521688 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103831) bsp_lcd: [BLUE_MARK] fb_hash t_us=101621689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103839) bsp_lcd: [BLUE_MARK] fb_hash t_us=101721689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103847) bsp_lcd: [BLUE_MARK] fb_hash t_us=101821689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103856) bsp_lcd: [BLUE_MARK] fb_hash t_us=101921689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103864) bsp_lcd: [BLUE_MARK] fb_hash t_us=102021689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103872) bsp_lcd: [BLUE_MARK] fb_hash t_us=102121689 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[1;31mE (103880) bsp_lcd: [BLUE_MARK] fb_hash t_us=102220882 fb0=58fc0805 fb1=50764105 fb2=58fc0805[0m
+[0;33mW (103883) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;32mI (103889) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=600KB/s count=3 timeouts=459 last_receive=23ms max_receive=38ms age=94213ms latest=1 app=-1 psram_free=23827KB[0m
+[1;31mE (103915) app_ui_dashboard: [BLUE_MARK] dashboard unavailable heap=96KB psram=23827KB[0m
+[0;33mW (104098) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (104299) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (104500) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (104701) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (104747) vision_app: camera frame timeout[0m
+[0;33mW (104902) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (105103) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (105304) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (105505) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (105706) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (105908) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (106109) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (106310) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (106512) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (106713) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (106915) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (107116) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (107247) vision_app: camera frame timeout[0m
+[0;33mW (107317) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (107518) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (107719) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (107921) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (107921) cam_sensor: capture timeout count=480 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (108126) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (108327) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (108528) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (108729) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (108930) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (109131) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (109333) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (109534) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (109735) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (109747) vision_app: camera frame timeout[0m
+[0;33mW (109936) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (110137) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (110338) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (110539) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (110740) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (110942) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (111143) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (111344) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (111545) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (111746) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (111948) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (112149) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (112247) vision_app: camera frame timeout[0m
+[0;33mW (112350) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (112551) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (112752) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (112953) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (113154) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (113355) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (113557) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (113758) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (113959) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (113959) cam_sensor: capture timeout count=510 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (114164) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (114365) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (114566) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (114747) vision_app: camera frame timeout[0m
+[0;33mW (114767) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (114968) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (115169) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (115370) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (115571) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (115772) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (115973) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (116175) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (116376) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (116577) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (116778) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (116979) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (117180) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (117247) vision_app: camera frame timeout[0m
+[0;33mW (117381) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (117582) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (117784) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (117985) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (118186) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (118387) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (118588) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (118790) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (118991) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (119192) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (119393) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (119594) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (119747) vision_app: camera frame timeout[0m
+[0;33mW (119795) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (119996) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (119996) cam_sensor: capture timeout count=540 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (120201) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (120402) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (120603) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (120804) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (121005) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (121206) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (121407) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (121608) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (121809) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (122010) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (122211) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (122247) vision_app: camera frame timeout[0m
+[0;33mW (122412) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (122613) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (122814) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (123015) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (123216) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (123417) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (123618) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (123819) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (124020) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (124221) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (124422) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (124623) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (124747) vision_app: camera frame timeout[0m
+[0;33mW (124824) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (125025) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (125226) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (125427) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (125628) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (125830) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (126031) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (126031) cam_sensor: capture timeout count=570 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (126236) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (126437) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (126638) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (126839) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (127040) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (127241) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (127247) vision_app: camera frame timeout[0m
+[0;33mW (127442) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (127643) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (127844) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (128045) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (128246) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (128447) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (128648) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (128849) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (129050) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (129251) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (129453) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (129654) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (129747) vision_app: camera frame timeout[0m
+[0;33mW (129855) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (130056) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (130257) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (130458) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (130659) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (130860) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (131061) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (131262) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (131463) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (131664) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (131865) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (132066) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (132066) cam_sensor: capture timeout count=600 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (132247) vision_app: camera frame timeout[0m
+[0;33mW (132271) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (132472) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (132673) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (132874) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (133076) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (133277) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (133478) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (133679) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (133880) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (134081) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (134282) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (134483) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (134685) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (134747) vision_app: camera frame timeout[0m
+[0;33mW (134886) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (135087) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (135288) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (135489) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (135690) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (135891) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (136092) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (136293) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (136494) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (136695) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (136897) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (137098) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (137247) vision_app: camera frame timeout[0m
+[0;33mW (137299) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (137500) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (137701) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (137902) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (138103) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (138103) cam_sensor: capture timeout count=630 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (138308) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (138510) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (138711) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (138912) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (139113) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (139314) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (139515) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (139716) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (139747) vision_app: camera frame timeout[0m
+[0;33mW (139918) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (140119) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (140320) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (140521) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (140722) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (140923) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (141124) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (141325) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (141526) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (141727) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (141928) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (142129) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (142247) vision_app: camera frame timeout[0m
+[0;33mW (142330) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (142531) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (142732) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (142933) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (143135) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (143336) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (143537) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (143738) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (143939) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (144140) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (144140) cam_sensor: capture timeout count=660 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (144345) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (144546) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (144747) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (144747) vision_app: camera frame timeout[0m
+[0;33mW (144948) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (145149) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (145350) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (145551) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (145752) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (145953) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (146154) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (146355) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (146556) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (146758) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (146959) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (147160) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (147248) vision_app: camera frame timeout[0m
+[0;33mW (147361) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (147562) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (147763) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (147964) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (148165) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (148366) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (148567) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (148768) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (148970) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (149171) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (149372) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (149573) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (149748) vision_app: camera frame timeout[0m
+[0;33mW (149774) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (149975) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (150176) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (150176) cam_sensor: capture timeout count=690 core=0 prio=10 stack_hwm=2080[0m
+[0;33mW (150381) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (150582) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (150783) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (150984) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (151185) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (151386) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (151587) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (151788) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (151989) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (152190) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (152248) vision_app: camera frame timeout[0m
+[0;33mW (152391) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (152592) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (152793) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (152994) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (153195) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (153396) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (153597) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (153799) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (154000) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (154201) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (154402) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0m
+Done
+
+Script done on 2026-06-28 14:03:07+08:00 [COMMAND_EXIT_CODE="0"]

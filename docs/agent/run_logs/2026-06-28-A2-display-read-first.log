@@ -1,0 +1,592 @@
+Script started on 2026-06-28 09:36:50+08:00 [COMMAND="idf.py -p /dev/ttyACM0 flash monitor" TERM="dumb" TTY="/dev/pts/3" COLUMNS="80" LINES="24"]
+Executing action: flash
+Running ninja in directory /home/kazeform/2026esp/bug_project/build
+Executing "ninja flash"...
+[0/1] Re-running CMake...[K
+-- Minimal build - OFF
+-- Building ESP-IDF components for target esp32p4
+NOTICE: 
+Following dependencies have new versions available:
+Dependency "espressif/esp-dl": "3.3.2" -> "3.3.6"
+Dependency "espressif/esp_cam_sensor": "2.1.0" -> "2.2.0"
+Dependency "espressif/esp_lcd_ek79007": "1.0.4" -> "2.0.2~1"
+Dependency "espressif/esp_lv_decoder": "0.3.5" -> "0.4.2"
+Dependency "espressif/esp_lvgl_adapter": "0.4.3" -> "0.6.0"
+Dependency "espressif/esp_new_jpeg": "0.6.1" -> "1.0.2"
+Consider running "idf.py update-dependencies" to update your lock file.
+NOTICE: Processing 22 dependencies:
+NOTICE: [1/22] espressif/button (4.2.0)
+NOTICE: [2/22] espressif/cmake_utilities (0.5.3)
+NOTICE: [3/22] espressif/dl_fft (0.4.0)
+NOTICE: [4/22] espressif/esp-dl (3.3.2)
+NOTICE: [5/22] espressif/esp-dsp (1.8.0)
+NOTICE: [6/22] espressif/esp_cam_sensor (2.1.0)
+NOTICE: [7/22] espressif/esp_lcd_ek79007 (1.0.4)
+NOTICE: [8/22] espressif/esp_lcd_touch (1.2.1)
+NOTICE: [9/22] espressif/esp_lcd_touch_gt911 (1.2.0~2)
+NOTICE: [10/22] espressif/esp_lv_decoder (0.3.5)
+NOTICE: [11/22] espressif/esp_lv_fs (1.0.1)
+NOTICE: [12/22] espressif/esp_lvgl_adapter (0.4.3)
+NOTICE: [13/22] espressif/esp_mmap_assets (2.0.0)
+NOTICE: [14/22] espressif/esp_new_jpeg (0.6.1)
+NOTICE: [15/22] espressif/esp_sccb_intf (0.0.8)
+NOTICE: [16/22] espressif/freetype (2.14.2)
+NOTICE: [17/22] espressif/knob (1.1.0)
+NOTICE: [18/22] espressif/libpng (1.6.58)
+NOTICE: [19/22] espressif/pid_ctrl (0.1.1)
+NOTICE: [20/22] espressif/zlib (1.3.2)
+NOTICE: [21/22] lvgl/lvgl (9.5.0)
+NOTICE: [22/22] idf (5.5.4)
+-- ESP-TEE is currently supported only on the esp32c6;esp32h2;esp32c5 SoCs
+-- Project sdkconfig file /home/kazeform/2026esp/bug_project/sdkconfig
+Loading defaults file /home/kazeform/2026esp/bug_project/sdkconfig.defaults...
+warning: unknown kconfig symbol 'LV_USE_XML' assigned to 'n' in /home/kazeform/2026esp/bug_project/sdkconfig.defaults
+warning: unknown kconfig symbol 'LV_USE_DEMO_SCROLL' assigned to 'n' in /home/kazeform/2026esp/bug_project/sdkconfig.defaults
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Adding linker script /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/riscv/ld/rom.api.ld
+-- USING O3
+-- App "sample_project" version: ad08426
+-- Adding linker script /home/kazeform/2026esp/bug_project/build/esp-idf/esp_system/ld/memory.ld
+-- Adding linker script /home/kazeform/2026esp/bug_project/build/esp-idf/esp_system/ld/sections.ld.in
+-- Adding linker script /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_rom/esp32p4/ld/esp32p4.rom.eco5.ld
+-- Adding linker script /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_rom/esp32p4/ld/esp32p4.rom.api.ld
+-- Adding linker script /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_rom/esp32p4/ld/esp32p4.rom.eco5.rvfp.ld
+-- Adding linker script /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_rom/esp32p4/ld/esp32p4.rom.wdt.ld
+-- Adding linker script /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_rom/esp32p4/ld/esp32p4.rom.systimer.ld
+-- Adding linker script /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_rom/esp32p4/ld/esp32p4.rom.version.ld
+-- Adding linker script /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_rom/esp32p4/ld/esp32p4.rom.eco5.libc.ld
+-- Adding linker script /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_rom/esp32p4/ld/esp32p4.rom.eco5.newlib.ld
+-- Adding linker script /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/soc/esp32p4/ld/esp32p4.peripherals.ld
+-- ESP_LCD_EK79007: 1.0.4
+-- BUTTON: 4.2.0
+-- LVGL version: 9.5.0
+-- ESP_MMAP_ASSETS: 2.0.0
+-- ESP_LV_FS: 1.0.1
+-- KNOB: 1.1.0
+-- ESP_CAM_SENSOR: 2.1.0
+-- Components: Ethernet_app UI app_trace app_ui app_update bootloader bootloader_support bsp bt cmock console cxx driver efuse esp-tls esp_adc esp_app_format esp_bootloader_format esp_coex esp_common esp_driver_ana_cmpr esp_driver_bitscrambler esp_driver_cam esp_driver_dac esp_driver_gpio esp_driver_gptimer esp_driver_i2c esp_driver_i2s esp_driver_isp esp_driver_jpeg esp_driver_ledc esp_driver_mcpwm esp_driver_parlio esp_driver_pcnt esp_driver_ppa esp_driver_rmt esp_driver_sdio esp_driver_sdm esp_driver_sdmmc esp_driver_sdspi esp_driver_spi esp_driver_touch_sens esp_driver_tsens esp_driver_twai esp_driver_uart esp_driver_usb_serial_jtag esp_eth esp_event esp_gdbstub esp_hal_ieee802154 esp_hid esp_http_client esp_http_server esp_https_ota esp_https_server esp_hw_support esp_lcd esp_local_ctrl esp_mm esp_netif esp_netif_stack esp_partition esp_phy esp_pm esp_psram esp_ringbuf esp_rom esp_security esp_system esp_timer esp_vfs_console esp_wifi espcoredump espressif__button espressif__cmake_utilities espressif__dl_fft espressif__esp-dl espressif__esp-dsp espressif__esp_cam_sensor espressif__esp_lcd_ek79007 espressif__esp_lcd_touch espressif__esp_lcd_touch_gt911 espressif__esp_lv_decoder espressif__esp_lv_fs espressif__esp_lvgl_adapter espressif__esp_mmap_assets espressif__esp_new_jpeg espressif__esp_sccb_intf espressif__freetype espressif__knob espressif__libpng espressif__pid_ctrl espressif__zlib esptool_py fatfs freertos hal heap http_parser idf_test ieee802154 json log lvgl__lvgl lwip main mbedtls mqtt newlib nvs_flash nvs_sec_provider openthread partition_table protobuf-c protocomm pthread riscv rt sdmmc soc spi_flash spiffs system_monitor tcp_transport ulp unity usb vfs vision_app wear_levelling wifi_provisioning wpa_supplicant
+-- Component paths: /home/kazeform/2026esp/bug_project/components/Ethernet_app /home/kazeform/2026esp/bug_project/components/UI /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/app_trace /home/kazeform/2026esp/bug_project/components/app_ui /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/app_update /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader_support /home/kazeform/2026esp/bug_project/components/bsp /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bt /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/cmock /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/console /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/cxx /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/driver /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/efuse /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp-tls /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_adc /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_app_format /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_bootloader_format /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_coex /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_common /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_ana_cmpr /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_bitscrambler /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_cam /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_dac /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_gpio /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_gptimer /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_i2c /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_i2s /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_isp /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_jpeg /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_ledc /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_mcpwm /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_parlio /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_pcnt /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_ppa /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_rmt /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_sdio /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_sdm /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_sdmmc /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_sdspi /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_spi /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_touch_sens /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_tsens /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_twai /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_uart /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_driver_usb_serial_jtag /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_eth /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_event /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_gdbstub /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_hal_ieee802154 /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_hid /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_http_client /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_http_server /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_https_ota /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_https_server /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_hw_support /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_lcd /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_local_ctrl /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_mm /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_netif /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_netif_stack /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_partition /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_phy /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_pm /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_psram /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_ringbuf /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_rom /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_security /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_system /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_timer /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_vfs_console /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_wifi /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/espcoredump /home/kazeform/2026esp/bug_project/managed_components/espressif__button /home/kazeform/2026esp/bug_project/managed_components/espressif__cmake_utilities /home/kazeform/2026esp/bug_project/managed_components/espressif__dl_fft /home/kazeform/2026esp/bug_project/managed_components/espressif__esp-dl /home/kazeform/2026esp/bug_project/managed_components/espressif__esp-dsp /home/kazeform/2026esp/bug_project/managed_components/espressif__esp_cam_sensor /home/kazeform/2026esp/bug_project/managed_components/espressif__esp_lcd_ek79007 /home/kazeform/2026esp/bug_project/managed_components/espressif__esp_lcd_touch /home/kazeform/2026esp/bug_project/managed_components/espressif__esp_lcd_touch_gt911 /home/kazeform/2026esp/bug_project/managed_components/espressif__esp_lv_decoder /home/kazeform/2026esp/bug_project/managed_components/espressif__esp_lv_fs /home/kazeform/2026esp/bug_project/managed_components/espressif__esp_lvgl_adapter /home/kazeform/2026esp/bug_project/managed_components/espressif__esp_mmap_assets /home/kazeform/2026esp/bug_project/managed_components/espressif__esp_new_jpeg /home/kazeform/2026esp/bug_project/managed_components/espressif__esp_sccb_intf /home/kazeform/2026esp/bug_project/managed_components/espressif__freetype /home/kazeform/2026esp/bug_project/managed_components/espressif__knob /home/kazeform/2026esp/bug_project/managed_components/espressif__libpng /home/kazeform/2026esp/bug_project/managed_components/espressif__pid_ctrl /home/kazeform/2026esp/bug_project/managed_components/espressif__zlib /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esptool_py /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/fatfs /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/freertos /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/hal /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/heap /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/http_parser /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/idf_test /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/ieee802154 /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/json /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/log /home/kazeform/2026esp/bug_project/managed_components/lvgl__lvgl /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/lwip /home/kazeform/2026esp/bug_project/main /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/mbedtls /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/mqtt /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/newlib /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/nvs_flash /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/nvs_sec_provider /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/openthread /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/partition_table /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/protobuf-c /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/protocomm /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/pthread /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/riscv /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/rt /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/sdmmc /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/soc /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/spi_flash /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/spiffs /home/kazeform/2026esp/bug_project/components/system_monitor /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/tcp_transport /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/ulp /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/unity /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/usb /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/vfs /home/kazeform/2026esp/bug_project/components/vision_app /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/wear_levelling /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/wifi_provisioning /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/wpa_supplicant
+-- Configuring done (7.2s)
+-- Generating done (0.5s)
+-- Build files have been written to: /home/kazeform/2026esp/bug_project/build
+[1/12] Building C object esp-idf/esp_a..._esp_app_format.dir/esp_app_desc.c.obj[K[2/12] Performing build step for 'bootloader'[K[1/1] cd /home/kazeform/2026esp/bug_pr...roject/build/bootloader/bootloader.bin[K
+Bootloader binary size 0x5a20 bytes. 0x5e0 bytes (6%) free.
+[3/12] Linking C static library esp-idf/esp_app_format/libesp_app_format.a[K[4/12] No install step for 'bootloader'[K[5/12] Completed 'bootloader'[K[6/12] cd /home/kazeform/2026esp/bug_p...meta-len=4 --use-magic --use-magic-len[K[7/12] Generating esp-idf/esp_system/ld/sections.ld[K[8/12] Linking CXX executable sample_project.elf[K[9/12] Generating binary image from built executable[K
+esptool.py v4.12.dev2
+Creating esp32p4 image...
+Merged 2 ELF sections
+Successfully created esp32p4 image.
+Generated /home/kazeform/2026esp/bug_project/build/sample_project.bin
+[10/12] cd /home/kazeform/2026esp/bug_...p/bug_project/build/sample_project.bin[K
+sample_project.bin binary size 0x31f640 bytes. Smallest app partition is 0x600000 bytes. 0x2e09c0 bytes (48%) free.
+[10/12] cd /home/kazeform/ProgramFiles...nents/esptool_py/run_serial_tool.cmake[K
+esptool.py --chip esp32p4 -p /dev/ttyACM0 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 16MB 0x2000 bootloader/bootloader.bin 0x10000 sample_project.bin 0x8000 partition_table/partition-table.bin 0xb00000 storage.bin
+esptool.py v4.12.dev2
+Serial port /dev/ttyACM0
+Connecting...
+Chip is ESP32-P4 (revision v3.1)
+Features: High-Performance MCU
+Crystal is 40MHz
+USB mode: USB-Serial/JTAG
+MAC: e8:f6:0a:e1:7a:d1
+Using the new stub flasher.
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00002000 to 0x00007fff...
+Flash will be erased from 0x00010000 to 0x0032ffff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x00b00000 to 0x00ffffff...
+SHA digest in image updated
+Compressed 23072 bytes to 14335...
+Writing at 0x00002000... (100 %)[K
+Wrote 23072 bytes (14335 compressed) at 0x00002000 in 0.3 seconds (effective 632.1 kbit/s)...
+Hash of data verified.
+Compressed 3274304 bytes to 1043020...
+Writing at 0x00010000... (1 %)[KWriting at 0x0001e0f6... (3 %)[KWriting at 0x0002c985... (4 %)[KWriting at 0x0003cd49... (6 %)[KWriting at 0x000538a9... (7 %)[KWriting at 0x00086787... (9 %)[KWriting at 0x000b15c7... (10 %)[KWriting at 0x000f110c... (12 %)[KWriting at 0x0010aa50... (14 %)[KWriting at 0x0011252e... (15 %)[KWriting at 0x0011b0d9... (17 %)[KWriting at 0x00122210... (18 %)[KWriting at 0x001299a5... (20 %)[KWriting at 0x00132d8b... (21 %)[KWriting at 0x00138f3b... (23 %)[KWriting at 0x0013ffac... (25 %)[KWriting at 0x00147436... (26 %)[KWriting at 0x0014e814... (28 %)[KWriting at 0x0015420f... (29 %)[KWriting at 0x0015a62e... (31 %)[KWriting at 0x001638a0... (32 %)[KWriting at 0x0016c8ad... (34 %)[KWriting at 0x00174d5c... (35 %)[KWriting at 0x0017ecab... (37 %)[KWriting at 0x00184bd6... (39 %)[KWriting at 0x0018b4e1... (40 %)[KWriting at 0x00194592... (42 %)[KWriting at 0x0019ad14... (43 %)[KWriting at 0x001a16ad... (45 %)[KWriting at 0x001a8317... (46 %)[KWriting at 0x001b15b6... (48 %)[KWriting at 0x001bbc7b... (50 %)[KWriting at 0x001c51bb... (51 %)[KWriting at 0x001e7972... (53 %)[KWriting at 0x002570b3... (54 %)[KWriting at 0x002641ee... (56 %)[KWriting at 0x0026aca4... (57 %)[KWriting at 0x00273687... (59 %)[KWriting at 0x0027a2fa... (60 %)[KWriting at 0x00281361... (62 %)[KWriting at 0x002876a1... (64 %)[KWriting at 0x0028dfbd... (65 %)[KWriting at 0x00294304... (67 %)[KWriting at 0x0029abdf... (68 %)[KWriting at 0x002a14b7... (70 %)[KWriting at 0x002a878d... (71 %)[KWriting at 0x002af03a... (73 %)[KWriting at 0x002b50bc... (75 %)[KWriting at 0x002bb105... (76 %)[KWriting at 0x002c3082... (78 %)[KWriting at 0x002cbb61... (79 %)[KWriting at 0x002d31b4... (81 %)[KWriting at 0x002da890... (82 %)[KWriting at 0x002e3277... (84 %)[KWriting at 0x002e9bc1... (85 %)[KWriting at 0x002f0bcd... (87 %)[KWriting at 0x002f7a45... (89 %)[KWriting at 0x002fecb9... (90 %)[KWriting at 0x00305a16... (92 %)[KWriting at 0x0030b9c4... (93 %)[KWriting at 0x003137cc... (95 %)[KWriting at 0x0031a59c... (96 %)[KWriting at 0x003216c9... (98 %)[KWriting at 0x00328d49... (100 %)[K
+Wrote 3274304 bytes (1043020 compressed) at 0x00010000 in 16.6 seconds (effective 1580.1 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 119...
+Writing at 0x00008000... (100 %)[K
+Wrote 3072 bytes (119 compressed) at 0x00008000 in 0.0 seconds (effective 3716.8 kbit/s)...
+Hash of data verified.
+Compressed 5242880 bytes to 750905...
+Writing at 0x00b00000... (2 %)[KWriting at 0x00b06e29... (4 %)[KWriting at 0x00b0d790... (6 %)[KWriting at 0x00b143d6... (8 %)[KWriting at 0x00b1a256... (10 %)[KWriting at 0x00b20619... (13 %)[KWriting at 0x00b26748... (15 %)[KWriting at 0x00b2e6bf... (17 %)[KWriting at 0x00b34747... (19 %)[KWriting at 0x00b3ac1a... (21 %)[KWriting at 0x00b4074f... (23 %)[KWriting at 0x00b4690a... (26 %)[KWriting at 0x00b4cf7b... (28 %)[KWriting at 0x00b52bef... (30 %)[KWriting at 0x00b59de4... (32 %)[KWriting at 0x00b5fd0b... (34 %)[KWriting at 0x00b64e23... (36 %)[KWriting at 0x00b6c225... (39 %)[KWriting at 0x00b7277e... (41 %)[KWriting at 0x00b786cf... (43 %)[KWriting at 0x00b7e51d... (45 %)[KWriting at 0x00b8319a... (47 %)[KWriting at 0x00b8cd89... (50 %)[KWriting at 0x00b9f61e... (52 %)[KWriting at 0x00ba4795... (54 %)[KWriting at 0x00ba9e88... (56 %)[KWriting at 0x00baf575... (58 %)[KWriting at 0x00bb6945... (60 %)[KWriting at 0x00bbccc8... (63 %)[KWriting at 0x00bc3f2e... (65 %)[KWriting at 0x00bc9b56... (67 %)[KWriting at 0x00bcee65... (69 %)[KWriting at 0x00bd5628... (71 %)[KWriting at 0x00bdacbd... (73 %)[KWriting at 0x00be15b7... (76 %)[KWriting at 0x00be65a4... (78 %)[KWriting at 0x00beb935... (80 %)[KWriting at 0x00bf15dc... (82 %)[KWriting at 0x00bf84f0... (84 %)[KWriting at 0x00c00709... (86 %)[KWriting at 0x00c05b9d... (89 %)[KWriting at 0x00c0babe... (91 %)[KWriting at 0x00c12937... (93 %)[KWriting at 0x00c189f3... (95 %)[KWriting at 0x00c1e76f... (97 %)[KWriting at 0x00c2c538... (100 %)[K
+Wrote 5242880 bytes (750905 compressed) at 0x00b00000 in 18.1 seconds (effective 2316.9 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/kazeform/2026esp/bug_project
+Executing "/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 301 --decode-panic backtrace /home/kazeform/2026esp/bug_project/build/sample_project.elf /home/kazeform/2026esp/bug_project/build/bootloader/bootloader.elf -m '/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python' '/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf.py' '-p' '/dev/ttyACM0'"...
+[0;33m--- esp-idf-monitor 1.9.0 on /dev/ttyACM0 115200[0m
+[0;33m--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H[0m
+ESP-ROM:esp32p4-eco6-20251011
+Build:Oct 11 2025
+rst:0x17 (CHIP_USB_UART_RESET),boot:0x10c (SPI_FAST_FLASH_BOOT)
+Core0 Saved PC:0x4fc04830
+Core1 Saved PC:0x4fc06020
+SPI mode:DIO, clock div:2
+load:0x4ffb60d0,len:0x15e4
+load:0x4ffac2c0,len:0xe88
+[0m--- 0x4ffac2c0: [0;33mesp_bootloader_get_description[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_bootloader_format/esp_bootloader_desc.c[0m[0m:[1;31m39[0m
+load:0x4ffaefc0,len:0x3560
+[0m--- 0x4ffaefc0: [0;33mesp_flash_encryption_enabled[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader_support/src/flash_encrypt.c[0m[0m:[1;31m89[0m
+entry 0x4ffac2ca
+[0m--- 0x4ffac2ca: [0;33mcall_start_cpu0[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader/subproject/main/bootloader_start.c[0m[0m:[1;31m27[0m
+[0;32mI (27) boot: ESP-IDF v5.5.4 2nd stage bootloader[0m
+[0;32mI (28) boot: compile time Jun 27 2026 17:33:42[0m
+[0;32mI (28) boot: Multicore bootloader[0m
+[0;32mI (30) boot: chip revision: v3.1[0m
+[0;32mI (31) boot: efuse block revision: v1.2[0m
+[0;32mI (34) boot.esp32p4: SPI Speed      : 40MHz[0m
+[0;32mI (38) boot.esp32p4: SPI Mode       : DIO[0m
+[0;32mI (42) boot.esp32p4: SPI Flash Size : 16MB[0m
+[0;32mI (46) boot: Enabling RNG early entropy source...[0m
+[0;32mI (50) boot: Partition Table:[0m
+[0;32mI (53) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (59) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (72) boot:  2 factory          factory app      00 00 00010000 00600000[0m
+[0;32mI (79) boot:  3 storage          Unknown data     01 82 00b00000 00500000[0m
+[0;32mI (86) boot: End of partition table[0m
+[0;32mI (89) esp_image: segment 0: paddr=00010020 vaddr=481f0020 size=1224c0h (1189056) map[0m
+[0;32mI (284) esp_image: segment 1: paddr=001324e8 vaddr=30100000 size=00164h (   356) load[0m
+[0;32mI (286) esp_image: segment 2: paddr=00132654 vaddr=30100170 size=00048h (    72) load[0m
+[0;32mI (289) esp_image: segment 3: paddr=001326a4 vaddr=4ff40000 size=0d974h ( 55668) load[0m
+[0;32mI (306) esp_image: segment 4: paddr=00140020 vaddr=48000020 size=1e0be0h (1969120) map[0m
+[0;32mI (618) esp_image: segment 5: paddr=00320c08 vaddr=4ff4d974 size=0a700h ( 42752) load[0m
+[0;32mI (627) esp_image: segment 6: paddr=0032b310 vaddr=4ff58080 size=04308h ( 17160) load[0m
+[0;32mI (637) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (637) boot: Disabling RNG early entropy source...[0m
+[0;32mI (648) hex_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (649) hex_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (649) hex_psram: DriveStr.    : 0x00 (25 Ohm)[0m
+[0;32mI (650) hex_psram: dev id       : 0x03 (generation 4)[0m
+[0;32mI (654) hex_psram: density      : 0x07 (256 Mbit)[0m
+[0;32mI (659) hex_psram: good-die     : 0x06 (Pass)[0m
+[0;32mI (663) hex_psram: SRF          : 0x02 (Slow Refresh)[0m
+[0;32mI (667) hex_psram: BurstType    : 0x00 ( Wrap)[0m
+[0;32mI (672) hex_psram: BurstLen     : 0x03 (2048 Byte)[0m
+[0;32mI (676) hex_psram: BitMode      : 0x01 (X16 Mode)[0m
+[0;32mI (681) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)[0m
+[0;32mI (686) hex_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (690) MSPI Timing: Enter psram timing tuning[0m
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+[0;32mI (1006) mmu_psram: .rodata xip on psram[0m
+[0;32mI (1254) mmu_psram: .text xip on psram[0m
+[0;32mI (1255) hex_psram: psram CS IO is dedicated[0m
+[0;32mI (1255) cpu_start: Multicore app[0m
+[0;32mI (1691) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (1700) cpu_start: GPIO 38 and 37 are used as console UART I/O pins[0m
+[0;32mI (1701) cpu_start: Pro cpu start user code[0m
+[0;32mI (1701) cpu_start: cpu freq: 400000000 Hz[0m
+[0;32mI (1703) app_init: Application information:[0m
+[0;32mI (1707) app_init: Project name:     sample_project[0m
+[0;32mI (1712) app_init: App version:      ad08426[0m
+[0;32mI (1716) app_init: Compile time:     Jun 28 2026 09:36:58[0m
+[0;32mI (1721) app_init: ELF file SHA256:  0f21f9464...[0m
+[0;32mI (1725) app_init: ESP-IDF:          v5.5.4[0m
+[0;32mI (1729) efuse_init: Min chip rev:     v3.1[0m
+[0;32mI (1733) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (1737) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (1741) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (1748) heap_init: At 4FF60820 len 0005A7A0 (361 KiB): RETENT_RAM[0m
+[0;32mI (1753) heap_init: At 4FFBAFC0 len 00004BF0 (18 KiB): RAM[0m
+[0;32mI (1763) heap_init: At 50108080 len 00007F80 (31 KiB): RTCRAM[0m
+[0;32mI (1764) heap_init: At 301001B8 len 00001E48 (7 KiB): TCM[0m
+[0;32mI (1916) esp_psram: Adding pool of 29568K of PSRAM memory to heap allocator[0m
+[0;32mI (1916) esp_psram: Adding pool of 61K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator[0m
+[0;32mI (1923) esp_psram: Adding pool of 54K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator[0m
+[0;32mI (1934) spi_flash: detected chip: gd[0m
+[0;32mI (1937) spi_flash: flash io: dio[0m
+[0;32mI (1940) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (1946) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (1953) main_task: Started on CPU0[0m
+[0;32mI (1956) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (1964) main_task: Calling app_main()[0m
+[0;32mI (1967) system: System initialization start[0m
+[0;32mI (1971) PSRAM_ARB: [PSRAM_ARB] apply display_first=1 psram_read_first=1 camera_write_regulator=0[0m
+[0;32mI (1980) PSRAM_ARB: [PSRAM_ARB] source=apply mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x4004c601[0m
+[0;32mI (1991) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (2001) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (2009) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[0;32mI (2017) bsp_lcd: Backlight on[0m
+[0;32mI (2020) bsp_lcd: MIPI DSI PHY powered on[0m
+[0;32mI (2025) ek79007: version: 1.0.4[0m
+[0;32mI (2259) bsp_lcd: LCD init done[0m
+[0;32mI (2259) bsp_lcd: [LCD_DIAG] 1024x600 RGB24 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1800KB dma2d=1[0m
+[0;32mI (2259) bsp_lcd: [LCD_DIAG] active_read=83608KB/s fb0=0x48320a80 fb1=0x484e2b00 fb2=0x486a4b80 psram_free=24278KB internal_free=384KB[0m
+[0;33mW (2271) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (2283) bsp_touch: I2C bus initialized[0m
+[0;32mI (2286) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[1;31mE (2314) lcd_panel.io.i2c: panel_io_i2c_rx_buffer(145): i2c transaction failed[0m
+[1;31mE (2314) GT911: touch_gt911_read_cfg(419): GT911 read error![0m
+[1;31mE (2315) GT911: esp_lcd_touch_new_i2c_gt911(169): GT911 init failed[0m
+[1;31mE (2321) GT911: Error (0x103)! Touch controller GT911 initialization failed![0m
+[0;33mW (2328) bsp_touch: GT911 init at 0x5D failed: ESP_ERR_INVALID_STATE[0m
+[0;32mI (2334) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[0;32mI (2363) GT911: TouchPad_ID:0x39,0x31,0x31[0m
+[0;32mI (2363) GT911: TouchPad_Config_Version:89[0m
+[0;32mI (2363) bsp_touch: GT911 detected at I2C address 0x14[0m
+[0;32mI (2364) bsp_touch: Touch init done[0m
+[1;31mE (2367) bsp_motor: validate_motor_gpio(73): motor 0 PWM A GPIO is not configured[0m
+[1;31mE (2375) bsp_motor: init_motor_mcpwm(110): motor GPIO validation failed[0m
+[1;31mE (2381) bsp_motor: bsp_motor_init(162): init motor 0 MCPWM failed[0m
+[0;32mI (2387) bsp_encoder: encoder BSP initialized[0m
+[0;32mI (2392) esp_lvgl:adapter: LVGL adapter initialized successfully[0m
+[0;32mI (2400) esp_lvgl:bridge_v9: Initializing hardware resources[0m
+[0;32mI (2402) esp_lvgl:bridge_v9: Hardware resources initialized successfully[0m
+[0;32mI (2409) bsp_lvgl: Display registered (1024x600)[0m
+[0;33mW (2413) esp_lvgl:touch: LV_USE_GESTURE_RECOGNITION is disabled; only single-point pointer events are available[0m
+[0;32mI (2423) esp_lvgl:touch: Touch input device registered successfully (IRQ mode: disabled)[0m
+[0;32mI (2430) bsp_lvgl: Touch registered[0m
+[0;32mI (2434) esp_lvgl:adapter: LVGL task started successfully[0m
+[0;32mI (2435) esp_lvgl:bridge: Initializing hardware resources[0m
+[0;32mI (2439) bsp_lvgl: LVGL adapter started[0m
+[0;32mI (2444) esp_lvgl:bridge: Hardware resources initialized successfully[0m
+[0;32mI (2586) vision_preview: preview initialized: 640x375[0m
+[0;32mI (2588) app_ui_dashboard: [BLUE_MARK] UI marker button installed[0m
+[0;32mI (2653) esp_eth.netif.netif_glue: e8:f6:0a:e1:7a:d1[0m
+[0;32mI (2653) esp_eth.netif.netif_glue: ethernet attached to netif[0m
+[0;32mI (6655) eth_example: Ethernet Started[0m
+[0;32mI (6655) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C[0m
+[0;32mI (7009) vision_app: SPIFFS mounted: 1138/4699 KB[0m
+[0;32mI (7009) app_yolo: Loading model from: /storage/roi224_515.espdl[0m
+[0;32mI (7047) app_yolo: Model file size: 575744 bytes[0m
+[0;32mI (8439) app_yolo: PPA preprocess ready: resize buffer=147 KB align=128B[0m
+[0;32mI (8439) app_yolo: Model loaded. Input: 224x224x3, runtime: multi-core with single-core fallback[0m
+[0;32mI (8443) app_yolo: Input tensor: exponent=-7  scale=0.007812[0m
+[0;32mI (8448) app_yolo: Outputs (6):[0m
+[0;32mI (8451) app_yolo:   'box0' shape=[1, 28, 28, 4] exponent=-4[0m
+[0;32mI (8456) app_yolo:   'box1' shape=[1, 14, 14, 4] exponent=-5[0m
+[0;32mI (8462) app_yolo:   'box2' shape=[1, 7, 7, 4] exponent=-5[0m
+[0;32mI (8467) app_yolo:   'score0' shape=[1, 28, 28, 3] exponent=-1[0m
+[0;32mI (8472) app_yolo:   'score1' shape=[1, 14, 14, 3] exponent=-1[0m
+[0;32mI (8478) app_yolo:   'score2' shape=[1, 7, 7, 3] exponent=-1[0m
+[0;32mI (8483) cam_sensor: MIPI PHY LDO ch3 = 2500 mV[0m
+[0;32mI (8488) cam_sensor: Using shared I2C bus for SCCB[0m
+[0;32mI (8493) sc2336: Detected Camera sensor PID=0xcb3a[0m
+[0;32mI (8497) cam_sensor: Detected: SC2336[0m
+[0;32mI (8500) cam_sensor: Format: MIPI_2lane_24Minput_RAW10_640x480_50fps  640x480  50fps[0m
+[0;32mI (8618) cam_sensor: [CAM_DIAG] active_write=4500KB/s frame=900KB fps=50 write_fps=5 period=200ms duty=200ms buffers=3 psram_free=18290KB[0m
+[0;32mI (8626) cam_sensor: cam_sensor_init OK  [640x480 RGB888, 900 KB/frame][0m
+[0;32mI (8632) cam_sensor: Streaming started (capture task priority=10 core=0 duty=200ms)[0m
+[0;32mI (8633) cam_sensor: [CAM_DIAG] capture #1 receive=0ms max=0ms timeouts=0 core=0 prio=10 stack_hwm=3236[0m
+[0;32mI (8649) vision_app: vision task created priority=3 core=1 stack=32768B[0m
+[0;32mI (8666) system: System initialization done[0m
+[0;32mI (8651) vision_app: vision task started core=1 priority=3 stack_hwm=31408[0m
+[0;32mI (8872) cam_sensor: [CAM_DIAG] capture #2 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2196[0m
+[0;32mI (9073) cam_sensor: [CAM_DIAG] capture #3 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2196[0m
+[0;32mI (9274) cam_sensor: [CAM_DIAG] capture #4 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2196[0m
+[0;32mI (9469) cam_sensor: [CAM_DIAG] capture #5 receive=33ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2196[0m
+[0;32mI (9717) vision_app: [VISION_DIAG] latest #6 fps=5.62 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=197ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=218ms core=1 prio=3 stack_hwm=29884 internal=31KB psram=18257KB[0m
+[0;32mI (9730) vision_app: [VISION_DIAG] avg samples=6 fps=5.62 ppa=0 images=0 cam_wait=155.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=173.7ms max_run=0ms max_loop=218ms[0m
+[1;31mE (9797) bsp_lcd: [BLUE_MARK] #1 source=ui_button time_us=8027871 tick=7844 core=1 psram_free=18257KB internal_free=32KB[0m
+[0;32mI (9797) bsp_lcd: [LCD_DIAG] 1024x600 RGB24 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1800KB dma2d=1[0m
+[0;32mI (9805) bsp_lcd: [LCD_DIAG] active_read=83608KB/s fb0=0x48320a80 fb1=0x484e2b00 fb2=0x486a4b80 psram_free=18257KB internal_free=32KB[0m
+[0;33mW (9817) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (9828) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x4004c601[0m
+[0;32mI (9840) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (9849) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (9858) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (9866) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (9874) bsp_lcd: [BLUE_MARK] fb_hash t_us=5739754 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9882) bsp_lcd: [BLUE_MARK] fb_hash t_us=5840764 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9890) bsp_lcd: [BLUE_MARK] fb_hash t_us=5942748 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9898) bsp_lcd: [BLUE_MARK] fb_hash t_us=6045749 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9906) bsp_lcd: [BLUE_MARK] fb_hash t_us=6147747 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9914) bsp_lcd: [BLUE_MARK] fb_hash t_us=6248741 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9921) bsp_lcd: [BLUE_MARK] fb_hash t_us=6348744 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9929) bsp_lcd: [BLUE_MARK] fb_hash t_us=6449742 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9937) bsp_lcd: [BLUE_MARK] fb_hash t_us=6550745 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9945) bsp_lcd: [BLUE_MARK] fb_hash t_us=6651752 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9953) bsp_lcd: [BLUE_MARK] fb_hash t_us=6754742 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9961) bsp_lcd: [BLUE_MARK] fb_hash t_us=6854741 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9969) bsp_lcd: [BLUE_MARK] fb_hash t_us=6955741 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9977) bsp_lcd: [BLUE_MARK] fb_hash t_us=7056640 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9985) bsp_lcd: [BLUE_MARK] fb_hash t_us=7155741 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9993) bsp_lcd: [BLUE_MARK] fb_hash t_us=7256353 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (10000) bsp_lcd: [BLUE_MARK] fb_hash t_us=7355741 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (10008) bsp_lcd: [BLUE_MARK] fb_hash t_us=7455754 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (10016) bsp_lcd: [BLUE_MARK] fb_hash t_us=7555741 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (10024) bsp_lcd: [BLUE_MARK] fb_hash t_us=7655957 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (10032) bsp_lcd: [BLUE_MARK] fb_hash t_us=7769391 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (10040) bsp_lcd: [BLUE_MARK] fb_hash t_us=7928885 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (10048) bsp_lcd: [BLUE_MARK] fb_hash t_us=8029740 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (10056) bsp_lcd: [BLUE_MARK] fb_hash t_us=8097140 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;32mI (10064) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=4500KB/s count=7 timeouts=0 last_receive=38ms max_receive=58ms age=189ms latest=1 app=-1 psram_free=18257KB[0m
+[1;31mE (10082) app_ui_dashboard: [BLUE_MARK] dashboard status=未检测到目标 company=无 conf=0 threshold=25 fps=0 infer=20ms cpu1=0 cpu2=0 mem=0 sorted=0 boxes=0 heap=32KB psram=18257KB[0m
+[0;32mI (10892) vision_app: [VISION_DIAG] latest #11 fps=4.26 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=177ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=193ms core=1 prio=3 stack_hwm=29628 internal=33KB psram=18257KB[0m
+[0;32mI (10904) vision_app: [VISION_DIAG] avg samples=5 fps=4.26 ppa=0 images=0 cam_wait=210.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=227.5ms max_run=0ms max_loop=371ms[0m
+[0;32mI (12094) vision_app: [VISION_DIAG] latest #17 fps=4.99 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=202ms core=1 prio=3 stack_hwm=29628 internal=29KB psram=18257KB[0m
+[0;32mI (12107) vision_app: [VISION_DIAG] avg samples=6 fps=4.99 ppa=0 images=0 cam_wait=177.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.8ms max_run=0ms max_loop=202ms[0m
+[0;32mI (13291) vision_app: [VISION_DIAG] latest #23 fps=5.01 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29628 internal=33KB psram=18257KB[0m
+[0;32mI (13304) vision_app: [VISION_DIAG] avg samples=6 fps=5.01 ppa=0 images=0 cam_wait=178.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.6ms max_run=0ms max_loop=199ms[0m
+[1;31mE (13908) bsp_lcd: [BLUE_MARK] #2 source=ui_button time_us=12139339 tick=11955 core=1 psram_free=18257KB internal_free=32KB[0m
+[0;32mI (13908) bsp_lcd: [LCD_DIAG] 1024x600 RGB24 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1800KB dma2d=1[0m
+[0;32mI (13917) bsp_lcd: [LCD_DIAG] active_read=83608KB/s fb0=0x48320a80 fb1=0x484e2b00 fb2=0x486a4b80 psram_free=18257KB internal_free=32KB[0m
+[0;33mW (13929) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (13940) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x4004c601[0m
+[0;32mI (13952) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (13962) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (13970) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (13978) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (13987) bsp_lcd: [BLUE_MARK] fb_hash t_us=9937743 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (13995) bsp_lcd: [BLUE_MARK] fb_hash t_us=10037740 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14003) bsp_lcd: [BLUE_MARK] fb_hash t_us=10137741 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14011) bsp_lcd: [BLUE_MARK] fb_hash t_us=10237748 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14019) bsp_lcd: [BLUE_MARK] fb_hash t_us=10337745 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14027) bsp_lcd: [BLUE_MARK] fb_hash t_us=10451625 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14035) bsp_lcd: [BLUE_MARK] fb_hash t_us=10551186 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14043) bsp_lcd: [BLUE_MARK] fb_hash t_us=10650740 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14051) bsp_lcd: [BLUE_MARK] fb_hash t_us=10754166 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14059) bsp_lcd: [BLUE_MARK] fb_hash t_us=10853746 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14067) bsp_lcd: [BLUE_MARK] fb_hash t_us=10953746 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14075) bsp_lcd: [BLUE_MARK] fb_hash t_us=11055501 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14083) bsp_lcd: [BLUE_MARK] fb_hash t_us=11154741 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14091) bsp_lcd: [BLUE_MARK] fb_hash t_us=11261916 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14099) bsp_lcd: [BLUE_MARK] fb_hash t_us=11361740 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14108) bsp_lcd: [BLUE_MARK] fb_hash t_us=11475081 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14116) bsp_lcd: [BLUE_MARK] fb_hash t_us=11576879 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14124) bsp_lcd: [BLUE_MARK] fb_hash t_us=11679478 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14132) bsp_lcd: [BLUE_MARK] fb_hash t_us=11779145 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14140) bsp_lcd: [BLUE_MARK] fb_hash t_us=11879127 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (14148) bsp_lcd: [BLUE_MARK] fb_hash t_us=11978917 fb0=535e57b5 fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (14156) bsp_lcd: [BLUE_MARK] fb_hash t_us=12079543 fb0=535e57b5 fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (14164) bsp_lcd: [BLUE_MARK] fb_hash t_us=12178741 fb0=6e0375ec fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (14172) bsp_lcd: [BLUE_MARK] fb_hash t_us=12209518 fb0=6e0375ec fb1=535e57b5 fb2=6e0375ec[0m
+[0;32mI (14180) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=4500KB/s count=28 timeouts=0 last_receive=38ms max_receive=58ms age=105ms latest=0 app=-1 psram_free=18257KB[0m
+[1;31mE (14198) app_ui_dashboard: [BLUE_MARK] dashboard status=未检测到目标 company=无 conf=0 threshold=25 fps=5 infer=14ms cpu1=0 cpu2=0 mem=0 sorted=0 boxes=0 heap=32KB psram=18257KB[0m
+[0;32mI (14494) vision_app: [VISION_DIAG] latest #29 fps=4.99 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=185ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=203ms core=1 prio=3 stack_hwm=29628 internal=32KB psram=18257KB[0m
+[0;32mI (14507) vision_app: [VISION_DIAG] avg samples=6 fps=4.99 ppa=0 images=0 cam_wait=176.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=194.1ms max_run=0ms max_loop=347ms[0m
+[0;32mI (15690) vision_app: [VISION_DIAG] latest #35 fps=5.02 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=185ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=200ms core=1 prio=3 stack_hwm=29628 internal=33KB psram=18257KB[0m
+[0;32mI (15703) vision_app: [VISION_DIAG] avg samples=6 fps=5.02 ppa=0 images=0 cam_wait=177.2ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.9ms max_run=0ms max_loop=203ms[0m
+[0;33mW (16637) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (16637) cam_sensor: capture timeout count=1 core=0 prio=10 stack_hwm=2164[0m
+[0;33mW (16842) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (16842) cam_sensor: capture timeout count=2 core=0 prio=10 stack_hwm=2164[0m
+[0;33mW (17047) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (17047) cam_sensor: capture timeout count=3 core=0 prio=10 stack_hwm=2164[0m
+[0;33mW (17251) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (17251) cam_sensor: capture timeout count=4 core=0 prio=10 stack_hwm=2164[0m
+[0;33mW (17279) vision_app: camera frame timeout[0m
+[0;33mW (17455) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (17455) cam_sensor: capture timeout count=5 core=0 prio=10 stack_hwm=2164[0m
+[0;33mW (17659) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (17860) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (18061) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (18262) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (18279) vision_app: camera frame timeout[0m
+[0;33mW (18463) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (18664) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (18865) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (19066) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (19267) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (19279) vision_app: camera frame timeout[0m
+[0;33mW (19468) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (19669) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (19870) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (20071) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (20272) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (20279) vision_app: camera frame timeout[0m
+[0;33mW (20473) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (20675) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (20876) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (21077) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (21278) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (21279) vision_app: camera frame timeout[0m
+[0;33mW (21479) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (21680) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (21881) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (22082) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (22279) vision_app: camera frame timeout[0m
+[0;33mW (22283) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (22484) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (22484) cam_sensor: capture timeout count=30 core=0 prio=10 stack_hwm=2052[0m
+[0;33mW (22689) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (22890) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (23092) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (23279) vision_app: camera frame timeout[0m
+[0;33mW (23293) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (23494) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (23695) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (23896) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (24097) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (24279) vision_app: camera frame timeout[0m
+[0;33mW (24299) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (24500) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (24701) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (24902) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (25103) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (25279) vision_app: camera frame timeout[0m
+[0;33mW (25304) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (25505) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (25706) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (25907) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (26108) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (26279) vision_app: camera frame timeout[0m
+[0;33mW (26309) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (26510) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (26711) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (26912) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (27113) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (27279) vision_app: camera frame timeout[0m
+[0;33mW (27314) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (27515) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (27716) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (27917) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (28118) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (28279) vision_app: camera frame timeout[0m
+[0;33mW (28319) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (28520) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (28520) cam_sensor: capture timeout count=60 core=0 prio=10 stack_hwm=2052[0m
+[0;33mW (28725) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (28926) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (29127) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (29281) vision_app: camera frame timeout[0m
+[0;33mW (29328) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (29529) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (29730) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (29932) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (30133) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (30281) vision_app: camera frame timeout[0m
+[0;33mW (30334) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (30535) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (30736) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (30937) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (31138) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (31281) vision_app: camera frame timeout[0m
+[0;33mW (31339) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (31540) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (31742) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (31943) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (32144) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (32281) vision_app: camera frame timeout[0m
+[0;33mW (32345) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (32546) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (32747) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (32948) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (33149) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (33281) vision_app: camera frame timeout[0m
+[0;33mW (33350) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (33551) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[1;31mE (33635) bsp_lcd: [BLUE_MARK] #3 source=ui_button time_us=31866275 tick=31682 core=1 psram_free=18257KB internal_free=32KB[0m
+[0;32mI (33635) bsp_lcd: [LCD_DIAG] 1024x600 RGB24 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1800KB dma2d=1[0m
+[0;32mI (33644) bsp_lcd: [LCD_DIAG] active_read=83608KB/s fb0=0x48320a80 fb1=0x484e2b00 fb2=0x486a4b80 psram_free=18257KB internal_free=32KB[0m
+[0;33mW (33655) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (33667) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x4004c601[0m
+[0;32mI (33679) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (33689) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (33697) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (33705) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (33713) bsp_lcd: [BLUE_MARK] fb_hash t_us=29666739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33721) bsp_lcd: [BLUE_MARK] fb_hash t_us=29766739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33730) bsp_lcd: [BLUE_MARK] fb_hash t_us=29866739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33738) bsp_lcd: [BLUE_MARK] fb_hash t_us=29966749 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33746) bsp_lcd: [BLUE_MARK] fb_hash t_us=30066746 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;33mW (33752) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[1;31mE (33754) bsp_lcd: [BLUE_MARK] fb_hash t_us=30166746 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33770) bsp_lcd: [BLUE_MARK] fb_hash t_us=30266739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33778) bsp_lcd: [BLUE_MARK] fb_hash t_us=30366739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33786) bsp_lcd: [BLUE_MARK] fb_hash t_us=30466739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33794) bsp_lcd: [BLUE_MARK] fb_hash t_us=30566739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33803) bsp_lcd: [BLUE_MARK] fb_hash t_us=30666739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33811) bsp_lcd: [BLUE_MARK] fb_hash t_us=30766739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33819) bsp_lcd: [BLUE_MARK] fb_hash t_us=30866739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33827) bsp_lcd: [BLUE_MARK] fb_hash t_us=30966739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33835) bsp_lcd: [BLUE_MARK] fb_hash t_us=31066739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33843) bsp_lcd: [BLUE_MARK] fb_hash t_us=31166746 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33851) bsp_lcd: [BLUE_MARK] fb_hash t_us=31266750 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33859) bsp_lcd: [BLUE_MARK] fb_hash t_us=31366746 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33867) bsp_lcd: [BLUE_MARK] fb_hash t_us=31466739 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33875) bsp_lcd: [BLUE_MARK] fb_hash t_us=31566740 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33883) bsp_lcd: [BLUE_MARK] fb_hash t_us=31697323 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33891) bsp_lcd: [BLUE_MARK] fb_hash t_us=31796968 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33899) bsp_lcd: [BLUE_MARK] fb_hash t_us=31896741 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (33907) bsp_lcd: [BLUE_MARK] fb_hash t_us=31936414 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;32mI (33916) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=4500KB/s count=39 timeouts=86 last_receive=25ms max_receive=58ms age=17653ms latest=1 app=-1 psram_free=18257KB[0m
+[1;31mE (33934) app_ui_dashboard: [BLUE_MARK] dashboard status=未检测到目标 company=无 conf=0 threshold=25 fps=5 infer=15ms cpu1=0 cpu2=0 mem=0 sorted=0 boxes=0 heap=32KB psram=18257KB[0m
+[0;33mW (33963) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (34164) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (34281) vision_app: camera frame timeout[0m
+[0;33mW (34365) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (34566) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (34566) cam_sensor: capture timeout count=90 core=0 prio=10 stack_hwm=2052[0m
+[0;33mW (34771) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (34972) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (35173) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (35281) vision_app: camera frame timeout[0m
+[0;33mW (35374) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (35575) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (35776) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (35977) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (36178) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (36281) vision_app: camera frame timeout[0m
+[0;33mW (36379) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (36580) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (36781) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (36983) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (37184) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (37281) vision_app: camera frame timeout[0m
+[0;33mW (37385) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (37587) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (37788) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (37989) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (38190) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (38281) vision_app: camera frame timeout[0m
+[0;33mW (38391) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (38592) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (38793) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (38994) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (39195) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (39281) vision_app: camera frame timeout[0m
+[0;33mW (39396) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (39597) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (39798) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (39999) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (40200) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (40281) vision_app: camera frame timeout[0m
+[0;33mW (40401) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (40602) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (40602) cam_sensor: capture timeout count=120 core=0 prio=10 stack_hwm=2052[0m
+[0;33mW (40807) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (41008) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (41209) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (41281) vision_app: camera frame timeout[0m
+[0;33mW (41410) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (41611) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (41812) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (42013) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (42214) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (42281) vision_app: camera frame timeout[0m
+[0;33mW (42415) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (42616) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (42817) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (43018) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (43219) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (43281) vision_app: camera frame timeout[0m
+[0;33mW (43420) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (43621) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (43822) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0;33mW (44023) CSI: csi recv API, transaction queue is full, failed to send transaction to the queue[0m
+[0m
+Done
+
+Script done on 2026-06-28 09:38:34+08:00 [COMMAND_EXIT_CODE="0"]

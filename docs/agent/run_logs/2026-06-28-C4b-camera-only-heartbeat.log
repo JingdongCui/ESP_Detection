@@ -1,0 +1,366 @@
+Script started on 2026-06-28 13:39:44+08:00 [COMMAND="idf.py -p /dev/ttyACM0 flash monitor" TERM="dumb" TTY="/dev/pts/4" COLUMNS="80" LINES="24"]
+Executing action: flash
+Running ninja in directory /home/kazeform/2026esp/bug_project/build
+Executing "ninja flash"...
+[1/6] cd /home/kazeform/2026esp/bug_pr...p/bug_project/build/sample_project.bin[K
+sample_project.bin binary size 0x203080 bytes. Smallest app partition is 0x600000 bytes. 0x3fcf80 bytes (66%) free.
+[2/6] Performing build step for 'bootloader'[K[1/1] cd /home/kazeform/2026esp/bug_pr...roject/build/bootloader/bootloader.bin[K
+Bootloader binary size 0x5a20 bytes. 0x5e0 bytes (6%) free.
+[3/6] No install step for 'bootloader'[K[4/6] Completed 'bootloader'[K[5/6] cd /home/kazeform/2026esp/bug_pr...meta-len=4 --use-magic --use-magic-len[K[5/6] cd /home/kazeform/ProgramFiles/e...nents/esptool_py/run_serial_tool.cmake[K
+esptool.py --chip esp32p4 -p /dev/ttyACM0 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 16MB 0x2000 bootloader/bootloader.bin 0x10000 sample_project.bin 0x8000 partition_table/partition-table.bin 0xb00000 storage.bin
+esptool.py v4.12.dev2
+Serial port /dev/ttyACM0
+Connecting...
+Chip is ESP32-P4 (revision v3.1)
+Features: High-Performance MCU
+Crystal is 40MHz
+USB mode: USB-Serial/JTAG
+MAC: e8:f6:0a:e1:7a:d1
+Using the new stub flasher.
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00002000 to 0x00007fff...
+Flash will be erased from 0x00010000 to 0x00213fff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x00b00000 to 0x00ffffff...
+SHA digest in image updated
+Compressed 23072 bytes to 14335...
+Writing at 0x00002000... (100 %)[K
+Wrote 23072 bytes (14335 compressed) at 0x00002000 in 0.3 seconds (effective 611.4 kbit/s)...
+Hash of data verified.
+Compressed 2109568 bytes to 741279...
+Writing at 0x00010000... (2 %)[KWriting at 0x0001dc3c... (4 %)[KWriting at 0x0002a0ee... (6 %)[KWriting at 0x000399c0... (8 %)[KWriting at 0x0006492d... (10 %)[KWriting at 0x0008cbae... (13 %)[KWriting at 0x000c5015... (15 %)[KWriting at 0x000ffbaa... (17 %)[KWriting at 0x001068c6... (19 %)[KWriting at 0x0010ece4... (21 %)[KWriting at 0x00116075... (23 %)[KWriting at 0x0011d4ff... (26 %)[KWriting at 0x0012630a... (28 %)[KWriting at 0x0012d406... (30 %)[KWriting at 0x00133bfa... (32 %)[KWriting at 0x0013b4a4... (34 %)[KWriting at 0x001433d0... (36 %)[KWriting at 0x0014a4ac... (39 %)[KWriting at 0x00152588... (41 %)[KWriting at 0x00159db1... (43 %)[KWriting at 0x00160e22... (45 %)[KWriting at 0x001677e4... (47 %)[KWriting at 0x0016dfdc... (50 %)[KWriting at 0x00173e48... (52 %)[KWriting at 0x0017a98b... (54 %)[KWriting at 0x001812ba... (56 %)[KWriting at 0x00187a72... (58 %)[KWriting at 0x0018f04d... (60 %)[KWriting at 0x00194f92... (63 %)[KWriting at 0x0019b198... (65 %)[KWriting at 0x001a158b... (67 %)[KWriting at 0x001ab97e... (69 %)[KWriting at 0x001b2340... (71 %)[KWriting at 0x001b9a2a... (73 %)[KWriting at 0x001c2b92... (76 %)[KWriting at 0x001c95f0... (78 %)[KWriting at 0x001d05d8... (80 %)[KWriting at 0x001d74c0... (82 %)[KWriting at 0x001de6be... (84 %)[KWriting at 0x001e5929... (86 %)[KWriting at 0x001eb7b6... (89 %)[KWriting at 0x001f35b9... (91 %)[KWriting at 0x001fa382... (93 %)[KWriting at 0x002012d3... (95 %)[KWriting at 0x002083c2... (97 %)[KWriting at 0x002107b4... (100 %)[K
+Wrote 2109568 bytes (741279 compressed) at 0x00010000 in 10.9 seconds (effective 1550.1 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 119...
+Writing at 0x00008000... (100 %)[K
+Wrote 3072 bytes (119 compressed) at 0x00008000 in 0.0 seconds (effective 3708.8 kbit/s)...
+Hash of data verified.
+Compressed 5242880 bytes to 750905...
+Writing at 0x00b00000... (2 %)[KWriting at 0x00b06e29... (4 %)[KWriting at 0x00b0d790... (6 %)[KWriting at 0x00b143d6... (8 %)[KWriting at 0x00b1a256... (10 %)[KWriting at 0x00b20619... (13 %)[KWriting at 0x00b26748... (15 %)[KWriting at 0x00b2e6bf... (17 %)[KWriting at 0x00b34747... (19 %)[KWriting at 0x00b3ac1a... (21 %)[KWriting at 0x00b4074f... (23 %)[KWriting at 0x00b4690a... (26 %)[KWriting at 0x00b4cf7b... (28 %)[KWriting at 0x00b52bef... (30 %)[KWriting at 0x00b59de4... (32 %)[KWriting at 0x00b5fd0b... (34 %)[KWriting at 0x00b64e23... (36 %)[KWriting at 0x00b6c225... (39 %)[KWriting at 0x00b7277e... (41 %)[KWriting at 0x00b786cf... (43 %)[KWriting at 0x00b7e51d... (45 %)[KWriting at 0x00b8319a... (47 %)[KWriting at 0x00b8cd89... (50 %)[KWriting at 0x00b9f61e... (52 %)[KWriting at 0x00ba4795... (54 %)[KWriting at 0x00ba9e88... (56 %)[KWriting at 0x00baf575... (58 %)[KWriting at 0x00bb6945... (60 %)[KWriting at 0x00bbccc8... (63 %)[KWriting at 0x00bc3f2e... (65 %)[KWriting at 0x00bc9b56... (67 %)[KWriting at 0x00bcee65... (69 %)[KWriting at 0x00bd5628... (71 %)[KWriting at 0x00bdacbd... (73 %)[KWriting at 0x00be15b7... (76 %)[KWriting at 0x00be65a4... (78 %)[KWriting at 0x00beb935... (80 %)[KWriting at 0x00bf15dc... (82 %)[KWriting at 0x00bf84f0... (84 %)[KWriting at 0x00c00709... (86 %)[KWriting at 0x00c05b9d... (89 %)[KWriting at 0x00c0babe... (91 %)[KWriting at 0x00c12937... (93 %)[KWriting at 0x00c189f3... (95 %)[KWriting at 0x00c1e76f... (97 %)[KWriting at 0x00c2c538... (100 %)[K
+Wrote 5242880 bytes (750905 compressed) at 0x00b00000 in 18.2 seconds (effective 2306.0 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/kazeform/2026esp/bug_project
+Executing "/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 301 --decode-panic backtrace /home/kazeform/2026esp/bug_project/build/sample_project.elf /home/kazeform/2026esp/bug_project/build/bootloader/bootloader.elf -m '/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python' '/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf.py' '-p' '/dev/ttyACM0'"...
+[0;33m--- esp-idf-monitor 1.9.0 on /dev/ttyACM0 115200[0m
+[0;33m--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H[0m
+ESP-ROM:esp32p4-eco6-20251011
+Build:Oct 11 2025
+rst:0x17 (CHIP_USB_UART_RESET),boot:0x10c (SPI_FAST_FLASH_BOOT)
+Core0 Saved PC:0x4fc04830
+Core1 Saved PC:0x4fc06020
+SPI mode:DIO, clock div:2
+load:0x4ffb60d0,len:0x15e4
+load:0x4ffac2c0,len:0xe88
+[0m--- 0x4ffac2c0: [0;33mesp_bootloader_get_description[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_bootloader_format/esp_bootloader_desc.c[0m[0m:[1;31m39[0m
+load:0x4ffaefc0,len:0x3560
+[0m--- 0x4ffaefc0: [0;33mesp_flash_encryption_enabled[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader_support/src/flash_encrypt.c[0m[0m:[1;31m89[0m
+entry 0x4ffac2ca
+[0m--- 0x4ffac2ca: [0;33mcall_start_cpu0[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader/subproject/main/bootloader_start.c[0m[0m:[1;31m27[0m
+[0;32mI (27) boot: ESP-IDF v5.5.4 2nd stage bootloader[0m
+[0;32mI (28) boot: compile time Jun 27 2026 17:33:42[0m
+[0;32mI (28) boot: Multicore bootloader[0m
+[0;32mI (30) boot: chip revision: v3.1[0m
+[0;32mI (31) boot: efuse block revision: v1.2[0m
+[0;32mI (34) boot.esp32p4: SPI Speed      : 40MHz[0m
+[0;32mI (38) boot.esp32p4: SPI Mode       : DIO[0m
+[0;32mI (42) boot.esp32p4: SPI Flash Size : 16MB[0m
+[0;32mI (46) boot: Enabling RNG early entropy source...[0m
+[0;32mI (50) boot: Partition Table:[0m
+[0;32mI (53) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (59) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (72) boot:  2 factory          factory app      00 00 00010000 00600000[0m
+[0;32mI (79) boot:  3 storage          Unknown data     01 82 00b00000 00500000[0m
+[0;32mI (86) boot: End of partition table[0m
+[0;32mI (89) esp_image: segment 0: paddr=00010020 vaddr=480d0020 size=11901ch (1151004) map[0m
+[0;32mI (278) esp_image: segment 1: paddr=00129044 vaddr=30100000 size=00164h (   356) load[0m
+[0;32mI (280) esp_image: segment 2: paddr=001291b0 vaddr=30100170 size=00048h (    72) load[0m
+[0;32mI (283) esp_image: segment 3: paddr=00129200 vaddr=4ff40000 size=06e18h ( 28184) load[0m
+[0;32mI (295) esp_image: segment 4: paddr=00130020 vaddr=48000020 size=cea60h (846432) map[0m
+[0;32mI (431) esp_image: segment 5: paddr=001fea88 vaddr=4ff46e18 size=10418h ( 66584) load[0m
+[0;32mI (445) esp_image: segment 6: paddr=0020eea8 vaddr=4ff57280 size=041b4h ( 16820) load[0m
+[0;32mI (454) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (454) boot: Disabling RNG early entropy source...[0m
+[0;32mI (465) hex_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (466) hex_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (466) hex_psram: DriveStr.    : 0x00 (25 Ohm)[0m
+[0;32mI (467) hex_psram: dev id       : 0x03 (generation 4)[0m
+[0;32mI (471) hex_psram: density      : 0x07 (256 Mbit)[0m
+[0;32mI (476) hex_psram: good-die     : 0x06 (Pass)[0m
+[0;32mI (480) hex_psram: SRF          : 0x02 (Slow Refresh)[0m
+[0;32mI (485) hex_psram: BurstType    : 0x00 ( Wrap)[0m
+[0;32mI (489) hex_psram: BurstLen     : 0x03 (2048 Byte)[0m
+[0;32mI (493) hex_psram: BitMode      : 0x01 (X16 Mode)[0m
+[0;32mI (498) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)[0m
+[0;32mI (503) hex_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (507) MSPI Timing: Enter psram timing tuning[0m
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+[0;32mI (815) mmu_psram: .rodata xip on psram[0m
+[0;32mI (919) mmu_psram: .text xip on psram[0m
+[0;32mI (920) hex_psram: psram CS IO is dedicated[0m
+[0;32mI (920) cpu_start: Multicore app[0m
+[0;32mI (1374) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (1384) cpu_start: GPIO 38 and 37 are used as console UART I/O pins[0m
+[0;32mI (1384) cpu_start: Pro cpu start user code[0m
+[0;32mI (1384) cpu_start: cpu freq: 400000000 Hz[0m
+[0;32mI (1386) app_init: Application information:[0m
+[0;32mI (1390) app_init: Project name:     sample_project[0m
+[0;32mI (1395) app_init: App version:      8bcdd70[0m
+[0;32mI (1399) app_init: Compile time:     Jun 28 2026 13:39:26[0m
+[0;32mI (1404) app_init: ELF file SHA256:  f59abf609...[0m
+[0;32mI (1408) app_init: ESP-IDF:          v5.5.4[0m
+[0;32mI (1412) efuse_init: Min chip rev:     v3.1[0m
+[0;32mI (1416) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (1420) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (1424) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (1431) heap_init: At 4FF5FCB0 len 0005B310 (364 KiB): RETENT_RAM[0m
+[0;32mI (1436) heap_init: At 4FFBAFC0 len 00004BF0 (18 KiB): RAM[0m
+[0;32mI (1446) heap_init: At 50108080 len 00007F80 (31 KiB): RTCRAM[0m
+[0;32mI (1447) heap_init: At 301001B8 len 00001E48 (7 KiB): TCM[0m
+[0;32mI (1605) esp_psram: Adding pool of 30784K of PSRAM memory to heap allocator[0m
+[0;32mI (1605) esp_psram: Adding pool of 5K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator[0m
+[0;32mI (1611) esp_psram: Adding pool of 27K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator[0m
+[0;32mI (1623) spi_flash: detected chip: gd[0m
+[0;32mI (1626) spi_flash: flash io: dio[0m
+[0;32mI (1629) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (1635) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (1642) main_task: Started on CPU0[0m
+[0;32mI (1645) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (1653) main_task: Calling app_main()[0m
+[0;32mI (1656) system: System initialization start[0m
+[0;32mI (1660) PSRAM_ARB: [PSRAM_ARB] apply display_first=1 psram_read_first=0 camera_write_regulator=1[0m
+[0;32mI (1669) PSRAM_ARB: [PSRAM_ARB] source=apply mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (1680) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (1690) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (1698) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[0;32mI (1706) bsp_lcd: Backlight on[0m
+[0;32mI (1709) bsp_lcd: MIPI DSI PHY powered on[0m
+[0;32mI (1714) ek79007: version: 1.0.4[0m
+[0;32mI (1921) bsp_lcd: LCD init done[0m
+[0;32mI (1921) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (1921) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x481f0a80 fb1=0x4831cb00 fb2=0x48448b80 psram_free=27212KB internal_free=387KB[0m
+[0;33mW (1933) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (1945) bsp_touch: I2C bus initialized[0m
+[0;32mI (1948) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[1;31mE (1976) lcd_panel.io.i2c: panel_io_i2c_rx_buffer(145): i2c transaction failed[0m
+[1;31mE (1976) GT911: touch_gt911_read_cfg(419): GT911 read error![0m
+[1;31mE (1977) GT911: esp_lcd_touch_new_i2c_gt911(169): GT911 init failed[0m
+[1;31mE (1983) GT911: Error (0x103)! Touch controller GT911 initialization failed![0m
+[0;33mW (1990) bsp_touch: GT911 init at 0x5D failed: ESP_ERR_INVALID_STATE[0m
+[0;32mI (1996) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[0;32mI (2025) GT911: TouchPad_ID:0x39,0x31,0x31[0m
+[0;32mI (2025) GT911: TouchPad_Config_Version:89[0m
+[0;32mI (2025) bsp_touch: GT911 detected at I2C address 0x14[0m
+[0;32mI (2026) bsp_touch: Touch init done[0m
+[1;31mE (2029) bsp_motor: validate_motor_gpio(73): motor 0 PWM A GPIO is not configured[0m
+[1;31mE (2037) bsp_motor: init_motor_mcpwm(110): motor GPIO validation failed[0m
+[1;31mE (2043) bsp_motor: bsp_motor_init(162): init motor 0 MCPWM failed[0m
+[0;32mI (2049) bsp_encoder: encoder BSP initialized[0m
+[0;32mI (2054) esp_lvgl:adapter: LVGL adapter initialized successfully[0m
+[0;32mI (2062) esp_lvgl:bridge_v9: Initializing hardware resources[0m
+[0;32mI (2064) esp_lvgl:bridge_v9: Hardware resources initialized successfully[0m
+[0;32mI (2071) bsp_lvgl: Display registered (1024x600)[0m
+[0;33mW (2075) esp_lvgl:touch: LV_USE_GESTURE_RECOGNITION is disabled; only single-point pointer events are available[0m
+[0;32mI (2085) esp_lvgl:touch: Touch input device registered successfully (IRQ mode: disabled)[0m
+[0;32mI (2093) bsp_lvgl: Touch registered[0m
+[0;32mI (2096) esp_lvgl:adapter: LVGL task started successfully[0m
+[0;32mI (2097) esp_lvgl:bridge: Initializing hardware resources[0m
+[0;32mI (2101) bsp_lvgl: LVGL adapter started[0m
+[0;32mI (2106) esp_lvgl:bridge: Hardware resources initialized successfully[0m
+[0;32mI (2244) vision_preview: preview initialized: 640x375[0m
+[0;32mI (2246) app_ui_dashboard: [BLUE_MARK] UI marker button installed[0m
+[0;32mI (2306) esp_eth.netif.netif_glue: e8:f6:0a:e1:7a:d1[0m
+[0;32mI (2306) esp_eth.netif.netif_glue: ethernet attached to netif[0m
+[0;32mI (6307) eth_example: Ethernet Started[0m
+[0;32mI (6307) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C[0m
+[0;33mW (6310) vision_app: YOLO inference disabled for bandwidth A/B test[0m
+[0;32mI (6311) cam_sensor: MIPI PHY LDO ch3 = 2500 mV[0m
+[0;32mI (6315) cam_sensor: Using shared I2C bus for SCCB[0m
+[0;32mI (6321) sc2336: Detected Camera sensor PID=0xcb3a[0m
+[0;32mI (6324) cam_sensor: Detected: SC2336[0m
+[0;32mI (6328) cam_sensor: Format: MIPI_2lane_24Minput_RAW10_640x480_50fps  640x480  50fps[0m
+[0;32mI (6430) cam_sensor: [CAM_DIAG] active_write=600KB/s frame=600KB fps=50 write_fps=1 period=1600ms duty=1600ms buffers=3 psram_free=23863KB[0m
+[0;32mI (6438) cam_sensor: cam_sensor_init OK  [640x480 RGB565, 600 KB/frame][0m
+[0;32mI (6444) cam_sensor: Streaming started (capture task priority=10 core=0 duty=1600ms)[0m
+[0;32mI (6445) cam_sensor: [CAM_DIAG] capture #1 receive=0ms max=0ms timeouts=0 core=0 prio=10 stack_hwm=3232[0m
+[0;33mW (6461) vision_app: vision task disabled; camera stream only diagnostic mode[0m
+[0;32mI (6468) vision_app: camera-only heartbeat started interval=1000ms[0m
+[0;32mI (6474) system: System initialization done[0m
+[0;32mI (7468) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=1 timeouts=0 last_receive=0ms max_receive=0ms age=1023ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (8084) cam_sensor: [CAM_DIAG] capture #2 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[1;31mE (8289) bsp_lcd: [BLUE_MARK] #1 source=ui_button time_us=6837656 tick=6647 core=1 psram_free=23863KB internal_free=94KB[0m
+[0;32mI (8290) bsp_lcd: [LCD_DIAG] 1024x600 RGB16 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1200KB dma2d=1[0m
+[0;32mI (8298) bsp_lcd: [LCD_DIAG] active_read=55738KB/s fb0=0x481f0a80 fb1=0x4831cb00 fb2=0x48448b80 psram_free=23863KB internal_free=94KB[0m
+[0;33mW (8309) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (8321) PSRAM_ARB: [PSRAM_ARB] source=blue_mark mst=0x400f45a4 slv=0x00038000 arqos=0x400f45b4 awqos=0x40023564 psram_fctrl=0x40000001[0m
+[0;32mI (8333) PSRAM_ARB: [PSRAM_ARB] decoded mst cpu=4 cache=10 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4 slv_psram=7[0m
+[0;32mI (8342) PSRAM_ARB: [PSRAM_ARB] decoded arqos cpu=4 cache=11 dma2d=5 csi_m0=4 lcd_m1=15 pdma=4[0m
+[0;32mI (8351) PSRAM_ARB: [PSRAM_ARB] decoded awqos cpu=4 cache=6 dma2d=5 csi_m0=3 lcd_m1=2 pdma=4[0m
+[1;31mE (8359) pipe_diag: [PIPE_DIAG] blue_dump source=ui_button blue=1 frame=0 total_frames=0 camera_timeouts=0 roi_ok=0 roi_skip=0 model_runs=0 preview_ok=0/0 yolo_ppa=0 preview_ppa=0[0m
+[1;31mE (8374) pipe_diag: [PPA_TRACE] recent count=0[0m
+[1;31mE (8379) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (8387) bsp_lcd: [BLUE_MARK] fb_hash t_us=4693685 fb0=58fc0805 fb1=33a9f745 fb2=d82057c5[0m
+[1;31mE (8395) bsp_lcd: [BLUE_MARK] fb_hash t_us=4793685 fb0=58fc0805 fb1=33a9f745 fb2=d82057c5[0m
+[1;31mE (8403) bsp_lcd: [BLUE_MARK] fb_hash t_us=4893687 fb0=58fc0805 fb1=388ec25e fb2=d82057c5[0m
+[1;31mE (8410) bsp_lcd: [BLUE_MARK] fb_hash t_us=5009570 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8418) bsp_lcd: [BLUE_MARK] fb_hash t_us=5108692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8426) bsp_lcd: [BLUE_MARK] fb_hash t_us=5208696 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8434) bsp_lcd: [BLUE_MARK] fb_hash t_us=5308692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8442) bsp_lcd: [BLUE_MARK] fb_hash t_us=5408696 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8450) bsp_lcd: [BLUE_MARK] fb_hash t_us=5508692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8458) bsp_lcd: [BLUE_MARK] fb_hash t_us=5608692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8466) bsp_lcd: [BLUE_MARK] fb_hash t_us=5708694 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8474) bsp_lcd: [BLUE_MARK] fb_hash t_us=5808692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8482) bsp_lcd: [BLUE_MARK] fb_hash t_us=5908692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8489) bsp_lcd: [BLUE_MARK] fb_hash t_us=6008692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8497) bsp_lcd: [BLUE_MARK] fb_hash t_us=6108696 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8505) bsp_lcd: [BLUE_MARK] fb_hash t_us=6208692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8513) bsp_lcd: [BLUE_MARK] fb_hash t_us=6308694 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8521) bsp_lcd: [BLUE_MARK] fb_hash t_us=6408692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8529) bsp_lcd: [BLUE_MARK] fb_hash t_us=6508692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8537) bsp_lcd: [BLUE_MARK] fb_hash t_us=6608696 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8545) bsp_lcd: [BLUE_MARK] fb_hash t_us=6708693 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8553) bsp_lcd: [BLUE_MARK] fb_hash t_us=6808692 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8561) bsp_lcd: [BLUE_MARK] fb_hash t_us=6908693 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[1;31mE (8568) bsp_lcd: [BLUE_MARK] fb_hash t_us=6926691 fb0=58fc0805 fb1=58fc0805 fb2=58fc0805[0m
+[0;32mI (8576) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=600KB/s count=2 timeouts=0 last_receive=38ms max_receive=38ms age=492ms latest=0 app=-1 psram_free=23863KB[0m
+[1;31mE (8594) app_ui_dashboard: [BLUE_MARK] dashboard unavailable heap=94KB psram=23863KB[0m
+[0;32mI (8603) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=2 timeouts=0 last_receive=38ms max_receive=38ms age=519ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (9619) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=2 timeouts=0 last_receive=38ms max_receive=38ms age=1535ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (9684) cam_sensor: [CAM_DIAG] capture #3 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (10626) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=3 timeouts=0 last_receive=38ms max_receive=38ms age=942ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (11284) cam_sensor: [CAM_DIAG] capture #4 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (11633) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=4 timeouts=0 last_receive=38ms max_receive=38ms age=349ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (12640) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=4 timeouts=0 last_receive=38ms max_receive=38ms age=1356ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (12884) cam_sensor: [CAM_DIAG] capture #5 receive=38ms max=38ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (13647) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=5 timeouts=0 last_receive=38ms max_receive=38ms age=763ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (14654) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=6 timeouts=0 last_receive=38ms max_receive=38ms age=170ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (15661) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=6 timeouts=0 last_receive=38ms max_receive=38ms age=1177ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (16668) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=7 timeouts=0 last_receive=38ms max_receive=38ms age=583ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (17675) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=7 timeouts=0 last_receive=38ms max_receive=38ms age=1591ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (18682) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=8 timeouts=0 last_receive=38ms max_receive=38ms age=998ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (19689) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=9 timeouts=0 last_receive=38ms max_receive=38ms age=405ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (20696) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=9 timeouts=0 last_receive=38ms max_receive=38ms age=1412ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (21703) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=10 timeouts=0 last_receive=38ms max_receive=38ms age=819ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (22710) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=11 timeouts=0 last_receive=38ms max_receive=38ms age=226ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (23717) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=11 timeouts=0 last_receive=38ms max_receive=38ms age=1233ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (24724) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=12 timeouts=0 last_receive=38ms max_receive=38ms age=639ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (25731) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=13 timeouts=0 last_receive=38ms max_receive=38ms age=46ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (26739) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=13 timeouts=0 last_receive=38ms max_receive=38ms age=1054ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (27746) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=14 timeouts=0 last_receive=38ms max_receive=38ms age=460ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (28753) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=14 timeouts=0 last_receive=38ms max_receive=38ms age=1467ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (29760) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=15 timeouts=0 last_receive=38ms max_receive=38ms age=874ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (30767) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=16 timeouts=0 last_receive=38ms max_receive=38ms age=281ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (31774) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=16 timeouts=0 last_receive=38ms max_receive=38ms age=1288ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (32781) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=17 timeouts=0 last_receive=38ms max_receive=38ms age=695ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (33788) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=18 timeouts=0 last_receive=38ms max_receive=38ms age=102ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (34795) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=18 timeouts=0 last_receive=38ms max_receive=38ms age=1109ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (35802) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=19 timeouts=0 last_receive=38ms max_receive=38ms age=516ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (36809) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=19 timeouts=0 last_receive=38ms max_receive=38ms age=1523ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (37816) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=20 timeouts=0 last_receive=38ms max_receive=38ms age=930ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (38823) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=21 timeouts=0 last_receive=38ms max_receive=38ms age=337ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (39830) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=21 timeouts=0 last_receive=38ms max_receive=38ms age=1344ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (40837) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=22 timeouts=0 last_receive=38ms max_receive=38ms age=751ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (41844) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=23 timeouts=0 last_receive=38ms max_receive=38ms age=158ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (42851) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=23 timeouts=0 last_receive=38ms max_receive=38ms age=1165ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (43858) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=24 timeouts=0 last_receive=38ms max_receive=38ms age=572ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (44865) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=24 timeouts=0 last_receive=38ms max_receive=38ms age=1579ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (45872) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=25 timeouts=0 last_receive=38ms max_receive=38ms age=985ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (46879) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=26 timeouts=0 last_receive=38ms max_receive=38ms age=392ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (47886) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=26 timeouts=0 last_receive=38ms max_receive=38ms age=1399ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (48893) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=27 timeouts=0 last_receive=38ms max_receive=38ms age=806ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (49900) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=28 timeouts=0 last_receive=38ms max_receive=38ms age=213ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (50907) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=28 timeouts=0 last_receive=38ms max_receive=38ms age=1220ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (51914) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=29 timeouts=0 last_receive=38ms max_receive=38ms age=627ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (52921) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=30 timeouts=0 last_receive=38ms max_receive=38ms age=34ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (53928) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=30 timeouts=0 last_receive=38ms max_receive=38ms age=1041ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (54935) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=31 timeouts=0 last_receive=38ms max_receive=38ms age=448ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (55942) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=31 timeouts=0 last_receive=38ms max_receive=38ms age=1454ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (56949) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=32 timeouts=0 last_receive=38ms max_receive=38ms age=862ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (57956) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=33 timeouts=0 last_receive=38ms max_receive=38ms age=268ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (58963) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=33 timeouts=0 last_receive=38ms max_receive=38ms age=1276ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (59970) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=34 timeouts=0 last_receive=38ms max_receive=38ms age=683ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (60977) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=35 timeouts=0 last_receive=38ms max_receive=38ms age=90ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (61984) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=35 timeouts=0 last_receive=38ms max_receive=38ms age=1097ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (62991) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=36 timeouts=0 last_receive=38ms max_receive=38ms age=504ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (63998) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=36 timeouts=0 last_receive=38ms max_receive=38ms age=1511ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (65005) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=37 timeouts=0 last_receive=38ms max_receive=38ms age=917ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (66012) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=38 timeouts=0 last_receive=38ms max_receive=38ms age=324ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (67019) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=38 timeouts=0 last_receive=38ms max_receive=38ms age=1331ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (68026) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=39 timeouts=0 last_receive=38ms max_receive=38ms age=738ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (69033) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=40 timeouts=0 last_receive=38ms max_receive=38ms age=145ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (70040) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=40 timeouts=0 last_receive=38ms max_receive=38ms age=1152ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (71047) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=41 timeouts=0 last_receive=38ms max_receive=38ms age=559ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (72054) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=41 timeouts=0 last_receive=38ms max_receive=38ms age=1566ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (73061) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=42 timeouts=0 last_receive=38ms max_receive=38ms age=973ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (74068) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=43 timeouts=0 last_receive=38ms max_receive=38ms age=379ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (75075) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=43 timeouts=0 last_receive=38ms max_receive=38ms age=1386ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (76082) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=44 timeouts=0 last_receive=38ms max_receive=38ms age=793ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (77089) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=45 timeouts=0 last_receive=38ms max_receive=38ms age=200ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (78096) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=45 timeouts=0 last_receive=38ms max_receive=38ms age=1207ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (79103) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=46 timeouts=0 last_receive=38ms max_receive=38ms age=614ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (80110) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=47 timeouts=0 last_receive=38ms max_receive=38ms age=21ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (81117) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=47 timeouts=0 last_receive=38ms max_receive=38ms age=1028ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (82124) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=48 timeouts=0 last_receive=38ms max_receive=38ms age=435ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (83131) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=48 timeouts=0 last_receive=38ms max_receive=38ms age=1442ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (84138) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=49 timeouts=0 last_receive=38ms max_receive=38ms age=849ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (85145) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=50 timeouts=0 last_receive=38ms max_receive=38ms age=256ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (86152) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=50 timeouts=0 last_receive=38ms max_receive=38ms age=1263ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (87159) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=51 timeouts=0 last_receive=38ms max_receive=38ms age=670ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (88166) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=52 timeouts=0 last_receive=38ms max_receive=38ms age=77ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (89173) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=52 timeouts=0 last_receive=38ms max_receive=38ms age=1084ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (90180) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=53 timeouts=0 last_receive=38ms max_receive=38ms age=491ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (91187) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=53 timeouts=0 last_receive=38ms max_receive=38ms age=1498ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (92194) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=54 timeouts=0 last_receive=38ms max_receive=38ms age=905ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (93201) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=55 timeouts=0 last_receive=38ms max_receive=38ms age=312ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (94208) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=55 timeouts=0 last_receive=38ms max_receive=38ms age=1319ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (95215) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=56 timeouts=0 last_receive=38ms max_receive=38ms age=726ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (96222) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=57 timeouts=0 last_receive=38ms max_receive=38ms age=133ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (97229) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=57 timeouts=0 last_receive=38ms max_receive=38ms age=1140ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (98236) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=58 timeouts=0 last_receive=38ms max_receive=38ms age=547ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (99243) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=58 timeouts=0 last_receive=38ms max_receive=38ms age=1554ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (100250) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=59 timeouts=0 last_receive=38ms max_receive=38ms age=961ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (101257) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=60 timeouts=0 last_receive=38ms max_receive=38ms age=368ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (102264) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=60 timeouts=0 last_receive=38ms max_receive=38ms age=1375ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (103271) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=61 timeouts=0 last_receive=38ms max_receive=38ms age=782ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (104278) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=62 timeouts=0 last_receive=38ms max_receive=38ms age=189ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (105285) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=62 timeouts=0 last_receive=38ms max_receive=38ms age=1196ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (106292) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=63 timeouts=0 last_receive=38ms max_receive=38ms age=603ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (107299) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=64 timeouts=0 last_receive=38ms max_receive=38ms age=10ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (108306) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=64 timeouts=0 last_receive=38ms max_receive=38ms age=1017ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (109313) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=65 timeouts=0 last_receive=38ms max_receive=38ms age=424ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (110320) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=65 timeouts=0 last_receive=38ms max_receive=38ms age=1431ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (111327) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=66 timeouts=0 last_receive=38ms max_receive=38ms age=838ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (112334) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=67 timeouts=0 last_receive=38ms max_receive=38ms age=245ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (113341) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=67 timeouts=0 last_receive=38ms max_receive=38ms age=1252ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (114348) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=68 timeouts=0 last_receive=38ms max_receive=38ms age=659ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (115355) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=69 timeouts=0 last_receive=38ms max_receive=38ms age=66ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (116362) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=69 timeouts=0 last_receive=38ms max_receive=38ms age=1073ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (117369) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=70 timeouts=0 last_receive=38ms max_receive=38ms age=480ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (118376) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=70 timeouts=0 last_receive=38ms max_receive=38ms age=1487ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (119383) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=71 timeouts=0 last_receive=38ms max_receive=38ms age=894ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (120390) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=72 timeouts=0 last_receive=38ms max_receive=38ms age=301ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (121397) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=72 timeouts=0 last_receive=38ms max_receive=38ms age=1308ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (122404) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=73 timeouts=0 last_receive=38ms max_receive=38ms age=715ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (123411) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=74 timeouts=0 last_receive=38ms max_receive=38ms age=122ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (124418) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=74 timeouts=0 last_receive=38ms max_receive=38ms age=1129ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (125425) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=75 timeouts=0 last_receive=38ms max_receive=38ms age=536ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (126432) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=75 timeouts=0 last_receive=38ms max_receive=38ms age=1543ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (127439) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=76 timeouts=0 last_receive=38ms max_receive=38ms age=950ms latest=0 app=-1 psram_free=23863KB[0m
+[0;32mI (128446) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=77 timeouts=0 last_receive=38ms max_receive=38ms age=357ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (129453) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=77 timeouts=0 last_receive=38ms max_receive=38ms age=1364ms latest=1 app=-1 psram_free=23863KB[0m
+[0;32mI (130460) cam_sensor: [CAM_DIAG] source=cam_heartbeat streaming=1 frame=640x480 fps=50 active_write=600KB/s count=78 timeouts=0 last_receive=38ms max_receive=38ms age=771ms latest=0 app=-1 psram_free=23863KB[0m
+[0m
+Done
+
+Script done on 2026-06-28 13:42:35+08:00 [COMMAND_EXIT_CODE="0"]
