@@ -123,6 +123,20 @@ static const char *belt_name(sorter_belt_t v) { return v == SORTER_BELT_A ? "A" 
 static const char *direction_name(sorter_motor_direction_t v) { return v == SORTER_MOTOR_FORWARD ? "forward" : v == SORTER_MOTOR_REVERSE ? "reverse" : v == SORTER_MOTOR_BRAKE ? "brake" : "stop"; }
 static const char *scheduler_state_name(const sorter_scheduler_t *s) { return s->estop ? "estop" : s->paused_after_estop ? "paused" : "running"; }
 
+static sorter_package_class_t next_failed_class(sorter_scheduler_t *s)
+{
+    static const sorter_package_class_t classes[] = { SORTER_CLASS_1, SORTER_CLASS_2, SORTER_CLASS_3 };
+    sorter_package_class_t cls = classes[s->failed_class_cursor % (int)(sizeof(classes) / sizeof(classes[0]))];
+    s->failed_class_cursor = (s->failed_class_cursor + 1) % (int)(sizeof(classes) / sizeof(classes[0]));
+    return cls;
+}
+
+static sorter_package_class_t normalize_vision_class(sorter_scheduler_t *s, sorter_package_class_t cls)
+{
+    if (cls == SORTER_CLASS_UNKNOWN || cls == SORTER_CLASS_VISION_FAILED) return next_failed_class(s);
+    return cls;
+}
+
 static void emit_motor(sorter_scheduler_t *s, int id, sorter_motor_direction_t dir, int speed, bool force)
 {
     if (id < 1 || id > SORTER_MAX_MOTORS) return;
@@ -341,6 +355,7 @@ void sorter_scheduler_vision_result(sorter_scheduler_t *s, int id, sorter_packag
     if (s->estop) { emit_status(s, "ignored_estop"); return; }
     sorter_package_track_t *p = find_package(s, id);
     if (!p || p->state != SORTER_STATE_WAITING_VISION) { emit_fault(s, "vision_without_package", id, 0); return; }
+    cls = normalize_vision_class(s, cls);
     p->cls = cls;
     if (cls == SORTER_CLASS_ERROR) { release_package(s, p, SORTER_STATE_ERROR); emit_status(s, "vision_error"); return; }
     transition_state(s, p, SORTER_STATE_WAITING_AB); emit_status(s, "vision");
@@ -456,7 +471,7 @@ static bool service_state_timeouts(sorter_scheduler_t *s)
         if (now - p->state_enter_ms < (int64_t)p->state_timeout_ms) continue;
         switch (p->state) {
         case SORTER_STATE_WAITING_VISION:
-            p->cls = SORTER_CLASS_VISION_FAILED; transition_state(s, p, SORTER_STATE_WAITING_AB); emit_status(s, "timeout_vision"); return true;
+            p->cls = next_failed_class(s); transition_state(s, p, SORTER_STATE_WAITING_AB); emit_status(s, "timeout_vision"); return true;
         case SORTER_STATE_WAITING_AB:
             transition_state(s, p, SORTER_STATE_HOLDING_AT_S2); p->pos_mm = s->config.a_start_to_vision_mm + s->config.a_vision_to_b_mm; emit_motor(s, 1, SORTER_MOTOR_STOP, 0, false);
             if (release_s2_to_b(s, p)) { transition_state(s, p, SORTER_STATE_HOLDING_AT_S2); emit_status(s, "timeout_a_to_b"); }

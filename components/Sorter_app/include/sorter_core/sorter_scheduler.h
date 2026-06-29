@@ -100,6 +100,7 @@ typedef struct {
     bool s4_sensor_active;
     int s2_held_package_id;
     int s4_held_package_id;
+    int failed_class_cursor;
     sorter_motor_command_t last_commands[SORTER_MAX_MOTORS];
 } sorter_scheduler_t;
 
