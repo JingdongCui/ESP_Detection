@@ -16,12 +16,26 @@
   - UI 调试面板已改为 S1-S4 四个有色状态块，ON 绿色，OFF 深色/无色，invalid 显示 `--`。
 - `idf.py build` 已通过。
 - `idf.py flash monitor` 未执行成功：当前环境无可用串口，自动扫描的 `/dev/ttyS*` 均打不开。
+- 本轮已核对真实硬件链路和以太网模拟链路：
+  - 两者核心调度器一致，最终都进入 `sorter_scheduler_*`，电机命令也统一走 `scheduler_send()` / `apply_motor_command_line()`。
+  - 真实链路：S1-S4 GPIO 10 ms 轮询、20 ms 防抖；S1 打开视觉窗口；本地视觉 `vision_app.cpp` 在检测到类别时调用 `sorting_sim_control_submit_vision_class()`；无识别结果时由 S2 到达或视觉超时触发失败分配。
+  - 以太网模拟：`VISION_FRAME`/`VISION_RESULT`/`SENSOR`/`DISTANCE` 文本协议进入同一个控制层和调度器。
+  - 主要不一致风险：真实 GPIO 有电平/防抖/时序抖动；真实视觉可能晚于 S2；传感器真实链路不带 package id；编码器未接时真实 C 段不能依赖 `DISTANCE`，会走超时 fallback。
+- 已修改识别失败分配：
+  - `SORTER_CLASS_VISION_FAILED` 和直接传入的 `SORTER_CLASS_UNKNOWN` 现在进入调度器时按 class1、class2、class3、class1... 轮番改写为实际类别。
+  - 视觉超时 `timeout_vision` 也使用同一个轮转分配。
+- 验证：
+  - `python -m unittest esp32_sorter_sim_py.tests.test_sorter_scheduler_c`：通过。
+  - `cd /home/kazeform/2026esp/merge_project && idf.py build`：通过；仍仅有既有 `global_statusbar` unused warning。
+  - `timeout 120s idf.py flash monitor`：失败，当前环境无可用串口；`/dev/ttyS*` 均无法打开。
 
 ## Immediate Next Step
 
 1. 连接真实 ESP32-P4 设备串口后，在 `merge_project` 执行 `idf.py flash monitor`。
 2. 切到 REAL/SENSOR ON 模式，逐个触发 S1-S4，观察 UI 状态块和 `sort sensor Sx ...` 日志是否同步变化。
-3. 若某路 UI 不变但日志有 raw change，继续查 active level/防抖/调度输入；若日志也无 raw change，优先查 GPIO 号、线序、电平和下拉配置。
+3. 实机验证失败分配：连续制造 4 次无识别/识别失败，确认 `PKG ... class=class1/class2/class3/class1` 和对应出口一致。
+4. 若对照以太网模拟，编码器未接时不要用上位机 `DISTANCE` 作为成功依据；应让 C 段走 timeout fallback，才更接近真实硬件。
+5. 若某路 UI 不变但日志有 raw change，继续查 active level/防抖/调度输入；若日志也无 raw change，优先查 GPIO 号、线序、电平和下拉配置。
 
 ## Verification Standard
 

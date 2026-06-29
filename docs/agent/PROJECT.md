@@ -61,6 +61,27 @@ idf.py flash monitor
   - `sort sensor Sx stable change raw_level=... active=... debounce_ms=20`
 - UI 调试面板显示 S1-S4 四个状态块：绿色填充表示 ON，深色/无明显颜色表示 OFF，`--` 表示当前未有效读取。
 
+## Merge Project Sorter Control Link
+
+- 真实硬件链路和以太网模拟链路的共同核心是：
+  - `components/Sorter_app/sorting_sim_control.c`
+  - `components/Sorter_app/sorter_core/sorter_scheduler.c`
+- 真实链路：
+  - `real_io_task()` 每 10 ms 读取 S1-S4，20 ms 防抖后调用 `sorter_scheduler_sensor()`。
+  - S1 触发后打开视觉窗口；`vision_app.cpp` 检测到目标时调用 `sorting_sim_control_submit_vision_class()`。
+  - 若无检测结果，S2 到达或视觉状态超时会触发识别失败处理。
+- 以太网模拟链路：
+  - `VISION_FRAME` 可同时模拟 S1 和分类。
+  - `VISION_RESULT` 可按 package id 或当前真实视觉窗口提交分类。
+  - `SENSOR` 模拟 S2-S4 事件，`DISTANCE` 模拟编码器距离。
+- 对照风险：
+  - 上位机模拟若发送 package id，会比真实传感器更理想；真实传感器事件当前以 `package_id=0` 进入调度器，由调度器选择最早候选包裹。
+  - 编码器未接时，真实链路不会可靠调用 `sorter_scheduler_distance()`；C 段完成依赖 `c_fallback_busy_ms` 超时。以太网模拟若发送 `DISTANCE`，不能代表该硬件状态。
+  - 上位机模拟没有真实 GPIO 电平、active level、线序、防抖和推理延迟风险；实机仍需用 `sort sensor Sx ...`、`PKG`、`MOTOR` 日志验证。
+- 识别失败分配策略：
+  - `SORTER_CLASS_VISION_FAILED` 和直接提交的 `SORTER_CLASS_UNKNOWN/class=none` 进入调度器时按 class1、class2、class3、class1... 轮番分配。
+  - 视觉超时 `timeout_vision` 使用同一个轮转游标。
+
 ## Blue-Screen Long-Term Findings
 
 - 蓝屏问题当前最像 LCD DSI/DPI scanout starvation，而不是应用层画蓝或 framebuffer 被写坏。
