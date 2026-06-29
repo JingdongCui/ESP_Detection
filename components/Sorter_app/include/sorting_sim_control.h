@@ -34,6 +34,28 @@ typedef struct {
     float encoder_distance_mm[3];
 } sorting_hardware_status_t;
 
+typedef struct {
+    int id;
+    sorter_package_class_t cls;
+    sorter_package_state_t state;
+    sorter_belt_t belt;
+    float pos_mm;
+    bool occupied;
+} sorting_package_debug_t;
+
+typedef struct {
+    size_t active_count;
+    int max_packages;
+    int next_package_id;
+    int vision_package_id;
+    bool vision_classified;
+    bool vision_s1_active;
+    int b_owner;
+    int c_owner;
+    sorter_package_class_t next_failed_class;
+    sorting_package_debug_t packages[SORTER_MAX_PACKAGES];
+} sorting_runtime_debug_t;
+
 void sorting_sim_control_reset(void);
 void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_send_fn_t send_fn, void *send_ctx);
 void sorting_sim_control_tick(sorting_sim_send_fn_t send_fn, void *send_ctx);
@@ -46,6 +68,7 @@ void sorting_sim_control_set_sensor_input_enabled(bool enabled);
 void sorting_sim_control_submit_vision_class(sorter_package_class_t cls, float confidence);
 void sorting_sim_control_simulate_class(sorter_package_class_t cls, sorting_sim_send_fn_t send_fn, void *send_ctx);
 void sorting_sim_control_get_hardware_status(sorting_hardware_status_t *status);
+void sorting_sim_control_get_runtime_debug(sorting_runtime_debug_t *status);
 void sorting_sim_control_start_motor_test(void);
 void sorting_sim_control_clear_encoder_distance(int index);
 

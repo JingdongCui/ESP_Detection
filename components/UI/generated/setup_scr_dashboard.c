@@ -165,6 +165,9 @@ static lv_obj_t * scr_dashboard_debug_label_enc_a = NULL;
 static lv_obj_t * scr_dashboard_debug_label_enc_b = NULL;
 static lv_obj_t * scr_dashboard_debug_label_enc_c = NULL;
 static lv_obj_t * scr_dashboard_debug_label_mtest = NULL;
+static lv_obj_t * scr_dashboard_debug_label_runtime_summary = NULL;
+static lv_obj_t * scr_dashboard_debug_label_runtime_vision = NULL;
+static lv_obj_t * scr_dashboard_debug_package_label[SORTER_MAX_PACKAGES] = { NULL };
 static lv_timer_t * scr_dashboard_debug_timer = NULL;
 static sorting_debug_settings_t s_dashboard_debug_settings;
 static void register_sys_events(event_table_t *table);
@@ -517,6 +520,45 @@ static const char *dashboard_debug_mode_text(sorting_debug_mode_t mode)
     }
 }
 
+static const char *dashboard_debug_class_text(sorter_package_class_t cls)
+{
+    switch (cls) {
+    case SORTER_CLASS_1: return "C1";
+    case SORTER_CLASS_2: return "C2";
+    case SORTER_CLASS_3: return "C3";
+    case SORTER_CLASS_FREE: return "FREE";
+    case SORTER_CLASS_ERROR: return "ERR";
+    case SORTER_CLASS_VISION_FAILED: return "FAIL";
+    default: return "UNK";
+    }
+}
+
+static const char *dashboard_debug_state_short(sorter_package_state_t state)
+{
+    switch (state) {
+    case SORTER_STATE_WAITING_VISION: return "VISION";
+    case SORTER_STATE_WAITING_AB: return "WAIT_AB";
+    case SORTER_STATE_HOLDING_AT_S2: return "S2_HOLD";
+    case SORTER_STATE_ON_B_TO_CLASS1: return "B_TO_C1";
+    case SORTER_STATE_ON_B_TO_S4: return "B_TO_S4";
+    case SORTER_STATE_HOLDING_AT_S4: return "S4_HOLD";
+    case SORTER_STATE_ON_C_EXIT: return "C_EXIT";
+    case SORTER_STATE_DONE: return "DONE";
+    case SORTER_STATE_ERROR: return "ERROR";
+    default: return "EMPTY";
+    }
+}
+
+static const char *dashboard_debug_belt_text(sorter_belt_t belt)
+{
+    switch (belt) {
+    case SORTER_BELT_A: return "A";
+    case SORTER_BELT_B: return "B";
+    case SORTER_BELT_C: return "C";
+    default: return "-";
+    }
+}
+
 static lv_obj_t *dashboard_debug_create_label(lv_obj_t *parent, int x, int y, int w, const char *text)
 {
     lv_obj_t *label = lv_label_create(parent);
@@ -526,6 +568,14 @@ static lv_obj_t *dashboard_debug_create_label(lv_obj_t *parent, int x, int y, in
     lv_label_set_long_mode(label, LV_LABEL_LONG_CLIP);
     lv_obj_set_style_text_color(label, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(label, &lv_font_Misans_Heavy_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    return label;
+}
+
+static lv_obj_t *dashboard_debug_create_package_label(lv_obj_t *parent, int x, int y, int w, const char *text)
+{
+    lv_obj_t *label = dashboard_debug_create_label(parent, x, y, w, text);
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xB8C9CA), LV_PART_MAIN | LV_STATE_DEFAULT);
     return label;
 }
 
@@ -609,6 +659,8 @@ static void dashboard_debug_refresh(void)
     sorting_sim_control_get_settings(&s_dashboard_debug_settings);
     sorting_hardware_status_t hw_status;
     sorting_sim_control_get_hardware_status(&hw_status);
+    sorting_runtime_debug_t runtime_status;
+    sorting_sim_control_get_runtime_debug(&runtime_status);
     char text[96];
     snprintf(text, sizeof(text), "MODE %s", dashboard_debug_mode_text(s_dashboard_debug_settings.mode));
     lv_label_set_text(scr_dashboard_debug_label_mode, text);
@@ -643,6 +695,36 @@ static void dashboard_debug_refresh(void)
     lv_label_set_text(scr_dashboard_debug_label_enc_c, text);
     snprintf(text, sizeof(text), "MTEST %s", hw_status.motor_test_running ? "RUN" : "IDLE");
     lv_label_set_text(scr_dashboard_debug_label_mtest, text);
+    snprintf(text, sizeof(text), "PKG %u/%d NEXT #%d FAIL->%s",
+             (unsigned)runtime_status.active_count,
+             runtime_status.max_packages,
+             runtime_status.next_package_id,
+             dashboard_debug_class_text(runtime_status.next_failed_class));
+    lv_label_set_text(scr_dashboard_debug_label_runtime_summary, text);
+    snprintf(text, sizeof(text), "VISION #%d %s S1:%s  B:%d C:%d",
+             runtime_status.vision_package_id,
+             runtime_status.vision_classified ? "DONE" : "WAIT",
+             runtime_status.vision_s1_active ? "ON" : "OFF",
+             runtime_status.b_owner,
+             runtime_status.c_owner);
+    lv_label_set_text(scr_dashboard_debug_label_runtime_vision, text);
+    int shown = 0;
+    for (int i = 0; i < SORTER_MAX_PACKAGES; ++i) {
+        const sorting_package_debug_t *pkg = &runtime_status.packages[i];
+        if (!pkg->occupied) continue;
+        if (shown >= SORTER_MAX_PACKAGES) break;
+        snprintf(text, sizeof(text), "#%d %s %-7s %-6s %5.1f",
+                 pkg->id,
+                 dashboard_debug_belt_text(pkg->belt),
+                 dashboard_debug_state_short(pkg->state),
+                 dashboard_debug_class_text(pkg->cls),
+                 (double)pkg->pos_mm);
+        lv_label_set_text(scr_dashboard_debug_package_label[shown], text);
+        shown++;
+    }
+    for (; shown < SORTER_MAX_PACKAGES; ++shown) {
+        lv_label_set_text(scr_dashboard_debug_package_label[shown], "--");
+    }
 }
 
 static void dashboard_debug_mode_event_handler(lv_event_t * e)
@@ -774,6 +856,19 @@ static void create_dashboard_debug_panel(lv_obj_t *parent)
     dashboard_debug_create_button(scr_dashboard_debug_panel, 500, 198, 58, 30, "CLR", dashboard_debug_encoder_clear_event_handler, (void *)1);
     scr_dashboard_debug_label_enc_c = dashboard_debug_create_label(scr_dashboard_debug_panel, 590, 204, 190, "ENC C --");
     dashboard_debug_create_button(scr_dashboard_debug_panel, 786, 198, 58, 30, "CLR", dashboard_debug_encoder_clear_event_handler, (void *)2);
+
+    dashboard_debug_create_label(scr_dashboard_debug_panel, 560, 248, 120, "PACKAGES");
+    scr_dashboard_debug_label_runtime_summary = dashboard_debug_create_label(scr_dashboard_debug_panel, 680, 248, 246, "PKG 0/8 NEXT #1 FAIL->C1");
+    scr_dashboard_debug_label_runtime_vision = dashboard_debug_create_package_label(scr_dashboard_debug_panel, 560, 270, 366, "VISION #0 WAIT S1:OFF  B:0 C:0");
+    for (int i = 0; i < SORTER_MAX_PACKAGES; ++i) {
+        int col = i / 4;
+        int row = i % 4;
+        scr_dashboard_debug_package_label[i] = dashboard_debug_create_package_label(scr_dashboard_debug_panel,
+                                                                                   560 + col * 184,
+                                                                                   292 + row * 20,
+                                                                                   176,
+                                                                                   "--");
+    }
 
     dashboard_debug_create_button(scr_dashboard_debug_panel, 18, 294, 92, 40, "CLASS1", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_1);
     dashboard_debug_create_button(scr_dashboard_debug_panel, 122, 294, 92, 40, "CLASS2", dashboard_debug_sim_event_handler, (void *)SORTER_CLASS_2);

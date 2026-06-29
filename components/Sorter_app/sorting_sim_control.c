@@ -775,11 +775,54 @@ static void fill_hardware_status_locked(sorting_hardware_status_t *status)
     }
 }
 
+static sorter_package_class_t failed_class_from_cursor(int cursor)
+{
+    switch (cursor % 3) {
+    case 1: return SORTER_CLASS_2;
+    case 2: return SORTER_CLASS_3;
+    default: return SORTER_CLASS_1;
+    }
+}
+
+static void fill_runtime_debug_locked(sorting_runtime_debug_t *status)
+{
+    if (!status) return;
+    memset(status, 0, sizeof(*status));
+    status->active_count = sorter_scheduler_active_count(&s_scheduler);
+    status->max_packages = s_config.max_packages;
+    status->next_package_id = s_next_package_id;
+    status->vision_package_id = s_vision_package_id;
+    status->vision_classified = s_vision_classified;
+    status->vision_s1_active = s_vision_s1_active;
+    status->b_owner = s_scheduler.b_owner;
+    status->c_owner = s_scheduler.c_owner;
+    status->next_failed_class = failed_class_from_cursor(s_scheduler.failed_class_cursor);
+    for (int i = 0; i < SORTER_MAX_PACKAGES; ++i) {
+        const sorter_package_track_t *track = &s_scheduler.tracks[i];
+        status->packages[i] = (sorting_package_debug_t){
+            .id = track->id,
+            .cls = track->cls,
+            .state = track->state,
+            .belt = track->belt,
+            .pos_mm = track->pos_mm,
+            .occupied = track->occupied,
+        };
+    }
+}
+
 void sorting_sim_control_get_hardware_status(sorting_hardware_status_t *status)
 {
     ensure_initialized();
     lock_control();
     fill_hardware_status_locked(status);
+    unlock_control();
+}
+
+void sorting_sim_control_get_runtime_debug(sorting_runtime_debug_t *status)
+{
+    ensure_initialized();
+    lock_control();
+    fill_runtime_debug_locked(status);
     unlock_control();
 }
 
