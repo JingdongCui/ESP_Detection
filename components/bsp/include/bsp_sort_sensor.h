@@ -16,6 +16,7 @@ typedef enum {
 } bsp_sort_sensor_id_t;
 
 esp_err_t bsp_sort_sensor_init(void);
+esp_err_t bsp_sort_sensor_get_level(bsp_sort_sensor_id_t sensor_id, int *level, bool *active);
 esp_err_t bsp_sort_sensor_get_state(bsp_sort_sensor_id_t sensor_id, bool *active);
 
 #ifdef __cplusplus

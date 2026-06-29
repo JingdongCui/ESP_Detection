@@ -68,16 +68,25 @@ esp_err_t bsp_sort_sensor_init(void)
 esp_err_t bsp_sort_sensor_get_state(bsp_sort_sensor_id_t sensor_id, bool *active)
 {
     ESP_RETURN_ON_FALSE(active, ESP_ERR_INVALID_ARG, TAG, "active pointer is NULL");
+    return bsp_sort_sensor_get_level(sensor_id, NULL, active);
+}
+
+esp_err_t bsp_sort_sensor_get_level(bsp_sort_sensor_id_t sensor_id, int *level, bool *active)
+{
+    ESP_RETURN_ON_FALSE(level || active, ESP_ERR_INVALID_ARG, TAG, "level and active pointers are NULL");
     ESP_RETURN_ON_FALSE(s_initialized, ESP_ERR_INVALID_STATE, TAG, "sort sensor BSP is not initialized");
 
     const bsp_sort_sensor_gpio_config_t *config = find_sensor_config(sensor_id);
     ESP_RETURN_ON_FALSE(config, ESP_ERR_INVALID_ARG, TAG, "invalid sort sensor id: %u", (unsigned)sensor_id);
 
     if (config->gpio < 0) {
-        *active = false;
+        if (level) *level = 0;
+        if (active) *active = false;
         return ESP_ERR_NOT_FOUND;
     }
 
-    *active = gpio_get_level(config->gpio) == config->active_level;
+    int raw_level = gpio_get_level(config->gpio);
+    if (level) *level = raw_level;
+    if (active) *active = raw_level == config->active_level;
     return ESP_OK;
 }

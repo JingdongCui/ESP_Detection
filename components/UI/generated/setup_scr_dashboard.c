@@ -159,6 +159,8 @@ static lv_obj_t * scr_dashboard_debug_label_speed = NULL;
 static lv_obj_t * scr_dashboard_debug_label_delay = NULL;
 static lv_obj_t * scr_dashboard_debug_label_timeout = NULL;
 static lv_obj_t * scr_dashboard_debug_label_hw_sensors = NULL;
+static lv_obj_t * scr_dashboard_debug_sensor_tile[4] = { NULL };
+static lv_obj_t * scr_dashboard_debug_sensor_tile_label[4] = { NULL };
 static lv_obj_t * scr_dashboard_debug_label_enc_a = NULL;
 static lv_obj_t * scr_dashboard_debug_label_enc_b = NULL;
 static lv_obj_t * scr_dashboard_debug_label_enc_c = NULL;
@@ -544,6 +546,29 @@ static lv_obj_t *dashboard_debug_create_button(lv_obj_t *parent, int x, int y, i
     return button;
 }
 
+static lv_obj_t *dashboard_debug_create_sensor_tile(lv_obj_t *parent, int index, int x, int y)
+{
+    lv_obj_t *tile = lv_obj_create(parent);
+    lv_obj_set_pos(tile, x, y);
+    lv_obj_set_size(tile, 82, 34);
+    lv_obj_set_scrollbar_mode(tile, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_style_radius(tile, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(tile, lv_color_hex(0x172323), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(tile, LV_OPA_60, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(tile, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(tile, lv_color_hex(0x45666A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_all(tile, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t *label = lv_label_create(tile);
+    lv_label_set_text_fmt(label, "S%d --", index + 1);
+    lv_obj_center(label);
+    lv_obj_set_style_text_font(label, &lv_font_Misans_Heavy_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    scr_dashboard_debug_sensor_tile[index] = tile;
+    scr_dashboard_debug_sensor_tile_label[index] = label;
+    return tile;
+}
+
 static void dashboard_debug_apply(void)
 {
     sorting_sim_control_apply_settings(&s_dashboard_debug_settings);
@@ -554,6 +579,29 @@ static const char *dashboard_debug_state_text(bool valid, bool active)
 {
     if (!valid) return "--";
     return active ? "ON" : "OFF";
+}
+
+static void dashboard_debug_update_sensor_tile(int index, bool valid, bool active)
+{
+    if (index < 0 || index >= 4 || !scr_dashboard_debug_sensor_tile[index] ||
+        !scr_dashboard_debug_sensor_tile_label[index]) {
+        return;
+    }
+
+    lv_obj_t *tile = scr_dashboard_debug_sensor_tile[index];
+    lv_color_t bg = active ? lv_color_hex(0x18A957) : lv_color_hex(0x172323);
+    lv_opa_t bg_opa = active ? LV_OPA_COVER : LV_OPA_60;
+    lv_color_t border = valid ? (active ? lv_color_hex(0x8FF0B8) : lv_color_hex(0x45666A)) : lv_color_hex(0x7A4E4E);
+    lv_color_t text_color = active ? lv_color_hex(0xFFFFFF) : lv_color_hex(0xD1DEDE);
+    char text[16];
+
+    snprintf(text, sizeof(text), "S%d %s", index + 1, dashboard_debug_state_text(valid, active));
+    lv_label_set_text(scr_dashboard_debug_sensor_tile_label[index], text);
+    lv_obj_set_style_bg_color(tile, bg, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(tile, bg_opa, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(tile, border, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(scr_dashboard_debug_sensor_tile_label[index], text_color,
+                                LV_PART_MAIN | LV_STATE_DEFAULT);
 }
 
 static void dashboard_debug_refresh(void)
@@ -580,11 +628,10 @@ static void dashboard_debug_refresh(void)
              (unsigned)s_dashboard_debug_settings.belt_timeout_ms[1],
              (unsigned)s_dashboard_debug_settings.belt_timeout_ms[2]);
     lv_label_set_text(scr_dashboard_debug_label_timeout, text);
-    snprintf(text, sizeof(text), "S2 %s  S3 %s  S4 %s",
-             dashboard_debug_state_text(hw_status.sensor_valid[0], hw_status.sensor_active[0]),
-             dashboard_debug_state_text(hw_status.sensor_valid[1], hw_status.sensor_active[1]),
-             dashboard_debug_state_text(hw_status.sensor_valid[2], hw_status.sensor_active[2]));
-    lv_label_set_text(scr_dashboard_debug_label_hw_sensors, text);
+    lv_label_set_text(scr_dashboard_debug_label_hw_sensors, "SENSORS");
+    for (int i = 0; i < 4; ++i) {
+        dashboard_debug_update_sensor_tile(i, hw_status.sensor_valid[i], hw_status.sensor_active[i]);
+    }
     snprintf(text, sizeof(text), "ENC A %s%.1f mm", hw_status.encoder_valid[0] ? "" : "-- ",
              (double)hw_status.encoder_distance_mm[0]);
     lv_label_set_text(scr_dashboard_debug_label_enc_a, text);
@@ -717,7 +764,10 @@ static void create_dashboard_debug_panel(lv_obj_t *parent)
     dashboard_debug_create_button(scr_dashboard_debug_panel, 702, 102, 42, 30, "C-", dashboard_debug_adjust_event_handler, (void *)42);
     dashboard_debug_create_button(scr_dashboard_debug_panel, 748, 102, 42, 30, "C+", dashboard_debug_adjust_event_handler, (void *)32);
 
-    scr_dashboard_debug_label_hw_sensors = dashboard_debug_create_label(scr_dashboard_debug_panel, 18, 158, 330, "S2 --  S3 --  S4 --");
+    scr_dashboard_debug_label_hw_sensors = dashboard_debug_create_label(scr_dashboard_debug_panel, 18, 158, 90, "SENSORS");
+    for (int i = 0; i < 4; ++i) {
+        dashboard_debug_create_sensor_tile(scr_dashboard_debug_panel, i, 118 + i * 92, 150);
+    }
     scr_dashboard_debug_label_enc_a = dashboard_debug_create_label(scr_dashboard_debug_panel, 18, 204, 190, "ENC A --");
     dashboard_debug_create_button(scr_dashboard_debug_panel, 214, 198, 58, 30, "CLR", dashboard_debug_encoder_clear_event_handler, (void *)0);
     scr_dashboard_debug_label_enc_b = dashboard_debug_create_label(scr_dashboard_debug_panel, 304, 204, 190, "ENC B --");

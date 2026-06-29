@@ -55,6 +55,7 @@ static void *s_downstream_send_ctx;
 typedef struct {
     bool raw;
     bool stable;
+    int raw_level;
     int64_t raw_changed_ms;
     bool initialized;
 } real_sensor_state_t;
@@ -214,7 +215,8 @@ static void real_io_task(void *arg)
             for (size_t i = 0; i < sizeof(sensor_ids) / sizeof(sensor_ids[0]); ++i) {
                 bsp_sort_sensor_id_t sensor_id = sensor_ids[i];
                 bool active = false;
-                esp_err_t ret = bsp_sort_sensor_get_state(sensor_id, &active);
+                int raw_level = 0;
+                esp_err_t ret = bsp_sort_sensor_get_level(sensor_id, &raw_level, &active);
                 bool valid = ret == ESP_OK;
                 if (ret != ESP_OK && ret != ESP_ERR_NOT_FOUND) {
                     ESP_LOGW(TAG, "read sort sensor S%u failed: %s", (unsigned)sensor_id, esp_err_to_name(ret));
@@ -222,7 +224,10 @@ static void real_io_task(void *arg)
                 }
                 real_sensor_state_t *state = &s_real_sensors[(size_t)sensor_id];
                 if (!state->initialized) {
-                    state->raw = active; state->stable = active; state->raw_changed_ms = now; state->initialized = true;
+                    state->raw = active; state->stable = active; state->raw_level = raw_level;
+                    state->raw_changed_ms = now; state->initialized = true;
+                    ESP_LOGI(TAG, "sort sensor S%u init raw_level=%d active=%d valid=%d",
+                             (unsigned)sensor_id, raw_level, active ? 1 : 0, valid ? 1 : 0);
                     lock_control();
                     ensure_scheduler_motor_sender_locked();
                     s_sensor_valid[(size_t)sensor_id] = valid;
@@ -232,9 +237,20 @@ static void real_io_task(void *arg)
                     unlock_control();
                     continue;
                 }
-                if (state->raw != active) { state->raw = active; state->raw_changed_ms = now; continue; }
+                if (state->raw != active || state->raw_level != raw_level) {
+                    ESP_LOGI(TAG, "sort sensor S%u raw change raw_level=%d active=%d stable=%d valid=%d",
+                             (unsigned)sensor_id, raw_level, active ? 1 : 0,
+                             state->stable ? 1 : 0, valid ? 1 : 0);
+                    state->raw = active;
+                    state->raw_level = raw_level;
+                    state->raw_changed_ms = now;
+                    continue;
+                }
                 if (state->stable != state->raw && now - state->raw_changed_ms >= SENSOR_DEBOUNCE_MS) {
                     state->stable = state->raw;
+                    ESP_LOGI(TAG, "sort sensor S%u stable change raw_level=%d active=%d debounce_ms=%u",
+                             (unsigned)sensor_id, state->raw_level, state->stable ? 1 : 0,
+                             (unsigned)SENSOR_DEBOUNCE_MS);
                     lock_control();
                     ensure_scheduler_motor_sender_locked();
                     s_sensor_valid[(size_t)sensor_id] = valid;
