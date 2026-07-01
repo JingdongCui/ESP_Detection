@@ -1,0 +1,27 @@
+# 构建产物
+build/
+
+# ESP-IDF 托管组件（由 dependencies.lock 记录版本，idf.py reconfigure 自动重下）
+managed_components/
+
+# 旧配置备份
+sdkconfig.old
+
+# Agentic 运行时状态
+agentic/.esp-agent/
+
+# 编辑器/IDE 本地配置（按需）
+# .vscode/
+# .claude/
+
+# 临时缓存
+.cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 系统文件
+.DS_Store
+Thumbs.db

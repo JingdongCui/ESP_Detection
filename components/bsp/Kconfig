@@ -1,0 +1,86 @@
+menu "MIPI CSI Camera Sensor (cam_sensor)"
+
+    comment "--- Hardware Pin Configuration ---"
+    comment "ESP32-P4-Function-EV-Board defaults: SCL=8, SDA=7"
+
+    config CAM_SENSOR_SCCB_SCL_PIN
+        int "SCCB (I2C) SCL GPIO number"
+        range -1 56
+        default 8
+        help
+            GPIO for SCCB clock line. ESP32-P4-Function-EV-Board default: GPIO 8.
+
+    config CAM_SENSOR_SCCB_SDA_PIN
+        int "SCCB (I2C) SDA GPIO number"
+        range -1 56
+        default 7
+        help
+            GPIO for SCCB data line. ESP32-P4-Function-EV-Board default: GPIO 7.
+
+    config CAM_SENSOR_PWDN_PIN
+        int "Power-Down GPIO (-1 = not connected)"
+        range -1 56
+        default -1
+        help
+            Active-high GPIO to power down the sensor.
+            Set -1 if pin is not connected or held low by hardware.
+
+    config CAM_SENSOR_RESET_PIN
+        int "Hard-Reset GPIO (-1 = not connected)"
+        range -1 56
+        default -1
+        help
+            Active-low GPIO to hard-reset the sensor.
+            Set -1 if pin is not connected or pulled high by default.
+
+    comment "--- Frame Buffer ---"
+
+    config CAM_SENSOR_FB_COUNT
+        int "Number of PSRAM frame buffers (1-4)"
+        range 1 4
+        default 3
+        help
+            Number of RGB888 frame buffers allocated in PSRAM.
+            3 = triple-buffering: one capturing, one latest-ready, one held by app.
+            Required when YOLO inference is slower than one frame interval (typ. >33 ms).
+
+endmenu
+
+menu "BSP Ethernet Configuration"
+
+    orsource "$IDF_PATH/examples/common_components/env_caps/$IDF_TARGET/Kconfig.env_caps"
+
+    config EXAMPLE_USE_INTERNAL_ETHERNET
+        depends on SOC_EMAC_SUPPORTED
+        select ETH_USE_ESP32_EMAC
+        bool "Internal EMAC"
+        default y
+
+    config EXAMPLE_ETH_MDC_GPIO
+        int "SMI MDC GPIO number"
+        depends on EXAMPLE_USE_INTERNAL_ETHERNET
+        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+        default 31 if IDF_TARGET_ESP32P4
+        default 23
+
+    config EXAMPLE_ETH_MDIO_GPIO
+        int "SMI MDIO GPIO number"
+        depends on EXAMPLE_USE_INTERNAL_ETHERNET
+        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+        default 52 if IDF_TARGET_ESP32P4
+        default 18
+
+    config EXAMPLE_ETH_PHY_RST_GPIO
+        int "PHY Reset GPIO number"
+        depends on EXAMPLE_USE_INTERNAL_ETHERNET
+        range -1 ENV_GPIO_OUT_RANGE_MAX
+        default 51 if IDF_TARGET_ESP32P4
+        default 5
+
+    config EXAMPLE_ETH_PHY_ADDR
+        int "PHY Address"
+        depends on EXAMPLE_USE_INTERNAL_ETHERNET
+        range -1 31
+        default 1
+
+endmenu
