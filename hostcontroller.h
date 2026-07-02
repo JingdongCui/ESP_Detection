@@ -15,6 +15,8 @@
 #include <QVariantList>
 
 class DemoDataSource;
+class HostNetworkWorker;
+class QThread;
 
 class HostController : public QObject
 {
@@ -63,6 +65,7 @@ class HostController : public QObject
 
 public:
     explicit HostController(QObject *parent = nullptr);
+    ~HostController() override;
 
     bool listening() const;
     bool connected() const;
@@ -130,6 +133,12 @@ signals:
     void inferenceChanged();
 
 private:
+    void onNetworkStateChanged(bool listening, bool connected, const QString &statusText);
+    void onNetworkBytesReceived(qint64 bytes);
+    void onNetworkImageFrameSeen(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QString &formatText);
+    void onNetworkImagePreviewReady(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &payload, const QString &formatText);
+    void onNetworkInferenceFrameReady(const QVariantMap &frame, bool updateUi, const QString &logLine);
+    void onNetworkInferenceStatusChanged(const QString &status, bool logLine);
     void onNewConnection();
     void onReadyRead();
     void onDisconnected();
@@ -140,6 +149,7 @@ private:
     void handleDetectionJson(const QByteArray &payload);
     void requestInference(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload, const QString &imagePath);
     void sendInferenceResultToDevice(const QVariantMap &frame);
+    bool saveLatestPreviewImage(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload);
     void applyMetrics(const QVariantMap &metrics, bool fromDemo);
     void applyDetectionFrame(const QVariantMap &frame, bool fromDemo);
     void appendMetricHistory();
@@ -154,6 +164,8 @@ private:
 
     QTcpServer m_server;
     QPointer<QTcpSocket> m_socket;
+    QThread *m_networkThread = nullptr;
+    HostNetworkWorker *m_networkWorker = nullptr;
     DemoDataSource *m_demo = nullptr;
     QByteArray m_buffer;
     QString m_statusText;
@@ -179,6 +191,8 @@ private:
     int m_detectionCount = 0;
     quint32 m_txSeq = 0;
     int m_pendingInferenceRequests = 0;
+    bool m_listening = false;
+    bool m_connected = false;
     bool m_inferenceEnabled = true;
     QString m_inferenceStatus = QStringLiteral("等待推理服务");
     QString m_inferenceServiceUrl = QStringLiteral("http://127.0.0.1:8765");

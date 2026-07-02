@@ -1,7 +1,9 @@
 #include "hostcontroller.h"
 
 #include "demodatasource.h"
+#include "hostnetworkworker.h"
 
+#include <QBuffer>
 #include <QDateTime>
 #include <QDir>
 #include <QElapsedTimer>
@@ -13,9 +15,16 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcessEnvironment>
+#include <QSaveFile>
 #include <QStandardPaths>
+#include <QThread>
 #include <QUrl>
 #include <QUrlQuery>
+
+namespace {
+constexpr int kLivePreviewEveryNFrames = 10;
+constexpr int kDeviceResultMaxDetections = 1;
+}
 
 HostController::HostController(QObject *parent)
     : QObject(parent)
@@ -27,7 +36,22 @@ HostController::HostController(QObject *parent)
     m_modelDir = QDir(QStringLiteral("/home/kazeform/2026upper")).filePath(QStringLiteral("models"));
     ensureSaveDirs();
 
-    connect(&m_server, &QTcpServer::newConnection, this, &HostController::onNewConnection);
+    m_networkThread = new QThread(this);
+    m_networkWorker = new HostNetworkWorker();
+    m_networkWorker->moveToThread(m_networkThread);
+    connect(m_networkThread, &QThread::finished, m_networkWorker, &QObject::deleteLater);
+    connect(m_networkThread, &QThread::started, m_networkWorker, &HostNetworkWorker::start);
+    connect(m_networkWorker, &HostNetworkWorker::stateChanged, this, &HostController::onNetworkStateChanged);
+    connect(m_networkWorker, &HostNetworkWorker::bytesReceived, this, &HostController::onNetworkBytesReceived);
+    connect(m_networkWorker, &HostNetworkWorker::imageFrameSeen, this, &HostController::onNetworkImageFrameSeen);
+    connect(m_networkWorker, &HostNetworkWorker::imagePreviewReady, this, &HostController::onNetworkImagePreviewReady);
+    connect(m_networkWorker, &HostNetworkWorker::metricsReceived, this, &HostController::handleTelemetry);
+    connect(m_networkWorker, &HostNetworkWorker::detectionJsonReceived, this, &HostController::handleDetectionJson);
+    connect(m_networkWorker, &HostNetworkWorker::inferenceFrameReady, this, &HostController::onNetworkInferenceFrameReady);
+    connect(m_networkWorker, &HostNetworkWorker::inferenceStatusChanged, this, &HostController::onNetworkInferenceStatusChanged);
+    connect(m_networkWorker, &HostNetworkWorker::logLineReady, this, &HostController::appendLog);
+    m_networkThread->start();
+
     connect(m_demo, &DemoDataSource::metricsReady, this, [this](const QVariantMap &metrics) {
         if (!connected()) {
             applyMetrics(metrics, true);
@@ -44,8 +68,19 @@ HostController::HostController(QObject *parent)
     startServer();
 }
 
-bool HostController::listening() const { return m_server.isListening(); }
-bool HostController::connected() const { return m_socket && m_socket->state() == QAbstractSocket::ConnectedState; }
+HostController::~HostController()
+{
+    if (m_networkWorker) {
+        QMetaObject::invokeMethod(m_networkWorker, "stop", Qt::BlockingQueuedConnection);
+    }
+    if (m_networkThread) {
+        m_networkThread->quit();
+        m_networkThread->wait();
+    }
+}
+
+bool HostController::listening() const { return m_listening; }
+bool HostController::connected() const { return m_connected; }
 bool HostController::demoMode() const { return !connected(); }
 QString HostController::statusText() const { return m_statusText; }
 QString HostController::latestImageUrl() const { return m_latestImageUrl; }
@@ -101,24 +136,9 @@ QVariantList HostController::dashboardCards() const
 
 void HostController::startServer()
 {
-    if (m_server.isListening()) {
-        return;
+    if (m_networkWorker) {
+        QMetaObject::invokeMethod(m_networkWorker, "start", Qt::QueuedConnection);
     }
-
-    const QHostAddress bindAddress(QStringLiteral("192.168.10.1"));
-    if (!m_server.listen(bindAddress, 5000)) {
-        if (!m_server.listen(QHostAddress::AnyIPv4, 5000)) {
-            m_statusText = QStringLiteral("监听失败：%1").arg(m_server.errorString());
-            emit stateChanged();
-            appendLog(m_statusText);
-            return;
-        }
-        m_statusText = QStringLiteral("正在监听 0.0.0.0:5000");
-    } else {
-        m_statusText = QStringLiteral("正在监听 192.168.10.1:5000");
-    }
-    emit stateChanged();
-    appendLog(m_statusText);
 }
 
 void HostController::sendTimeSync()
@@ -152,6 +172,9 @@ void HostController::setInferenceEnabled(bool enabled)
     }
     m_inferenceEnabled = enabled;
     m_inferenceStatus = enabled ? QStringLiteral("推理服务已启用") : QStringLiteral("推理服务已暂停");
+    if (m_networkWorker) {
+        QMetaObject::invokeMethod(m_networkWorker, "setInferenceEnabled", Qt::QueuedConnection, Q_ARG(bool, enabled));
+    }
     emit inferenceChanged();
 }
 
@@ -163,6 +186,73 @@ void HostController::setInferenceServiceUrl(const QString &url)
     }
     m_inferenceServiceUrl = trimmed;
     m_inferenceStatus = QStringLiteral("推理服务地址已更新");
+    if (m_networkWorker) {
+        QMetaObject::invokeMethod(m_networkWorker, "setInferenceServiceUrl", Qt::QueuedConnection, Q_ARG(QString, trimmed));
+    }
+    emit inferenceChanged();
+}
+
+void HostController::onNetworkStateChanged(bool listening, bool connected, const QString &statusText)
+{
+    m_listening = listening;
+    m_connected = connected;
+    m_statusText = statusText;
+    emit stateChanged();
+    appendLog(statusText);
+}
+
+void HostController::onNetworkBytesReceived(qint64 bytes)
+{
+    m_bytesReceived += quint64(bytes);
+    emit statsChanged();
+}
+
+void HostController::onNetworkImageFrameSeen(quint32 frameSeq, quint16 width, quint16 height, quint16, const QString &formatText)
+{
+    ++m_imageCount;
+    if ((m_imageCount % 30) == 1) {
+        m_latestFrameInfo = QStringLiteral("%1 x %2  %3  #%4")
+                                .arg(width)
+                                .arg(height)
+                                .arg(formatText)
+                                .arg(frameSeq);
+        emit statsChanged();
+        emit imageChanged();
+    } else {
+        emit statsChanged();
+    }
+}
+
+void HostController::onNetworkImagePreviewReady(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &payload, const QString &formatText)
+{
+    saveLatestPreviewImage(frameSeq, width, height, pixelFormat, payload);
+    m_latestFrameInfo = QStringLiteral("%1 x %2  %3  #%4")
+                            .arg(width)
+                            .arg(height)
+                            .arg(formatText)
+                            .arg(frameSeq);
+    emit statsChanged();
+    emit imageChanged();
+}
+
+void HostController::onNetworkInferenceFrameReady(const QVariantMap &frame, bool updateUi, const QString &logLine)
+{
+    applyDetectionFrame(frame, false);
+    if (updateUi) {
+        m_inferenceStatus = QStringLiteral("帧 #%1 推理完成").arg(frame.value(QStringLiteral("frame_seq")).toInt());
+        if (!logLine.isEmpty()) {
+            appendLog(logLine);
+        }
+        emit inferenceChanged();
+    }
+}
+
+void HostController::onNetworkInferenceStatusChanged(const QString &status, bool logLine)
+{
+    m_inferenceStatus = status;
+    if (logLine) {
+        appendLog(status);
+    }
     emit inferenceChanged();
 }
 
@@ -309,7 +399,10 @@ void HostController::handleImage(const HostProtocol::PacketHeader &header, const
     m_imageCount++;
     requestInference(header.seq, header.width, header.height, header.pixelFormat, payload, path);
 
-    if ((m_imageCount % 30) == 1) {
+    const bool updatePreview = m_latestImageUrl.isEmpty() ||
+                               (header.seq % kLivePreviewEveryNFrames) == 0;
+    if (updatePreview) {
+        saveLatestPreviewImage(header.seq, header.width, header.height, header.pixelFormat, payload);
         m_latestFrameInfo = QStringLiteral("%1 x %2  %3  #%4")
                                 .arg(header.width)
                                 .arg(header.height)
@@ -423,7 +516,8 @@ void HostController::requestInference(quint32 frameSeq, quint16 width, quint16 h
                     emit inferenceChanged();
                     return;
                 }
-                const QVariantMap frame = doc.object().toVariantMap();
+                QVariantMap frame = doc.object().toVariantMap();
+                frame.insert(QStringLiteral("host_ms"), 0);
                 sendInferenceResultToDevice(frame);
                 applyDetectionFrame(frame, false);
                 m_inferenceStatus = QStringLiteral("帧 #%1 推理完成").arg(frameSeq);
@@ -447,7 +541,9 @@ void HostController::requestInference(quint32 frameSeq, quint16 width, quint16 h
             return;
         }
 
-        const QVariantMap frame = doc.object().toVariantMap();
+        QVariantMap frame = doc.object().toVariantMap();
+        frame.insert(QStringLiteral("host_ms"), int(httpDoneMs));
+        frame.insert(QStringLiteral("host_http_ms"), int(httpDoneMs - postStartMs));
         sendInferenceResultToDevice(frame);
         applyDetectionFrame(frame, false);
         if (updateUi) {
@@ -472,8 +568,77 @@ void HostController::sendInferenceResultToDevice(const QVariantMap &frame)
         return;
     }
 
-    const QJsonDocument doc = QJsonDocument::fromVariant(frame);
+    QJsonObject out;
+    out.insert(QStringLiteral("frame_seq"), frame.value(QStringLiteral("frame_seq")).toInt());
+    out.insert(QStringLiteral("image_width"), frame.value(QStringLiteral("image_width")).toInt());
+    out.insert(QStringLiteral("image_height"), frame.value(QStringLiteral("image_height")).toInt());
+    out.insert(QStringLiteral("inference_ms"), frame.value(QStringLiteral("inference_ms")).toInt());
+    out.insert(QStringLiteral("decode_ms"), frame.value(QStringLiteral("decode_ms")).toInt());
+    out.insert(QStringLiteral("host_ms"), frame.value(QStringLiteral("host_ms")).toInt());
+
+    QJsonArray detections;
+    const QVariantList sourceDetections = frame.value(QStringLiteral("detections")).toList();
+    const int count = qMin(sourceDetections.size(), kDeviceResultMaxDetections);
+    for (int i = 0; i < count; ++i) {
+        const QVariantMap source = sourceDetections.at(i).toMap();
+        QJsonObject det;
+        det.insert(QStringLiteral("label"), source.value(QStringLiteral("label")).toString());
+        det.insert(QStringLiteral("confidence"), source.value(QStringLiteral("confidence")).toDouble());
+        det.insert(QStringLiteral("x"), source.value(QStringLiteral("x")).toDouble());
+        det.insert(QStringLiteral("y"), source.value(QStringLiteral("y")).toDouble());
+        det.insert(QStringLiteral("w"), source.value(QStringLiteral("w")).toDouble());
+        det.insert(QStringLiteral("h"), source.value(QStringLiteral("h")).toDouble());
+        detections.append(det);
+    }
+    out.insert(QStringLiteral("detections"), detections);
+
+    const QJsonDocument doc(out);
     sendJsonPacket(HostProtocol::kTypeInferenceResultJson, doc.toJson(QJsonDocument::Compact));
+}
+
+bool HostController::saveLatestPreviewImage(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload)
+{
+    QString path;
+    QByteArray bytes;
+    if (pixelFormat == HostProtocol::kPixelJpeg) {
+        path = QDir(m_imageDir).filePath(QStringLiteral("latest_preview.jpg"));
+        bytes = imagePayload;
+    } else if (pixelFormat == HostProtocol::kPixelRgb888) {
+        const qsizetype expected = qsizetype(width) * qsizetype(height) * 3;
+        if (imagePayload.size() != expected) {
+            return false;
+        }
+        QImage image(reinterpret_cast<const uchar *>(imagePayload.constData()),
+                     width,
+                     height,
+                     int(width) * 3,
+                     QImage::Format_RGB888);
+        path = QDir(m_imageDir).filePath(QStringLiteral("latest_preview.png"));
+        QBuffer buffer(&bytes);
+        if (!buffer.open(QIODevice::WriteOnly) || !image.save(&buffer, "PNG")) {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    QSaveFile file(path);
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+    if (file.write(bytes) != bytes.size()) {
+        return false;
+    }
+    if (!file.commit()) {
+        return false;
+    }
+
+    QUrl url = QUrl::fromLocalFile(path);
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("seq"), QString::number(frameSeq));
+    url.setQuery(query);
+    m_latestImageUrl = url.toString();
+    return true;
 }
 
 void HostController::applyMetrics(const QVariantMap &metrics, bool fromDemo)
@@ -614,13 +779,15 @@ void HostController::ensureSaveDirs()
 
 void HostController::sendJsonPacket(quint16 type, const QByteArray &json)
 {
-    if (!connected()) {
+    if (!m_networkWorker) {
         return;
     }
 
-    const QByteArray packet = HostProtocol::makeJsonPacket(type, ++m_txSeq, json);
-    m_socket->write(packet);
-    m_socket->flush();
+    QMetaObject::invokeMethod(m_networkWorker,
+                              "sendJsonPacket",
+                              Qt::QueuedConnection,
+                              Q_ARG(quint16, type),
+                              Q_ARG(QByteArray, json));
 }
 
 void HostController::updateControl(const QString &command, const QVariant &value, bool emitSignal)

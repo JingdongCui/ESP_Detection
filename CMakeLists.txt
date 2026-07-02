@@ -17,6 +17,8 @@ qt_add_executable(appesp32_host
     demodatasource.h
     hostcontroller.cpp
     hostcontroller.h
+    hostnetworkworker.cpp
+    hostnetworkworker.h
     packetprotocol.cpp
     packetprotocol.h
 )
