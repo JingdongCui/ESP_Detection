@@ -38,9 +38,11 @@ static const char *TAG = "eth_example";
 #define TCP_TASK_STACK_BYTES    (12 * 1024)
 #define TCP_TASK_PRIORITY       4
 #define TCP_SEND_WAIT_MS        1000
-#define TCP_FRAME_RESULT_TIMEOUT_MS 5000
+#define TCP_FRAME_RESULT_TIMEOUT_MS 15000
 #define TCP_FRAME_PAUSE_MS      50
+#define TCP_METRICS_INTERVAL_MS 10000
 #define TCP_CONNECT_READY_BIT   BIT0
+#define TCP_CAMERA_READY_BIT    BIT1
 
 #define ESP_HOST_MAGIC          0x32505345u
 #define ESP_HOST_VERSION        1u
@@ -58,6 +60,8 @@ static const char *TAG = "eth_example";
 #define VISION_CAM_RESET_PIN    -1
 #define VISION_CAM_WIDTH        1024
 #define VISION_CAM_HEIGHT       600
+#define INFER_FRAME_WIDTH       224
+#define INFER_FRAME_HEIGHT      132
 
 typedef struct __attribute__((packed)) {
     uint32_t magic;
@@ -78,6 +82,9 @@ static EventGroupHandle_t s_eth_events;
 static TaskHandle_t s_tcp_task;
 static uint32_t s_tx_seq;
 static bool s_camera_started;
+static uint8_t *s_infer_frame;
+static StackType_t *s_tcp_task_stack;
+static StaticTask_t s_tcp_task_tcb;
 
 typedef struct {
     bool valid;
@@ -90,6 +97,16 @@ typedef struct {
 } host_inference_result_t;
 
 static host_inference_result_t s_latest_result;
+
+static void log_heap_state(const char *stage)
+{
+    ESP_LOGI(TAG, "heap[%s] internal=%lu largest_internal=%lu psram=%lu largest_default=%lu",
+             stage,
+             (unsigned long)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
+             (unsigned long)heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL),
+             (unsigned long)heap_caps_get_free_size(MALLOC_CAP_SPIRAM),
+             (unsigned long)heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
+}
 
 static uint64_t unix_time_ms(void)
 {
@@ -159,6 +176,45 @@ static int send_packet(int sock, uint16_t type, const void *payload, uint32_t pa
         return -1;
     }
     return 0;
+}
+
+static uint8_t *get_inference_frame_buffer(void)
+{
+    if (!s_infer_frame) {
+        const size_t bytes = INFER_FRAME_WIDTH * INFER_FRAME_HEIGHT * 3;
+        s_infer_frame = (uint8_t *)heap_caps_malloc(bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        if (!s_infer_frame) {
+            ESP_LOGE(TAG, "allocate inference frame buffer failed: %u bytes", (unsigned)bytes);
+        }
+    }
+    return s_infer_frame;
+}
+
+static uint8_t *make_inference_frame(const uint8_t *src, int src_w, int src_h, size_t *out_size)
+{
+    uint8_t *dst = get_inference_frame_buffer();
+    if (!dst) {
+        return NULL;
+    }
+
+    for (int y = 0; y < INFER_FRAME_HEIGHT; y++) {
+        const int sy = (int)(((int64_t)y * src_h) / INFER_FRAME_HEIGHT);
+        const uint8_t *src_row = src + (size_t)sy * src_w * 3;
+        uint8_t *dst_row = dst + (size_t)y * INFER_FRAME_WIDTH * 3;
+        for (int x = 0; x < INFER_FRAME_WIDTH; x++) {
+            const int sx = (int)(((int64_t)x * src_w) / INFER_FRAME_WIDTH);
+            const uint8_t *sp = src_row + sx * 3;
+            uint8_t *dp = dst_row + x * 3;
+            dp[0] = sp[0];
+            dp[1] = sp[1];
+            dp[2] = sp[2];
+        }
+    }
+
+    if (out_size) {
+        *out_size = INFER_FRAME_WIDTH * INFER_FRAME_HEIGHT * 3;
+    }
+    return dst;
 }
 
 static uint32_t calculate_cpu_usage_percent(void)
@@ -342,10 +398,10 @@ static bool parse_inference_result(const char *json, size_t len, host_inference_
     w = std::clamp(w, 0.0f, 1.0f - x);
     h = std::clamp(h, 0.0f, 1.0f - y);
 
-    out->detection.x1 = x * (float)image_width;
-    out->detection.y1 = y * (float)image_height;
-    out->detection.x2 = (x + w) * (float)image_width;
-    out->detection.y2 = (y + h) * (float)image_height;
+    out->detection.x1 = x * (float)VISION_CAM_WIDTH;
+    out->detection.y1 = y * (float)VISION_CAM_HEIGHT;
+    out->detection.x2 = (x + w) * (float)VISION_CAM_WIDTH;
+    out->detection.y2 = (y + h) * (float)VISION_CAM_HEIGHT;
     out->detection.confidence = parse_json_float(json, "\"confidence\"", 0.0f);
     out->detection.class_id = class_id_from_label(out->label);
     out->valid = w > 0.0f && h > 0.0f;
@@ -368,9 +424,14 @@ static esp_err_t start_camera_once(void)
         .i2c_bus = BSP_Touch_GetI2CBus(),
     };
 
+    log_heap_state("before_camera");
     ESP_RETURN_ON_ERROR(cam_sensor_init(&cam_cfg), TAG, "camera init failed");
     ESP_RETURN_ON_ERROR(cam_sensor_start(), TAG, "camera start failed");
     s_camera_started = true;
+    log_heap_state("after_camera");
+    if (s_eth_events) {
+        xEventGroupSetBits(s_eth_events, TCP_CAMERA_READY_BIT);
+    }
     return ESP_OK;
 }
 
@@ -595,10 +656,22 @@ static int send_frame_wait_result(int sock)
     s_latest_result.frame_seq = 0;
     s_latest_result.valid = false;
 
-    ESP_LOGI(TAG, "send frame seq=%lu %dx%d %u bytes",
-             (unsigned long)frame_seq, frame_w, frame_h, (unsigned)frame_size);
-    int send_ret = send_packet(sock, ESP_HOST_TYPE_IMAGE, frame, (uint32_t)frame_size,
-                               (uint16_t)frame_w, (uint16_t)frame_h, ESP_HOST_PIXEL_RGB888);
+    size_t infer_size = 0;
+    uint8_t *infer_frame = make_inference_frame(frame, frame_w, frame_h, &infer_size);
+    if (!infer_frame) {
+        cam_sensor_return_frame(frame);
+        return -1;
+    }
+
+    ESP_LOGI(TAG, "send frame seq=%lu camera=%dx%d infer=%dx%d %u bytes",
+             (unsigned long)frame_seq,
+             frame_w,
+             frame_h,
+             INFER_FRAME_WIDTH,
+             INFER_FRAME_HEIGHT,
+             (unsigned)infer_size);
+    int send_ret = send_packet(sock, ESP_HOST_TYPE_IMAGE, infer_frame, (uint32_t)infer_size,
+                               INFER_FRAME_WIDTH, INFER_FRAME_HEIGHT, ESP_HOST_PIXEL_RGB888);
     if (send_ret != 0) {
         cam_sensor_return_frame(frame);
         return -1;
@@ -628,22 +701,23 @@ static int send_frame_wait_result(int sock)
 static void tcp_client_task(void *arg)
 {
     (void)arg;
+    lwip_socket_thread_init();
+    ESP_LOGI(TAG, "TCP task LwIP thread semaphore initialized");
+
     while (true) {
-        xEventGroupWaitBits(s_eth_events, TCP_CONNECT_READY_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
+        xEventGroupWaitBits(s_eth_events,
+                            TCP_CONNECT_READY_BIT | TCP_CAMERA_READY_BIT,
+                            pdFALSE,
+                            pdTRUE,
+                            portMAX_DELAY);
 
         int sock = connect_to_host();
         if (sock < 0) {
             vTaskDelay(pdMS_TO_TICKS(2000));
             continue;
         }
-        if (start_camera_once() != ESP_OK) {
-            ESP_LOGE(TAG, "camera start failed");
-            close(sock);
-            vTaskDelay(pdMS_TO_TICKS(2000));
-            continue;
-        }
         poll_incoming_packets(sock, true);
-        int64_t next_metrics_us = esp_timer_get_time();
+        int64_t next_metrics_us = esp_timer_get_time() + (int64_t)TCP_METRICS_INTERVAL_MS * 1000LL;
         while (true) {
             if (!poll_incoming_packets(sock, false)) {
                 ESP_LOGW(TAG, "TCP peer closed");
@@ -656,7 +730,7 @@ static void tcp_client_task(void *arg)
                     ESP_LOGW(TAG, "TCP metrics send failed errno=%d", errno);
                     break;
                 }
-                next_metrics_us = now_us + 1000000LL;
+                next_metrics_us = now_us + (int64_t)TCP_METRICS_INTERVAL_MS * 1000LL;
             }
             if (send_frame_wait_result(sock) != 0) {
                 ESP_LOGW(TAG, "TCP frame loop failed errno=%d", errno);
@@ -675,18 +749,37 @@ static void start_tcp_client_task(void)
     if (s_tcp_task) {
         return;
     }
-    BaseType_t ok = xTaskCreatePinnedToCoreWithCaps(
+
+    if (!s_tcp_task_stack) {
+        s_tcp_task_stack = (StackType_t *)heap_caps_aligned_alloc(
+            sizeof(StackType_t),
+            TCP_TASK_STACK_BYTES,
+            MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        if (!s_tcp_task_stack) {
+            ESP_LOGE(TAG, "allocate TCP task stack failed: %u bytes", (unsigned)TCP_TASK_STACK_BYTES);
+            log_heap_state("tcp_stack_alloc_failed");
+            return;
+        }
+    }
+
+    s_tcp_task = xTaskCreateStaticPinnedToCore(
         tcp_client_task,
         "eth_tcp",
-        TCP_TASK_STACK_BYTES,
+        TCP_TASK_STACK_BYTES / sizeof(StackType_t),
         NULL,
         TCP_TASK_PRIORITY,
-        &s_tcp_task,
-        0,
-        MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-    if (ok != pdPASS) {
+        s_tcp_task_stack,
+        &s_tcp_task_tcb,
+        0);
+    if (!s_tcp_task) {
         ESP_LOGE(TAG, "create TCP client task failed");
+        log_heap_state("tcp_task_create_failed");
+        heap_caps_free(s_tcp_task_stack);
+        s_tcp_task_stack = NULL;
+        return;
     }
+
+    ESP_LOGI(TAG, "TCP client task started stack=%u bytes", (unsigned)TCP_TASK_STACK_BYTES);
 }
 
 /*
@@ -766,6 +859,23 @@ esp_err_t ethernet_app_start(void)
     ESP_LOGI(TAG, "esp_netif_init begin");
     ESP_RETURN_ON_ERROR(esp_netif_init(), TAG, "esp-netif init failed");
     ESP_LOGI(TAG, "esp_netif_init done");
+
+    /*
+     * LwIP allocates a per-thread socket semaphore the first time a task uses the
+     * socket API. Create the TCP task right after esp-netif init so that semaphore
+     * is reserved before the camera consumes most internal RAM.
+     */
+    start_tcp_client_task();
+
+    /*
+     * MIPI CSI/ISP must reserve its controller, DMA channel and small internal queues
+     * before Ethernet driver/socket buffers fragment internal heap. Keep the camera
+     * alive for the process lifetime; TCP reconnects only recreate sockets.
+     */
+    ESP_LOGI(TAG, "camera service start begin");
+    ESP_RETURN_ON_ERROR(start_camera_once(), TAG, "camera service start failed");
+    ESP_LOGI(TAG, "camera service start done");
+
     ESP_LOGI(TAG, "event loop create begin");
     ESP_RETURN_ON_ERROR(esp_event_loop_create_default(), TAG, "default event loop init failed");
     ESP_LOGI(TAG, "event loop create done");
@@ -798,7 +908,6 @@ esp_err_t ethernet_app_start(void)
     ESP_LOGI(TAG, "esp_eth_start begin");
     ESP_RETURN_ON_ERROR(esp_eth_start(eth_handles[0]), TAG, "start Ethernet failed");
     ESP_LOGI(TAG, "esp_eth_start done");
-    start_tcp_client_task();
 
     return ESP_OK;
 }

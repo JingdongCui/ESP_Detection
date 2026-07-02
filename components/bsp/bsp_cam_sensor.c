@@ -14,16 +14,16 @@
 #include <unistd.h>
 #include "esp_check.h"
 #include "esp_log.h"
+#include "sdkconfig.h"
 #include "esp_video_init.h"
 #include "esp_video_device.h"
 #include "linux/videodev2.h"
 #include "bsp_touch.h"
 #include "bsp_cam_sensor.h"
 
-// V4L2 帧缓冲数量。当前链路只把最新帧发给上位机并回显检测框，不再在板端做深队列推理。
-// 1024x600 RGB888 每个缓冲约 1.8 MiB，10 个缓冲会和以太网/TCP/UI 同时抢资源，
-// 导致 CSI transaction queue 分配失败；4 个缓冲足够保留驱动 DMA 队列并显著降低内存压力。
-#define CAM_FB_COUNT    4
+// V4L2 帧缓冲数量由 Kconfig 统一配置。当前链路只需要保留最新帧给上位机推理，
+// 3 个 RGB888 缓冲足够覆盖 DMA、待发送、显示回写，避免占用过多 PSRAM。
+#define CAM_FB_COUNT    CONFIG_CAM_SENSOR_FB_COUNT
 #define CAM_SCCB_FREQ   100000   // SCCB（摄像头控制总线）时钟频率 100 kHz
 #define CAM_RESET_PIN   -1       // 复位引脚，-1 表示硬件未接（不由驱动控制）
 #define CAM_PWDN_PIN    -1       // 掉电引脚，-1 表示硬件未接（不由驱动控制）
@@ -35,7 +35,10 @@ static int s_width;                        // 摄像头输出宽度（由 G_FMT 
 static int s_height;                       // 摄像头输出高度（由 G_FMT 读取）
 static void *s_fb[CAM_FB_COUNT];           // mmap 缓冲首地址
 static size_t s_fb_len[CAM_FB_COUNT];      // mmap 缓冲字节数
+static int s_mapped_count;
 static bool s_initialized;
+static bool s_video_initialized;
+static bool s_streaming;
 
 esp_err_t cam_sensor_deinit(void);
 
@@ -71,12 +74,13 @@ esp_err_t cam_sensor_init(const cam_sensor_config_t *config)
         ESP_LOGE(TAG, "esp_video_init failed: %s", esp_err_to_name(ret));
         return ret;
     }
+    s_video_initialized = true;
 
     // 打开 MIPI CSI 视频设备节点（只读，仅取帧不写）
     s_fd = open(ESP_VIDEO_MIPI_CSI_DEVICE_NAME, O_RDONLY);
     if (s_fd < 0) {
         ESP_LOGE(TAG, "open %s failed", ESP_VIDEO_MIPI_CSI_DEVICE_NAME);
-        esp_video_deinit();
+        cam_sensor_deinit();
         return ESP_FAIL;
     }
 
@@ -110,7 +114,13 @@ esp_err_t cam_sensor_init(const cam_sensor_config_t *config)
         cam_sensor_deinit();
         return ESP_FAIL;
     }
-    for (int i = 0; i < CAM_FB_COUNT; i++) {
+    ESP_LOGI(TAG, "camera requested %d buffers, driver granted %u", CAM_FB_COUNT, (unsigned)req.count);
+    if (req.count < 2 || req.count > CAM_FB_COUNT) {
+        ESP_LOGE(TAG, "unexpected camera buffer count: %u", (unsigned)req.count);
+        cam_sensor_deinit();
+        return ESP_FAIL;
+    }
+    for (int i = 0; i < (int)req.count; i++) {
         struct v4l2_buffer buf = {
             .type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
             .memory = V4L2_MEMORY_MMAP,
@@ -128,6 +138,7 @@ esp_err_t cam_sensor_init(const cam_sensor_config_t *config)
             cam_sensor_deinit();
             return ESP_FAIL;
         }
+        s_mapped_count++;
         if (ioctl(s_fd, VIDIOC_QBUF, &buf) != 0) {
             ESP_LOGE(TAG, "VIDIOC_QBUF %d failed", i);
             cam_sensor_deinit();
@@ -142,9 +153,10 @@ esp_err_t cam_sensor_init(const cam_sensor_config_t *config)
         cam_sensor_deinit();
         return ESP_FAIL;
     }
+    s_streaming = true;
 
     s_initialized = true;
-    ESP_LOGI(TAG, "camera init: %dx%d RGB888, %d buffers, streaming", s_width, s_height, CAM_FB_COUNT);
+    ESP_LOGI(TAG, "camera init: %dx%d RGB888, %d buffers, streaming", s_width, s_height, s_mapped_count);
     return ESP_OK;
 }
 
@@ -181,7 +193,7 @@ esp_err_t cam_sensor_get_frame(uint8_t **data, size_t *size,
 // data 必须是 cam_sensor_get_frame 返回过的指针，否则返回 ESP_ERR_INVALID_ARG。
 esp_err_t cam_sensor_return_frame(uint8_t *data)
 {
-    for (int i = 0; i < CAM_FB_COUNT; i++) {
+    for (int i = 0; i < s_mapped_count; i++) {
         if (s_fb[i] == (void *)data) {
             struct v4l2_buffer buf = {
                 .type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
@@ -198,7 +210,7 @@ esp_err_t cam_sensor_return_frame(uint8_t *data)
 // 把缓冲数的唯一定义留在本文件，避免两处宏不一致。
 int cam_sensor_get_fb_count(void)
 {
-    return CAM_FB_COUNT;
+    return s_mapped_count > 0 ? s_mapped_count : CAM_FB_COUNT;
 }
 
 // 反初始化：STREAMOFF 停流 → munmap 释放所有缓冲 → close → esp_video_deinit。
@@ -206,21 +218,29 @@ int cam_sensor_get_fb_count(void)
 esp_err_t cam_sensor_deinit(void)
 {
     if (s_fd >= 0) {
-        enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        ioctl(s_fd, VIDIOC_STREAMOFF, &type);
+        if (s_streaming) {
+            enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+            ioctl(s_fd, VIDIOC_STREAMOFF, &type);
+        }
+        s_streaming = false;
     }
-    for (int i = 0; i < CAM_FB_COUNT; i++) {
+    for (int i = 0; i < s_mapped_count; i++) {
         if (s_fb[i] && s_fb[i] != MAP_FAILED) {
             munmap(s_fb[i], s_fb_len[i]);
             s_fb[i] = NULL;
+            s_fb_len[i] = 0;
         }
     }
+    s_mapped_count = 0;
     if (s_fd >= 0) {
         close(s_fd);
         s_fd = -1;
     }
     s_initialized = false;
-    esp_video_deinit();
+    if (s_video_initialized) {
+        esp_video_deinit();
+        s_video_initialized = false;
+    }
     return ESP_OK;
 }
 
