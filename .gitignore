@@ -17,6 +17,11 @@ agentic/.esp-agent/
 # 临时缓存
 .cache/
 
+# JTAG 诊断抓帧产物
+frame.bin
+frame*.png
+frame*.jpg
+
 # Python
 __pycache__/
 *.pyc
