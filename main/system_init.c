@@ -40,7 +40,7 @@ void System_Init(void)
     // 复合字面量内联注入背光/校准 handler，解耦 UI 与 bsp/vision；后期加业务在此多填一个字段。
     ui_bind_dashboard(&(ui_dashboard_handlers_t){
         .brightness  = BSP_LCD_SetBrightness,
-        .calibration = roi_tuning_request_calibration,
+        .calibration = vision_frame_dump_request,   // 诊断期临时占用：LOGO 键触发抓帧（ROI 校准仍为 stub）
     });
     BSP_LVGL_Unlock();
 

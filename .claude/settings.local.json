@@ -191,7 +191,11 @@
       "Bash(xxd -l 128 model/pose_s8_v1.espdl)",
       "mcp__mcp-deepwiki__deepwiki_fetch",
       "Bash(grep -niB1 -A2 -iE \"esp-ppq|pip install|clone|checkout|version\" managed_components/espressif__esp-dl/README.md)",
-      "Bash(xxd)"
+      "Bash(xxd)",
+      "Bash(git -c 'user.name=ESP32P4 Dev' -c user.email=dev@localhost commit -m ' *)",
+      "Bash(git -C E:/ESP32P4_Detection status --short)",
+      "Bash(git -C E:/ESP32P4_Detection diff --stat)",
+      "Bash(cmd //c start \"\" \"frame_bgr.png\")"
     ]
   }
 }

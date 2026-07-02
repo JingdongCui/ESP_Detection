@@ -45,12 +45,12 @@ static const char *TAG = "vision_model";
 // ============================================================
 // 模型1：面单检测（单分类，category 恒 0）
 #define VISION_WAYBILL_MODEL_FILE  "det_pico_224_224_waybill.espdl"  // 用户面单模型(重导出)
-#define VISION_WAYBILL_SCORE_THR   0.10f
+#define VISION_WAYBILL_SCORE_THR   0.80f
 #define VISION_WAYBILL_NMS_THR     0.70f
 // 模型2：logo 三分类（0=极兔 1=中通 2=韵达）
 // TODO: logo 模型尚未放入，暂指向面单模型打通链路，接入后改此宏即可。
 #define VISION_LOGO_MODEL_FILE     "det_pico_224_224_waybill.espdl"  // 暂用面单模型占位
-#define VISION_LOGO_SCORE_THR      0.25f
+#define VISION_LOGO_SCORE_THR      0.9f
 #define VISION_LOGO_NMS_THR        0.70f
 
 // SPIFFS 挂载点与分区标签（模型文件由 spiffs_create_partition_image(storage model) 打包）。
@@ -122,7 +122,9 @@ public:
         // test 后再 minimize，回收中间张量内存供实际推理使用。
         m_model->minimize();
 
-        // mean=0 / std=255 → 归一化到 [0,1]；P4 输入 RGB888。
+        // mean=0 / std=255 → 归一化到 [0,1]。rgb_swap 用默认 false（模型接收 RGB）；
+        // 源帧的真实色序由 vision_detector_run 里 img_t.pix_type 声明（BGR888），
+        // esp-dl 据源=BGR/目标=RGB 自动完成红蓝交换。
         m_image_preprocessor =
             new dl::image::ImagePreprocessor(m_model, {0, 0, 0}, {255, 255, 255});
         m_image_preprocessor->enable_letterbox({114, 114, 114});
@@ -180,7 +182,10 @@ extern "C" int vision_detector_run(vision_detector_t *det,
     in.data = (void *)img;
     in.width = (uint16_t)width;
     in.height = (uint16_t)height;
-    in.pix_type = dl::image::DL_IMAGE_PIX_TYPE_RGB888;
+    // 相机(bsp_cam_sensor)V4L2 名义设 RGB24，但实测传感器/ISP 实际输出字节序为 BGR
+    // （JTAG dump 原始帧在 PC 上确认红蓝互换）。此处如实声明 BGR888：模型训练输入为 RGB，
+    // ImagePreprocessor 目标为 RGB888(rgb_swap=false)，esp-dl 依 BGR→RGB 自动交换红蓝。
+    in.pix_type = dl::image::DL_IMAGE_PIX_TYPE_BGR888;
 
     std::list<dl::detect::result_t> &res = det->model->run(in);
 

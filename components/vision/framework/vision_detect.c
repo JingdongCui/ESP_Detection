@@ -20,14 +20,29 @@
  * 处先拷贝再处理。model->run 是 C++，纯 C 调用需 C++ 薄封装暴露 C 接口。
  */
 #include <string.h>
+#include <stdatomic.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "esp_timer.h"
+#include "esp_heap_caps.h"
+#include "esp_cache.h"
 #include "SEGGER_RTT.h"
+#include "vision.h"                    // 对外接口：vision_frame_dump_request（供 UI 按键触发）
 #include "vision_internal.h"           // 已含 evt.h → vision_result_event_data_t
 #include "vision_model.h"              // C 封装层：vision_model_run / 耗时 / 三类概率
 #include "roi_tuning.h"                // ROI 颜色阈值校准（C 接口，extern "C"）
+
+// 诊断抓帧：UI 线程（core0）按键置位，推理线程（core1）下一帧 memcpy 出"进推理前"整帧
+// 原始 RGB888 到固定 PSRAM buffer，供主机经 JTAG dump_image 拉成 .bin 与 PC 前处理对拍。
+static atomic_bool s_frame_dump_request = ATOMIC_VAR_INIT(false);
+static uint8_t    *s_frame_dump_buf;   // 常驻 PSRAM，按需扩容后不释放
+static size_t      s_frame_dump_cap;
+
+void vision_frame_dump_request(void)
+{
+    atomic_store(&s_frame_dump_request, true);
+}
 
 void vision_detect_task(void *arg)
 {
@@ -77,6 +92,30 @@ void vision_detect_task(void *arg)
                 cal.after.y_min, cal.after.sat_approx_max, cal.after.rgb_delta_max, cal.after.min_channel_min);
         }
 
+        // ===== 诊断抓帧：命中 LOGO 键请求则锁定"进推理前"的整帧原始 RGB888 =====
+        // memcpy 脱离 V4L2 mmap 到固定 PSRAM buffer，再 C2M cache writeback——否则 CPU
+        // 写入滞留 cache，OpenOCD 从 PSRAM 物理读会拿到旧数据。RTT 打印地址+尺寸，
+        // 主机据此用 dump_image 经 JTAG 拉成 .bin（紧凑 w×h×3、行优先、RGB 顺序）。
+        if (atomic_exchange(&s_frame_dump_request, false)) {
+            size_t need = (size_t)fb.width * fb.height * 3;
+            if (s_frame_dump_cap < need) {
+                heap_caps_free(s_frame_dump_buf);
+                s_frame_dump_buf = heap_caps_malloc(need, MALLOC_CAP_SPIRAM);
+                s_frame_dump_cap = s_frame_dump_buf ? need : 0;
+            }
+            if (s_frame_dump_buf) {
+                memcpy(s_frame_dump_buf, fb.buf, need);
+                esp_cache_msync(s_frame_dump_buf, need,
+                                ESP_CACHE_MSYNC_FLAG_DIR_C2M | ESP_CACHE_MSYNC_FLAG_UNALIGNED);
+                SEGGER_RTT_printf(0,
+                    "[FRAME_DUMP] addr=0x%08x w=%d h=%d bytes=%u\n"
+                    "[FRAME_DUMP] cmd: dump_image <file> 0x%08x %u\n",
+                    (unsigned)(uintptr_t)s_frame_dump_buf, fb.width, fb.height, (unsigned)need,
+                    (unsigned)(uintptr_t)s_frame_dump_buf, (unsigned)need);
+            } else {
+                SEGGER_RTT_printf(0, "[FRAME_DUMP] PSRAM alloc FAIL for %u bytes\n", (unsigned)need);
+            }
+        }
 
         // ===== 真实推理：原图 RGB888 → ROI/前处理/model->run/后处理 → 原图坐标框 =====
         vision_model_det_t dets[VISION_MAX_BOXES];
