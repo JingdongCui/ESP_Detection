@@ -147,3 +147,26 @@
   - Real-board run connected both sockets and processed frames through about `seq=160`.
   - Observed stable path: `total=359-365ms`, `encode=290-295ms`, `send=2-8ms`, `wait=60-68ms`, `infer=18-20ms`, `host=60-64ms`, `q=70`.
   - Previous 1-2 second wait spikes were not reproduced with the dual-channel/worker path.
+
+## 2026-07-02 Weight And Recognition Quality Check
+
+- Checked the training script:
+  - `scripts/train_logo_yolo26m_150.sh` trains from `models/yolo26m.pt`.
+  - It uses `datasets/logo_train_quick/data.yaml`, `imgsz=1024`, `epochs=150`, and run name `logo_yolo26m_150`.
+- Checked the service start script and running process:
+  - `scripts/start_inference_service.sh` defaults to `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`.
+  - Running process command line also used that same trained `best.pt`.
+  - `/health` returned `model=best.pt`, `imgsz=1024`, `conf=0.1`, `max_det=1`.
+- Checked model metadata:
+  - `models/yolo26m.pt` has COCO class names and is about `43 MiB`.
+  - trained `best.pt` is about `168 MiB`, has class names `{0: jt, 1: zt, 2: yd}`, and records data `datasets/logo_train_quick/data.yaml`.
+  - `results.csv` reached high validation metrics around epoch 70: `mAP50` about `0.99`.
+- Root cause found for poor live recognition:
+  - `ml/logo_inference_service.py` decoded JPEG with OpenCV to BGR, then incorrectly converted it to RGB before passing numpy input to Ultralytics.
+  - Local Ultralytics `BasePredictor.preprocess()` reverses numpy channel order internally with `im[..., ::-1]  # BGR to RGB`, so the service had effectively passed wrong channel order.
+  - Fixed JPEG path to keep OpenCV BGR.
+  - Fixed RGB888 path to convert board RGB payload to BGR before calling YOLO.
+- Validation:
+  - `.venv/bin/python -m py_compile ml/logo_inference_service.py`: passed.
+  - Restarted inference service with trained `best.pt`; health check passed.
+  - Non-interactive `sudo` was unavailable, so the restarted service process could not be reniced to `-10` in this run.

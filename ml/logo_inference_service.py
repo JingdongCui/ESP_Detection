@@ -59,7 +59,8 @@ class LogoInferenceService:
                 status_code=400,
                 detail=f"invalid RGB888 payload: got {len(payload)} bytes, expected {expected}",
             )
-        image = np.frombuffer(payload, dtype=np.uint8).reshape((height, width, 3))
+        rgb = np.frombuffer(payload, dtype=np.uint8).reshape((height, width, 3))
+        image = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
         return self._predict(source=image, frame_seq=frame_seq, width=width, height=height)
 
     def infer_jpeg(self, frame_seq: int, width: int, height: int, payload: bytes) -> dict[str, Any]:
@@ -68,10 +69,9 @@ class LogoInferenceService:
 
         decode_start = time.perf_counter()
         encoded = np.frombuffer(payload, dtype=np.uint8)
-        bgr = cv2.imdecode(encoded, cv2.IMREAD_COLOR)
-        if bgr is None:
+        image = cv2.imdecode(encoded, cv2.IMREAD_COLOR)
+        if image is None:
             raise HTTPException(status_code=400, detail="invalid JPEG payload")
-        image = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
         decode_ms = int((time.perf_counter() - decode_start) * 1000)
 
         decoded_h, decoded_w = image.shape[:2]

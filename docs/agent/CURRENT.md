@@ -41,3 +41,8 @@ ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact resu
 
 - The current largest fixed cost is board JPEG encode, around `290ms`.
 - Result downlink is not the bottleneck: result packets are small and stable, and `wait` now tracks host inference/response around `60ms`.
+- Weight check on 2026-07-02:
+  - Current service command loads `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`.
+  - That file is the trained 26m run output, not the original `models/yolo26m.pt`.
+  - Fixed inference service color handling: OpenCV JPEG decode is kept as BGR for Ultralytics, and RGB888 board payload is converted RGB -> BGR before prediction.
+  - Service was restarted with the fixed code, but non-interactive sudo was unavailable, so the new service process could not be reniced back to `-10`.

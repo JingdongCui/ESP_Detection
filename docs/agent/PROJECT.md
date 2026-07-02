@@ -158,6 +158,11 @@ EPOCHS=150 scripts/train_logo_yolo26m_150.sh
 - The Qt host inference call and packet `0x12` return path have been verified with real ESP32-P4 image packets.
 - `kMaxPayload` is 8 MiB, enough for `1024 * 600 * 3 = 1.84 MiB`.
 - The optimized host path uses `/infer_jpeg`; `/infer_rgb888` remains available for compatibility and RAW comparison. The host does not save incoming JPEG/RAW frames on the hot path.
+- Inference service image color convention:
+  - Ultralytics numpy input is treated as BGR and internally converted to RGB.
+  - JPEG path should pass OpenCV `imdecode()` BGR output directly to YOLO.
+  - RGB888 board payload must be converted RGB -> BGR before YOLO.
+  - Do not convert decoded JPEG BGR -> RGB before calling `YOLO.predict`; that reverses colors in the model input and hurts recognition.
 - Latest real-board latency result with `nice=-10` host/service and dual TCP channels:
   - JPEG q70: stable `359-365 ms` total through about 160 frames; `encode=290-295ms`, `send=2-8ms`, `wait=60-68ms`, `infer=18-20ms`, `host=60-64ms`, payload around `39-46 KiB` in the current scene.
   - Previous 1-2 second result-wait spikes were not reproduced after splitting image/control sockets and moving host networking off the UI thread.
