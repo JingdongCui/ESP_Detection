@@ -238,6 +238,14 @@
   - log: `logs/train_logo_yolo26m_refined_25.log`
   - command: `models/yolo26m.pt`, refined data, `imgsz=1024`, `epochs=25`, `batch=1`
   - startup verified: data scan `4757` train / `1190` val, `0` corrupt, entered epoch `1/25`.
+- Training completed:
+  - best checkpoint: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt`
+  - last checkpoint: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/last.pt`
+- User requested replacing the upper-computer inference model with this checkpoint and not running tests.
+- Updated `scripts/start_inference_service.sh` default model path to:
+  - `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt`
+- No service process was running at the time of the switch, so no old process needed restart.
+- Did not run inference tests per user request.
 
 ## 2026-07-02 Camera Green-Cast Config Match
 

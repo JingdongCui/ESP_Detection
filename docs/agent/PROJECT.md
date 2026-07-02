@@ -33,6 +33,8 @@ Build an ESP32-P4 to desktop host pipeline for small courier-logo detection:
   - `models/logo_yolo26s_quick.pt`
 - Trained 26m best checkpoint:
   - `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`
+- Refined 25-epoch 26m checkpoint currently used by the inference service:
+  - `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt`
 - YOLO dataset:
   - `/home/kazeform/2026upper/datasets/logo_train_quick/data.yaml`
 - Refined pseudo-label dataset from all-datasets predict output:
@@ -125,7 +127,14 @@ Start inference service:
 ```bash
 cd /home/kazeform/2026upper
 source .venv/bin/activate
-python ml/logo_inference_service.py --model /home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt --imgsz 1024 --conf 0.1 --device 0
+python ml/logo_inference_service.py --model /home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt --imgsz 1024 --conf 0.1 --device 0
+```
+
+Default inference service script now uses the refined 25-epoch checkpoint:
+
+```bash
+cd /home/kazeform/2026upper
+scripts/start_inference_service.sh
 ```
 
 Start host app:
@@ -168,7 +177,8 @@ scripts/train_logo_yolo26m_refined_25.sh
 ## Known Issues
 
 - `scripts/start_inference_service.sh` now has been used with the 26m checkpoint during real-board validation:
-  - `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`
+  - current default: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt`
+  - previous validated default: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`
 - The Qt host inference call and packet `0x12` return path have been verified with real ESP32-P4 image packets.
 - `kMaxPayload` is 8 MiB, enough for `1024 * 600 * 3 = 1.84 MiB`.
 - The optimized host path uses `/infer_jpeg`; `/infer_rgb888` remains available for compatibility and RAW comparison. The host does not save incoming JPEG/RAW frames on the hot path.

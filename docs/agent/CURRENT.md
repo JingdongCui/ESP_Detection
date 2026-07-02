@@ -51,8 +51,8 @@ ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact resu
 - The current largest fixed cost is board JPEG encode, around `290ms`.
 - Result downlink is not the bottleneck: result packets are small and stable, and `wait` now tracks host inference/response around `60ms`.
 - Weight check on 2026-07-02:
-  - Current service command loads `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`.
-  - That file is the trained 26m run output, not the original `models/yolo26m.pt`.
+  - Current service script loads `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt` by default.
+  - Previous service command loaded `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`; that file is the trained 26m run output, not the original `models/yolo26m.pt`.
   - Fixed inference service color handling: OpenCV JPEG decode is kept as BGR for Ultralytics, and RGB888 board payload is converted RGB -> BGR before prediction.
   - Service was restarted with the fixed code, but non-interactive sudo was unavailable, so the new service process could not be reniced back to `-10`.
 - Full dataset inspection output:
@@ -79,11 +79,15 @@ ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact resu
   - deleted for no correct-class detection: `107`
   - per class kept: `jt=1816`, `zt=2558`, `yd=1573`
 - Training entry: `scripts/train_logo_yolo26m_refined_25.sh`.
-- Active 25-epoch training:
+- Completed 25-epoch training:
   - run: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25`
   - log: `logs/train_logo_yolo26m_refined_25.log`
+  - best checkpoint: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt`
+  - last checkpoint: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/last.pt`
   - command uses `models/yolo26m.pt`, `imgsz=1024`, `epochs=25`, `batch=1`.
-  - verified started and reached epoch `1/25`.
+- Inference integration:
+  - `scripts/start_inference_service.sh` default model now points to the refined 25-epoch `best.pt`.
+  - No inference test was run per user request.
 - Green-cast follow-up:
   - Config comparison against `ESP32P4_Detection(4).zip` showed AWB/ACC/AGC and SC2336 defaults were already present, but the current firmware had the ISP pipeline controller disabled.
   - The code/config fix has been flashed and the transport path is stable; final visual confirmation of whether the physical screen is no longer green still needs human inspection of the panel.
