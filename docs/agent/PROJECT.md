@@ -35,6 +35,10 @@ Build an ESP32-P4 to desktop host pipeline for small courier-logo detection:
   - `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`
 - YOLO dataset:
   - `/home/kazeform/2026upper/datasets/logo_train_quick/data.yaml`
+- Refined pseudo-label dataset from all-datasets predict output:
+  - `/home/kazeform/2026upper/datasets/logo_refined_yolo26m/data.yaml`
+  - built by `scripts/refine_yolo_predict_dataset.py`
+  - rule: resolve class from source dataset folder/filename, keep at most one smallest correct-class box per image, drop images with no correct-class box
 - Classes:
   - `0`: `jt`
   - `1`: `zt`
@@ -152,6 +156,13 @@ Train 26m:
 ```bash
 cd /home/kazeform/2026upper
 EPOCHS=150 scripts/train_logo_yolo26m_150.sh
+```
+
+Train refined 26m for 25 epochs:
+
+```bash
+cd /home/kazeform/2026upper
+scripts/train_logo_yolo26m_refined_25.sh
 ```
 
 ## Known Issues

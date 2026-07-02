@@ -60,6 +60,30 @@ ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact resu
   - Train annotated predictions: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_train_best`
   - Val annotated predictions: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_val_best`
   - Val metrics/plots: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_val_metrics`
+
+## Current YOLO Refinement Task
+
+- Source prediction output: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_all_datasets_best`.
+- Refinement script: `scripts/refine_yolo_predict_dataset.py`.
+- Refined dataset: `datasets/logo_refined_yolo26m`.
+- Class source rule:
+  - Use `/home/kazeform/2026upper/datasets` folder names and file names to resolve ground-truth class.
+  - Numeric-only images are resolved through original continuous folders such as `000_jt`, `001_zt`, `004_yd`, `006_jt`.
+  - Prediction boxes with a class different from the resolved class are treated as false detections.
+  - If multiple boxes match the resolved class, keep the smallest `w*h` box.
+  - If no correct-class box exists, remove that image from the refined training set.
+- Refined dataset result:
+  - total kept: `5947`
+  - train: `4757`
+  - val: `1190`
+  - deleted for no correct-class detection: `107`
+  - per class kept: `jt=1816`, `zt=2558`, `yd=1573`
+- Training entry: `scripts/train_logo_yolo26m_refined_25.sh`.
+- Active 25-epoch training:
+  - run: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25`
+  - log: `logs/train_logo_yolo26m_refined_25.log`
+  - command uses `models/yolo26m.pt`, `imgsz=1024`, `epochs=25`, `batch=1`.
+  - verified started and reached epoch `1/25`.
 - Green-cast follow-up:
   - Config comparison against `ESP32P4_Detection(4).zip` showed AWB/ACC/AGC and SC2336 defaults were already present, but the current firmware had the ISP pipeline controller disabled.
   - The code/config fix has been flashed and the transport path is stable; final visual confirmation of whether the physical screen is no longer green still needs human inspection of the panel.

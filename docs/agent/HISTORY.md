@@ -202,6 +202,43 @@
   - removed Ultralytics dataset cache files `datasets/logo_train_quick/labels/train.cache` and `datasets/logo_train_quick/labels/val.cache`; these are regenerated automatically.
   - added root `.gitignore` rules for Python cache files.
 
+## 2026-07-02 YOLO Predict Output Refinement And 25-Epoch Retrain
+
+- User requested improving `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_all_datasets_best` before retraining.
+- Created pre-change empty baseline commit:
+  - `22454ec chore: pre yolo refinement baseline`
+- Added `scripts/refine_yolo_predict_dataset.py`.
+- Refinement behavior:
+  - Builds class mapping from `/home/kazeform/2026upper/datasets` directory names and image names.
+  - Handles numeric-only filenames by matching them back to original continuous directories such as `000_jt`, `001_zt`, `002_zt`, `003_zt`, `004_yd`, `005_yd`, `006_jt`.
+  - Uses YOLO predict labels from `logo_yolo26m_all_datasets_best/labels`.
+  - Drops wrong-class detections.
+  - Keeps at most one detection per image: the smallest-area box among boxes of the resolved correct class.
+  - Drops images with no correct-class detection.
+  - Copies original source images from `datasets/`, not predict-output annotated preview images.
+- Ran:
+  - `scripts/refine_yolo_predict_dataset.py`
+- Refined dataset output:
+  - `datasets/logo_refined_yolo26m/data.yaml`
+  - `datasets/logo_refined_yolo26m/images/{train,val}`
+  - `datasets/logo_refined_yolo26m/labels/{train,val}`
+  - `datasets/logo_refined_yolo26m/refine_report.md`
+- Dataset stats:
+  - kept total: `5947`
+  - train: `4757`
+  - val: `1190`
+  - kept `jt=1816`, `zt=2558`, `yd=1573`
+  - removed because no correct-class detection: `107`
+  - image/label counts matched; each label file has exactly one YOLO row.
+- Initially started 50-epoch training, but user changed requirement to 25 epochs.
+- Stopped active 50-epoch processes for `logo_yolo26m_refined_50_full`.
+- Replaced 50-epoch helper with `scripts/train_logo_yolo26m_refined_25.sh`.
+- Started 25-epoch training in background:
+  - run: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25`
+  - log: `logs/train_logo_yolo26m_refined_25.log`
+  - command: `models/yolo26m.pt`, refined data, `imgsz=1024`, `epochs=25`, `batch=1`
+  - startup verified: data scan `4757` train / `1190` val, `0` corrupt, entered epoch `1/25`.
+
 ## 2026-07-02 Camera Green-Cast Config Match
 
 - Compared current camera config against teammate `ESP32P4_Detection(4).zip`.
