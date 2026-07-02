@@ -72,6 +72,28 @@ Header fields are little-endian:
 36 u32 reserved
 ```
 
+## ESP32-P4 Current Validation Firmware
+
+- Active board project: `/home/kazeform/2026upper/esp32_project`
+- Teammate UI/camera reference was imported from `ESP32P4_Detection(4).zip`.
+- Previous system/debug UI assets were backed up under:
+  - `docs/agent/archive/2026-07-02-current-ui-debug-backup/`
+- Current board preview/camera path:
+  - SC2336 sensor over MIPI CSI through `esp_video`.
+  - V4L2 output format is RGB888 (`V4L2_PIX_FMT_RGB24`), `1024 x 600`, 3 frame buffers.
+  - ISP/IPA color controls are enabled in sdkconfig: AWB, ACC, AGC.
+- Camera green-cast root cause was the old capture/config path bypassing the teammate ISP/IPA pipeline. The current path uses esp-video MIPI CSI + ISP color algorithms and delivers RGB888 to the preview/network path.
+- Resource-ordering constraint:
+  - Call `esp_netif_init()` first so LwIP TLS keys exist.
+  - Create the TCP task immediately after that and call `lwip_socket_thread_init()` inside the task so its per-thread socket semaphore is allocated before CSI/ISP consumes internal RAM.
+  - Start camera before Ethernet driver/socket buffers.
+  - Do not start sorter debug/MCPWM in the host-inference validation firmware; it consumes enough internal RAM to make LwIP socket allocation fail with `errno=105`.
+- Board sends a downscaled RGB888 inference frame to the host:
+  - Camera/preview frame remains `1024 x 600`.
+  - Inference upload frame is `224 x 132` RGB888, 88,704 bytes.
+  - Host returns normalized box coordinates; board maps them back to `1024 x 600` before drawing.
+- Metrics packets are delayed to a 10 second interval so they do not compete with image/result latency during validation.
+
 ## Useful Commands
 
 Start inference service:
@@ -100,7 +122,9 @@ EPOCHS=150 scripts/train_logo_yolo26m_150.sh
 
 ## Known Issues
 
-- `scripts/start_inference_service.sh` still defaults to `models/logo_yolo26s_quick.pt`; switch it to the 26m checkpoint before deployment or pass the 26m path as the first argument.
-- The Qt host already has the inference call and packet `0x12` send path, but full ESP32-P4 real-device verification is not completed.
+- `scripts/start_inference_service.sh` now has been used with the 26m checkpoint during real-board validation:
+  - `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`
+- The Qt host inference call and packet `0x12` return path have been verified with real ESP32-P4 image packets.
 - `kMaxPayload` is 8 MiB, enough for `1024 * 600 * 3 = 1.84 MiB`.
-- The host currently saves incoming frames as PNG before inference. This is simple and works, but adds disk I/O latency. Later optimization can pass in-memory bytes to the inference service.
+- The host currently saves incoming frames as PNG on the original `/infer` path. The validation path uses `/infer_rgb888` to avoid PNG disk I/O for board-sent raw RGB888 frames.
+- Detection result can be `det=0` if the camera scene does not contain one of the trained logo classes. The transport/result/overlay path is still exercised; with a positive detection the board draws the returned box.

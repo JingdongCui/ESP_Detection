@@ -64,8 +64,8 @@ class LogoInferenceService:
         elapsed_ms = int((time.perf_counter() - start) * 1000)
         result = results[0]
 
-        width = int(request.image_width or result.orig_shape[1])
-        height = int(request.image_height or result.orig_shape[0])
+        width = int(width or result.orig_shape[1])
+        height = int(height or result.orig_shape[0])
         detections: list[dict[str, Any]] = []
         names = result.names
         boxes = result.boxes
