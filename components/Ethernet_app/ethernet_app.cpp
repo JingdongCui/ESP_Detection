@@ -36,13 +36,16 @@
 static const char *TAG = "eth_example";
 
 #define HOST_IP                 "192.168.10.1"
-#define HOST_PORT               5000
+#define HOST_CONTROL_PORT       5000
+#define HOST_IMAGE_PORT         5001
 #define TCP_TASK_STACK_BYTES    (12 * 1024)
 #define TCP_TASK_PRIORITY       12
 #define TCP_SEND_WAIT_MS        1000
 #define TCP_FRAME_RESULT_TIMEOUT_MS 15000
 #define TCP_FRAME_PAUSE_MS      0
 #define TCP_METRICS_INTERVAL_MS 10000
+#define TCP_RX_BUFFER_BYTES     8192
+#define TCP_RX_MAX_PAYLOAD_BYTES (TCP_RX_BUFFER_BYTES - ESP_HOST_HEADER_SIZE)
 #define TCP_CONNECT_READY_BIT   BIT0
 #define TCP_CAMERA_READY_BIT    BIT1
 
@@ -102,6 +105,8 @@ typedef struct {
     int image_width;
     int image_height;
     int inference_ms;
+    int decode_ms;
+    int host_ms;
     Detection detection;
     char label[16];
 } host_inference_result_t;
@@ -234,7 +239,7 @@ static esp_err_t encode_jpeg_frame(const uint8_t *frame, int frame_w, int frame_
     uint8_t *jpeg = get_jpeg_frame_buffer();
     ESP_RETURN_ON_FALSE(jpeg != NULL, ESP_ERR_NO_MEM, TAG, "jpeg output buffer unavailable");
 
-    const int qualities[] = {70, 60, 50};
+    const int qualities[] = {70};
     const int image_size = frame_w * frame_h * 3;
     int encoded = 0;
     jpeg_error_t last_err = JPEG_ERR_FAIL;
@@ -459,6 +464,8 @@ static bool parse_inference_result(const char *json, size_t len, host_inference_
     int image_width = (int)parse_json_int64(json, "\"image_width\"", VISION_CAM_WIDTH);
     int image_height = (int)parse_json_int64(json, "\"image_height\"", VISION_CAM_HEIGHT);
     int inference_ms = (int)parse_json_int64(json, "\"inference_ms\"", 0);
+    int decode_ms = (int)parse_json_int64(json, "\"decode_ms\"", 0);
+    int host_ms = (int)parse_json_int64(json, "\"host_ms\"", 0);
     if (frame_seq == (uint32_t)-1 || image_width <= 0 || image_height <= 0) {
         return false;
     }
@@ -469,6 +476,8 @@ static bool parse_inference_result(const char *json, size_t len, host_inference_
     out->image_width = image_width;
     out->image_height = image_height;
     out->inference_ms = inference_ms;
+    out->decode_ms = decode_ms;
+    out->host_ms = host_ms;
 
     if (!out->valid) {
         return true;
@@ -585,19 +594,22 @@ static void process_rx_packet(int sock, const esp_host_packet_header_t *header, 
     if (header->type == ESP_HOST_TYPE_TIME_SYNC) {
         apply_time_sync((const char *)payload, header->payload_len);
     } else if (header->type == ESP_HOST_TYPE_INFERENCE_RESULT) {
-        char json[2048];
+        static char json[TCP_RX_MAX_PAYLOAD_BYTES + 1];
         size_t copy_len = std::min((size_t)header->payload_len, sizeof(json) - 1);
         memcpy(json, payload, copy_len);
         json[copy_len] = '\0';
         host_inference_result_t result = {};
         if (parse_inference_result(json, copy_len, &result)) {
             s_latest_result = result;
-            ESP_LOGI(TAG, "host result seq=%lu valid=%d label=%s conf=%.3f infer=%dms",
+            ESP_LOGI(TAG, "host result seq=%lu valid=%d label=%s conf=%.3f infer=%dms decode=%dms host=%dms rx=%luB",
                      (unsigned long)result.frame_seq,
                      result.valid ? 1 : 0,
                      result.label,
                      (double)result.detection.confidence,
-                     result.inference_ms);
+                     result.inference_ms,
+                     result.decode_ms,
+                     result.host_ms,
+                     (unsigned long)header->payload_len);
         } else {
             ESP_LOGW(TAG, "invalid inference result JSON: %.*s", (int)copy_len, json);
         }
@@ -608,7 +620,7 @@ static void process_rx_packet(int sock, const esp_host_packet_header_t *header, 
 
 static bool poll_incoming_packets(int sock, bool reset_buffer)
 {
-    static uint8_t rx_buf[4096];
+    static uint8_t rx_buf[TCP_RX_BUFFER_BYTES];
     static size_t rx_len;
 
     if (reset_buffer) {
@@ -635,7 +647,7 @@ static bool poll_incoming_packets(int sock, bool reset_buffer)
         esp_host_packet_header_t header;
         memcpy(&header, rx_buf, sizeof(header));
         if (header.magic != ESP_HOST_MAGIC || header.version != ESP_HOST_VERSION ||
-            header.header_size != ESP_HOST_HEADER_SIZE || header.payload_len > 2048) {
+            header.header_size != ESP_HOST_HEADER_SIZE || header.payload_len > TCP_RX_MAX_PAYLOAD_BYTES) {
             memmove(rx_buf, rx_buf + 1, --rx_len);
             continue;
         }
@@ -650,7 +662,7 @@ static bool poll_incoming_packets(int sock, bool reset_buffer)
     return true;
 }
 
-static int connect_to_host(void)
+static int connect_to_host(int port, const char *name)
 {
     int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (sock < 0) {
@@ -660,7 +672,7 @@ static int connect_to_host(void)
 
     struct sockaddr_in dest = {
         .sin_family = AF_INET,
-        .sin_port = htons(HOST_PORT),
+        .sin_port = htons(port),
     };
     inet_pton(AF_INET, HOST_IP, &dest.sin_addr);
 
@@ -669,7 +681,7 @@ static int connect_to_host(void)
         fcntl(sock, F_SETFL, flags | O_NONBLOCK);
     }
 
-    ESP_LOGI(TAG, "connecting to host %s:%d", HOST_IP, HOST_PORT);
+    ESP_LOGI(TAG, "connecting %s to host %s:%d", name, HOST_IP, port);
     int ret = connect(sock, (struct sockaddr *)&dest, sizeof(dest));
     if (ret != 0) {
         if (errno != EINPROGRESS) {
@@ -701,7 +713,7 @@ static int connect_to_host(void)
         }
     }
 
-    ESP_LOGI(TAG, "connected to host");
+    ESP_LOGI(TAG, "%s connected to host", name);
     if (flags >= 0) {
         fcntl(sock, F_SETFL, flags & ~O_NONBLOCK);
     }
@@ -736,8 +748,11 @@ static bool wait_for_frame_result(int sock, uint32_t frame_seq, host_inference_r
 static void render_host_result(const uint8_t *frame, int frame_w, int frame_h,
                                const host_inference_result_t *result, int64_t total_us)
 {
-    std::vector<Detection> detections;
-    detections.reserve(1);
+    static std::vector<Detection> detections;
+    detections.clear();
+    if (detections.capacity() == 0) {
+        detections.reserve(1);
+    }
     if (result && result->valid) {
         detections.push_back(result->detection);
     }
@@ -755,7 +770,7 @@ static void render_host_result(const uint8_t *frame, int frame_w, int frame_h,
     }
 }
 
-static int send_frame_wait_result(int sock)
+static int send_frame_wait_result(int image_sock, int control_sock)
 {
     uint8_t *frame = NULL;
     size_t frame_size = 0;
@@ -799,7 +814,7 @@ static int send_frame_wait_result(int sock)
              (unsigned)frame_size,
              (unsigned)payload_size,
              jpeg_quality);
-    int send_ret = send_packet(sock, ESP_HOST_TYPE_IMAGE, payload, (uint32_t)payload_size,
+    int send_ret = send_packet(image_sock, ESP_HOST_TYPE_IMAGE, payload, (uint32_t)payload_size,
                                frame_w, frame_h, pixel_format);
     int64_t send_done_us = esp_timer_get_time();
     if (send_ret != 0) {
@@ -808,14 +823,14 @@ static int send_frame_wait_result(int sock)
     }
 
     host_inference_result_t result = {};
-    bool got_result = wait_for_frame_result(sock, frame_seq, &result);
+    bool got_result = wait_for_frame_result(control_sock, frame_seq, &result);
     int64_t wait_done_us = esp_timer_get_time();
     int64_t total_us = wait_done_us - start_us;
     if (got_result) {
         render_host_result(frame, frame_w, frame_h, &result, total_us);
         int64_t preview_done_us = esp_timer_get_time();
         ESP_LOGI(TAG,
-                 "frame seq=%lu fmt=%s total=%lldms dq=%lldms encode=%lldms send=%lldms wait=%lldms preview=%lldms infer=%dms payload=%u q=%d det=%d",
+                 "frame seq=%lu fmt=%s total=%lldms dq=%lldms encode=%lldms send=%lldms wait=%lldms preview=%lldms infer=%dms host=%dms payload=%u q=%d det=%d",
                  (unsigned long)frame_seq,
                  format_name,
                  (long long)(total_us / 1000),
@@ -825,6 +840,7 @@ static int send_frame_wait_result(int sock)
                  (long long)((wait_done_us - send_done_us) / 1000),
                  (long long)((preview_done_us - wait_done_us) / 1000),
                  result.inference_ms,
+                 result.host_ms,
                  (unsigned)payload_size,
                  jpeg_quality,
                  result.valid ? 1 : 0);
@@ -862,28 +878,34 @@ static void tcp_client_task(void *arg)
                             pdTRUE,
                             portMAX_DELAY);
 
-        int sock = connect_to_host();
-        if (sock < 0) {
+        int control_sock = connect_to_host(HOST_CONTROL_PORT, "control");
+        if (control_sock < 0) {
             vTaskDelay(pdMS_TO_TICKS(2000));
             continue;
         }
-        poll_incoming_packets(sock, true);
+        int image_sock = connect_to_host(HOST_IMAGE_PORT, "image");
+        if (image_sock < 0) {
+            close(control_sock);
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            continue;
+        }
+        poll_incoming_packets(control_sock, true);
         int64_t next_metrics_us = esp_timer_get_time() + (int64_t)TCP_METRICS_INTERVAL_MS * 1000LL;
         while (true) {
-            if (!poll_incoming_packets(sock, false)) {
-                ESP_LOGW(TAG, "TCP peer closed");
+            if (!poll_incoming_packets(control_sock, false)) {
+                ESP_LOGW(TAG, "TCP control peer closed");
                 break;
             }
 
             int64_t now_us = esp_timer_get_time();
             if (now_us >= next_metrics_us) {
-                if (send_metrics_packet(sock) != 0) {
+                if (send_metrics_packet(control_sock) != 0) {
                     ESP_LOGW(TAG, "TCP metrics send failed errno=%d", errno);
                     break;
                 }
                 next_metrics_us = now_us + (int64_t)TCP_METRICS_INTERVAL_MS * 1000LL;
             }
-            if (send_frame_wait_result(sock) != 0) {
+            if (send_frame_wait_result(image_sock, control_sock) != 0) {
                 ESP_LOGW(TAG, "TCP frame loop failed errno=%d", errno);
                 break;
             }
@@ -892,7 +914,8 @@ static void tcp_client_task(void *arg)
             }
         }
 
-        close(sock);
+        close(image_sock);
+        close(control_sock);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
