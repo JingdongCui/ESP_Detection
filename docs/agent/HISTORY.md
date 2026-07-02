@@ -43,3 +43,14 @@
   - done: class1=7, class2=7, class3=6
   - connected-session motor command counts: M1 forward30=29 stop=21; M2 forward35=7 reverse35=26 stop=34; M3 forward35=6 reverse35=7 stop=14
 - 注意：迁移版 TCP 日志比旧 baseline 少 1 次 M1 forward30，是因为模拟器在固件已启动后接入，启动阶段的 M1 初始输出没有被 TCP 连接记录；monitor boot 日志已确认真实输出启用。
+
+## 2026-07-02 Motor Timeout Inspection
+
+- 用户反馈 `old_project` 调试页面测试 class3/class2 或电机模拟运行时，第三条带感觉只运行约 0.5s/不到 1s，要求先检查不修改。
+- 检查结果：
+  - `old_project/components/Sorter_app/sorter_core/sorter_scheduler.c` 默认值为 `belt_a_timeout_ms=2000`、`belt_b_timeout_ms=750`、`belt_c_timeout_ms=750`、`handoff_delay_ms=1000`、`c_min_busy_ms=2500`、`c_fallback_busy_ms=8000`。
+  - UI debug 面板显示默认 `TO A2000 B750 C750`，B/C timeout 调整按钮每次增减 250ms。
+  - `CLASS2`/`CLASS3` 按钮调用 `sorting_sim_control_simulate_class()`，会创建虚拟包裹走调度器，不是直接长时间转电机。
+  - `MTEST` 调用 `motor_test_task()`，每个电机直接运行 500ms 后停止，再延迟 80ms 测下一个电机。
+  - `old_project` 与 `merge` 的 `sorter_scheduler.c`、`sorting_sim_control.c` 当前无 diff。
+- 结论：第三条带短时间运行与旧工程代码一致，不是迁移差异；若真实硬件行程需要更长，应后续调整 B/C timeout、C fallback 或接入传感器/编码器闭环。

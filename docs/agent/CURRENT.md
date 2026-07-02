@@ -32,11 +32,11 @@
 
 ## Immediate Next Step
 
-1. 提交 `merge` 移植代码和根目录 agent 文档。
-2. 后续真实硬件联调时重点验证：
+1. 后续真实硬件联调时重点验证：
    - S1/S3 分拣传感器 GPIO37/GPIO38 与 console UART boot 日志提示的潜在冲突。
    - 编码器当前仍沿用 `old_project` 虚拟配置，真实硬件 C 段完成主要依赖 fallback，若需要距离闭环需补真实 encoder GPIO。
    - 默认模拟模式会优先接受 TCP `VISION_FRAME`/`SENSOR`/`DISTANCE`，真实 IO 模式需通过配置切换。
+2. 电机运行时长待决策：`old_project` 和 `merge` 当前默认 `TO A2000 B750 C750`，UI `MTEST` 每个电机只转 500ms；用户实测第三条带约 0.5s/不到 1s 与代码一致，后续若需要真实分拣更长行程，应调整 B/C timeout、C fallback 或接入真实传感器/编码器闭环。
 
 ## Verification Standard
 
@@ -60,3 +60,4 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migra
 
 - 当前无阻塞。
 - 风险记录：本次 TCP 迁移模拟是在固件已启动后接入，因此 TCP 日志少记录一次启动阶段的 M1 初始 forward；启动 monitor 已确认真实电机初始化和输出启用。
+- 观察记录：短超时是旧工程原有行为，尚未修改。
