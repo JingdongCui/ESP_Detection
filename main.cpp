@@ -2,10 +2,32 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
+#include <cerrno>
+#include <cstring>
+#include <iostream>
+#include <sys/resource.h>
+
 #include "hostcontroller.h"
+
+namespace {
+void raiseProcessPriority()
+{
+    errno = 0;
+    const int currentNice = getpriority(PRIO_PROCESS, 0);
+    if (errno != 0 || currentNice <= 0) {
+        return;
+    }
+
+    if (setpriority(PRIO_PROCESS, 0, 0) != 0) {
+        std::cerr << "host priority unchanged: " << std::strerror(errno) << '\n';
+    }
+}
+} // namespace
 
 int main(int argc, char *argv[])
 {
+    raiseProcessPriority();
+
     QGuiApplication app(argc, argv);
 
     HostController hostController;

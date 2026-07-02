@@ -138,7 +138,7 @@ private:
     void handleImage(const HostProtocol::PacketHeader &header, const QByteArray &payload);
     void handleTelemetry(const QByteArray &payload);
     void handleDetectionJson(const QByteArray &payload);
-    void requestInference(quint32 frameSeq, quint16 width, quint16 height, const QByteArray &rgb888, const QString &imagePath);
+    void requestInference(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload, const QString &imagePath);
     void sendInferenceResultToDevice(const QVariantMap &frame);
     void applyMetrics(const QVariantMap &metrics, bool fromDemo);
     void applyDetectionFrame(const QVariantMap &frame, bool fromDemo);

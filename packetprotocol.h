@@ -18,6 +18,7 @@ constexpr quint16 kTypeControlJson = 0x11;
 constexpr quint16 kTypeInferenceResultJson = 0x12;
 
 constexpr quint16 kPixelRgb888 = 1;
+constexpr quint16 kPixelJpeg = 2;
 
 struct PacketHeader {
     quint16 type = 0;

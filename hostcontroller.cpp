@@ -4,6 +4,7 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QImage>
 #include <QJsonArray>
@@ -11,6 +12,7 @@
 #include <QJsonObject>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QProcessEnvironment>
 #include <QStandardPaths>
 #include <QUrl>
 #include <QUrlQuery>
@@ -88,7 +90,7 @@ QVariantList HostController::dashboardCards() const
     QVariantList cards;
     cards.append(makeCard(QStringLiteral("连接状态"), connected() ? QStringLiteral("在线") : QStringLiteral("演示"), m_statusText, connected() ? QStringLiteral("#49d39b") : QStringLiteral("#f2b84b")));
     cards.append(makeCard(QStringLiteral("接收吞吐"), QStringLiteral("%1 MB").arg(m_bytesReceived / 1048576.0, 0, 'f', 2), QStringLiteral("累计流量"), QStringLiteral("#54b8ff")));
-    cards.append(makeCard(QStringLiteral("图像帧数"), QString::number(m_imageCount), QStringLiteral("已保存 PNG"), QStringLiteral("#8da2ff")));
+    cards.append(makeCard(QStringLiteral("图像帧数"), QString::number(m_imageCount), QStringLiteral("已接收"), QStringLiteral("#8da2ff")));
     cards.append(makeCard(QStringLiteral("检测目标"), QString::number(m_detectionCount), QStringLiteral("Logo 记录"), QStringLiteral("#ff7a90")));
     cards.append(makeCard(QStringLiteral("实时帧率"), QStringLiteral("%1 FPS").arg(m_fps, 0, 'f', 1), QStringLiteral("检测管线"), QStringLiteral("#49d39b")));
     cards.append(makeCard(QStringLiteral("链路延迟"), QStringLiteral("%1 ms").arg(m_latencyMs), QStringLiteral("TCP/处理"), QStringLiteral("#f2b84b")));
@@ -190,6 +192,7 @@ void HostController::onNewConnection()
             m_socket = nullptr;
         }
         m_socket = socket;
+        m_socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
         m_buffer.clear();
         connect(m_socket, &QTcpSocket::readyRead, this, &HostController::onReadyRead);
         connect(m_socket, &QTcpSocket::disconnected, this, &HostController::onDisconnected);
@@ -199,6 +202,18 @@ void HostController::onNewConnection()
         emit stateChanged();
         appendLog(m_statusText);
         sendTimeSync();
+
+        const QString uploadFormat = QProcessEnvironment::systemEnvironment()
+                                         .value(QStringLiteral("ESP32_UPLOAD_FORMAT"), QStringLiteral("jpeg"))
+                                         .trimmed()
+                                         .toLower();
+        if (uploadFormat == QStringLiteral("raw") || uploadFormat == QStringLiteral("rgb888")) {
+            sendControlNow(QStringLiteral("upload_format"), QStringLiteral("raw"));
+            appendLog(QStringLiteral("请求下位机切换为 RAW RGB888 上传"));
+        } else {
+            sendControlNow(QStringLiteral("upload_format"), QStringLiteral("jpeg"));
+            appendLog(QStringLiteral("请求下位机切换为 JPEG 上传"));
+        }
     }
 }
 
@@ -265,34 +280,43 @@ void HostController::handlePacket(const HostProtocol::PacketHeader &header, cons
 
 void HostController::handleImage(const HostProtocol::PacketHeader &header, const QByteArray &payload)
 {
-    const qsizetype expected = qsizetype(header.width) * qsizetype(header.height) * 3;
-    if (header.pixelFormat != HostProtocol::kPixelRgb888 || payload.size() != expected || header.width == 0 || header.height == 0) {
+    if (header.width == 0 || header.height == 0) {
         appendLog(QStringLiteral("图像包无效 seq=%1").arg(header.seq));
         return;
     }
 
-    const QString fileName = QStringLiteral("frame_%1_%2.png")
-                                 .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss_zzz")))
-                                 .arg(header.seq);
-    const QString path = QDir(m_imageDir).filePath(fileName);
+    QString path;
+    QString formatText;
+    if (header.pixelFormat == HostProtocol::kPixelRgb888) {
+        const qsizetype expected = qsizetype(header.width) * qsizetype(header.height) * 3;
+        if (payload.size() != expected) {
+            appendLog(QStringLiteral("RGB 图像包无效 seq=%1 bytes=%2 expected=%3").arg(header.seq).arg(payload.size()).arg(expected));
+            return;
+        }
+        path = QDir(m_imageDir).filePath(QStringLiteral("latest_rgb888.png"));
+        formatText = QStringLiteral("RGB888");
+    } else if (header.pixelFormat == HostProtocol::kPixelJpeg) {
+        if (payload.isEmpty() || !payload.startsWith("\xff\xd8")) {
+            appendLog(QStringLiteral("JPEG 图像包无效 seq=%1 bytes=%2").arg(header.seq).arg(payload.size()));
+            return;
+        }
+        formatText = QStringLiteral("JPEG");
+    } else {
+        appendLog(QStringLiteral("不支持的图像格式 seq=%1 pixel=%2").arg(header.seq).arg(header.pixelFormat));
+        return;
+    }
 
     m_imageCount++;
-    m_latestImageUrl = QUrl::fromLocalFile(path).toString();
-    m_latestFrameInfo = QStringLiteral("%1 x %2  RGB888  #%3").arg(header.width).arg(header.height).arg(header.seq);
-    appendLog(QStringLiteral("图像 #%1 已接收：%2x%3").arg(header.seq).arg(header.width).arg(header.height));
-    emit imageChanged();
-    emit statsChanged();
-    emit dashboardChanged();
-    requestInference(header.seq, header.width, header.height, payload, path);
+    requestInference(header.seq, header.width, header.height, header.pixelFormat, payload, path);
 
-    QImage image(reinterpret_cast<const uchar *>(payload.constData()),
-                 header.width,
-                 header.height,
-                 header.width * 3,
-                 QImage::Format_RGB888);
-    const QImage owned = image.copy();
-    if (!owned.save(path, "PNG")) {
-        appendLog(QStringLiteral("保存调试图像失败 %1").arg(path));
+    if ((m_imageCount % 30) == 1) {
+        m_latestFrameInfo = QStringLiteral("%1 x %2  %3  #%4")
+                                .arg(header.width)
+                                .arg(header.height)
+                                .arg(formatText)
+                                .arg(header.seq);
+        emit statsChanged();
+        emit imageChanged();
     }
 }
 
@@ -323,13 +347,17 @@ void HostController::handleDetectionJson(const QByteArray &payload)
     applyDetectionFrame(doc.object().toVariantMap(), false);
 }
 
-void HostController::requestInference(quint32 frameSeq, quint16 width, quint16 height, const QByteArray &rgb888, const QString &imagePath)
+void HostController::requestInference(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload, const QString &imagePath)
 {
     if (!m_inferenceEnabled || m_inferenceServiceUrl.isEmpty()) {
         return;
     }
 
-    QUrl url(m_inferenceServiceUrl + QStringLiteral("/infer_rgb888"));
+    const bool isJpeg = pixelFormat == HostProtocol::kPixelJpeg;
+    QElapsedTimer timer;
+    timer.start();
+
+    QUrl url(m_inferenceServiceUrl + (isJpeg ? QStringLiteral("/infer_jpeg") : QStringLiteral("/infer_rgb888")));
     QUrlQuery query;
     query.addQueryItem(QStringLiteral("frame_seq"), QString::number(frameSeq));
     query.addQueryItem(QStringLiteral("image_width"), QString::number(width));
@@ -343,16 +371,27 @@ void HostController::requestInference(quint32 frameSeq, quint16 width, quint16 h
 
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
     ++m_pendingInferenceRequests;
-    m_inferenceStatus = QStringLiteral("正在推理帧 #%1").arg(frameSeq);
-    emit inferenceChanged();
+    const bool updateUi = !isJpeg || (frameSeq % 10) == 0;
+    if (updateUi) {
+        m_inferenceStatus = QStringLiteral("正在推理帧 #%1").arg(frameSeq);
+        emit inferenceChanged();
+    }
 
-    QNetworkReply *reply = m_network.post(request, rgb888);
-    connect(reply, &QNetworkReply::finished, this, [this, reply, frameSeq, width, height, imagePath]() {
+    QNetworkReply *reply = m_network.post(request, imagePayload);
+    const qint64 postStartMs = timer.elapsed();
+    connect(reply, &QNetworkReply::finished, this, [this, reply, frameSeq, width, height, imagePath, isJpeg, updateUi, timer, postStartMs]() mutable {
         --m_pendingInferenceRequests;
         if (reply->error() != QNetworkReply::NoError) {
             const QString rawError = reply->errorString();
             reply->deleteLater();
+            if (isJpeg) {
+                m_inferenceStatus = QStringLiteral("帧 #%1 JPEG 推理失败：%2").arg(frameSeq).arg(rawError);
+                appendLog(m_inferenceStatus);
+                emit inferenceChanged();
+                return;
+            }
             QUrl fallbackUrl(m_inferenceServiceUrl + QStringLiteral("/infer"));
             QJsonObject obj;
             obj.insert(QStringLiteral("frame_seq"), int(frameSeq));
@@ -385,17 +424,20 @@ void HostController::requestInference(quint32 frameSeq, quint16 width, quint16 h
                     return;
                 }
                 const QVariantMap frame = doc.object().toVariantMap();
-                applyDetectionFrame(frame, false);
                 sendInferenceResultToDevice(frame);
+                applyDetectionFrame(frame, false);
                 m_inferenceStatus = QStringLiteral("帧 #%1 推理完成").arg(frameSeq);
                 fallbackReply->deleteLater();
                 emit inferenceChanged();
             });
-            emit inferenceChanged();
+            if (updateUi) {
+                emit inferenceChanged();
+            }
             return;
         }
 
         const QByteArray payload = reply->readAll();
+        const qint64 httpDoneMs = timer.elapsed();
         const QJsonDocument doc = QJsonDocument::fromJson(payload);
         if (!doc.isObject()) {
             m_inferenceStatus = QStringLiteral("帧 #%1 推理结果 JSON 无效").arg(frameSeq);
@@ -406,11 +448,21 @@ void HostController::requestInference(quint32 frameSeq, quint16 width, quint16 h
         }
 
         const QVariantMap frame = doc.object().toVariantMap();
-        applyDetectionFrame(frame, false);
         sendInferenceResultToDevice(frame);
-        m_inferenceStatus = QStringLiteral("帧 #%1 推理完成").arg(frameSeq);
+        applyDetectionFrame(frame, false);
+        if (updateUi) {
+            m_inferenceStatus = QStringLiteral("帧 #%1 推理完成").arg(frameSeq);
+            appendLog(QStringLiteral("帧 #%1 主机链路：post=%2ms http=%3ms infer=%4ms decode=%5ms")
+                          .arg(frameSeq)
+                          .arg(postStartMs)
+                          .arg(httpDoneMs - postStartMs)
+                          .arg(frame.value(QStringLiteral("inference_ms"), 0).toInt())
+                          .arg(frame.value(QStringLiteral("decode_ms"), 0).toInt()));
+        }
         reply->deleteLater();
-        emit inferenceChanged();
+        if (updateUi) {
+            emit inferenceChanged();
+        }
     });
 }
 
@@ -482,6 +534,7 @@ void HostController::applyDetectionFrame(const QVariantMap &frame, bool fromDemo
     const int seq = frame.value(QStringLiteral("frame_seq"), m_imageCount + m_frameHistory.size() + 1).toInt();
     const int width = frame.value(QStringLiteral("image_width"), 640).toInt();
     const int height = frame.value(QStringLiteral("image_height"), 384).toInt();
+    const bool updateUi = fromDemo || (seq % 10) == 0;
     int lowConfidence = 0;
     double bestConfidence = 0.0;
     QString bestLabel = QStringLiteral("快递 Logo");
@@ -495,6 +548,10 @@ void HostController::applyDetectionFrame(const QVariantMap &frame, bool fromDemo
         if (confidence * 100.0 < m_dangerThreshold) {
             ++lowConfidence;
         }
+    }
+
+    if (!updateUi) {
+        return;
     }
 
     record.insert(QStringLiteral("seq"), seq);
