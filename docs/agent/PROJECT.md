@@ -172,3 +172,4 @@ RGB565 必须确认整条显示路径都变成 16 bpp：
 - 旧 simulator 文档已归档到 `docs/agent/archive/2026-06-27-sorter-simulator-changes.md`
 - 原蓝屏长文档已归档到 `docs/agent/archive/2026-06-27-blue-screen-debug-plan.md`
 - 2026-06-28 蓝屏/相机链路诊断阶段已归档到 `docs/agent/archive/2026-06-29-blue-screen-camera-diagnostics.md`
+- 2026-06-29 至 2026-07-02 `merge_project` 分拣传感器、失败分类和运行态 debug 显示阶段已归档到 `docs/agent/archive/2026-07-02-merge-runtime-debug-stage.md`
