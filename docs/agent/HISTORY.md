@@ -170,3 +170,34 @@
   - `.venv/bin/python -m py_compile ml/logo_inference_service.py`: passed.
   - Restarted inference service with trained `best.pt`; health check passed.
   - Non-interactive `sudo` was unavailable, so the restarted service process could not be reniced to `-10` in this run.
+
+## 2026-07-02 Full Dataset Prediction Review
+
+- Ran trained weight over all quick training dataset images:
+  - model: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`
+  - dataset: `/home/kazeform/2026upper/datasets/logo_train_quick`
+  - command mode: `yolo predict`, `imgsz=1024`, `conf=0.1`, `max_det=5`, `device=0`
+- Outputs:
+  - train annotated images and txt: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_train_best`
+  - val annotated images and txt: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_val_best`
+  - val metrics/plots: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_val_metrics`
+  - summary report: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_dataset_report.md`
+- Dataset counts:
+  - train images: `339`
+  - val images: `85`
+- Predict summary:
+  - train: `337` prediction label files, `2` no-prediction images, `2` first-class mismatches in quick check, `124` images with multiple predictions at `conf=0.1`.
+  - val: `85` prediction label files, `0` no-prediction images, `0` first-class mismatches, `31` images with multiple predictions at `conf=0.1`.
+- Val metrics from `yolo val`:
+  - all: `P=0.946`, `R=0.941`, `mAP50=0.986`, `mAP50-95=0.695`
+  - jt: `P=0.910`, `R=0.933`, `mAP50=0.985`, `mAP50-95=0.647`
+  - zt: `P=0.929`, `R=1.000`, `mAP50=0.993`, `mAP50-95=0.743`
+  - yd: `P=1.000`, `R=0.889`, `mAP50=0.981`, `mAP50-95=0.695`
+- Notable samples:
+  - no train prediction: `jt_074_000_jt_388.jpg`, `jt_120_006_jt_2536.jpg`
+  - train first-class mismatch: `jt_150_006_jt_2695.jpg` predicted `yd` at confidence `0.366`
+  - `yd_023_004_yd_1724.txt` is an empty label file; quick check treated its ground truth as missing while prediction was `yd`.
+- Cleanup:
+  - removed project `__pycache__`/`.pyc` generated files.
+  - removed Ultralytics dataset cache files `datasets/logo_train_quick/labels/train.cache` and `datasets/logo_train_quick/labels/val.cache`; these are regenerated automatically.
+  - added root `.gitignore` rules for Python cache files.

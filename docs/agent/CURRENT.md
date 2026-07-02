@@ -46,3 +46,8 @@ ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact resu
   - That file is the trained 26m run output, not the original `models/yolo26m.pt`.
   - Fixed inference service color handling: OpenCV JPEG decode is kept as BGR for Ultralytics, and RGB888 board payload is converted RGB -> BGR before prediction.
   - Service was restarted with the fixed code, but non-interactive sudo was unavailable, so the new service process could not be reniced back to `-10`.
+- Full dataset inspection output:
+  - Report: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_dataset_report.md`
+  - Train annotated predictions: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_train_best`
+  - Val annotated predictions: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_val_best`
+  - Val metrics/plots: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_val_metrics`
