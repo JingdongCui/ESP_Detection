@@ -6,7 +6,8 @@ import time
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+import numpy as np
+from fastapi import FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel
 from ultralytics import YOLO
 import uvicorn
@@ -20,11 +21,12 @@ class InferRequest(BaseModel):
 
 
 class LogoInferenceService:
-    def __init__(self, model_path: str, imgsz: int, conf: float, device: str) -> None:
+    def __init__(self, model_path: str, imgsz: int, conf: float, device: str, max_det: int) -> None:
         self.model_path = model_path
         self.imgsz = imgsz
         self.conf = conf
         self.device = device
+        self.max_det = max_det
         self.model = YOLO(model_path)
 
     def infer(self, request: InferRequest) -> dict[str, Any]:
@@ -32,12 +34,31 @@ class LogoInferenceService:
         if not image_path.is_file():
             raise HTTPException(status_code=404, detail=f"image not found: {image_path}")
 
+        return self._predict(
+            source=str(image_path),
+            frame_seq=request.frame_seq,
+            width=request.image_width,
+            height=request.image_height,
+        )
+
+    def infer_rgb888(self, frame_seq: int, width: int, height: int, payload: bytes) -> dict[str, Any]:
+        expected = width * height * 3
+        if width <= 0 or height <= 0 or len(payload) != expected:
+            raise HTTPException(
+                status_code=400,
+                detail=f"invalid RGB888 payload: got {len(payload)} bytes, expected {expected}",
+            )
+        image = np.frombuffer(payload, dtype=np.uint8).reshape((height, width, 3))
+        return self._predict(source=image, frame_seq=frame_seq, width=width, height=height)
+
+    def _predict(self, source: Any, frame_seq: int, width: int | None, height: int | None) -> dict[str, Any]:
         start = time.perf_counter()
         results = self.model.predict(
-            source=str(image_path),
+            source=source,
             imgsz=self.imgsz,
             conf=self.conf,
             device=self.device,
+            max_det=self.max_det,
             verbose=False,
         )
         elapsed_ms = int((time.perf_counter() - start) * 1000)
@@ -65,7 +86,7 @@ class LogoInferenceService:
                 )
 
         return {
-            "frame_seq": request.frame_seq,
+            "frame_seq": frame_seq,
             "image_width": width,
             "image_height": height,
             "model": Path(self.model_path).name,
@@ -85,11 +106,22 @@ def create_app(service: LogoInferenceService) -> FastAPI:
             "imgsz": service.imgsz,
             "conf": service.conf,
             "device": service.device,
+            "max_det": service.max_det,
         }
 
     @app.post("/infer")
     def infer(request: InferRequest) -> dict[str, Any]:
         return service.infer(request)
+
+    @app.post("/infer_rgb888")
+    async def infer_rgb888(
+        request: Request,
+        frame_seq: int = Query(...),
+        image_width: int = Query(...),
+        image_height: int = Query(...),
+    ) -> dict[str, Any]:
+        payload = await request.body()
+        return service.infer_rgb888(frame_seq, image_width, image_height, payload)
 
     return app
 
@@ -99,12 +131,13 @@ def main() -> None:
     parser.add_argument("--model", default="models/yolo26s.pt")
     parser.add_argument("--imgsz", type=int, default=1024)
     parser.add_argument("--conf", type=float, default=0.25)
+    parser.add_argument("--max-det", type=int, default=1)
     parser.add_argument("--device", default="0")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     args = parser.parse_args()
 
-    service = LogoInferenceService(args.model, args.imgsz, args.conf, args.device)
+    service = LogoInferenceService(args.model, args.imgsz, args.conf, args.device, args.max_det)
     uvicorn.run(create_app(service), host=args.host, port=args.port)
 
 
