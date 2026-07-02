@@ -45,6 +45,46 @@ enum time_evt_enum {
   EVT_TIME_CHANGED = 1,
 };
 
+#define EVT_SYSTEM_MONITOR 6
+enum system_monitor_evt_enum {
+  EVT_SYSTEM_MONITOR_CHANGED = 1,
+};
+
+typedef struct {
+  int cpu1_usage;
+  int cpu2_usage;
+  int cpu_total_usage;
+  int memory_usage;
+  int heap_free_kb;
+  int heap_min_free_kb;
+  int heap_max_block_kb;
+  int internal_free_kb;
+  int psram_usage;
+  int psram_free_kb;
+  int psram_total_kb;
+  int ram_usage;
+  int runtime_sec;
+  int chip_temp;
+  int cpu_freq_mhz;
+  int task_count;
+} system_monitor_event_data_t;
+
+#define EVT_VISION 7
+enum vision_evt_enum {
+  EVT_VISION_RESULT_CHANGED = 1,
+};
+
+typedef struct {
+  char status[24];      // "识别成功" / "无目标" / "等待中"
+  int  confidence;      // 最高分框置信度 %(0~100)；无框=0
+  int  fps_x10;         // 帧率 ×10（显示拆成 NN.N）
+  int  infer_time_ms;   // 推理耗时 ms（假框阶段=0）
+  char company[24];     // 类别名/快递公司（占位）
+  int  jt_a, jt_m;      // 极兔 A/M 占比 ×100（占位全 0）
+  int  zt_a, zt_m;      // 中通 A/M
+  int  yd_a, yd_m;      // 韵达 A/M
+} vision_result_event_data_t;
+
 typedef void (*event_cb_func_t)(uint8_t event, uint16_t code, uint16_t type,
                                 uint16_t len, uint8_t *data, uint8_t status);
 

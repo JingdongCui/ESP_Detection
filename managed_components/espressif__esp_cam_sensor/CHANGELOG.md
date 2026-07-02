@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.3.0
+
+- Added information about the document system to README.md.
+- Added more output size formats to the OV3660 driver and fixed the configuration method for JPEG compression factor.
+- Added SC121AT MIPI YUV sensor driver.
+- Added SC1346 MIPI camera sensor driver.
+- Added static store mode for camera sensor and motor detection.
+
+- Adjust AWB configuration in sc2336_default_p4_eco5.json for better white balance stability
+
+- Fixed the macro definition representing automatic detection in the OV9281 driver.
+- Fixed the description of the interface in the readme document for SC030IOT.
+
+## 2.2.0
+
+- Improve camera sensor json configuration files.
+  - Decreased the color temperature speed, step, and AWB gain adjustment step to solve the problem of image flicker caused by sudden changes in color temperature.
+  - Re-tuned CCM matrices, AWB CT/RG-BG calibration tables, and AGC luma targets in the default IPA JSON configurations for the sensors(imx500 sc2336 os04c10).
+- Added Arducam IMX500 MIPI driver.
+  - The Arducam IMX500 MIPI driver is only compatible with the Arducam IMX500 camera module.
+- The SPI interface now supports high-active level and LSB data modes for SPI camera sensors.
+
+- Fixed the spelling error in the camera driver header file.
+- Fixed os02n10 & ov2640 incorrect format name in Kconfig.
+- Removed sc101iot incorrect warning logs in the power on function
+- Added a startup delay to the OV3660 driver to ensure that SCCB access is performed when XCLK is stable.
+
+- Moved the Arducam Pivariety driver to the "sensors/pivariety" directory.
+
 ## 2.1.0
 
 - Added Mira220 MIPI driver.

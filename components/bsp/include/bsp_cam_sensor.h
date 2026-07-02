@@ -1,12 +1,13 @@
 /*
  * MIPI CSI 摄像头驱动接口。
  *
- * 生命周期：
- *   cam_sensor_init() → cam_sensor_start() → [get_frame / return_frame 循环] → cam_sensor_stop() → cam_sensor_deinit()
+ * 当前实现使用 ESP-IDF esp_video/V4L2 链路：
+ *   esp_video_init(csi) → open(/dev/video) → S_FMT(RGB888)
+ *     → REQBUFS + mmap → STREAMON。
  *
- * 用户可修改项（在 main.cpp 中配置）：
- *   cam_sensor_config_t — 引脚、分辨率
- *   传感器型号 — idf.py menuconfig → Espressif Camera Sensors
+ * 为兼容现有调用方，保留 cam_sensor_config_t、cam_sensor_init(&cfg)
+ * 和 cam_sensor_start()/stop() 形状；V4L2 实现在 init 内已启动推流，
+ * start/stop 仅作为兼容 no-op/停流入口。
  */
 #pragma once
 
@@ -38,14 +39,13 @@ typedef struct {
  * 生命周期 API
  * ============================================================ */
 
-/** 初始化 SCCB 总线、检测传感器、配置 CSI 和 ISP。
- *  必须在 cam_sensor_start() 之前调用。 */
+/** 初始化摄像头并启动 V4L2 推流。config 仅保留兼容，实际 SCCB 复用 BSP_Touch_GetI2CBus()。 */
 esp_err_t cam_sensor_init(const cam_sensor_config_t *config);
 
-/** 启动传感器推流。 */
+/** 兼容入口：V4L2 链路已在 init 内 STREAMON。 */
 esp_err_t cam_sensor_start(void);
 
-/** 停止推流。 */
+/** 停止推流并释放资源。 */
 esp_err_t cam_sensor_stop(void);
 
 /** 释放 cam_sensor_init() 分配的所有资源。 */
@@ -80,6 +80,8 @@ esp_err_t cam_sensor_get_frame(uint8_t **data, size_t *size,
  * @param data  cam_sensor_get_frame() 返回的指针
  */
 esp_err_t cam_sensor_return_frame(uint8_t *data);
+
+int cam_sensor_get_fb_count(void);
 
 #ifdef __cplusplus
 }

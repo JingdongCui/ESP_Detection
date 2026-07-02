@@ -33,10 +33,6 @@ Node *create_node(setup_func_t setup) {
 
 void insert_at_head(setup_func_t setup) {
   Node *new_node = create_node(setup);
-  if (new_node == NULL) {
-    LV_LOG_ERROR("create_node failed\n");
-    return;
-  }
   if (global_head == NULL) {
     global_head = new_node;
   } else {

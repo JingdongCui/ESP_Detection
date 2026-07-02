@@ -20,19 +20,22 @@ menu "Espressif Camera Sensors Configurations"
             rsource "sensors/ov5645/Kconfig.ov5645"
             rsource "sensors/ov5647/Kconfig.ov5647"
             rsource "sensors/ov9281/Kconfig.ov9281"
-            rsource "sensors/pivariety/Kconfig.pivariety"
             rsource "sensors/sc030iot/Kconfig.sc030iot"
             rsource "sensors/sc035hgs/Kconfig.sc035hgs"
             rsource "sensors/sc101iot/Kconfig.sc101iot"
+            rsource "sensors/sc121at/Kconfig.sc121at"
+            rsource "sensors/sc1346/Kconfig.sc1346"
             rsource "sensors/sc202cs/Kconfig.sc202cs"
             rsource "sensors/sc2336/Kconfig.sc2336"
             rsource "sensors/sp0a39/Kconfig.sp0a39"
             rsource "sensors/sti2250/Kconfig.sti2250"
+            rsource "sensors/arducam/pivariety/Kconfig.pivariety"
+            rsource "sensors/arducam/imx500/Kconfig.arducam_imx500"
         endmenu
 
         config CAMERA_SENSOR_XCLK_INPUT_24M
             bool
-            default y if IDF_TARGET_ESP32P4 || IDF_TARGET_ESP32S3 || IDF_TARGET_ESP32C5
+            default y if IDF_TARGET_ESP32P4 || IDF_TARGET_ESP32S3 || IDF_TARGET_ESP32C5 || IDF_TARGET_ESP32S31
             default n
             depends on CAMERA_BF3901
             help
@@ -344,4 +347,30 @@ menu "Espressif Camera Sensors Configurations"
                 Consider to the message process operations may not cost much time, so default value of 23 provides
                 good performance for most applications.
     endif
+
+    choice CAMERA_SENSOR_MOTOR_DETECT_METHOD
+        prompt "Choose camera sensor and motor detection method"
+        default CAMERA_SENSOR_MOTOR_DETECT_METHOD_DYNAMIC_LINK
+        help
+            Specify how the camera sensor and motor detection functions and configuration data are included in the firmware.
+
+        config CAMERA_SENSOR_MOTOR_DETECT_METHOD_DYNAMIC_LINK
+            bool "Dynamic linking of camera sensor and motor detection functions"
+            help
+                Automatically include all available camera sensor and motor detection functions and related configuration data
+                in firmware via the esp_cam_sensor_detect_fn and esp_cam_motor_detect_fn sections in flash memory.
+
+                In this mode, the linker retains all detection functions and configuration data, even if they are not
+                explicitly referenced by the application code. This ensures that auto-detection works for all supported
+                sensors and motors but will increase the overall firmware size.
+
+        config CAMERA_SENSOR_MOTOR_DETECT_METHOD_STATIC_STORE
+            bool "Static inclusion of camera sensor and motor detection objects"
+            help
+                Only include the detection functions and configuration data for sensors and motors that are actually referenced by
+                the application, with data stored in a flash-based C-language array.
+
+                With this mode, if detection functions or data are unused in your application, the linker will exclude
+                them from the final firmware, resulting in a smaller binary size.
+    endchoice
 endmenu

@@ -26,7 +26,7 @@ uint32_t send_command(uint8_t cmd, uint16_t code, uint16_t type, uint16_t len,
     switch (code) {
     case CMD_DRAWER_OPEN: {
       LV_LOG_TRACE("cmd drawer open\n");
-      if (len > 0 && data != NULL) {
+      if (len > 0) {
         send_event(get_current_event_table(), EVT_DRAWER, EVT_DRAWER_OPEN, data,
                    data[0]);
         send_event(get_global_event_table(), EVT_DRAWER, EVT_DRAWER_OPEN, data,
@@ -47,22 +47,14 @@ uint32_t send_command(uint8_t cmd, uint16_t code, uint16_t type, uint16_t len,
   }
 
   case CMD_SCR: {
-    switch (code) {
-    case CMD_NAVIGATE_BACK: {
-      if (count_scr() <= 1) {
-        LV_LOG_USER("Cannot pop last screen.\n");
-        return 0;
-      }
-      (void)pop_scr();
-      lv_obj_clean(lv_scr_act());
-      setup_func_t setup = current_scr();
-      lv_scr_load(setup());
-      break;
+    if (count_scr() <= 1) {
+      LV_LOG_USER("Cannot pop last screen.\n");
+      return 0;
     }
-    default:
-      LV_LOG_WARN("Invalid CMD_SCR code %d\n", code);
-      break;
-    }
+    (void)pop_scr();
+    lv_obj_clean(lv_scr_act());
+    setup_func_t setup = current_scr();
+    lv_scr_load(setup());
     break;
   }
 

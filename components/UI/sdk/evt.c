@@ -108,10 +108,6 @@ static uint32_t insert_event_at_head(event_node_t **table_pptr, uint8_t event,
   }
 
   event_node_t *event_node_ptr = create_event(event, code, type, len, callback);
-  if (event_node_ptr == NULL) {
-    LV_LOG_ERROR("create_event failed\n");
-    return 3;
-  }
 
   if (*table_pptr == NULL) {
     *table_pptr = event_node_ptr;

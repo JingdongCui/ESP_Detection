@@ -41,7 +41,7 @@
 
 extern "C" {
 LV_FONT_DECLARE(lv_font_MiSansVF_14_14)
-LV_FONT_DECLARE(lv_font_status_cn_24)
+LV_FONT_DECLARE(lv_font_MiSansVF_24_24)
 }
 
 static const char *TAG = "vision_preview";
@@ -76,6 +76,7 @@ const char *const kClassNames[YOLOPerfStats::kClassProbCount] = {
 };
 constexpr const char *kStatusNoTarget = "未检测到目标";
 constexpr const char *kStatusSuccess  = "识别成功";
+constexpr const char *kStatusHostNoTarget = "上位机未检出";
 
 // ============================================================
 // 模块状态（单例）
@@ -323,16 +324,32 @@ void update_labels_locked(const std::vector<Detection> &detections,
 {
     char text[64];
     if (s_preview.fps_label) {
-        snprintf(text, sizeof(text), "%.0f", fps);
+        if (perf.total_us > 0 && fps < 0.0f) {
+            snprintf(text, sizeof(text), "%lldms", (long long)(perf.total_us / 1000));
+        } else {
+            snprintf(text, sizeof(text), "%.0f", fps);
+        }
         lv_label_set_text(s_preview.fps_label, text);
     }
     if (s_preview.status_label) {
         int64_t now = esp_timer_get_time();
-        if (detect_ok && !detections.empty()) {
+        if (perf.total_us > 0 && fps < 0.0f) {
+            if (!detections.empty()) {
+                static const char *const labels[] = {"极兔", "中通", "韵达"};
+                int class_id = detections[0].class_id;
+                const char *label = (class_id >= 0 && class_id < 3) ? labels[class_id] : "未知";
+                snprintf(text, sizeof(text), "%s %.0f%%", label, detections[0].confidence * 100.0f);
+                lv_label_set_text(s_preview.status_label, text);
+            } else {
+                lv_label_set_text(s_preview.status_label, kStatusHostNoTarget);
+            }
+        } else if (detect_ok && !detections.empty()) {
             s_preview.success_until_us = now + kSuccessHoldUs;
+            lv_label_set_text(s_preview.status_label, kStatusSuccess);
+        } else {
+            const char *msg = (now < s_preview.success_until_us) ? kStatusSuccess : kStatusNoTarget;
+            lv_label_set_text(s_preview.status_label, msg);
         }
-        const char *msg = (now < s_preview.success_until_us) ? kStatusSuccess : kStatusNoTarget;
-        lv_label_set_text(s_preview.status_label, msg);
     }
     for (int i = 0; i < YOLOPerfStats::kClassProbCount; i++) {
         if (!s_preview.prob_labels[i]) continue;
@@ -487,7 +504,7 @@ void vision_preview_bind_labels(lv_obj_t *fps_label, lv_obj_t *status_label)
     s_preview.fps_label    = fps_label;
     s_preview.status_label = status_label;
     if (s_preview.status_label) {
-        lv_obj_set_style_text_font(s_preview.status_label, &lv_font_status_cn_24, LV_PART_MAIN);
+        lv_obj_set_style_text_font(s_preview.status_label, &lv_font_MiSansVF_24_24, LV_PART_MAIN);
     }
 }
 

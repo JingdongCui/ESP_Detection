@@ -23,6 +23,30 @@ extern "C" {
 #include "animations.h"
 
 
+extern lv_img_dsc_t const back_22x22;
+
+extern lv_img_dsc_t const next_22x22;
+
+extern lv_img_dsc_t const net_188x54;
+
+extern lv_img_dsc_t const net_b_188x54;
+
+extern lv_img_dsc_t const detect_188x54;
+
+extern lv_img_dsc_t const control_188x54;
+
+extern lv_img_dsc_t const about_188x54;
+
+extern lv_img_dsc_t const display_188x54;
+
+extern lv_img_dsc_t const control_b_188x54;
+
+extern lv_img_dsc_t const about_b_188x54;
+
+extern lv_img_dsc_t const detect_b_188x54;
+
+extern lv_img_dsc_t const display_b_188x54;
+
 extern lv_img_dsc_t const dash_c2_212x66;
 
 extern lv_img_dsc_t const dash_c_212x66;
@@ -47,20 +71,22 @@ extern lv_img_dsc_t const sysc1_212x66;
 
 extern lv_img_dsc_t const sys_a_212x66;
 
-extern lv_img_dsc_t const GREEN_20x20;
+extern lv_img_dsc_t const disconnect_126x36;
 
-extern lv_img_dsc_t const RED_20x20;
+extern lv_img_dsc_t const connect_126x36;
 
-extern lv_img_dsc_t const YELLOW_20x20;
-
-extern lv_img_dsc_t const title_1_800x60;
+extern lv_img_dsc_t const LOGO_bordered_260x60;
 
 
 LV_FONT_DECLARE(lv_font_MiSansVF_14_14);
 LV_FONT_DECLARE(lv_font_Misans_Heavy_14_14);
 LV_FONT_DECLARE(lv_font_MiSans_Heavy_24_24);
+LV_FONT_DECLARE(lv_font_MiSans_Heavy_16_16);
+LV_FONT_DECLARE(lv_font_MiSansVF_24_24);
+LV_FONT_DECLARE(lv_font_MiSansVF_16_16);
 
 lv_obj_t * setup_scr_dashboard(void);
+
 void setupUi(void);
 
 

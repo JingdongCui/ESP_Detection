@@ -35,15 +35,19 @@ esp_err_t example_eth_init(esp_eth_handle_t *eth_handles_out[], uint8_t *eth_cnt
     emac_config.smi_gpio.mdc_num = CONFIG_EXAMPLE_ETH_MDC_GPIO;
     emac_config.smi_gpio.mdio_num = CONFIG_EXAMPLE_ETH_MDIO_GPIO;
 
+    ESP_LOGI(TAG, "create MAC mdc=%d mdio=%d", emac_config.smi_gpio.mdc_num, emac_config.smi_gpio.mdio_num);
     mac = esp_eth_mac_new_esp32(&emac_config, &mac_config);
     ESP_GOTO_ON_FALSE(mac != NULL, ESP_FAIL, err, TAG, "create Ethernet MAC failed");
 
+    ESP_LOGI(TAG, "create IP101 phy addr=%d rst=%d", phy_config.phy_addr, phy_config.reset_gpio_num);
     phy = esp_eth_phy_new_ip101(&phy_config);
     ESP_GOTO_ON_FALSE(phy != NULL, ESP_FAIL, err, TAG, "create IP101 PHY failed");
 
     /* MAC 和 PHY 都创建成功后，安装 ESP-IDF Ethernet driver，返回给上层绑定 esp-netif。 */
     esp_eth_config_t config = ETH_DEFAULT_CONFIG(mac, phy);
+    ESP_LOGI(TAG, "install Ethernet driver");
     ESP_GOTO_ON_ERROR(esp_eth_driver_install(&config, &eth_handles[0]), err, TAG, "install Ethernet driver failed");
+    ESP_LOGI(TAG, "Ethernet driver installed");
 
     *eth_handles_out = eth_handles;
     *eth_cnt_out = 1;

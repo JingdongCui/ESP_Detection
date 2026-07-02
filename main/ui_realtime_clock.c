@@ -9,7 +9,7 @@
 #include "freertos/task.h"
 #include "lvgl.h"
 
-extern lv_obj_t *scr_dashboard_label_detail_time;
+extern lv_obj_t *scr_dashboard_label_detail_time_01;
 extern lv_obj_t *scr_dashboard_label_time_01;
 extern lv_obj_t *scr_dashboard_label_time_02;
 extern lv_obj_t *scr_dashboard_label_time_03;
@@ -58,7 +58,7 @@ static void clock_task(void *arg)
         format_time_offset(t6, 0);
 
         BSP_LVGL_Lock();
-        set_label_time(scr_dashboard_label_detail_time, t0);
+        set_label_time(scr_dashboard_label_detail_time_01, t0);
         set_label_time(scr_dashboard_label_time_01, t1);
         set_label_time(scr_dashboard_label_time_02, t2);
         set_label_time(scr_dashboard_label_time_03, t3);
