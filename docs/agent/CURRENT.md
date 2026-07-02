@@ -23,6 +23,10 @@
   - `vision_detect.c` 将 LOGO 分类 0/1/2 提交到分拣调度器 class1/2/3。
   - `system_init.c` 启动 Ethernet sorter link、debug 任务，并启用真实电机输出。
   - `sdkconfig.defaults` 已把 ESP32-P4 最低 revision 降为 0，最高 revision 限为 199，匹配当前 v1.0 板。
+- `merge` 当前电机分拣默认超时已调整为：
+  - A belt timeout: 6000ms
+  - B belt timeout: 3000ms
+  - C belt timeout: 3000ms
 - `merge` 验证结果：
   - `idf.py build` 成功；仅保留既有 UI generated unused variable warning。
   - `/dev/ttyUSB0` flash/monitor 启动成功，boot 日志确认芯片 rev v1.0、Ethernet static IP `192.168.10.2`、电机 GPIO 初始化并启用。
@@ -36,7 +40,7 @@
    - S1/S3 分拣传感器 GPIO37/GPIO38 与 console UART boot 日志提示的潜在冲突。
    - 编码器当前仍沿用 `old_project` 虚拟配置，真实硬件 C 段完成主要依赖 fallback，若需要距离闭环需补真实 encoder GPIO。
    - 默认模拟模式会优先接受 TCP `VISION_FRAME`/`SENSOR`/`DISTANCE`，真实 IO 模式需通过配置切换。
-2. 电机运行时长待决策：`old_project` 和 `merge` 当前默认 `TO A2000 B750 C750`，UI `MTEST` 每个电机只转 500ms；用户实测第三条带约 0.5s/不到 1s 与代码一致，后续若需要真实分拣更长行程，应调整 B/C timeout、C fallback 或接入真实传感器/编码器闭环。
+2. 电机运行时长后续实测：`merge` 已把默认 A/B/C timeout 改为 6000/3000/3000ms；UI `MTEST` 仍是每个电机直接转 500ms，不属于分拣调度超时。
 
 ## Verification Standard
 
@@ -56,8 +60,15 @@ python -m esp32_sorter_sim_py --headless --transport tcp --host 192.168.10.1 --p
 python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migration_20_rev0_20260702.log
 ```
 
+- 2026-07-02 timeout 参数调整验证：
+  - `idf.py app` 成功。
+  - `idf.py -p /dev/ttyUSB0 app-flash` 成功，app 分区写入并 hash verified。
+  - `idf.py -p /dev/ttyUSB0 monitor` 成功进入启动日志，确认 `System initialization done`，Ethernet、电机 BSP、sort debug 任务启动。
+  - 完整 `idf.py build` 当前失败在 SPIFFS storage 生成：未跟踪文件 `merge/model/datasets5000_kl_MOSIC_NOINT16.espdl` 文件名超过项目当前 `CONFIG_SPIFFS_OBJ_NAME_LEN=32`，不是本次 C 代码改动导致。
+
 ## Blockers
 
 - 当前无阻塞。
 - 风险记录：本次 TCP 迁移模拟是在固件已启动后接入，因此 TCP 日志少记录一次启动阶段的 M1 初始 forward；启动 monitor 已确认真实电机初始化和输出启用。
-- 观察记录：短超时是旧工程原有行为，尚未修改。
+- 观察记录：短超时是旧工程原有行为；`merge` 已按用户要求把分拣调度默认 timeout 改为 6s/3s/3s。
+- 构建阻塞：完整 `idf.py build` 受未跟踪长文件名模型影响，需后续重命名模型或调整 SPIFFS object name length。

@@ -54,3 +54,18 @@
   - `MTEST` 调用 `motor_test_task()`，每个电机直接运行 500ms 后停止，再延迟 80ms 测下一个电机。
   - `old_project` 与 `merge` 的 `sorter_scheduler.c`、`sorting_sim_control.c` 当前无 diff。
 - 结论：第三条带短时间运行与旧工程代码一致，不是迁移差异；若真实硬件行程需要更长，应后续调整 B/C timeout、C fallback 或接入传感器/编码器闭环。
+
+## 2026-07-02 Merge Timeout Defaults Update
+
+- 用户要求在新工程把默认超时参数改为 6 秒、3 秒、3 秒。
+- 修改 `merge/components/Sorter_app/sorter_core/sorter_scheduler.c`：
+  - `belt_a_timeout_ms`: 2000 -> 6000
+  - `belt_b_timeout_ms`: 750 -> 3000
+  - `belt_c_timeout_ms`: 750 -> 3000
+- 检查 `merge/components/UI/generated/setup_scr_dashboard.c` 未发现 old_project debug 面板的 `TO A2000 B750 C750` 初始文案，因此无需同步 UI 文案。
+- 验证：
+  - `idf.py build` 失败于 SPIFFS storage 生成，原因是未跟踪文件 `merge/model/datasets5000_kl_MOSIC_NOINT16.espdl` 文件名超过当前 `CONFIG_SPIFFS_OBJ_NAME_LEN=32`；该失败发生在 storage image 生成阶段，不是 sorter 代码编译失败。
+  - `idf.py app` 成功，`Sorter_app` 重新编译并链接生成 `sample_project.bin`。
+  - `idf.py -p /dev/ttyUSB0 app-flash` 成功，写入 app 分区并 hash verified。
+  - `idf.py -p /dev/ttyUSB0 monitor` 成功看到新 app 启动到 `System initialization done`，Ethernet、电机 BSP、sort debug 任务启动。
+- 未处理项：后续若需要恢复完整 `idf.py build`，需要处理未跟踪长文件名模型：重命名到 <=32 字符，或调整 SPIFFS object name length 并评估兼容性。
