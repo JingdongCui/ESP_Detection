@@ -13,6 +13,7 @@
 #include <QNetworkRequest>
 #include <QStandardPaths>
 #include <QUrl>
+#include <QUrlQuery>
 
 HostController::HostController(QObject *parent)
     : QObject(parent)
@@ -270,29 +271,29 @@ void HostController::handleImage(const HostProtocol::PacketHeader &header, const
         return;
     }
 
+    const QString fileName = QStringLiteral("frame_%1_%2.png")
+                                 .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss_zzz")))
+                                 .arg(header.seq);
+    const QString path = QDir(m_imageDir).filePath(fileName);
+
+    m_imageCount++;
+    m_latestImageUrl = QUrl::fromLocalFile(path).toString();
+    m_latestFrameInfo = QStringLiteral("%1 x %2  RGB888  #%3").arg(header.width).arg(header.height).arg(header.seq);
+    appendLog(QStringLiteral("图像 #%1 已接收：%2x%3").arg(header.seq).arg(header.width).arg(header.height));
+    emit imageChanged();
+    emit statsChanged();
+    emit dashboardChanged();
+    requestInference(header.seq, header.width, header.height, payload, path);
+
     QImage image(reinterpret_cast<const uchar *>(payload.constData()),
                  header.width,
                  header.height,
                  header.width * 3,
                  QImage::Format_RGB888);
     const QImage owned = image.copy();
-    const QString fileName = QStringLiteral("frame_%1_%2.png")
-                                 .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss_zzz")))
-                                 .arg(header.seq);
-    const QString path = QDir(m_imageDir).filePath(fileName);
     if (!owned.save(path, "PNG")) {
-        appendLog(QStringLiteral("保存图像失败 %1").arg(path));
-        return;
+        appendLog(QStringLiteral("保存调试图像失败 %1").arg(path));
     }
-
-    m_imageCount++;
-    m_latestImageUrl = QUrl::fromLocalFile(path).toString();
-    m_latestFrameInfo = QStringLiteral("%1 x %2  RGB888  #%3").arg(header.width).arg(header.height).arg(header.seq);
-    appendLog(QStringLiteral("图像 #%1 已保存：%2x%3").arg(header.seq).arg(header.width).arg(header.height));
-    emit imageChanged();
-    emit statsChanged();
-    emit dashboardChanged();
-    requestInference(header.seq, header.width, header.height, path);
 }
 
 void HostController::handleTelemetry(const QByteArray &payload)
@@ -322,38 +323,74 @@ void HostController::handleDetectionJson(const QByteArray &payload)
     applyDetectionFrame(doc.object().toVariantMap(), false);
 }
 
-void HostController::requestInference(quint32 frameSeq, quint16 width, quint16 height, const QString &imagePath)
+void HostController::requestInference(quint32 frameSeq, quint16 width, quint16 height, const QByteArray &rgb888, const QString &imagePath)
 {
     if (!m_inferenceEnabled || m_inferenceServiceUrl.isEmpty()) {
         return;
     }
 
-    QUrl url(m_inferenceServiceUrl + QStringLiteral("/infer"));
+    QUrl url(m_inferenceServiceUrl + QStringLiteral("/infer_rgb888"));
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("frame_seq"), QString::number(frameSeq));
+    query.addQueryItem(QStringLiteral("image_width"), QString::number(width));
+    query.addQueryItem(QStringLiteral("image_height"), QString::number(height));
+    url.setQuery(query);
     if (!url.isValid()) {
         m_inferenceStatus = QStringLiteral("推理服务地址无效");
         emit inferenceChanged();
         return;
     }
 
-    QJsonObject obj;
-    obj.insert(QStringLiteral("frame_seq"), int(frameSeq));
-    obj.insert(QStringLiteral("image_width"), int(width));
-    obj.insert(QStringLiteral("image_height"), int(height));
-    obj.insert(QStringLiteral("image_path"), imagePath);
-
     QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/octet-stream"));
     ++m_pendingInferenceRequests;
     m_inferenceStatus = QStringLiteral("正在推理帧 #%1").arg(frameSeq);
     emit inferenceChanged();
 
-    QNetworkReply *reply = m_network.post(request, QJsonDocument(obj).toJson(QJsonDocument::Compact));
-    connect(reply, &QNetworkReply::finished, this, [this, reply, frameSeq]() {
+    QNetworkReply *reply = m_network.post(request, rgb888);
+    connect(reply, &QNetworkReply::finished, this, [this, reply, frameSeq, width, height, imagePath]() {
         --m_pendingInferenceRequests;
         if (reply->error() != QNetworkReply::NoError) {
-            m_inferenceStatus = QStringLiteral("帧 #%1 推理失败：%2").arg(frameSeq).arg(reply->errorString());
-            appendLog(m_inferenceStatus);
+            const QString rawError = reply->errorString();
             reply->deleteLater();
+            QUrl fallbackUrl(m_inferenceServiceUrl + QStringLiteral("/infer"));
+            QJsonObject obj;
+            obj.insert(QStringLiteral("frame_seq"), int(frameSeq));
+            obj.insert(QStringLiteral("image_width"), int(width));
+            obj.insert(QStringLiteral("image_height"), int(height));
+            obj.insert(QStringLiteral("image_path"), imagePath);
+            QNetworkRequest fallbackRequest(fallbackUrl);
+            fallbackRequest.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+            QNetworkReply *fallbackReply = m_network.post(fallbackRequest, QJsonDocument(obj).toJson(QJsonDocument::Compact));
+            ++m_pendingInferenceRequests;
+            connect(fallbackReply, &QNetworkReply::finished, this, [this, fallbackReply, frameSeq, rawError]() {
+                --m_pendingInferenceRequests;
+                if (fallbackReply->error() != QNetworkReply::NoError) {
+                    m_inferenceStatus = QStringLiteral("帧 #%1 推理失败：%2 / 回退失败：%3")
+                                            .arg(frameSeq)
+                                            .arg(rawError)
+                                            .arg(fallbackReply->errorString());
+                    appendLog(m_inferenceStatus);
+                    fallbackReply->deleteLater();
+                    emit inferenceChanged();
+                    return;
+                }
+                const QByteArray payload = fallbackReply->readAll();
+                const QJsonDocument doc = QJsonDocument::fromJson(payload);
+                if (!doc.isObject()) {
+                    m_inferenceStatus = QStringLiteral("帧 #%1 回退推理结果 JSON 无效").arg(frameSeq);
+                    appendLog(m_inferenceStatus);
+                    fallbackReply->deleteLater();
+                    emit inferenceChanged();
+                    return;
+                }
+                const QVariantMap frame = doc.object().toVariantMap();
+                applyDetectionFrame(frame, false);
+                sendInferenceResultToDevice(frame);
+                m_inferenceStatus = QStringLiteral("帧 #%1 推理完成").arg(frameSeq);
+                fallbackReply->deleteLater();
+                emit inferenceChanged();
+            });
             emit inferenceChanged();
             return;
         }
