@@ -201,3 +201,30 @@
   - removed project `__pycache__`/`.pyc` generated files.
   - removed Ultralytics dataset cache files `datasets/logo_train_quick/labels/train.cache` and `datasets/logo_train_quick/labels/val.cache`; these are regenerated automatically.
   - added root `.gitignore` rules for Python cache files.
+
+## 2026-07-02 Camera Green-Cast Config Match
+
+- Compared current camera config against teammate `ESP32P4_Detection(4).zip`.
+- Confirmed SC2336, MIPI RAW8, default IPA JSON, AWB, ACC, and AGC were already enabled in current config.
+- Found the key mismatch:
+  - teammate: `CONFIG_ESP_VIDEO_ENABLE_ISP_PIPELINE_CONTROLLER=y`
+  - current: pipeline controller was disabled
+- Enabled ISP pipeline controller in `esp32_project/sdkconfig` and `sdkconfig.defaults`.
+- First build failed with `undefined reference to __wrap_esp_ipa_detect_get_array`.
+- Switched ESP-IPA detection to static store and added a main-component linker keepalive:
+  - `CONFIG_ESP_IPA_DETECT_METHOD_STATIC_STORE=y`
+  - `target_link_libraries(${COMPONENT_LIB} INTERFACE "-u __wrap_esp_ipa_detect_get_array")`
+- Build then passed.
+- First real-board monitor after enabling pipeline controller failed Ethernet init:
+  - after camera: `internal=17315`, `largest_internal=15872`
+  - `emac_esp_alloc_driver_obj: create emac_rx task failed`
+- Moved ISP pipeline controller task stack to PSRAM:
+  - `CONFIG_ISP_PIPELINE_CONTROLLER_TASK_STACK_USE_PSRAM=y`
+- Rebuilt and reflashed successfully.
+- Final monitor result:
+  - camera initialized as `1024x600 RGB888`, 3 buffers
+  - after camera: `internal=21335`, `largest_internal=19456`
+  - Ethernet driver installed successfully
+  - board connected control `5000` and image `5001`
+  - JPEG q70 frames with detection results stayed around `342-354ms` total through the sampled window
+- `idf.py -p /dev/ttyUSB0 flash monitor` could not run monitor in the non-TTY exec environment, so flash and monitor were run as separate commands.

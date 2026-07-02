@@ -84,7 +84,10 @@ Header fields are little-endian:
   - SC2336 sensor over MIPI CSI through `esp_video`.
   - V4L2 output format is RGB888 (`V4L2_PIX_FMT_RGB24`), `1024 x 600`, 3 frame buffers.
   - ISP/IPA color controls are enabled in sdkconfig: AWB, ACC, AGC.
-- Camera green-cast root cause was the old capture/config path bypassing the teammate ISP/IPA pipeline. The current path uses esp-video MIPI CSI + ISP color algorithms and delivers RGB888 to the preview/network path.
+  - `CONFIG_ESP_VIDEO_ENABLE_ISP_PIPELINE_CONTROLLER=y` is required for automated ISP statistics -> IPA algorithm -> ISP/sensor adjustment. AWB/ACC/AGC config alone is not enough.
+  - `CONFIG_ISP_PIPELINE_CONTROLLER_TASK_STACK_USE_PSRAM=y` is required in the current firmware; otherwise enabling the pipeline controller leaves too little internal RAM and EMAC RX task creation fails.
+  - `CONFIG_ESP_IPA_DETECT_METHOD_STATIC_STORE=y` plus a main-component linker keepalive for `__wrap_esp_ipa_detect_get_array` is used to avoid an ESP-IPA prebuilt/static-library link-order failure.
+- Camera green-cast root cause was the old capture/config path bypassing the teammate ISP/IPA pipeline, and later the ISP pipeline controller being left disabled. The current path uses esp-video MIPI CSI + ISP pipeline controller + IPA color algorithms and delivers RGB888 to the preview/network path.
 - Resource-ordering constraint:
   - Call `esp_netif_init()` first so LwIP TLS keys exist.
   - Create the TCP task immediately after that and call `lwip_socket_thread_init()` inside the task so its per-thread socket semaphore is allocated before CSI/ISP consumes internal RAM.
@@ -166,6 +169,7 @@ EPOCHS=150 scripts/train_logo_yolo26m_150.sh
 - Latest real-board latency result with `nice=-10` host/service and dual TCP channels:
   - JPEG q70: stable `359-365 ms` total through about 160 frames; `encode=290-295ms`, `send=2-8ms`, `wait=60-68ms`, `infer=18-20ms`, `host=60-64ms`, payload around `39-46 KiB` in the current scene.
   - Previous 1-2 second result-wait spikes were not reproduced after splitting image/control sockets and moving host networking off the UI thread.
+  - After enabling the ISP pipeline controller and moving its task stack to PSRAM, real-board frames were stable around `342-354 ms`; Ethernet, dual sockets, host inference, and result downlink remained healthy with detection results present.
   - RAW RGB888: `16.8 s` then `42.8 s` total for `1,843,200` byte payloads; not viable for the current target.
 - Do not increase Ethernet DMA RX/TX above `8/8` without rechecking internal RAM; a tested `12/16` config failed with `create emac_rx task failed`.
 - Detection result can be `det=0` if the camera scene does not contain one of the trained logo classes. The transport/result/overlay path is still exercised; with a positive detection the board draws the returned box.

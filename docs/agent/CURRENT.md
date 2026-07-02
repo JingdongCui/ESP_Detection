@@ -10,6 +10,11 @@ ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact resu
 
 - Default upload remains full-frame `1024 x 600` JPEG, packet type `0x01`, `pixel_format=2`.
 - JPEG quality is fixed at `70`; the temporary lower-quality fallback was removed per requirement.
+- Camera color correction now matches the teammate camera path more closely:
+  - `CONFIG_ESP_VIDEO_ENABLE_ISP_PIPELINE_CONTROLLER=y`
+  - `CONFIG_ESP_IPA_DETECT_METHOD_STATIC_STORE=y`
+  - `CONFIG_ISP_PIPELINE_CONTROLLER_TASK_STACK_USE_PSRAM=y`
+  - AWB/ACC/AGC remain enabled; image quality, resolution, and JPEG quality were not reduced.
 - Host network path is split into two TCP channels:
   - control/result/metrics: `192.168.10.1:5000`
   - image upload: `192.168.10.1:5001`
@@ -28,12 +33,16 @@ ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact resu
 - `cmake --build esp32_host/build/linux-release`: passed.
 - `idf.py build`: passed.
 - `idf.py -p /dev/ttyUSB0 flash`: passed.
-- `idf.py -p /dev/ttyUSB0 monitor`: passed.
+- `idf.py -p /dev/ttyUSB0 monitor`: passed when run separately with a TTY.
+- `idf.py -p /dev/ttyUSB0 flash monitor`: flash passed, but monitor failed in the non-interactive exec environment because stdin was not a TTY.
 - Real-board dual-channel run:
   - Ethernet initialized successfully with RX/TX DMA buffers at `8/8`.
   - Board connected control `5000` and image `5001`.
   - Board confirmed `upload format set to JPEG`.
   - Frames ran through at `q=70`.
+  - After enabling ISP pipeline controller with PSRAM stack, camera init left `internal=21335`, `largest_internal=19456`, and EMAC RX task creation succeeded.
+  - Representative frames through about `seq=69`: `total=342-354ms`, `encode=276-284ms`, `send=2-6ms`, `wait=60-67ms`, `infer=18-19ms`, `host=60-62ms`.
+  - Detection-result frames were present and did not cause the previous visible stalls during this monitor window.
   - Representative frames through about `seq=160`: `total=359-365ms`, `encode=290-295ms`, `send=2-8ms`, `wait=60-68ms`, `infer=18-20ms`, `host=60-64ms`.
   - No previous 1-2 second wait spikes were observed in this run.
 
@@ -51,3 +60,6 @@ ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact resu
   - Train annotated predictions: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_train_best`
   - Val annotated predictions: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_val_best`
   - Val metrics/plots: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_val_metrics`
+- Green-cast follow-up:
+  - Config comparison against `ESP32P4_Detection(4).zip` showed AWB/ACC/AGC and SC2336 defaults were already present, but the current firmware had the ISP pipeline controller disabled.
+  - The code/config fix has been flashed and the transport path is stable; final visual confirmation of whether the physical screen is no longer green still needs human inspection of the panel.
