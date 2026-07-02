@@ -2,15 +2,26 @@
 from __future__ import annotations
 
 import argparse
+import os
 import time
 from pathlib import Path
 from typing import Any
 
+import cv2
 import numpy as np
 from fastapi import FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel
 from ultralytics import YOLO
 import uvicorn
+
+
+def raise_process_priority() -> None:
+    try:
+        current_nice = os.nice(0)
+        if current_nice > 0:
+            os.nice(-current_nice)
+    except OSError as exc:
+        print(f"inference service priority unchanged: {exc}", flush=True)
 
 
 class InferRequest(BaseModel):
@@ -51,7 +62,25 @@ class LogoInferenceService:
         image = np.frombuffer(payload, dtype=np.uint8).reshape((height, width, 3))
         return self._predict(source=image, frame_seq=frame_seq, width=width, height=height)
 
-    def _predict(self, source: Any, frame_seq: int, width: int | None, height: int | None) -> dict[str, Any]:
+    def infer_jpeg(self, frame_seq: int, width: int, height: int, payload: bytes) -> dict[str, Any]:
+        if width <= 0 or height <= 0 or len(payload) == 0:
+            raise HTTPException(status_code=400, detail="invalid JPEG request")
+
+        decode_start = time.perf_counter()
+        encoded = np.frombuffer(payload, dtype=np.uint8)
+        bgr = cv2.imdecode(encoded, cv2.IMREAD_COLOR)
+        if bgr is None:
+            raise HTTPException(status_code=400, detail="invalid JPEG payload")
+        image = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+        decode_ms = int((time.perf_counter() - decode_start) * 1000)
+
+        decoded_h, decoded_w = image.shape[:2]
+        if decoded_w != width or decoded_h != height:
+            width = decoded_w
+            height = decoded_h
+        return self._predict(source=image, frame_seq=frame_seq, width=width, height=height, decode_ms=decode_ms)
+
+    def _predict(self, source: Any, frame_seq: int, width: int | None, height: int | None, decode_ms: int = 0) -> dict[str, Any]:
         start = time.perf_counter()
         results = self.model.predict(
             source=source,
@@ -91,6 +120,7 @@ class LogoInferenceService:
             "image_height": height,
             "model": Path(self.model_path).name,
             "inference_ms": elapsed_ms,
+            "decode_ms": decode_ms,
             "detections": detections,
         }
 
@@ -123,6 +153,16 @@ def create_app(service: LogoInferenceService) -> FastAPI:
         payload = await request.body()
         return service.infer_rgb888(frame_seq, image_width, image_height, payload)
 
+    @app.post("/infer_jpeg")
+    async def infer_jpeg(
+        request: Request,
+        frame_seq: int = Query(...),
+        image_width: int = Query(...),
+        image_height: int = Query(...),
+    ) -> dict[str, Any]:
+        payload = await request.body()
+        return service.infer_jpeg(frame_seq, image_width, image_height, payload)
+
     return app
 
 
@@ -135,10 +175,12 @@ def main() -> None:
     parser.add_argument("--device", default="0")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--access-log", action="store_true")
     args = parser.parse_args()
 
+    raise_process_priority()
     service = LogoInferenceService(args.model, args.imgsz, args.conf, args.device, args.max_det)
-    uvicorn.run(create_app(service), host=args.host, port=args.port)
+    uvicorn.run(create_app(service), host=args.host, port=args.port, access_log=args.access_log)
 
 
 if __name__ == "__main__":

@@ -4,8 +4,8 @@
 
 Build an ESP32-P4 to desktop host pipeline for small courier-logo detection:
 
-1. ESP32-P4 captures or forwards a `1024 x 600` RGB image over Ethernet.
-2. The Qt host receives the image, saves it, and calls a local YOLO inference service.
+1. ESP32-P4 captures a `1024 x 600` RGB image and uploads a JPEG-compressed full-frame image over Ethernet.
+2. The Qt host receives the image in memory and calls a local YOLO inference service.
 3. The host sends detected logo coordinates, class, and confidence back to ESP32-P4.
 4. The host UI displays connection status, latest image, detections, model status, and logs.
 
@@ -47,13 +47,14 @@ Packet header is defined in `esp32_host/packetprotocol.h`.
 - Version: `1`
 - Header size: `40`
 - Max payload: `8 * 1024 * 1024`
-- Image packet from ESP32-P4: type `0x01`, RGB888 payload
+- Image packet from ESP32-P4: type `0x01`, JPEG payload on the optimized path; RGB888 remains supported for compatibility
 - Metrics JSON from ESP32-P4: type `0x02`
 - Detection JSON from ESP32-P4/demo path: type `0x03`
 - Time sync JSON to ESP32-P4: type `0x10`
 - Control JSON to ESP32-P4: type `0x11`
 - Inference result JSON to ESP32-P4: type `0x12`
 - Pixel format RGB888: `1`
+- Pixel format JPEG: `2`
 
 Header fields are little-endian:
 
@@ -88,10 +89,17 @@ Header fields are little-endian:
   - Create the TCP task immediately after that and call `lwip_socket_thread_init()` inside the task so its per-thread socket semaphore is allocated before CSI/ISP consumes internal RAM.
   - Start camera before Ethernet driver/socket buffers.
   - Do not start sorter debug/MCPWM in the host-inference validation firmware; it consumes enough internal RAM to make LwIP socket allocation fail with `errno=105`.
-- Board sends a downscaled RGB888 inference frame to the host:
-  - Camera/preview frame remains `1024 x 600`.
-  - Inference upload frame is `224 x 132` RGB888, 88,704 bytes.
+- Board sends a full-frame JPEG inference image to the host by default:
+  - Camera/preview frame remains `1024 x 600` RGB888.
+  - Inference upload frame is `1024 x 600` JPEG, default quality 70 with fallback to 60/50 if payload exceeds the target size.
+  - RAW `1024 x 600` RGB888 can be requested for testing with host env `ESP32_UPLOAD_FORMAT=raw`, but real-board validation showed it is far too slow for the 0.5 s target.
   - Host returns normalized box coordinates; board maps them back to `1024 x 600` before drawing.
+- TCP/inference latency tuning:
+  - Board TCP client task priority is `12`.
+  - `esp_new_jpeg` helper task is disabled because real-board validation showed helper task creation fails under current internal RAM pressure.
+  - LwIP tcpip task remains priority `18`.
+  - Per-frame pause is disabled; result polling delay is 1 ms.
+  - Host and inference service should be run at elevated process priority for latency validation; `nice=-10` was used in the latest tests.
 - Metrics packets are delayed to a 10 second interval so they do not compete with image/result latency during validation.
 
 ## Useful Commands
@@ -113,6 +121,13 @@ cmake --build build/linux-release
 ./build/linux-release/bin/esp32_host
 ```
 
+Run host requesting RAW upload for comparison:
+
+```bash
+cd /home/kazeform/2026upper/esp32_host
+ESP32_UPLOAD_FORMAT=raw ./build/linux-release/bin/esp32_host
+```
+
 Train 26m:
 
 ```bash
@@ -126,5 +141,8 @@ EPOCHS=150 scripts/train_logo_yolo26m_150.sh
   - `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`
 - The Qt host inference call and packet `0x12` return path have been verified with real ESP32-P4 image packets.
 - `kMaxPayload` is 8 MiB, enough for `1024 * 600 * 3 = 1.84 MiB`.
-- The host currently saves incoming frames as PNG on the original `/infer` path. The validation path uses `/infer_rgb888` to avoid PNG disk I/O for board-sent raw RGB888 frames.
+- The optimized host path uses `/infer_jpeg`; `/infer_rgb888` remains available for compatibility and RAW comparison. The host does not save incoming JPEG/RAW frames on the hot path.
+- Latest real-board latency result with `nice=-10` host/service:
+  - JPEG: usually `340-342 ms` total, occasional observed outliers around `580 ms`; payload around `15 KiB` in the current scene.
+  - RAW RGB888: `16.8 s` then `42.8 s` total for `1,843,200` byte payloads; not viable for the current target.
 - Detection result can be `det=0` if the camera scene does not contain one of the trained logo classes. The transport/result/overlay path is still exercised; with a positive detection the board draws the returned box.

@@ -2,53 +2,40 @@
 
 ## Objective
 
-Complete the real-board validation chain:
+Optimize and validate the real-board full-frame camera-to-inference chain:
 
-ESP32-P4 camera frame -> Ethernet to host -> host YOLO inference -> class/box result back to ESP32-P4 -> board preview overlay and one-frame total latency display.
+ESP32-P4 `1024 x 600` camera frame -> upload over Ethernet -> host YOLO inference -> class/box result back to ESP32-P4 -> board preview overlay and one-frame latency display.
 
 ## Current State
 
-- Implemented with teammate UI/camera path imported from `ESP32P4_Detection(4).zip`.
-- Backed up the previous system/debug UI assets under:
-  - `docs/agent/archive/2026-07-02-current-ui-debug-backup/`
-- Board camera now uses `esp_video` MIPI CSI V4L2 RGB888 at `1024 x 600`, 3 buffers.
-- sdkconfig enables the relevant color/ISP path:
-  - `CONFIG_ESP_VIDEO_ENABLE_MIPI_CSI_VIDEO_DEVICE=y`
-  - `CONFIG_ESP_VIDEO_ENABLE_ISP_VIDEO_DEVICE=y`
-  - `CONFIG_ESP_IPA_AWB_ALGORITHM=y`
-  - `CONFIG_ESP_IPA_ACC_ALGORITHM=y`
-  - `CONFIG_ESP_IPA_AGC_ALGORITHM=y`
-- Board sends `224 x 132` RGB888 frames to the host for inference, while drawing the preview from the original `1024 x 600` camera frame.
-- Host returns packet type `0x12`; board parses normalized coordinates and maps them to the original preview size.
-- Board runtime label displays total one-frame latency when host inference returns.
-- Sorter debug/MCPWM startup is disabled in the validation firmware to keep enough internal RAM for CSI/ISP and LwIP sockets. The old debug UI/system files are backed up for later re-integration.
+- Final default upload path is `1024 x 600` JPEG over packet type `0x01`, `pixel_format=2`.
+- RAW `1024 x 600` RGB888 upload remains supported as `pixel_format=1` for comparison/testing, but is not the default.
+- Host can request upload format on connect with `ESP32_UPLOAD_FORMAT=jpeg` or `ESP32_UPLOAD_FORMAT=raw`.
+- Board JPEG uses synchronous `esp_new_jpeg`; helper task mode is disabled because real-board validation could not create the helper task under current internal-RAM pressure.
+- Board TCP client task priority is `12`, per-frame pause is disabled, result polling delay is 1 ms, and TCP_NODELAY is enabled.
+- Host disables image file saving on the hot path for both JPEG and RAW; UI/log/detection updates are sampled so result downlink is prioritized.
+- Host and inference service were run with `nice=-10` for validation.
+- FastAPI service supports `/infer_jpeg` and `/infer_rgb888`; uvicorn access log is off by default.
 
 ## Verification
 
+- `cmake --build esp32_host/build/linux-release`: passed.
+- `.venv/bin/python -m py_compile ml/logo_inference_service.py`: passed.
 - `idf.py build`: passed.
-- `idf.py -p /dev/ttyUSB0 flash`: passed.
-- `idf.py -p /dev/ttyUSB0 monitor`: passed real-board chain verification.
-- Inference service running on host:
-  - PID `650945`
-  - model `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`
-  - `imgsz=1024`, `conf=0.1`, `max_det=1`, `device=0`
+- `idf.py -p /dev/ttyUSB0 flash monitor`: passed for final JPEG default firmware.
+- JPEG final smoke test:
+  - `payload` around 15 KiB in the current scene.
+  - `encode` around 273-274 ms.
+  - `send` around 1 ms.
+  - host inference around 18-19 ms after warm-up.
+  - total usually 340-342 ms; occasional observed outliers around 580 ms.
+- RAW full-frame test:
+  - `payload=1843200` bytes.
+  - observed `send=15980 ms`, `total=16801 ms` on first frame.
+  - observed `send=41983 ms`, `total=42808 ms` on next frame.
+  - Conclusion: direct `1024 x 600` RGB888 upload is not viable for the 0.5 s target on the current ESP32/LwIP path.
 
-Observed board logs from final validation:
+## Notes
 
-```text
-camera init: 1024x600 RGB888, 3 buffers, streaming
-connected to host
-send frame seq=1 camera=1024x600 infer=224x132 88704 bytes
-host result seq=1 valid=0 ... infer=20ms
-frame seq=1 total=360ms infer=20ms det=0
-frame seq=2 total=122ms infer=18ms det=0
-frame seq=3 total=72ms infer=19ms det=0
-frame seq=16 total=1982ms infer=18ms det=0
-frame seq=17 total=2097ms infer=18ms det=0
-frame seq=19 total=2335ms infer=19ms det=0
-```
-
-## Blockers
-
-- No active blocker for the requested chain.
-- The camera scene during validation did not contain a trained courier logo, so returned detections were `det=0`; the result packet path and board latency display were still verified.
+- The validation scene did not contain a trained courier logo, so results were `det=0`; transport, inference response, and overlay update paths were still exercised.
+- For a recognition-quality comparison, place a trained `jt/zt/yd` logo in view and run the same JPEG/RAW modes; the current latency conclusion does not depend on positive detections.
