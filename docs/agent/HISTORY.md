@@ -55,3 +55,25 @@
   - `git diff --check` in `merge_project`：通过。
   - `cd /home/kazeform/2026esp/merge_project && idf.py build`：通过；仅保留既有 `global_statusbar` unused warning。
   - `timeout 120s idf.py flash monitor`：失败，当前环境没有可用串口；自动扫描的 `/dev/ttyS*` 均无法打开。
+
+## 2026-06-29 Dashboard Runtime Debug Display
+
+- 修改前 checkpoint：
+  - `merge_project`: `faaf9e9 round robin failed vision classes`
+  - 根目录 docs: `e6acde5 document sorter link alignment`
+- 用户要求把分拣程序内部信息显示出来，便于不知道内部流程时现场调试。
+- 设计选择：
+  - 复用 dashboard 的 SYS/debug 面板，因为当前该页空余空间最多，且已经用于传感器、电机、编码器调试。
+  - 不新增复杂页面；在右下角显示紧凑表格，避免遮挡已有模拟按钮。
+- 代码改动：
+  - `components/Sorter_app/include/sorting_sim_control.h` 新增 `sorting_runtime_debug_t` 和 `sorting_package_debug_t`。
+  - `components/Sorter_app/sorting_sim_control.c` 新增 `sorting_sim_control_get_runtime_debug()`，在锁内复制调度器快照。
+  - `components/UI/generated/setup_scr_dashboard.c` 的 debug 刷新中读取 runtime debug，显示：
+    - 活动包裹数/最大槽位、下一个 package id、下一次失败分配类别。
+    - 当前视觉窗口、视觉 S1 状态、B/C owner。
+    - 最多 8 个活动包裹的 `#id belt state class pos`。
+- 验证：
+  - `git diff --check` in `merge_project`：通过。
+  - `python -m unittest esp32_sorter_sim_py.tests.test_sorter_scheduler_c`：通过。
+  - `cd /home/kazeform/2026esp/merge_project && idf.py build`：通过；仅保留既有 `global_statusbar` unused warning。
+  - `timeout 120s idf.py flash monitor`：失败，当前环境没有可用串口；自动扫描的 `/dev/ttyS*` 均无法打开。

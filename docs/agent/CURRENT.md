@@ -24,18 +24,24 @@
 - 已修改识别失败分配：
   - `SORTER_CLASS_VISION_FAILED` 和直接传入的 `SORTER_CLASS_UNKNOWN` 现在进入调度器时按 class1、class2、class3、class1... 轮番改写为实际类别。
   - 视觉超时 `timeout_vision` 也使用同一个轮转分配。
+- 本轮新增板端调试显示：
+  - `sorting_sim_control_get_runtime_debug()` 提供调度器运行快照。
+  - dashboard 的 SYS/debug 面板右下角显示：活动包裹数、最大槽位、下一个包裹 ID、下一次识别失败分配类别、当前视觉窗口、S1 视觉状态、B/C 段占用。
+  - 同一区域显示最多 8 个活动包裹：`#id belt state class pos`，用于观察包裹状态机是否符合预期。
 - 验证：
   - `python -m unittest esp32_sorter_sim_py.tests.test_sorter_scheduler_c`：通过。
+  - `git diff --check`：通过。
   - `cd /home/kazeform/2026esp/merge_project && idf.py build`：通过；仍仅有既有 `global_statusbar` unused warning。
   - `timeout 120s idf.py flash monitor`：失败，当前环境无可用串口；`/dev/ttyS*` 均无法打开。
 
 ## Immediate Next Step
 
 1. 连接真实 ESP32-P4 设备串口后，在 `merge_project` 执行 `idf.py flash monitor`。
-2. 切到 REAL/SENSOR ON 模式，逐个触发 S1-S4，观察 UI 状态块和 `sort sensor Sx ...` 日志是否同步变化。
-3. 实机验证失败分配：连续制造 4 次无识别/识别失败，确认 `PKG ... class=class1/class2/class3/class1` 和对应出口一致。
-4. 若对照以太网模拟，编码器未接时不要用上位机 `DISTANCE` 作为成功依据；应让 C 段走 timeout fallback，才更接近真实硬件。
-5. 若某路 UI 不变但日志有 raw change，继续查 active level/防抖/调度输入；若日志也无 raw change，优先查 GPIO 号、线序、电平和下拉配置。
+2. 切到 SYS 页面，确认 debug 面板右下角的 `PACKAGES` 区域正常刷新，不遮挡按钮。
+3. 切到 REAL/SENSOR ON 模式，逐个触发 S1-S4，观察 UI 状态块、`PACKAGES` 列表和 `sort sensor Sx ...` 日志是否同步变化。
+4. 实机验证失败分配：连续制造 4 次无识别/识别失败，确认 UI `FAIL->` 轮转、包裹 `class` 和对应出口一致。
+5. 若对照以太网模拟，编码器未接时不要用上位机 `DISTANCE` 作为成功依据；应让 C 段走 timeout fallback，才更接近真实硬件。
+6. 若某路 UI 不变但日志有 raw change，继续查 active level/防抖/调度输入；若日志也无 raw change，优先查 GPIO 号、线序、电平和下拉配置。
 
 ## Verification Standard
 

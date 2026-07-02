@@ -81,6 +81,11 @@ idf.py flash monitor
 - 识别失败分配策略：
   - `SORTER_CLASS_VISION_FAILED` 和直接提交的 `SORTER_CLASS_UNKNOWN/class=none` 进入调度器时按 class1、class2、class3、class1... 轮番分配。
   - 视觉超时 `timeout_vision` 使用同一个轮转游标。
+- SYS/debug 面板运行态显示：
+  - `sorting_sim_control_get_runtime_debug()` 是 UI 调试读取调度器内部状态的只读入口。
+  - 面板右下角 `PACKAGES` 区显示活动包裹数、下一个 package id、下一次失败分配类别、当前视觉窗口、B/C owner。
+  - 包裹列表每行格式为 `#id belt state class pos`，最多显示 `SORTER_MAX_PACKAGES` 个活动包裹。
+  - 该信息来自 `s_scheduler.tracks[]` 快照，适合现场判断建包、分类、S2/S4 handoff、完成释放是否符合预期。
 
 ## Blue-Screen Long-Term Findings
 
