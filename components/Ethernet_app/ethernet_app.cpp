@@ -8,6 +8,7 @@
 #include "esp_eth.h"
 #include "esp_event.h"
 #include "esp_heap_caps.h"
+#include "esp_jpeg_enc.h"
 #include "esp_log.h"
 #include "esp_netif.h"
 #include "esp_netif_ip_addr.h"
@@ -18,6 +19,7 @@
 #include "lwip/inet.h"
 #include "lwip/sockets.h"
 #include "lwip/sys.h"
+#include "lwip/tcp.h"
 
 #include <algorithm>
 #include <errno.h>
@@ -36,10 +38,10 @@ static const char *TAG = "eth_example";
 #define HOST_IP                 "192.168.10.1"
 #define HOST_PORT               5000
 #define TCP_TASK_STACK_BYTES    (12 * 1024)
-#define TCP_TASK_PRIORITY       4
+#define TCP_TASK_PRIORITY       12
 #define TCP_SEND_WAIT_MS        1000
 #define TCP_FRAME_RESULT_TIMEOUT_MS 15000
-#define TCP_FRAME_PAUSE_MS      50
+#define TCP_FRAME_PAUSE_MS      0
 #define TCP_METRICS_INTERVAL_MS 10000
 #define TCP_CONNECT_READY_BIT   BIT0
 #define TCP_CAMERA_READY_BIT    BIT1
@@ -53,6 +55,7 @@ static const char *TAG = "eth_example";
 #define ESP_HOST_TYPE_CONTROL   0x11u
 #define ESP_HOST_TYPE_INFERENCE_RESULT 0x12u
 #define ESP_HOST_PIXEL_RGB888   1u
+#define ESP_HOST_PIXEL_JPEG     2u
 
 #define VISION_CAM_SCL_PIN      8
 #define VISION_CAM_SDA_PIN      7
@@ -60,8 +63,13 @@ static const char *TAG = "eth_example";
 #define VISION_CAM_RESET_PIN    -1
 #define VISION_CAM_WIDTH        1024
 #define VISION_CAM_HEIGHT       600
-#define INFER_FRAME_WIDTH       224
-#define INFER_FRAME_HEIGHT      132
+#define JPEG_OUTBUF_BYTES       (768 * 1024)
+#define JPEG_TARGET_BYTES       (256 * 1024)
+
+typedef enum {
+    UPLOAD_FORMAT_JPEG = 0,
+    UPLOAD_FORMAT_RAW_RGB888 = 1,
+} upload_format_t;
 
 typedef struct __attribute__((packed)) {
     uint32_t magic;
@@ -82,9 +90,11 @@ static EventGroupHandle_t s_eth_events;
 static TaskHandle_t s_tcp_task;
 static uint32_t s_tx_seq;
 static bool s_camera_started;
-static uint8_t *s_infer_frame;
+static uint8_t *s_jpeg_frame;
+static jpeg_enc_handle_t s_jpeg_enc;
 static StackType_t *s_tcp_task_stack;
 static StaticTask_t s_tcp_task_tcb;
+static volatile upload_format_t s_upload_format = UPLOAD_FORMAT_JPEG;
 
 typedef struct {
     bool valid;
@@ -178,43 +188,74 @@ static int send_packet(int sock, uint16_t type, const void *payload, uint32_t pa
     return 0;
 }
 
-static uint8_t *get_inference_frame_buffer(void)
+static esp_err_t ensure_jpeg_encoder(int width, int height)
 {
-    if (!s_infer_frame) {
-        const size_t bytes = INFER_FRAME_WIDTH * INFER_FRAME_HEIGHT * 3;
-        s_infer_frame = (uint8_t *)heap_caps_malloc(bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-        if (!s_infer_frame) {
-            ESP_LOGE(TAG, "allocate inference frame buffer failed: %u bytes", (unsigned)bytes);
-        }
+    if (s_jpeg_enc) {
+        return ESP_OK;
     }
-    return s_infer_frame;
+
+    jpeg_enc_config_t cfg = DEFAULT_JPEG_ENC_CONFIG();
+    cfg.width = width;
+    cfg.height = height;
+    cfg.src_type = JPEG_PIXEL_FORMAT_RGB888;
+    cfg.subsampling = JPEG_SUBSAMPLE_420;
+    cfg.quality = 70;
+    cfg.rotate = JPEG_ROTATE_0D;
+    cfg.task_enable = false;
+    cfg.hfm_task_priority = 13;
+    cfg.hfm_task_core = 1;
+
+    jpeg_error_t err = jpeg_enc_open(&cfg, &s_jpeg_enc);
+    if (err != JPEG_ERR_OK) {
+        ESP_LOGE(TAG, "jpeg encoder open failed err=%d", (int)err);
+        return ESP_FAIL;
+    }
+    return ESP_OK;
 }
 
-static uint8_t *make_inference_frame(const uint8_t *src, int src_w, int src_h, size_t *out_size)
+static uint8_t *get_jpeg_frame_buffer(void)
 {
-    uint8_t *dst = get_inference_frame_buffer();
-    if (!dst) {
-        return NULL;
+    if (!s_jpeg_frame) {
+        s_jpeg_frame = (uint8_t *)heap_caps_malloc(JPEG_OUTBUF_BYTES, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        if (!s_jpeg_frame) {
+            ESP_LOGE(TAG, "allocate JPEG output buffer failed: %u bytes", (unsigned)JPEG_OUTBUF_BYTES);
+        }
     }
+    return s_jpeg_frame;
+}
 
-    for (int y = 0; y < INFER_FRAME_HEIGHT; y++) {
-        const int sy = (int)(((int64_t)y * src_h) / INFER_FRAME_HEIGHT);
-        const uint8_t *src_row = src + (size_t)sy * src_w * 3;
-        uint8_t *dst_row = dst + (size_t)y * INFER_FRAME_WIDTH * 3;
-        for (int x = 0; x < INFER_FRAME_WIDTH; x++) {
-            const int sx = (int)(((int64_t)x * src_w) / INFER_FRAME_WIDTH);
-            const uint8_t *sp = src_row + sx * 3;
-            uint8_t *dp = dst_row + x * 3;
-            dp[0] = sp[0];
-            dp[1] = sp[1];
-            dp[2] = sp[2];
+static esp_err_t encode_jpeg_frame(const uint8_t *frame, int frame_w, int frame_h,
+                                   uint8_t **out, size_t *out_size, int *out_quality)
+{
+    if (!frame || !out || !out_size || frame_w <= 0 || frame_h <= 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    ESP_RETURN_ON_ERROR(ensure_jpeg_encoder(frame_w, frame_h), TAG, "jpeg encoder init failed");
+    uint8_t *jpeg = get_jpeg_frame_buffer();
+    ESP_RETURN_ON_FALSE(jpeg != NULL, ESP_ERR_NO_MEM, TAG, "jpeg output buffer unavailable");
+
+    const int qualities[] = {70, 60, 50};
+    const int image_size = frame_w * frame_h * 3;
+    int encoded = 0;
+    jpeg_error_t last_err = JPEG_ERR_FAIL;
+    for (int quality : qualities) {
+        jpeg_enc_set_quality(s_jpeg_enc, (uint8_t)quality);
+        encoded = 0;
+        last_err = jpeg_enc_process(s_jpeg_enc, frame, image_size, jpeg, JPEG_OUTBUF_BYTES, &encoded);
+        if (last_err == JPEG_ERR_OK && encoded > 0) {
+            *out = jpeg;
+            *out_size = (size_t)encoded;
+            if (out_quality) {
+                *out_quality = quality;
+            }
+            if ((size_t)encoded <= JPEG_TARGET_BYTES || quality == qualities[(sizeof(qualities) / sizeof(qualities[0])) - 1]) {
+                return ESP_OK;
+            }
         }
     }
 
-    if (out_size) {
-        *out_size = INFER_FRAME_WIDTH * INFER_FRAME_HEIGHT * 3;
-    }
-    return dst;
+    ESP_LOGE(TAG, "jpeg encode failed err=%d encoded=%d", (int)last_err, encoded);
+    return ESP_FAIL;
 }
 
 static uint32_t calculate_cpu_usage_percent(void)
@@ -349,6 +390,51 @@ static bool parse_json_string(const char *json, const char *key, char *out, size
     return true;
 }
 
+static bool parse_json_string_value(const char *json, const char *key, char *out, size_t out_size)
+{
+    if (!out || out_size == 0) {
+        return false;
+    }
+    const size_t key_len = strlen(key);
+    const char *p = json;
+    while ((p = strstr(p, key)) != NULL) {
+        const char *value = p + key_len;
+        while (*value == ' ' || *value == '\t') {
+            value++;
+        }
+        if (*value == ':') {
+            p = value + 1;
+            break;
+        }
+        p += key_len;
+    }
+    if (!p) {
+        out[0] = '\0';
+        return false;
+    }
+
+    while (*p == ' ' || *p == '\t') {
+        p++;
+    }
+    if (*p != '"') {
+        out[0] = '\0';
+        return false;
+    }
+    p++;
+    const char *end = strchr(p, '"');
+    if (!end) {
+        out[0] = '\0';
+        return false;
+    }
+    size_t len = (size_t)(end - p);
+    if (len >= out_size) {
+        len = out_size - 1;
+    }
+    memcpy(out, p, len);
+    out[len] = '\0';
+    return true;
+}
+
 static int class_id_from_label(const char *label)
 {
     if (strcmp(label, "jt") == 0 || strcmp(label, "极兔") == 0) {
@@ -464,6 +550,35 @@ static void apply_time_sync(const char *json, size_t len)
     ESP_LOGI(TAG, "time synced unix_ms=%lld tz_offset_min=%lld", (long long)unix_ms, (long long)tz_offset_min);
 }
 
+static void apply_control_packet(const char *json, size_t len)
+{
+    char buf[256];
+    size_t copy_len = std::min(len, sizeof(buf) - 1);
+    memcpy(buf, json, copy_len);
+    buf[copy_len] = '\0';
+
+    char upload_format[16];
+    bool has_upload_format = parse_json_string_value(buf, "\"upload_format\"", upload_format, sizeof(upload_format));
+    if (!has_upload_format) {
+        char command[32];
+        if (parse_json_string_value(buf, "\"command\"", command, sizeof(command)) &&
+            strcmp(command, "upload_format") == 0) {
+            has_upload_format = parse_json_string_value(buf, "\"value\"", upload_format, sizeof(upload_format));
+        }
+    }
+    if (has_upload_format) {
+        if (strcmp(upload_format, "raw") == 0 || strcmp(upload_format, "rgb888") == 0) {
+            s_upload_format = UPLOAD_FORMAT_RAW_RGB888;
+            ESP_LOGI(TAG, "upload format set to raw RGB888");
+        } else if (strcmp(upload_format, "jpeg") == 0) {
+            s_upload_format = UPLOAD_FORMAT_JPEG;
+            ESP_LOGI(TAG, "upload format set to JPEG");
+        } else {
+            ESP_LOGW(TAG, "unknown upload_format=%s", upload_format);
+        }
+    }
+}
+
 static void process_rx_packet(int sock, const esp_host_packet_header_t *header, const uint8_t *payload)
 {
     (void)sock;
@@ -487,7 +602,7 @@ static void process_rx_packet(int sock, const esp_host_packet_header_t *header, 
             ESP_LOGW(TAG, "invalid inference result JSON: %.*s", (int)copy_len, json);
         }
     } else if (header->type == ESP_HOST_TYPE_CONTROL) {
-        ESP_LOGI(TAG, "ignore control packet len=%lu", (unsigned long)header->payload_len);
+        apply_control_packet((const char *)payload, header->payload_len);
     }
 }
 
@@ -590,6 +705,8 @@ static int connect_to_host(void)
     if (flags >= 0) {
         fcntl(sock, F_SETFL, flags & ~O_NONBLOCK);
     }
+    int one = 1;
+    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
     struct timeval send_timeout = {
         .tv_sec = TCP_SEND_WAIT_MS / 1000,
         .tv_usec = (TCP_SEND_WAIT_MS % 1000) * 1000,
@@ -611,7 +728,7 @@ static bool wait_for_frame_result(int sock, uint32_t frame_seq, host_inference_r
             }
             return true;
         }
-        vTaskDelay(pdMS_TO_TICKS(5));
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
     return false;
 }
@@ -647,6 +764,7 @@ static int send_frame_wait_result(int sock)
 
     int64_t start_us = esp_timer_get_time();
     esp_err_t ret = cam_sensor_get_frame(&frame, &frame_size, &frame_w, &frame_h, 2000);
+    int64_t dq_done_us = esp_timer_get_time();
     if (ret != ESP_OK) {
         ESP_LOGW(TAG, "get camera frame failed: %s", esp_err_to_name(ret));
         return 0;
@@ -656,22 +774,34 @@ static int send_frame_wait_result(int sock)
     s_latest_result.frame_seq = 0;
     s_latest_result.valid = false;
 
-    size_t infer_size = 0;
-    uint8_t *infer_frame = make_inference_frame(frame, frame_w, frame_h, &infer_size);
-    if (!infer_frame) {
-        cam_sensor_return_frame(frame);
-        return -1;
+    const upload_format_t upload_format = s_upload_format;
+    uint8_t *payload = frame;
+    size_t payload_size = frame_size;
+    uint16_t pixel_format = ESP_HOST_PIXEL_RGB888;
+    int jpeg_quality = 0;
+    const char *format_name = "raw";
+    if (upload_format == UPLOAD_FORMAT_JPEG) {
+        ret = encode_jpeg_frame(frame, frame_w, frame_h, &payload, &payload_size, &jpeg_quality);
+        if (ret != ESP_OK) {
+            cam_sensor_return_frame(frame);
+            return -1;
+        }
+        pixel_format = ESP_HOST_PIXEL_JPEG;
+        format_name = "jpeg";
     }
+    int64_t encode_done_us = esp_timer_get_time();
 
-    ESP_LOGI(TAG, "send frame seq=%lu camera=%dx%d infer=%dx%d %u bytes",
+    ESP_LOGI(TAG, "send frame seq=%lu fmt=%s camera=%dx%d raw=%u payload=%u bytes q=%d",
              (unsigned long)frame_seq,
+             format_name,
              frame_w,
              frame_h,
-             INFER_FRAME_WIDTH,
-             INFER_FRAME_HEIGHT,
-             (unsigned)infer_size);
-    int send_ret = send_packet(sock, ESP_HOST_TYPE_IMAGE, infer_frame, (uint32_t)infer_size,
-                               INFER_FRAME_WIDTH, INFER_FRAME_HEIGHT, ESP_HOST_PIXEL_RGB888);
+             (unsigned)frame_size,
+             (unsigned)payload_size,
+             jpeg_quality);
+    int send_ret = send_packet(sock, ESP_HOST_TYPE_IMAGE, payload, (uint32_t)payload_size,
+                               frame_w, frame_h, pixel_format);
+    int64_t send_done_us = esp_timer_get_time();
     if (send_ret != 0) {
         cam_sensor_return_frame(frame);
         return -1;
@@ -679,19 +809,40 @@ static int send_frame_wait_result(int sock)
 
     host_inference_result_t result = {};
     bool got_result = wait_for_frame_result(sock, frame_seq, &result);
-    int64_t total_us = esp_timer_get_time() - start_us;
+    int64_t wait_done_us = esp_timer_get_time();
+    int64_t total_us = wait_done_us - start_us;
     if (got_result) {
         render_host_result(frame, frame_w, frame_h, &result, total_us);
-        ESP_LOGI(TAG, "frame seq=%lu total=%lldms infer=%dms det=%d",
+        int64_t preview_done_us = esp_timer_get_time();
+        ESP_LOGI(TAG,
+                 "frame seq=%lu fmt=%s total=%lldms dq=%lldms encode=%lldms send=%lldms wait=%lldms preview=%lldms infer=%dms payload=%u q=%d det=%d",
                  (unsigned long)frame_seq,
+                 format_name,
                  (long long)(total_us / 1000),
+                 (long long)((dq_done_us - start_us) / 1000),
+                 (long long)((encode_done_us - dq_done_us) / 1000),
+                 (long long)((send_done_us - encode_done_us) / 1000),
+                 (long long)((wait_done_us - send_done_us) / 1000),
+                 (long long)((preview_done_us - wait_done_us) / 1000),
                  result.inference_ms,
+                 (unsigned)payload_size,
+                 jpeg_quality,
                  result.valid ? 1 : 0);
     } else {
         render_host_result(frame, frame_w, frame_h, NULL, total_us);
-        ESP_LOGW(TAG, "frame seq=%lu inference timeout total=%lldms",
+        int64_t preview_done_us = esp_timer_get_time();
+        ESP_LOGW(TAG,
+                 "frame seq=%lu fmt=%s inference timeout total=%lldms dq=%lldms encode=%lldms send=%lldms wait=%lldms preview=%lldms payload=%u q=%d",
                  (unsigned long)frame_seq,
-                 (long long)(total_us / 1000));
+                 format_name,
+                 (long long)(total_us / 1000),
+                 (long long)((dq_done_us - start_us) / 1000),
+                 (long long)((encode_done_us - dq_done_us) / 1000),
+                 (long long)((send_done_us - encode_done_us) / 1000),
+                 (long long)((wait_done_us - send_done_us) / 1000),
+                 (long long)((preview_done_us - wait_done_us) / 1000),
+                 (unsigned)payload_size,
+                 jpeg_quality);
     }
 
     cam_sensor_return_frame(frame);
@@ -736,7 +887,9 @@ static void tcp_client_task(void *arg)
                 ESP_LOGW(TAG, "TCP frame loop failed errno=%d", errno);
                 break;
             }
-            vTaskDelay(pdMS_TO_TICKS(TCP_FRAME_PAUSE_MS));
+            if (TCP_FRAME_PAUSE_MS > 0) {
+                vTaskDelay(pdMS_TO_TICKS(TCP_FRAME_PAUSE_MS));
+            }
         }
 
         close(sock);
