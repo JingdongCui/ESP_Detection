@@ -3,7 +3,7 @@
 ## Workspace
 
 - 根目录：`/home/kazeform/2026esp`
-- 当前主任务工程：`merge_project`
+- 当前主任务工程：`merge`
 - 相关对照工程：`bug_project`
 - 根目录 git 仓库已初始化，用于跟踪根目录 agent 文档；`bug_project` 和 `merge_project` 各自仍有独立 git 仓库。
 
@@ -16,6 +16,7 @@
 - 当前相机诊断状态：sensor `RAW10_640x480_50fps`，ISP 输出 `640x480 RGB888`
 - PSRAM：启动日志显示 32 MB，200 MHz
 - 串口通常为 `/dev/ttyACM0`
+- 当前 ESP32-P4 分拣板串口也可能为 `/dev/ttyUSB0`；2026-07-02 电机分拣迁移烧录使用 `/dev/ttyUSB0`。
 
 ## Commands
 
@@ -33,6 +34,13 @@ cd /home/kazeform/2026esp/merge_project
 idf.py build
 ```
 
+`merge` 构建：
+
+```bash
+cd /home/kazeform/2026esp/merge
+idf.py build
+```
+
 烧录和实机监控：
 
 ```bash
@@ -46,6 +54,45 @@ idf.py flash monitor
 cd /home/kazeform/2026esp/merge_project
 idf.py flash monitor
 ```
+
+`merge` 烧录和实机监控：
+
+```bash
+cd /home/kazeform/2026esp/merge
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+
+## Merge Sorter Migration Baseline
+
+- 2026-07-02 已将 `old_project` 电机分拣链路第一轮移植到 `merge`。
+- 迁移内容：
+  - `components/Sorter_app`：分拣调度器和 `sorting_sim_control`。
+  - `components/bsp`：电机、编码器、分拣传感器和 sorter debug config。
+  - `components/Ethernet_app`：TCP 模拟链路。
+  - `components/vision/framework/vision_detect.c`：LOGO 分类 0/1/2 提交 sorter class1/2/3。
+  - `main/system_init.c`：启动 Ethernet sorter link、debug 任务并启用 motor output。
+- `merge` 默认 Ethernet 模拟目标：
+  - 板端 IP：`192.168.10.2`
+  - 上位机/网关：`192.168.10.1`
+  - TCP port：`5000`
+- TCP 20 件验证命令：
+
+```bash
+cd /home/kazeform/2026esp
+python -m esp32_sorter_sim_py --headless --transport tcp --host 192.168.10.1 --port 5000 --count 20 --class-sequence 1,2,3,2,3,1 --feed-interval 0.25 --max-active 8 --timeout 180 --stall-timeout 18 --b-idle-threshold 3 --log-file esp32_sorter_sim_py/logs/merge_tcp_migration_20_rev0_20260702.log
+python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migration_20_rev0_20260702.log
+```
+
+- 2026-07-02 迁移验收结果：
+  - build 成功。
+  - `/dev/ttyUSB0` flash/monitor 启动成功。
+  - TCP 20 件 `RESULT ok completed=20/20`。
+  - audit: warnings=0, drops=0, desyncs=0, faults=0。
+  - done: class1=7, class2=7, class3=6。
+- 已知边界：
+  - 默认模拟链路会接受 TCP `VISION_FRAME`、`VISION_RESULT`、`SENSOR`、`DISTANCE`；真实 IO 模式需配置切换。
+  - 编码器仍沿用 `old_project` 虚拟配置；若真实 C 段需要距离闭环，后续需补实际 encoder GPIO。
+  - boot log 提示 GPIO37/GPIO38 用于 console UART，而 sorter S1/S3 默认也使用 GPIO37/GPIO38；真实传感器联调时需确认是否冲突。
 
 ## Merge Project Sensor Chain
 
