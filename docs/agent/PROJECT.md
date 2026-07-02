@@ -20,7 +20,8 @@ Build an ESP32-P4 to desktop host pipeline for small courier-logo detection:
 - Default network plan:
   - PC Ethernet: `192.168.10.1/24`
   - ESP32-P4: `192.168.10.2`
-  - TCP port: `5000`
+  - TCP control/result/metrics port: `5000`
+  - TCP image upload port: `5001`
   - Local inference API: `http://127.0.0.1:8765`
 
 ## Model And Data
@@ -47,7 +48,7 @@ Packet header is defined in `esp32_host/packetprotocol.h`.
 - Version: `1`
 - Header size: `40`
 - Max payload: `8 * 1024 * 1024`
-- Image packet from ESP32-P4: type `0x01`, JPEG payload on the optimized path; RGB888 remains supported for compatibility
+- Image packet from ESP32-P4: type `0x01`, JPEG payload on the optimized path; RGB888 remains supported for compatibility/testing
 - Metrics JSON from ESP32-P4: type `0x02`
 - Detection JSON from ESP32-P4/demo path: type `0x03`
 - Time sync JSON to ESP32-P4: type `0x10`
@@ -91,15 +92,23 @@ Header fields are little-endian:
   - Do not start sorter debug/MCPWM in the host-inference validation firmware; it consumes enough internal RAM to make LwIP socket allocation fail with `errno=105`.
 - Board sends a full-frame JPEG inference image to the host by default:
   - Camera/preview frame remains `1024 x 600` RGB888.
-  - Inference upload frame is `1024 x 600` JPEG, default quality 70 with fallback to 60/50 if payload exceeds the target size.
+  - Inference upload frame is `1024 x 600` JPEG with fixed quality 70. Do not lower JPEG quality for latency work unless the user explicitly changes this requirement.
   - RAW `1024 x 600` RGB888 can be requested for testing with host env `ESP32_UPLOAD_FORMAT=raw`, but real-board validation showed it is far too slow for the 0.5 s target.
   - Host returns normalized box coordinates; board maps them back to `1024 x 600` before drawing.
+- Transport topology:
+  - Board opens a control socket to host port `5000` for metrics, control, time sync, and inference results.
+  - Board opens a separate image socket to host port `5001` for full-frame uploads.
+  - Host networking is handled by `HostNetworkWorker` on a dedicated `QThread`; packet parsing, image receive, and inference requests do not run on the UI thread.
+  - Host sends the compact inference result to the board before updating UI state.
+  - Host displays the current inference image by sampling incoming frames to `~/Documents/ESP32Host/images/latest_preview.jpg` and refreshing `latestImageUrl`.
 - TCP/inference latency tuning:
   - Board TCP client task priority is `12`.
   - `esp_new_jpeg` helper task is disabled because real-board validation showed helper task creation fails under current internal RAM pressure.
   - LwIP tcpip task remains priority `18`.
   - Per-frame pause is disabled; result polling delay is 1 ms.
   - Host and inference service should be run at elevated process priority for latency validation; `nice=-10` was used in the latest tests.
+  - Ethernet DMA RX/TX buffers are currently `8/8`; `12/16` failed to boot after camera/LVGL because EMAC RX task allocation ran out of internal memory.
+  - LwIP TCP send/window buffers are `65535`, IPv6 is disabled, and LwIP IRAM optimization is enabled.
 - Metrics packets are delayed to a 10 second interval so they do not compete with image/result latency during validation.
 
 ## Useful Commands
@@ -119,6 +128,13 @@ cd /home/kazeform/2026upper/esp32_host
 cmake -S . -B build/linux-release -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build/linux-release
 ./build/linux-release/bin/esp32_host
+```
+
+Run host app offscreen for board latency validation:
+
+```bash
+cd /home/kazeform/2026upper/esp32_host
+QT_QPA_PLATFORM=offscreen ./build/linux-release/bin/esp32_host
 ```
 
 Run host requesting RAW upload for comparison:
@@ -142,7 +158,9 @@ EPOCHS=150 scripts/train_logo_yolo26m_150.sh
 - The Qt host inference call and packet `0x12` return path have been verified with real ESP32-P4 image packets.
 - `kMaxPayload` is 8 MiB, enough for `1024 * 600 * 3 = 1.84 MiB`.
 - The optimized host path uses `/infer_jpeg`; `/infer_rgb888` remains available for compatibility and RAW comparison. The host does not save incoming JPEG/RAW frames on the hot path.
-- Latest real-board latency result with `nice=-10` host/service:
-  - JPEG: usually `340-342 ms` total, occasional observed outliers around `580 ms`; payload around `15 KiB` in the current scene.
+- Latest real-board latency result with `nice=-10` host/service and dual TCP channels:
+  - JPEG q70: stable `359-365 ms` total through about 160 frames; `encode=290-295ms`, `send=2-8ms`, `wait=60-68ms`, `infer=18-20ms`, `host=60-64ms`, payload around `39-46 KiB` in the current scene.
+  - Previous 1-2 second result-wait spikes were not reproduced after splitting image/control sockets and moving host networking off the UI thread.
   - RAW RGB888: `16.8 s` then `42.8 s` total for `1,843,200` byte payloads; not viable for the current target.
+- Do not increase Ethernet DMA RX/TX above `8/8` without rechecking internal RAM; a tested `12/16` config failed with `create emac_rx task failed`.
 - Detection result can be `det=0` if the camera scene does not contain one of the trained logo classes. The transport/result/overlay path is still exercised; with a positive detection the board draws the returned box.

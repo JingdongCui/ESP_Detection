@@ -2,40 +2,42 @@
 
 ## Objective
 
-Optimize and validate the real-board full-frame camera-to-inference chain:
+Keep the `1024 x 600` image quality unchanged and stabilize the full chain:
 
-ESP32-P4 `1024 x 600` camera frame -> upload over Ethernet -> host YOLO inference -> class/box result back to ESP32-P4 -> board preview overlay and one-frame latency display.
+ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact result downlink -> board and host overlay display.
 
 ## Current State
 
-- Final default upload path is `1024 x 600` JPEG over packet type `0x01`, `pixel_format=2`.
-- RAW `1024 x 600` RGB888 upload remains supported as `pixel_format=1` for comparison/testing, but is not the default.
-- Host can request upload format on connect with `ESP32_UPLOAD_FORMAT=jpeg` or `ESP32_UPLOAD_FORMAT=raw`.
-- Board JPEG uses synchronous `esp_new_jpeg`; helper task mode is disabled because real-board validation could not create the helper task under current internal-RAM pressure.
-- Board TCP client task priority is `12`, per-frame pause is disabled, result polling delay is 1 ms, and TCP_NODELAY is enabled.
-- Host disables image file saving on the hot path for both JPEG and RAW; UI/log/detection updates are sampled so result downlink is prioritized.
-- Host and inference service were run with `nice=-10` for validation.
-- FastAPI service supports `/infer_jpeg` and `/infer_rgb888`; uvicorn access log is off by default.
+- Default upload remains full-frame `1024 x 600` JPEG, packet type `0x01`, `pixel_format=2`.
+- JPEG quality is fixed at `70`; the temporary lower-quality fallback was removed per requirement.
+- Host network path is split into two TCP channels:
+  - control/result/metrics: `192.168.10.1:5000`
+  - image upload: `192.168.10.1:5001`
+- Host socket parsing/inference now runs in `HostNetworkWorker` on a dedicated `QThread`, keeping image receive and inference off the UI thread.
+- Host sends compact result JSON before UI work; board downlink is typically `115-258` bytes depending on detection.
+- Host displays the incoming inference image by atomically writing sampled previews to `~/Documents/ESP32Host/images/latest_preview.jpg` and refreshing `latestImageUrl`.
+- Board uses `CONFIG_ETH_DMA_RX_BUFFER_NUM=8` and `CONFIG_ETH_DMA_TX_BUFFER_NUM=8`; the larger `12/16` attempt failed at boot because the EMAC RX task could not allocate internal memory.
+- LwIP tuning kept:
+  - `CONFIG_LWIP_TCP_SND_BUF_DEFAULT=65535`
+  - `CONFIG_LWIP_TCP_WND_DEFAULT=65535`
+  - `CONFIG_LWIP_IRAM_OPTIMIZATION=y`
+  - IPv6 disabled
 
 ## Verification
 
 - `cmake --build esp32_host/build/linux-release`: passed.
-- `.venv/bin/python -m py_compile ml/logo_inference_service.py`: passed.
 - `idf.py build`: passed.
-- `idf.py -p /dev/ttyUSB0 flash monitor`: passed for final JPEG default firmware.
-- JPEG final smoke test:
-  - `payload` around 15 KiB in the current scene.
-  - `encode` around 273-274 ms.
-  - `send` around 1 ms.
-  - host inference around 18-19 ms after warm-up.
-  - total usually 340-342 ms; occasional observed outliers around 580 ms.
-- RAW full-frame test:
-  - `payload=1843200` bytes.
-  - observed `send=15980 ms`, `total=16801 ms` on first frame.
-  - observed `send=41983 ms`, `total=42808 ms` on next frame.
-  - Conclusion: direct `1024 x 600` RGB888 upload is not viable for the 0.5 s target on the current ESP32/LwIP path.
+- `idf.py -p /dev/ttyUSB0 flash`: passed.
+- `idf.py -p /dev/ttyUSB0 monitor`: passed.
+- Real-board dual-channel run:
+  - Ethernet initialized successfully with RX/TX DMA buffers at `8/8`.
+  - Board connected control `5000` and image `5001`.
+  - Board confirmed `upload format set to JPEG`.
+  - Frames ran through at `q=70`.
+  - Representative frames through about `seq=160`: `total=359-365ms`, `encode=290-295ms`, `send=2-8ms`, `wait=60-68ms`, `infer=18-20ms`, `host=60-64ms`.
+  - No previous 1-2 second wait spikes were observed in this run.
 
 ## Notes
 
-- The validation scene did not contain a trained courier logo, so results were `det=0`; transport, inference response, and overlay update paths were still exercised.
-- For a recognition-quality comparison, place a trained `jt/zt/yd` logo in view and run the same JPEG/RAW modes; the current latency conclusion does not depend on positive detections.
+- The current largest fixed cost is board JPEG encode, around `290ms`.
+- Result downlink is not the bottleneck: result packets are small and stable, and `wait` now tracks host inference/response around `60ms`.

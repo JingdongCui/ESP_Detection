@@ -119,3 +119,31 @@
 - Recognition note:
   - The real-board scene used in this validation did not contain a trained `jt/zt/yd` logo, so detections were `det=0`.
   - Result packet parsing, board result display, and overlay path were still exercised.
+
+## 2026-07-02 Dual TCP Low-Latency Optimization
+
+- User rejected lowering image quality; kept full-frame `1024 x 600` JPEG and removed the temporary lower-quality JPEG fallback.
+- Investigated references for ESP-IDF/LwIP/Ethernet buffering, task priority, and Qt socket threading. Chosen approach was TCP dual-channel plus host-side worker thread.
+- Host changes:
+  - Added `HostNetworkWorker` on a dedicated `QThread`.
+  - Control/result server listens on port `5000`; image upload server listens on port `5001`.
+  - Image receive, packet parsing, and inference request now run outside the UI thread.
+  - Compact inference result is sent back to the board before host UI updates.
+  - Host samples incoming full-frame JPEG previews and exposes `latest_preview.jpg` through `latestImageUrl` so the upper computer shows the inference image.
+- Board changes:
+  - ESP32 opens separate control and image sockets.
+  - Metrics/result/control polling only uses the control socket.
+  - Full-frame JPEG upload only uses the image socket.
+  - JPEG quality is fixed at `70`; no q60/q50 fallback remains.
+- Buffer tuning:
+  - Tried Ethernet DMA RX/TX `12/16`, but boot failed with `emac_esp_alloc_driver_obj: create emac_rx task failed`.
+  - Backed off to RX/TX `8/8`, which booted successfully with camera/LVGL active.
+  - Kept larger LwIP TCP send/window buffers, IPv6 disabled, and LwIP IRAM optimization enabled.
+- Verification:
+  - `cmake --build esp32_host/build/linux-release`: passed.
+  - `idf.py build`: passed.
+  - `idf.py -p /dev/ttyUSB0 flash`: passed.
+  - `idf.py -p /dev/ttyUSB0 monitor`: passed.
+  - Real-board run connected both sockets and processed frames through about `seq=160`.
+  - Observed stable path: `total=359-365ms`, `encode=290-295ms`, `send=2-8ms`, `wait=60-68ms`, `infer=18-20ms`, `host=60-64ms`, `q=70`.
+  - Previous 1-2 second wait spikes were not reproduced with the dual-channel/worker path.
