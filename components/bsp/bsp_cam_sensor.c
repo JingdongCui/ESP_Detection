@@ -22,7 +22,7 @@
 // （留 2 个给驱动：1 个正在 DMA 写、1 个排队待命），推理帧在被回收前的安全距离即此深度。
 // 改大可线性增大防竞态时间窗口，代价为每缓冲多占 w×h×2 字节 PSRAM。详见
 // docs/零拷贝peek竞态风险.md。此宏是缓冲数的唯一来源，vision 经 getter 读取。
-#define CAM_FB_COUNT    10
+#define CAM_FB_COUNT    5
 #define CAM_SCCB_FREQ   100000   // SCCB（摄像头控制总线）时钟频率 100 kHz
 #define CAM_RESET_PIN   -1       // 复位引脚，-1 表示硬件未接（不由驱动控制）
 #define CAM_PWDN_PIN    -1       // 掉电引脚，-1 表示硬件未接（不由驱动控制）

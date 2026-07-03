@@ -11,6 +11,8 @@
  * esp-who 用无界 std::queue；纯 C 用定长环形数组，深度 VISION_RESULT_QUEUE_DEPTH。
  * 时间戳对齐每帧消费结果，正常不积压。
  */
+#include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -19,14 +21,14 @@
 #include "sdk.h"                       // send_event / get_current_event_table / EVT_VISION
 #include "bsp_lvgl_adapter_init.h"     // BSP_LVGL_Lock / BSP_LVGL_Unlock
 
-#define RGB888_BYTES_PER_PIXEL 3
+#define RGB888_BYTES_PER_PIXEL 5
 
 // 结果队列深度（单独宏，不沿用取帧 ringbuf 深度——二者语义无关）。
 // 复刻 esp-who m_results：容忍检测 FPS > 显示 FPS 时的结果积压。
-#define VISION_RESULT_QUEUE_DEPTH 3
+#define VISION_RESULT_QUEUE_DEPTH 5
 
-// 画框线宽（复刻 esp-who 默认 line_width=2）。颜色改为按级联阶段分色，逐框传入：
-// 面单(WAYBILL)=红 {255,0,0}，logo(LOGO)=绿 {0,255,0}。
+// 画框线宽（复刻 esp-who 默认 line_width=2）。颜色按业务语义分配：
+// 面单(WAYBILL)=绿色；logo(LOGO)按类别分色：0=极兔红、1=韵达黄、2=中通蓝。
 // 注意：预览缓冲由 PPA 以 PPA_SRM_COLOR_MODE_RGB888 输出，其内存字节序为 B,G,R
 // （LCD 直刷路径下 p[0]=蓝、p[1]=绿、p[2]=红，摄像头预览色正常即印证此序）。
 // 故下方写入按 B,G,R 排列；传入的 (r,g,b) 按语义命名。
@@ -127,24 +129,40 @@ static void draw_hollow_rect(uint8_t *buf, int w, int h, int x1, int y1, int x2,
 }
 
 // 复刻 draw_detect_results_on_img：遍历结果画框（无 keypoint、无文字）。
-// 按级联阶段分色：面单(WAYBILL)=红，logo(LOGO)=绿。先画面单后画 logo，
-// logo 在面单内部后画覆盖，视觉正常。
+// 第一遍画面单绿色框，第二遍画 logo 分类色框，保证 logo 覆盖在面单之上。
+static void draw_logo_box(uint8_t *buf, int w, int h, const vision_det_result_t *item)
+{
+    uint8_t r = 255;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    if (item->category == 1) {
+        r = 255;
+        g = 255;
+        b = 0;
+    } else if (item->category == 2) {
+        r = 0;
+        g = 0;
+        b = 255;
+    }
+    const int *box = item->box;
+    draw_hollow_rect(buf, w, h, box[0], box[1], box[2], box[3], r, g, b);
+}
+
 static void draw_results_on_buf(uint8_t *buf, int w, int h, const vision_det_frame_t *frame)
 {
-    // 第一遍画面单（红），第二遍画 logo（绿），保证 logo 覆盖在面单之上。
+    // 第一遍画面单绿色框，第二遍画 logo 分类色框，保证 logo 覆盖在面单之上。
     for (int i = 0; i < frame->count; i++) {
         if (frame->items[i].stage != VISION_STAGE_WAYBILL) {
             continue;
         }
         const int *box = frame->items[i].box;
-        draw_hollow_rect(buf, w, h, box[0], box[1], box[2], box[3], 255, 0, 0);
+        draw_hollow_rect(buf, w, h, box[0], box[1], box[2], box[3], 0, 255, 0);
     }
     for (int i = 0; i < frame->count; i++) {
         if (frame->items[i].stage != VISION_STAGE_LOGO) {
             continue;
         }
-        const int *box = frame->items[i].box;
-        draw_hollow_rect(buf, w, h, box[0], box[1], box[2], box[3], 0, 255, 0);
+        draw_logo_box(buf, w, h, &frame->items[i]);
     }
 }
 

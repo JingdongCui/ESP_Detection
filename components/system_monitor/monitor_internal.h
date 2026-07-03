@@ -26,12 +26,11 @@ typedef struct {
     uint16_t count;        /* 实际填充的任务数（<= MONITOR_MAX_TASKS） */
 } monitor_task_table_t;
 
-/* CPU 类：整机/每核利用率、核心数、任务数。
- * 依赖两次采样差值，内部维护跨调用静态状态，需周期性调用才有意义。
- *
- * tbl 可为 NULL；非 NULL 时复用同一次 uxTaskGetSystemState 采样，
- * 用相同的时间窗口基准填充逐任务占用表，保证与每核占用数值自洽。 */
-void monitor_cpu_sample(system_monitor_metrics_t *m, monitor_task_table_t *tbl);
+/* CPU 类：整机/每核利用率。轻量路径，不枚举任务。 */
+void monitor_cpu_sample(system_monitor_metrics_t *m);
+
+/* 逐任务表：低频调试路径，会枚举 FreeRTOS 任务，仅用于 RTT 打印。 */
+void monitor_task_table_sample(system_monitor_metrics_t *m, monitor_task_table_t *tbl);
 
 /* 内存类：空闲堆、历史最小堆、使用率、内部 RAM、PSRAM、最大连续块。无状态。 */
 void monitor_mem_sample(system_monitor_metrics_t *m);

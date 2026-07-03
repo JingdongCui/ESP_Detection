@@ -8,7 +8,7 @@
 #define TOUCH_I2C_SCL_GPIO  8
 #define TOUCH_I2C_SDA_GPIO  7
 #define TOUCH_RST_GPIO      33
-#define TOUCH_INT_GPIO      -1
+#define TOUCH_INT_GPIO      32
 
 #define TOUCH_H_RES         1024
 #define TOUCH_V_RES         600
@@ -75,9 +75,6 @@ void BSP_Touch_Init(void)
     ESP_LOGI(TAG, "I2C bus initialized");
 
     esp_err_t ret = bsp_touch_try_init_at_addr(ESP_LCD_TOUCH_IO_I2C_GT911_ADDRESS);
-    if (ret != ESP_OK) {
-        ret = bsp_touch_try_init_at_addr(ESP_LCD_TOUCH_IO_I2C_GT911_ADDRESS_BACKUP);
-    }
     ESP_ERROR_CHECK(ret);
 
     ESP_LOGI(TAG, "Touch init done");

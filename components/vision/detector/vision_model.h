@@ -24,7 +24,7 @@ extern "C" {
 // 检测框所属的级联阶段。
 typedef enum {
     VISION_STAGE_WAYBILL = 0,   // 模型1：面单框（单分类，category 恒 0）
-    VISION_STAGE_LOGO    = 1,   // 模型2：logo 框（三分类，category 0=极兔 1=中通 2=韵达）
+    VISION_STAGE_LOGO    = 1,   // 模型2：logo 框（三分类，category 0=极兔 1=韵达 2=中通）
 } vision_stage_t;
 
 // 单个检测框。box = [left_up_x, left_up_y, right_down_x, right_down_y]。
@@ -73,7 +73,7 @@ int vision_model_run(const uint8_t *buf, int width, int height,
 // 最近一次 vision_model_run 的两级合计推理耗时（毫秒）。
 int vision_model_last_infer_ms(void);
 
-// 取三类（极兔/中通/韵达）概率 ×100（来自模型2 logo 分类）。桩填占位值。
+// 取三类（极兔/韵达/中通）概率 ×100（来自模型2 logo 分类）。桩填占位值。
 void vision_model_get_class_probs(int *jt, int *zt, int *yd);
 
 #ifdef __cplusplus

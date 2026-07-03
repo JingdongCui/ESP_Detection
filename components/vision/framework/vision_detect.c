@@ -173,8 +173,8 @@ void vision_detect_task(void *arg)
         if (best_logo >= 0) {
             strcpy(result.ev.status, "识别成功");
             result.ev.confidence = (int)(result.items[best_logo].score * 100.0f);
-            // 类别名映射：0=极兔 1=中通 2=韵达（默认，待实测核对）
-            static const char *kClassName[3] = {"极兔", "中通", "韵达"};
+            // 类别名映射：0=极兔 1=韵达 2=中通
+            static const char *kClassName[3] = {"极兔", "韵达", "中通"};
             int cat = result.items[best_logo].category;
             if (cat >= 0 && cat < 3) {
                 strcpy(result.ev.company, kClassName[cat]);
@@ -188,7 +188,7 @@ void vision_detect_task(void *arg)
         }
         result.ev.fps_x10 = fps10;
         result.ev.infer_time_ms = vision_model_last_infer_ms();
-        // 三类概率×100（极兔/中通/韵达），A/M 暂同填概率值（占位，后续可分平均/峰值）
+        // 三类概率×100（极兔/韵达/中通），A/M 暂同填概率值（占位，后续可分平均/峰值）
         int jt = 0, zt = 0, yd = 0;
         vision_model_get_class_probs(&jt, &zt, &yd);
         result.ev.jt_a = jt; result.ev.jt_m = jt;

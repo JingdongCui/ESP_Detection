@@ -195,7 +195,10 @@
       "Bash(git -c 'user.name=ESP32P4 Dev' -c user.email=dev@localhost commit -m ' *)",
       "Bash(git -C E:/ESP32P4_Detection status --short)",
       "Bash(git -C E:/ESP32P4_Detection diff --stat)",
-      "Bash(cmd //c start \"\" \"frame_bgr.png\")"
+      "Bash(cmd //c start \"\" \"frame_bgr.png\")",
+      "Bash(grep -nB1 -A4 \"^  idf:\" dependencies.lock)",
+      "Bash(grep -nB1 -A6 \"esp_lvgl_adapter\" dependencies.lock)",
+      "Bash(git restore *)"
     ]
   }
 }

@@ -6,7 +6,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
-#include "esp_log.h"
 #include "bsp_lvgl_adapter_init.h"
 #include "SEGGER_RTT.h"
 #include "sdk.h"
@@ -15,9 +14,11 @@
 #define MONITOR_PERIOD_MS    250
 #define MONITOR_TASK_STACK   4096
 #define MONITOR_TASK_PRIO    3   /* 低于业务任务，避免抢占 */
+#define MONITOR_TASK_TABLE_PERIOD_MS 5000
+#define MONITOR_TASK_TABLE_INTERVAL \
+    ((MONITOR_TASK_TABLE_PERIOD_MS + MONITOR_PERIOD_MS - 1) / MONITOR_PERIOD_MS)
 
 static TaskHandle_t        s_task;
-static const char *TAG = "sysmon";
 
 static SemaphoreHandle_t   s_lock;          /* 保护 s_metrics 的读写 */
 static system_monitor_metrics_t s_metrics;  /* 最近一次快照 */
@@ -82,7 +83,8 @@ static void post_system_ui(const system_monitor_metrics_t *m)
     BSP_LVGL_Unlock();
 }
 
-static void print_monitor_rtt(const system_monitor_metrics_t *m, monitor_task_table_t *tbl)
+static void print_monitor_rtt(const system_monitor_metrics_t *m, monitor_task_table_t *tbl,
+                              bool print_task_table)
 {
     /* 一行汇总，便于在 rtt.log 中观察趋势 */
     SEGGER_RTT_printf(0,
@@ -112,8 +114,8 @@ static void print_monitor_rtt(const system_monitor_metrics_t *m, monitor_task_ta
         SEGGER_RTT_printf(0, "N/A\n");
     }
 
-    if (tbl->count == 0) {
-        return;  /* 首轮无基准，跳过 */
+    if (!print_task_table || tbl->count == 0) {
+        return;
     }
 
     for (uint16_t i = 1; i < tbl->count; i++) {
@@ -143,23 +145,6 @@ static void print_monitor_rtt(const system_monitor_metrics_t *m, monitor_task_ta
     }
 }
 
-static void log_cpu_usage(const system_monitor_metrics_t *m, const monitor_task_table_t *tbl)
-{
-    ESP_LOGI(TAG, "CPU total=%u%% c0=%u%% c1=%u%% tasks=%u",
-             (unsigned)m->cpu_usage_total,
-             (unsigned)m->cpu_usage_per_core[0],
-             (unsigned)m->cpu_usage_per_core[1],
-             (unsigned)m->task_count);
-
-    for (uint16_t i = 0; i < tbl->count; i++) {
-        const monitor_task_stat_t *t = &tbl->tasks[i];
-        char core[4];
-        format_core(core, t->core_id);
-        ESP_LOGI(TAG, "task=%s core=%s cpu=%u%%",
-                 t->name, core, (unsigned)t->cpu_percent);
-    }
-}
-
 static void monitor_task(void *arg)
 {
     (void)arg;
@@ -168,15 +153,20 @@ static void monitor_task(void *arg)
     system_monitor_metrics_t local;
     memset(&local, 0, sizeof(local));
 
-    /* 逐任务表较大（~960B），用 static 避免占用任务栈 */
     static monitor_task_table_t task_tbl;
+    bool print_task_table = false;
 
     TickType_t last = xTaskGetTickCount();
     for (;;) {
         local.seq++;
-        monitor_cpu_sample(&local, &task_tbl);
+        monitor_cpu_sample(&local);
         monitor_mem_sample(&local);
         monitor_sys_sample(&local);
+
+        if ((local.seq % MONITOR_TASK_TABLE_INTERVAL) == 0) {
+            monitor_task_table_sample(&local, &task_tbl);
+            print_task_table = true;
+        }
 
         /* 发布到共享快照 */
         if (xSemaphoreTake(s_lock, portMAX_DELAY) == pdTRUE) {
@@ -185,8 +175,8 @@ static void monitor_task(void *arg)
         }
 
         post_system_ui(&local);
-        print_monitor_rtt(&local, &task_tbl);
-        log_cpu_usage(&local, &task_tbl);
+        print_monitor_rtt(&local, &task_tbl, print_task_table);
+        print_task_table = false;
 
         vTaskDelayUntil(&last, pdMS_TO_TICKS(MONITOR_PERIOD_MS));
     }

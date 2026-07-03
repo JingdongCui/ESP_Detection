@@ -86,9 +86,7 @@ LV_FONT_DECLARE(lv_font_MiSansVF_24_24);
 LV_FONT_DECLARE(lv_font_MiSansVF_16_16);
 
 lv_obj_t * setup_scr_dashboard(void);
-
 void setupUi(void);
-
 
 
 #ifdef __cplusplus

@@ -106,6 +106,7 @@ void BSP_LCD_Init(void)
     );
     // DPI 时序 + 面板
     esp_lcd_dpi_panel_config_t dpi_cfg = EK79007_1024_600_PANEL_60HZ_CONFIG(LCD_COLOR_PIXEL_FORMAT_RGB888);
+    dpi_cfg.dpi_clock_freq_mhz = 26;
     dpi_cfg.num_fbs = num_fbs;
     dpi_cfg.flags.use_dma2d = 1;
     ek79007_vendor_config_t vendor_cfg = {
