@@ -1,71 +1,133 @@
 # History
 
-## 2026-07-02 Start Old Project Motor Baseline
+## 2026-07-03 Findlogo Merge Report And TCP Regression
 
-- 用户要求归档上一阶段文档，开始新任务。
-- 新阶段目标：
-  - 将 `old_project` 中与电机有关的内容移植到 `merge`。
-  - 当前先跑通 `old_project` 的上位机模拟器 TCP 版本，模拟 20 件分拣，建立 baseline。
-  - baseline 后规划清楚移植内容和边界。
-- 已将上一阶段整理归档到：
-  - `docs/agent/archive/2026-07-02-merge-runtime-debug-stage.md`
+- 用户要求：
+  - 写合并报告，供队友查看。
+  - 报告中记录库依赖更新和 RGB 设定。
+  - 跑 TCP 模式上位机模拟 20 包分拣。
+  - 检查日志确认成功。
+- 已新增报告：
+  - `merge/docs/findlogo_merge_report.md`
+- 报告记录内容：
+  - 两阶段模型接入内容。
+  - `findlogo.espdl` 哈希与来源。
+  - `esp-dl 3.3.2` 回退实机失败，最终保留 `esp-dl 3.3.6`。
+  - RGB/BGR 设定：源按 `DL_IMAGE_PIX_TYPE_BGR888` 声明，模型期望 RGB，由 ESP-DL `ImagePreprocessor` 转换。
+  - logo 训练类别和 UI/概率/sorter 映射。
+  - build、flash、模型加载验证。
+- TCP 20 包命令：
 
-## 2026-07-02 Old Project Baseline
+```bash
+cd /home/kazeform/2026esp
+python -m esp32_sorter_sim_py --headless --transport tcp --host 192.168.10.1 --port 5000 --count 20 --class-sequence 1,2,3,2,3,1 --feed-interval 0.25 --max-active 8 --timeout 180 --stall-timeout 18 --b-idle-threshold 3 --log-file esp32_sorter_sim_py/logs/merge_findlogo_tcp_20_20260703.log
+```
 
-- 按用户要求直接烧录 `old_project` 到 `/dev/ttyUSB0`；因当前板为 ESP32-P4 rev v1.0，将 `old_project/sdkconfig.defaults` revision 从 v3.01 降到 rev 0/上限 199。
-- `old_project` build、flash、monitor 成功，启动日志确认 firmware 可在 rev v1.0 板运行。
-- TCP 20 件 baseline 命令保存日志到 `esp32_sorter_sim_py/logs/old_project_tcp_baseline_20_rev0_20260702.log`。
+- 模拟器结果：
+  - `RESULT ok completed=20/20`
+- 审计命令：
+
+```bash
+python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_findlogo_tcp_20_20260703.log
+```
+
+- 审计结果：
+  - `audit_status=ok`
+  - `records=13411`
+  - `warnings=0`
+  - `drops=0`
+  - `pose_asserts=0`
+  - `desyncs=0`
+  - `faults=0`
+  - `transfer_events=132`
+  - `transport_packets=5789`
+  - `result=ok completed=20/20 active=0 created=20`
+- 完成分布：
+  - `class1=7`
+  - `class2=7`
+  - `class3=6`
+
+## Archived
+
+- `docs/agent/archive/2026-07-03-findlogo-merge.md`
+
+## 2026-07-03 Motor Algorithm Optimization
+
+- 用户要求按优化方案实现电机算法优化，优化前后都跑 TCP 20 包并审计日志。
+- 修改前在 `merge` 提交 checkpoint：
+  - `31fdbf8 checkpoint before motor algorithm optimization`
+- 优化前干净 baseline：
+
+```bash
+cd /home/kazeform/2026esp
+python -m esp32_sorter_sim_py --headless --transport tcp --host 192.168.10.1 --port 5000 --count 20 --class-sequence 1,2,3,2,3,1 --feed-interval 0.25 --max-active 8 --timeout 180 --stall-timeout 18 --b-idle-threshold 3 --log-file esp32_sorter_sim_py/logs/merge_motor_opt_before_tcp_20_20260703.log
+python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_motor_opt_before_tcp_20_20260703.log
+```
+
 - baseline 结果：
-  - `RESULT ok completed=20/20`
-  - audit: warnings=0, drops=0, pose_asserts=0, desyncs=0, faults=0
-  - done: class1=7, class2=7, class3=6
-  - motor command counts: M1 forward30=30 stop=21; M2 forward35=7 reverse35=26 stop=34; M3 forward35=6 reverse35=7 stop=14
-
-## 2026-07-02 Merge Sorter Migration
-
-- 按迁移规划在 `merge` 执行实现，迁移边界：
-  - 移植 `Sorter_app` 调度器和 `sorting_sim_control`。
-  - 移植 BSP 电机、编码器、分拣传感器和 sorter debug config。
-  - 移植 Ethernet TCP 应用，保留上位机模拟协议。
-  - 接入 `vision_detect.c` 的 LOGO 0/1/2 到 sorter class1/2/3。
-  - 在 `system_init.c` 启动 Ethernet sorter link、debug 任务并启用 motor output。
-  - 不移植 UI 大改和非分拣链路；保持当前 `merge` 视觉、LCD、UI 主体。
-- `merge` build 成功；仅有既有 generated UI unused variable warning。
-- `idf.py -p /dev/ttyUSB0 flash monitor` 实机启动成功：
-  - chip revision v1.0，min rev v0.0，max rev v1.99。
-  - Ethernet static IP `192.168.10.2`，连接模拟器目标 `192.168.10.1:5000`。
-  - motor 1 GPIO A=3/B=2，motor 2 A=32/B=36，motor 3 A=4/B=5。
-  - motor output enabled。
-- 迁移后 TCP 20 件模拟日志：
-  - `esp32_sorter_sim_py/logs/merge_tcp_migration_20_rev0_20260702.log`
-  - `RESULT ok completed=20/20`
-  - audit: warnings=0, drops=0, pose_asserts=0, desyncs=0, faults=0
-  - done: class1=7, class2=7, class3=6
-  - connected-session motor command counts: M1 forward30=29 stop=21; M2 forward35=7 reverse35=26 stop=34; M3 forward35=6 reverse35=7 stop=14
-- 注意：迁移版 TCP 日志比旧 baseline 少 1 次 M1 forward30，是因为模拟器在固件已启动后接入，启动阶段的 M1 初始输出没有被 TCP 连接记录；monitor boot 日志已确认真实输出启用。
-
-## 2026-07-02 Motor Timeout Inspection
-
-- 用户反馈 `old_project` 调试页面测试 class3/class2 或电机模拟运行时，第三条带感觉只运行约 0.5s/不到 1s，要求先检查不修改。
-- 检查结果：
-  - `old_project/components/Sorter_app/sorter_core/sorter_scheduler.c` 默认值为 `belt_a_timeout_ms=2000`、`belt_b_timeout_ms=750`、`belt_c_timeout_ms=750`、`handoff_delay_ms=1000`、`c_min_busy_ms=2500`、`c_fallback_busy_ms=8000`。
-  - UI debug 面板显示默认 `TO A2000 B750 C750`，B/C timeout 调整按钮每次增减 250ms。
-  - `CLASS2`/`CLASS3` 按钮调用 `sorting_sim_control_simulate_class()`，会创建虚拟包裹走调度器，不是直接长时间转电机。
-  - `MTEST` 调用 `motor_test_task()`，每个电机直接运行 500ms 后停止，再延迟 80ms 测下一个电机。
-  - `old_project` 与 `merge` 的 `sorter_scheduler.c`、`sorting_sim_control.c` 当前无 diff。
-- 结论：第三条带短时间运行与旧工程代码一致，不是迁移差异；若真实硬件行程需要更长，应后续调整 B/C timeout、C fallback 或接入传感器/编码器闭环。
-
-## 2026-07-02 Merge Timeout Defaults Update
-
-- 用户要求在新工程把默认超时参数改为 6 秒、3 秒、3 秒。
-- 修改 `merge/components/Sorter_app/sorter_core/sorter_scheduler.c`：
-  - `belt_a_timeout_ms`: 2000 -> 6000
-  - `belt_b_timeout_ms`: 750 -> 3000
-  - `belt_c_timeout_ms`: 750 -> 3000
-- 检查 `merge/components/UI/generated/setup_scr_dashboard.c` 未发现 old_project debug 面板的 `TO A2000 B750 C750` 初始文案，因此无需同步 UI 文案。
+  - `audit_status=ok`
+  - `result=ok completed=20/20 active=0 created=20`
+  - `warnings=0,drops=0,pose_asserts=0,desyncs=0,faults=0`
+  - 完成分布：`class1=7,class2=7,class3=6`
+- 代码优化：
+  - 新增 typed scheduler event：motor/status/package/fault。
+  - 新增 `sorter_protocol_format_event()`，保持外部 `MOTOR/STATUS/PKG/FAULT` 文本协议兼容。
+  - `sorting_sim_control.c` 本地电机输出改为直接处理 `SORTER_EVENT_MOTOR`，不再解析本机生成的 `MOTOR,...` 字符串。
+  - 删除未使用的 `SORTER_STATE_WAITING_BC`、`b_center_to_exit_mm`、`transfer_timeout_mm`、`max_packages`。
+  - 未改电机速度、超时、交接、路由、传感器语义和 TCP 协议。
 - 验证：
-  - `idf.py build` 失败于 SPIFFS storage 生成，原因是未跟踪文件 `merge/model/datasets5000_kl_MOSIC_NOINT16.espdl` 文件名超过当前 `CONFIG_SPIFFS_OBJ_NAME_LEN=32`；该失败发生在 storage image 生成阶段，不是 sorter 代码编译失败。
-  - `idf.py app` 成功，`Sorter_app` 重新编译并链接生成 `sample_project.bin`。
-  - `idf.py -p /dev/ttyUSB0 app-flash` 成功，写入 app 分区并 hash verified。
-  - `idf.py -p /dev/ttyUSB0 monitor` 成功看到新 app 启动到 `System initialization done`，Ethernet、电机 BSP、sort debug 任务启动。
-- 未处理项：后续若需要恢复完整 `idf.py build`，需要处理未跟踪长文件名模型：重命名到 <=32 字符，或调整 SPIFFS object name length 并评估兼容性。
+  - `idf.py build` 成功。
+  - `idf.py -p /dev/ttyUSB0 -b 921600 flash` 成功，app/storage hash verified。
+  - `idf.py -p /dev/ttyUSB0 monitor` 使用 115200 启动正常，模型加载、Ethernet、SORTDBG、电机 BSP 初始化正常，无 Guru Meditation。
+- 优化后 TCP 20 包：
+
+```bash
+cd /home/kazeform/2026esp
+python -m esp32_sorter_sim_py --headless --transport tcp --host 192.168.10.1 --port 5000 --count 20 --class-sequence 1,2,3,2,3,1 --feed-interval 0.25 --max-active 8 --timeout 180 --stall-timeout 18 --b-idle-threshold 3 --log-file esp32_sorter_sim_py/logs/merge_motor_opt_after_tcp_20_20260703.log
+python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_motor_opt_after_tcp_20_20260703.log
+```
+
+- 优化后结果：
+  - `audit_status=ok`
+  - `result=ok completed=20/20 active=0 created=20`
+  - `warnings=0,drops=0,pose_asserts=0,desyncs=0,faults=0`
+  - 完成分布：`class1=7,class2=7,class3=6`
+
+## 2026-07-03 Motor Speed 60 And Teammate Report Update
+
+- 用户要求：
+  - 更新给队友看的报告。
+  - 默认电机速度全部改为 60%。
+  - 报告说明 UI 做了什么、旧 UI 哪些没迁移、电机分拣哪些参数可实时调、模拟器分拣怎么用。
+  - 完成后跑 TCP 20 包模拟并审计日志。
+- 已修改：
+  - `merge/components/Sorter_app/sorter_core/sorter_scheduler.c`
+    - 默认 `motor_a_speed_percent/motor_b_speed_percent/motor_c_speed_percent` 从 `30/35/35` 改为 `60/60/60`。
+  - `merge/docs/motor_algorithm_review.md`
+    - 增补 UI notes。
+    - 增补旧 UI 未迁移项。
+    - 增补 TCP/serial `CONFIG` 可实时调参数。
+    - 增补 TCP 模拟器使用命令和成功标准。
+  - `merge/docs/findlogo_merge_report.md`
+    - 增补 follow-up 说明，指向电机算法报告并记录默认 60%、UI 边界、模拟器 60% 参数。
+- 验证待执行：
+  - `idf.py build`：成功。
+  - `idf.py -p /dev/ttyUSB0 -b 921600 flash`：成功，app/storage hash verified。
+  - `idf.py -p /dev/ttyUSB0 monitor`：115200 启动正常，模型、Ethernet、SORTDBG、电机 BSP 初始化完成，无 Guru Meditation。
+  - 启动日志看到 `bsp_motor: motor 1 compare A=0 B=60`。
+- TCP 20 包模拟命令：
+
+```bash
+cd /home/kazeform/2026esp
+python -m esp32_sorter_sim_py --headless --transport tcp --host 192.168.10.1 --port 5000 --count 20 --class-sequence 1,2,3,2,3,1 --feed-interval 0.25 --max-active 8 --timeout 180 --stall-timeout 18 --b-idle-threshold 3 --motor-a-speed 60 --motor-b-speed 60 --motor-c-speed 60 --log-file esp32_sorter_sim_py/logs/merge_motor_speed60_tcp_20_20260703.log
+python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_motor_speed60_tcp_20_20260703.log
+```
+
+- TCP 20 包结果：
+  - `RESULT ok completed=20/20`
+  - `audit_status=ok`
+  - `warnings=0,drops=0,pose_asserts=0,desyncs=0,faults=0`
+  - `transfer_events=132`
+  - `transport_packets=4533`
+  - 完成分布：`class1=7,class2=7,class3=6`
+  - 日志确认 `CONFIG,a_speed=60,b_speed=60,c_speed=60`

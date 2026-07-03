@@ -94,6 +94,48 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migra
   - 编码器仍沿用 `old_project` 虚拟配置；若真实 C 段需要距离闭环，后续需补实际 encoder GPIO。
   - boot log 提示 GPIO37/GPIO38 用于 console UART，而 sorter S1/S3 默认也使用 GPIO37/GPIO38；真实传感器联调时需确认是否冲突。
 
+## Merge Findlogo Cascade
+
+- 2026-07-03 `merge` 接入两阶段视觉检测：
+  - 第一阶段：`model/det_pico_224_224_waybill.espdl` 整帧检测面单。
+  - 第二阶段：`model/findlogo.espdl` 在面单 ROI 内检测快递 logo。
+- `findlogo.espdl` 模型来源：
+  - SHA256: `3c23a1ae917adba01020e42f9ae4cfaacc6f6999649fd8231f06488f3ec41477`
+  - 与 `/home/kazeform/2026upper/esp-detection/model/best/datasets5000_kl_MOSIC_NOINT16.espdl` 一致。
+  - 文件名保持 `findlogo.espdl`，因为 SPIFFS 当前文件名长度受 `CONFIG_SPIFFS_OBJ_NAME_LEN=32` 约束。
+- logo 训练类别顺序来自 `/home/kazeform/2026upper/esp-detection/cfg/logo.yaml`：
+  - `cat0 = jt = 极兔`
+  - `cat1 = yd = 韵达`
+  - `cat2 = zt = 中通`
+- 对外概率接口保持 `vision_model_get_class_probs(int *jt, int *zt, int *yd)` 参数顺序不变；内部归属为 `cat0->jt, cat1->yd, cat2->zt`。
+- 物理分拣出口保留旧语义：
+  - `JT -> CLASS1`
+  - `ZT -> CLASS2`
+  - `YD -> CLASS3`
+  - 因训练顺序为 `jt,yd,zt`，代码映射为 `cat0->CLASS1, cat1->CLASS3, cat2->CLASS2`。
+- RGB/BGR 约定：
+  - 模型导出链路期望 RGB。
+  - 当前相机帧和 ROI 源按 `DL_IMAGE_PIX_TYPE_BGR888` 声明。
+  - ESP-DL `ImagePreprocessor` 负责 BGR 到 RGB 的转换；不要额外手写通道交换，除非后续实测推翻源格式声明。
+- 依赖约束：
+  - 原锁定 `esp-dl 3.3.2` 可完成 build，但实机加载 `findlogo.espdl` 时在 `fbs::FbsModel::get_operation_parameter(...)` 触发 Load access fault / Guru Meditation。
+  - 当前保留 `esp-dl 3.3.6` 是基于实机失败证据，不是无证据升级。
+- 运行日志验收关键点：
+  - SPIFFS mounted。
+  - waybill 模型 `inputs=1 outputs=6`。
+  - findlogo 模型 `inputs=1 outputs=6`。
+  - findlogo score 输出三尺度、每尺度 3 类：`1x28x28x3`、`1x14x14x3`、`1x7x7x3`。
+  - 无 LoadProhibited / Guru Meditation。
+- 队友合并报告：
+  - `merge/docs/findlogo_merge_report.md`
+- 2026-07-03 TCP 20 包分拣回归：
+  - 日志：`esp32_sorter_sim_py/logs/merge_findlogo_tcp_20_20260703.log`
+  - `RESULT ok completed=20/20`
+  - `audit_status=ok`
+  - `warnings=0,drops=0,pose_asserts=0,desyncs=0,faults=0`
+  - 完成分布：`class1=7,class2=7,class3=6`
+- 烧录可用 `idf.py -p /dev/ttyUSB0 -b 921600 flash`；运行期 monitor 可读波特率为 115200，`-b 921600 monitor` 会输出乱码。
+
 ## Merge Project Sensor Chain
 
 - `merge_project` 分拣传感器硬件映射位于 `components/bsp/include/sorter_debug_config.h`：
@@ -106,13 +148,27 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migra
   - `sort sensor Sx init raw_level=... active=... valid=...`
   - `sort sensor Sx raw change raw_level=... active=... stable=... valid=...`
   - `sort sensor Sx stable change raw_level=... active=... debounce_ms=20`
-- UI 调试面板显示 S1-S4 四个状态块：绿色填充表示 ON，深色/无明显颜色表示 OFF，`--` 表示当前未有效读取。
+- 当前 `merge` 生成 UI 未接入 S1-S4 传感器状态块；S1-S4 仍通过日志、TCP/串口 `HW_STATUS` 或后续 UI 接口查看。
 
 ## Merge Project Sorter Control Link
 
 - 真实硬件链路和以太网模拟链路的共同核心是：
   - `components/Sorter_app/sorting_sim_control.c`
   - `components/Sorter_app/sorter_core/sorter_scheduler.c`
+- 2026-07-03 电机算法结构优化后：
+  - scheduler 内部通过 typed event 表达 `MOTOR/STATUS/PKG/FAULT`。
+  - 外部 TCP/debug 文本协议保持兼容，仍由 `sorter_protocol_format_event()` 输出原格式。
+  - 本地电机输出直接处理 `SORTER_EVENT_MOTOR`，不再解析本机生成的 `MOTOR,...` 字符串。
+  - 已删除未使用的 `SORTER_STATE_WAITING_BC`、`b_center_to_exit_mm`、`transfer_timeout_mm`、`max_packages`。
+  - 第一轮优化未改电机速度、超时、交接、路由、传感器语义。
+  - 优化报告：`merge/docs/motor_algorithm_review.md`。
+  - 优化前后 TCP 20 包均通过：`audit_status=ok`、`completed=20/20`、`class1=7,class2=7,class3=6`。
+- 2026-07-03 后续默认速度调整：
+  - `sorter_config_default()` 中 A/B/C 三个电机默认速度统一为 `60%`。
+  - TCP/串口 `CONFIG` 仍可通过 `a_speed`、`b_speed`、`c_speed` 实时覆盖。
+  - 上位机模拟器启动会发送 `CONFIG`；验证 60% 路径时需加 `--motor-a-speed 60 --motor-b-speed 60 --motor-c-speed 60`。
+  - 60% TCP 20 包日志：`esp32_sorter_sim_py/logs/merge_motor_speed60_tcp_20_20260703.log`。
+  - 60% 回归结果：`audit_status=ok`、`RESULT ok completed=20/20`、`warnings=0,drops=0,pose_asserts=0,desyncs=0,faults=0`、完成分布 `class1=7,class2=7,class3=6`。
 - 真实链路：
   - `real_io_task()` 每 10 ms 读取 S1-S4，20 ms 防抖后调用 `sorter_scheduler_sensor()`。
   - S1 触发后打开视觉窗口；`vision_app.cpp` 检测到目标时调用 `sorting_sim_control_submit_vision_class()`。
@@ -128,11 +184,12 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migra
 - 识别失败分配策略：
   - `SORTER_CLASS_VISION_FAILED` 和直接提交的 `SORTER_CLASS_UNKNOWN/class=none` 进入调度器时按 class1、class2、class3、class1... 轮番分配。
   - 视觉超时 `timeout_vision` 使用同一个轮转游标。
-- SYS/debug 面板运行态显示：
-  - `sorting_sim_control_get_runtime_debug()` 是 UI 调试读取调度器内部状态的只读入口。
-  - 面板右下角 `PACKAGES` 区显示活动包裹数、下一个 package id、下一次失败分配类别、当前视觉窗口、B/C owner。
-  - 包裹列表每行格式为 `#id belt state class pos`，最多显示 `SORTER_MAX_PACKAGES` 个活动包裹。
-  - 该信息来自 `s_scheduler.tracks[]` 快照，适合现场判断建包、分类、S2/S4 handoff、完成释放是否符合预期。
+- UI/调试边界：
+  - 当前 `merge` 生成 UI 保留视觉 dashboard、日志、设置、系统页。
+  - 已对 UI 公司名和 sorter 提交映射做 findlogo 类别顺序适配：`cat0=极兔/JT`、`cat1=韵达/YD`、`cat2=中通/ZT`，物理出口仍为 `JT->CLASS1`、`ZT->CLASS2`、`YD->CLASS3`。
+  - 旧工程的分拣手动控制面板未整体迁移；当前屏幕没有直接 CLASS 注入、`MOTOR_TEST`、编码器清零、S1-S4 状态、活动包裹列表或 per-belt 速度/超时编辑控件。
+  - `sorting_sim_control_get_settings()`、`sorting_sim_control_apply_settings()`、`sorting_sim_control_get_runtime_debug()`、`sorting_sim_control_get_hardware_status()` 是后续 UI 接入可用的 C API；当前生成 UI 没有调用这些接口。
+  - 当前运行时分拣调参主要通过 TCP 或 USB 串口命令完成。
 
 ## Blue-Screen Long-Term Findings
 

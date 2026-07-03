@@ -2,73 +2,38 @@
 
 ## Goal
 
-将 `old_project` 中与电机和分拣控制有关的内容移植到 `merge`。
-
-当前阶段已进入实现：把 `old_project` 的电机分拣链路移植到 `merge`，覆盖真实硬件链路和以太网 TCP 模拟链路，并以 20 件 TCP 模拟作为迁移验收基线。
+当前无进行中的任务。
 
 ## Current State
 
-- 上一阶段 `merge_project` 传感器、失败分类和运行态 debug 显示已归档到 `docs/agent/archive/2026-07-02-merge-runtime-debug-stage.md`。
-- 当前对照工程：`old_project`。
-- 当前目标工程：`merge`。
-- 根目录存在 `.codegraph/`，理解和定位代码优先使用 CodeGraph。
-- `old_project` 已降低 ESP32-P4 revision 门槛并完成烧录、TCP 20 件 baseline：
-  - `RESULT ok completed=20/20`
-  - audit: warnings=0, drops=0, desyncs=0, faults=0
-  - done: class1=7, class2=7, class3=6
-- `merge` 已完成第一轮移植：
-  - 新增 `components/Sorter_app`，包含调度器和 `sorting_sim_control`。
-  - BSP 电机、编码器、分拣传感器配置按 `old_project` 对齐。
-  - Ethernet TCP 应用按 `old_project` 迁入，默认连接模拟器 `192.168.10.1:5000`。
-  - `vision_detect.c` 将 LOGO 分类 0/1/2 提交到分拣调度器 class1/2/3。
-  - `system_init.c` 启动 Ethernet sorter link、debug 任务，并启用真实电机输出。
-  - `sdkconfig.defaults` 已把 ESP32-P4 最低 revision 降为 0，最高 revision 限为 199，匹配当前 v1.0 板。
-- `merge` 当前电机分拣默认超时已调整为：
-  - A belt timeout: 6000ms
-  - B belt timeout: 3000ms
-  - C belt timeout: 3000ms
-- `merge` 验证结果：
-  - `idf.py build` 成功；仅保留既有 UI generated unused variable warning。
-  - `/dev/ttyUSB0` flash/monitor 启动成功，boot 日志确认芯片 rev v1.0、Ethernet static IP `192.168.10.2`、电机 GPIO 初始化并启用。
-  - TCP 20 件模拟完成：`RESULT ok completed=20/20`。
-  - audit: warnings=0, drops=0, desyncs=0, faults=0。
-  - done: class1=7, class2=7, class3=6。
+- 2026-07-03 `findlogo` 接入 `merge` 阶段已完成并归档：
+  - `docs/agent/archive/2026-07-03-findlogo-merge.md`
+- 队友合并报告：
+  - `merge/docs/findlogo_merge_report.md`
+  - `merge/docs/motor_algorithm_review.md`
+- 2026-07-03 电机算法结构优化已完成：
+  - 修改前 checkpoint：`31fdbf8 checkpoint before motor algorithm optimization`
+  - 实现提交：`1ff7713 optimize sorter motor event flow`
+  - 新增 typed scheduler event，外部 TCP/debug 文本协议保持不变。
+  - 本地电机输出从 `SORTER_EVENT_MOTOR` 直接驱动 BSP，不再解析本机生成的 `MOTOR,...` 文本。
+  - 删除未使用的 `SORTER_STATE_WAITING_BC`、`b_center_to_exit_mm`、`transfer_timeout_mm`、`max_packages`。
+- 本轮已完成的编辑：
+  - `components/Sorter_app/sorter_core/sorter_scheduler.c` 默认 A/B/C 电机速度从 `30/35/35` 改为 `60/60/60`。
+  - `merge/docs/motor_algorithm_review.md` 补充队友说明：UI 当前保留/未迁移内容、实时可调分拣参数、TCP 模拟器使用方式。
+  - `merge/docs/findlogo_merge_report.md` 增加后续 UI/分拣说明索引，避免队友只看 findlogo 报告时漏掉默认速度和 UI 边界。
+- 本轮验证已完成：
+  - `idf.py build` 成功。
+  - `idf.py -p /dev/ttyUSB0 -b 921600 flash` 成功，app/storage hash verified。
+  - `idf.py -p /dev/ttyUSB0 monitor` 使用 115200 启动正常，waybill/findlogo 模型加载、Ethernet/sorter/motor BSP 初始化完成，无 Guru Meditation。
+  - 启动日志可见 `motor 1 compare A=0 B=60`，证明默认速度路径已使用 60。
+  - TCP 20 包日志：`esp32_sorter_sim_py/logs/merge_motor_speed60_tcp_20_20260703.log`
+  - 审计：`audit_status=ok`、`RESULT ok completed=20/20`、`warnings=0,drops=0,pose_asserts=0,desyncs=0,faults=0`。
+  - 完成分布：`class1=7,class2=7,class3=6`。
 
 ## Immediate Next Step
 
-1. 后续真实硬件联调时重点验证：
-   - S1/S3 分拣传感器 GPIO37/GPIO38 与 console UART boot 日志提示的潜在冲突。
-   - 编码器当前仍沿用 `old_project` 虚拟配置，真实硬件 C 段完成主要依赖 fallback，若需要距离闭环需补真实 encoder GPIO。
-   - 默认模拟模式会优先接受 TCP `VISION_FRAME`/`SENSOR`/`DISTANCE`，真实 IO 模式需通过配置切换。
-2. 电机运行时长后续实测：`merge` 已把默认 A/B/C timeout 改为 6000/3000/3000ms；UI `MTEST` 仍是每个电机直接转 500ms，不属于分拣调度超时。
-
-## Verification Standard
-
-- 固件代码修改后优先执行：
-
-```bash
-cd /home/kazeform/2026esp/merge
-idf.py build
-idf.py flash monitor
-```
-
-- 迁移 TCP 20 件验证命令：
-
-```bash
-cd /home/kazeform/2026esp
-python -m esp32_sorter_sim_py --headless --transport tcp --host 192.168.10.1 --port 5000 --count 20 --class-sequence 1,2,3,2,3,1 --feed-interval 0.25 --max-active 8 --timeout 180 --stall-timeout 18 --b-idle-threshold 3 --log-file esp32_sorter_sim_py/logs/merge_tcp_migration_20_rev0_20260702.log
-python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migration_20_rev0_20260702.log
-```
-
-- 2026-07-02 timeout 参数调整验证：
-  - `idf.py app` 成功。
-  - `idf.py -p /dev/ttyUSB0 app-flash` 成功，app 分区写入并 hash verified。
-  - `idf.py -p /dev/ttyUSB0 monitor` 成功进入启动日志，确认 `System initialization done`，Ethernet、电机 BSP、sort debug 任务启动。
-  - 完整 `idf.py build` 当前失败在 SPIFFS storage 生成：未跟踪文件 `merge/model/datasets5000_kl_MOSIC_NOINT16.espdl` 文件名超过项目当前 `CONFIG_SPIFFS_OBJ_NAME_LEN=32`，不是本次 C 代码改动导致。
+- 等待下一项任务；真实包裹现场仍需确认 waybill 红框、logo 绿框和物理出口。
 
 ## Blockers
 
 - 当前无阻塞。
-- 风险记录：本次 TCP 迁移模拟是在固件已启动后接入，因此 TCP 日志少记录一次启动阶段的 M1 初始 forward；启动 monitor 已确认真实电机初始化和输出启用。
-- 观察记录：短超时是旧工程原有行为；`merge` 已按用户要求把分拣调度默认 timeout 改为 6s/3s/3s。
-- 构建阻塞：完整 `idf.py build` 受未跟踪长文件名模型影响，需后续重命名模型或调整 SPIFFS object name length。
