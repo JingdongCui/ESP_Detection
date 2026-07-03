@@ -2,38 +2,33 @@
 
 ## Goal
 
-当前无进行中的任务。
+`merge` 视觉链路从“两阶段模型”改为“传统算法 ROI + findlogo 模型”：
+- 第一阶段：传统 ROI 算法定位面单区域。
+- 第二阶段：裁剪面单 ROI 后送 `findlogo.espdl` 做 logo 三分类。
+- 左上角 LOGO 按钮改为 ROI 校准入口。
+- 保留当前 ESP32-P4 rev3.1 / 400MHz 配置，不回退 revision。
 
 ## Current State
 
-- 2026-07-03 `findlogo` 接入 `merge` 阶段已完成并归档：
-  - `docs/agent/archive/2026-07-03-findlogo-merge.md`
-- 队友合并报告：
-  - `merge/docs/findlogo_merge_report.md`
-  - `merge/docs/motor_algorithm_review.md`
-- 2026-07-03 电机算法结构优化已完成：
-  - 修改前 checkpoint：`31fdbf8 checkpoint before motor algorithm optimization`
-  - 实现提交：`1ff7713 optimize sorter motor event flow`
-  - 新增 typed scheduler event，外部 TCP/debug 文本协议保持不变。
-  - 本地电机输出从 `SORTER_EVENT_MOTOR` 直接驱动 BSP，不再解析本机生成的 `MOTOR,...` 文本。
-  - 删除未使用的 `SORTER_STATE_WAITING_BC`、`b_center_to_exit_mm`、`transfer_timeout_mm`、`max_packages`。
-- 本轮已完成的编辑：
-  - `components/Sorter_app/sorter_core/sorter_scheduler.c` 默认 A/B/C 电机速度从 `30/35/35` 改为 `60/60/60`。
-  - `merge/docs/motor_algorithm_review.md` 补充队友说明：UI 当前保留/未迁移内容、实时可调分拣参数、TCP 模拟器使用方式。
-  - `merge/docs/findlogo_merge_report.md` 增加后续 UI/分拣说明索引，避免队友只看 findlogo 报告时漏掉默认速度和 UI 边界。
-- 本轮验证已完成：
+- 修改前备份提交：
+  - `1f3fb87 checkpoint before traditional roi cascade`
+- 本轮已完成：
+  - 新增 `components/vision/detector/roi_algorithm.c/.h`。
+  - `roi_tuning.c` 桩替换为旧工程真实 `roi_tuning.cpp` 校准实现。
+  - `vision_model_run()` 第一阶段改为 `roi_algorithm_detect()`，成功后返回 `VISION_STAGE_WAYBILL` 红框并裁剪 ROI。
+  - `vision_model_init()` 不再加载 `det_pico_224_224_waybill.espdl`，只加载 `findlogo.espdl`。
+  - `main/system_init.c` 左上角 LOGO 按钮 handler 从 `vision_frame_dump_request` 改为 `roi_tuning_request_calibration`。
+  - `vision_frame_dump_request()` 保留，但不再由左上角按钮触发。
+- 本轮验证：
   - `idf.py build` 成功。
-  - `idf.py -p /dev/ttyUSB0 -b 921600 flash` 成功，app/storage hash verified。
-  - `idf.py -p /dev/ttyUSB0 monitor` 使用 115200 启动正常，waybill/findlogo 模型加载、Ethernet/sorter/motor BSP 初始化完成，无 Guru Meditation。
-  - 启动日志可见 `motor 1 compare A=0 B=60`，证明默认速度路径已使用 60。
-  - TCP 20 包日志：`esp32_sorter_sim_py/logs/merge_motor_speed60_tcp_20_20260703.log`
-  - 审计：`audit_status=ok`、`RESULT ok completed=20/20`、`warnings=0,drops=0,pose_asserts=0,desyncs=0,faults=0`。
-  - 完成分布：`class1=7,class2=7,class3=6`。
+  - `/dev/ttyUSB0` 不存在，改用 `/dev/ttyACM0`。
+  - `idf.py -p /dev/ttyACM0 -b 921600 flash` 成功，识别芯片 `ESP32-P4 revision v3.1`，app/partition/storage hash verified。
+  - `idf.py -p /dev/ttyACM0 monitor` 启动到 `vision started`、SORTDBG、电机/传感器初始化，无 Guru Meditation。
 
 ## Immediate Next Step
 
-- 等待下一项任务；真实包裹现场仍需确认 waybill 红框、logo 绿框和物理出口。
+- 现场用真实包裹确认 ROI 红框、logo 绿框、左上角 LOGO 按钮 ROI 校准日志和 sorter 分类提交。
 
 ## Blockers
 
-- 当前无阻塞。
+- 当前 monitor 有大量 `ISP_AWB: subwindow size ...` warning，会影响日志观察；本轮未改日志策略。

@@ -96,9 +96,11 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migra
 
 ## Merge Findlogo Cascade
 
-- 2026-07-03 `merge` 接入两阶段视觉检测：
-  - 第一阶段：`model/det_pico_224_224_waybill.espdl` 整帧检测面单。
+- 2026-07-03 `merge` 接入视觉级联检测。
+- 2026-07-03 后续将第一阶段从 waybill 模型改为传统算法 ROI：
+  - 第一阶段：`components/vision/detector/roi_algorithm.c` 整帧定位面单 ROI。
   - 第二阶段：`model/findlogo.espdl` 在面单 ROI 内检测快递 logo。
+- `det_pico_224_224_waybill.espdl` 当前保留在 `model/` 便于回滚，但运行时不再加载。
 - `findlogo.espdl` 模型来源：
   - SHA256: `3c23a1ae917adba01020e42f9ae4cfaacc6f6999649fd8231f06488f3ec41477`
   - 与 `/home/kazeform/2026upper/esp-detection/model/best/datasets5000_kl_MOSIC_NOINT16.espdl` 一致。
@@ -117,15 +119,25 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migra
   - 模型导出链路期望 RGB。
   - 当前相机帧和 ROI 源按 `DL_IMAGE_PIX_TYPE_BGR888` 声明。
   - ESP-DL `ImagePreprocessor` 负责 BGR 到 RGB 的转换；不要额外手写通道交换，除非后续实测推翻源格式声明。
+- 传统 ROI 和 ROI 校准：
+  - `roi_algorithm_detect()` 使用亮度、近似饱和度、RGB 通道差和最小通道阈值找最大白色连通区域。
+  - `roi_tuning.cpp` 维护运行时阈值，左上角 LOGO 按钮触发 `roi_tuning_request_calibration()`，由下一帧执行校准。
+  - 原左上角 LOGO 按钮触发抓帧 dump 的功能已停用；`vision_frame_dump_request()` 代码保留但不绑定该按钮。
 - 依赖约束：
   - 原锁定 `esp-dl 3.3.2` 可完成 build，但实机加载 `findlogo.espdl` 时在 `fbs::FbsModel::get_operation_parameter(...)` 触发 Load access fault / Guru Meditation。
   - 当前保留 `esp-dl 3.3.6` 是基于实机失败证据，不是无证据升级。
 - 运行日志验收关键点：
   - SPIFFS mounted。
-  - waybill 模型 `inputs=1 outputs=6`。
   - findlogo 模型 `inputs=1 outputs=6`。
   - findlogo score 输出三尺度、每尺度 3 类：`1x28x28x3`、`1x14x14x3`、`1x7x7x3`。
   - 无 LoadProhibited / Guru Meditation。
+- 2026-07-03 传统 ROI 级联验证：
+  - 备份提交：`1f3fb87 checkpoint before traditional roi cascade`。
+  - `idf.py build` 成功。
+  - `/dev/ttyUSB0` 不存在，改用 `/dev/ttyACM0`。
+  - `idf.py -p /dev/ttyACM0 -b 921600 flash` 成功，芯片 `ESP32-P4 revision v3.1`，app/partition/storage hash verified。
+  - `idf.py -p /dev/ttyACM0 monitor` 启动到 `vision started`、SORTDBG、电机/传感器初始化，无 Guru Meditation。
+  - 当前 monitor 会持续刷 `ISP_AWB: subwindow size ...` warning；这是现有相机 ISP 日志噪声，不是 ROI 接入本身的 panic。
 - 队友合并报告：
   - `merge/docs/findlogo_merge_report.md`
 - 2026-07-03 TCP 20 包分拣回归：

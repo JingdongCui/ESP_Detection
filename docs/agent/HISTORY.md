@@ -131,3 +131,29 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_motor_spe
   - `transport_packets=4533`
   - 完成分布：`class1=7,class2=7,class3=6`
   - 日志确认 `CONFIG,a_speed=60,b_speed=60,c_speed=60`
+
+## 2026-07-03 Traditional ROI Cascade
+
+- 用户要求：
+  - `merge` 从两阶段模型改为传统算法 ROI 第一阶段 + `findlogo` 第二阶段。
+  - 做好备份。
+  - 当前板子为高版本芯片，保留当前 revision/400MHz，只要能烧录即可。
+  - 左上角 LOGO 按钮改为 ROI 校准，停用当前抓帧按钮功能。
+- 备份：
+  - `1f3fb87 checkpoint before traditional roi cascade`
+- 代码修改：
+  - 新增传统 ROI 算法：`components/vision/detector/roi_algorithm.c/.h`。
+  - `roi_tuning.c` 桩替换为旧工程真实 `roi_tuning.cpp`，恢复阈值 get/set/apply/default 和校准实现。
+  - `components/vision/CMakeLists.txt` 加入 `roi_algorithm.c`，`roi_tuning.c` 改为 `roi_tuning.cpp`。
+  - `vision_model_init()` 只加载 `findlogo.espdl`，不再加载 `det_pico_224_224_waybill.espdl`。
+  - `vision_model_run()` 先用 `roi_algorithm_detect()` 生成面单红框，再裁剪 ROI 给 `findlogo`，logo 框映射回原图。
+  - `main/system_init.c` 左上角 LOGO 按钮从 `vision_frame_dump_request` 改为 `roi_tuning_request_calibration`。
+- 验证：
+  - `idf.py build`：成功。
+  - `idf.py -p /dev/ttyUSB0 -b 921600 flash`：失败，原因是 `/dev/ttyUSB0` 不存在。
+  - `find /dev -maxdepth 1 \( -name 'ttyUSB*' -o -name 'ttyACM*' \)`：当前设备为 `/dev/ttyACM0`。
+  - `idf.py -p /dev/ttyACM0 -b 921600 flash`：成功，芯片 `ESP32-P4 revision v3.1`，app/partition/storage hash verified。
+  - `idf.py -p /dev/ttyACM0 monitor`：启动到视觉、SORTDBG、电机/传感器初始化，无 Guru Meditation。
+- 观察：
+  - monitor 里 `CHIP_USB_UART_RESET` 后的 `Core1 Saved PC` 显示 reset 前 core1 正在 `roi_algorithm_detect()`，这是 USB reset 保存 PC，不是 panic。
+  - 当前 monitor 持续刷 `ISP_AWB: subwindow size ...` warning，影响观察；本轮未改相机/ISP 日志策略。
