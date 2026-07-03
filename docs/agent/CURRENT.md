@@ -30,6 +30,24 @@ ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact resu
 
 ## Verification
 
+- 2026-07-03 run:
+  - `idf.py -p /dev/ttyUSB0 flash`: passed; ESP32-P4 detected on `/dev/ttyUSB0`, flash verified, hard reset completed.
+  - Inference service started with refined checkpoint:
+    - command: `scripts/start_inference_service.sh`
+    - model: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt`
+    - listener: `127.0.0.1:8765`
+  - Qt host started:
+    - command: `./build/linux-release/bin/esp32_host`
+    - control listener: `192.168.10.1:5000`
+    - image listener: `192.168.10.1:5001`
+  - Board connection observed:
+    - `192.168.10.2:63066 -> 192.168.10.1:5000`
+    - `192.168.10.2:63067 -> 192.168.10.1:5001`
+  - Host-to-inference connection observed:
+    - `127.0.0.1:<ephemeral> -> 127.0.0.1:8765`
+  - Could not raise process priority in this non-root run:
+    - inference log: `Operation not permitted`
+    - host log: `Permission denied`
 - `cmake --build esp32_host/build/linux-release`: passed.
 - `idf.py build`: passed.
 - `idf.py -p /dev/ttyUSB0 flash`: passed.

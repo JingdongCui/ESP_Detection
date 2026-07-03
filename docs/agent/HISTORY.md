@@ -273,3 +273,34 @@
   - board connected control `5000` and image `5001`
   - JPEG q70 frames with detection results stayed around `342-354ms` total through the sampled window
 - `idf.py -p /dev/ttyUSB0 flash monitor` could not run monitor in the non-TTY exec environment, so flash and monitor were run as separate commands.
+
+## 2026-07-03 Flash And Start Upper Computer Inference
+
+- User reported board was connected and requested flashing firmware, starting upper-computer inference, and a simple startup command note.
+- Checked existing processes; no old inference service or host app process was running.
+- Ran:
+  - `idf.py -p /dev/ttyUSB0 flash`
+- Flash result:
+  - ESP32-P4 detected on `/dev/ttyUSB0`
+  - bootloader, app, partition table, and storage were written and hash verified
+  - board hard-reset via RTS at completion
+- Started inference service in background:
+  - `scripts/start_inference_service.sh`
+  - log: `logs/inference_service.log`
+  - model: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt`
+  - listener: `127.0.0.1:8765`
+- Built/configured Qt host:
+  - `cmake -S . -B build/linux-release -G Ninja -DCMAKE_BUILD_TYPE=Release`
+  - `cmake --build build/linux-release`
+- Started Qt host in background:
+  - `/home/kazeform/2026upper/esp32_host/build/linux-release/bin/esp32_host`
+  - log: `logs/esp32_host.log`
+  - listeners: `192.168.10.1:5000`, `192.168.10.1:5001`
+- Confirmed board connected:
+  - control socket: `192.168.10.2:63066 -> 192.168.10.1:5000`
+  - image socket: `192.168.10.2:63067 -> 192.168.10.1:5001`
+- Confirmed host connected to local inference service:
+  - `127.0.0.1:<ephemeral> -> 127.0.0.1:8765`
+- Process priority elevation was not available without permission:
+  - inference service reported `Operation not permitted`
+  - host reported `Permission denied`
