@@ -304,3 +304,29 @@
 - Process priority elevation was not available without permission:
   - inference service reported `Operation not permitted`
   - host reported `Permission denied`
+
+## 2026-07-03 No Upper-Computer Inference Host Copy
+
+- User interrupted the compile-time split approach and requested git rollback plus a copied version without upper-computer inference.
+- Confirmed the previous attempted patch had not modified tracked source files.
+- Rolled `esp32_host` back from empty baseline commit `7f6e32d` to:
+  - `071329d optimize host image pipeline`
+- Searched `esp32_host` history:
+  - `071329d optimize host image pipeline`
+  - `a7297a8 prioritize host inference hot path`
+  - `9ce21ef backup: raw rgb inference host path`
+  - `e5552a2 chore: add host app baseline`
+- Result: every available `esp32_host` commit already contained upper-computer inference code (`requestInference`, `/infer`, or inference service URL).
+- Searched root submodule pointer history and project backup locations; no existing no-inference Qt host copy was found.
+- Created a new copy using:
+  - `git archive 071329d | tar -x -C /home/kazeform/2026upper/esp32_host_no_inference`
+- Modified only the copied directory:
+  - `CMakeLists.txt`: project/output binary changed to `esp32_host_no_inference`.
+  - `HostNetworkWorker`: inference enabled false, service URL empty, worker `requestInference()` empty.
+  - `HostController`: inference enabled false, service URL empty, service ping reports no-inference version, legacy `requestInference()` empty.
+  - `ModelWorkspacePage.qml`: inference controls disabled and launch command changed to the no-inference binary.
+  - `README.md`: added no-inference usage instructions.
+- Verification:
+  - Built successfully with `cmake -S . -B build/linux-release -G Ninja -DCMAKE_BUILD_TYPE=Release`.
+  - Rebuilt successfully after QML placeholder cleanup.
+  - Checked copied source with `rg`; no active `/infer`, `infer_jpeg`, `infer_rgb888`, `m_network.post`, or `127.0.0.1:8765` references remain outside README explanation.

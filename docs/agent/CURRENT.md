@@ -109,3 +109,27 @@ ESP32-P4 camera -> full-frame JPEG upload -> host YOLO inference -> compact resu
 - Green-cast follow-up:
   - Config comparison against `ESP32P4_Detection(4).zip` showed AWB/ACC/AGC and SC2336 defaults were already present, but the current firmware had the ISP pipeline controller disabled.
   - The code/config fix has been flashed and the transport path is stable; final visual confirmation of whether the physical screen is no longer green still needs human inspection of the panel.
+
+## No Upper-Computer Inference Host Copy
+
+- User changed direction from adding a compile-time variant to using git history/copy.
+- Reverted `esp32_host` from the temporary empty baseline commit back to:
+  - `071329d optimize host image pipeline`
+- Checked `esp32_host` git history and root submodule pointers:
+  - `071329d`, `a7297a8`, `9ce21ef`, and `e5552a2` all already contained upper-computer inference calls.
+  - No existing Qt host commit without upper-computer inference was found.
+- Created a separate copy from the latest current host commit:
+  - source: `esp32_host` commit `071329d`
+  - copy: `/home/kazeform/2026upper/esp32_host_no_inference`
+- Copy behavior:
+  - binary name: `esp32_host_no_inference`
+  - keeps dual TCP listeners, image preview, metrics, logs, and device controls.
+  - disables the inference UI controls.
+  - `requestInference()` is an empty implementation in both active worker path and legacy controller path.
+  - `pingInferenceService()` only reports that this version does not need local YOLO.
+  - source check found no active `/infer`, `infer_jpeg`, `infer_rgb888`, `m_network.post`, or `127.0.0.1:8765` references outside explanatory README text.
+- Verification:
+  - `cmake -S . -B build/linux-release -G Ninja -DCMAKE_BUILD_TYPE=Release`: passed in `esp32_host_no_inference`.
+  - `cmake --build build/linux-release`: passed.
+  - Output binary: `/home/kazeform/2026upper/esp32_host_no_inference/build/linux-release/bin/esp32_host_no_inference`.
+  - Firmware build/flash was not rerun because this task only split the desktop host copy.

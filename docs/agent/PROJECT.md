@@ -146,6 +146,20 @@ cmake --build build/linux-release
 ./build/linux-release/bin/esp32_host
 ```
 
+Start the no-upper-inference host copy:
+
+```bash
+cd /home/kazeform/2026upper/esp32_host_no_inference
+cmake -S . -B build/linux-release -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build/linux-release
+./build/linux-release/bin/esp32_host_no_inference
+```
+
+The no-upper-inference copy was generated from `esp32_host` commit `071329d`
+after reverting the temporary split-variant baseline. It keeps the dual TCP
+host receive path, preview, telemetry, and controls, but does not call
+`127.0.0.1:8765` or require `ml/logo_inference_service.py`.
+
 Run host app offscreen for board latency validation:
 
 ```bash
