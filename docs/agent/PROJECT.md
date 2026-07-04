@@ -102,6 +102,20 @@ idf.py -p /dev/ttyUSB0 monitor
   - `motor-roi` 运行到 `vision started`、`SORTDBG ready`、`System initialization done`，90 秒 monitor 窗口未见 panic/reboot。
 - 当前真实四传感器链路未完整验证；S1/S3 实际 GPIO 需要硬件重新指定后再打开。
 - 本轮按用户要求未运行 TCP 模拟测试。
+- 2026-07-04 two-stage 给队友压缩包：
+  - `/home/kazeform/2026esp/new_merge_motor_two_stage_20260704.tar.gz`
+  - 排除 `build`、`.git`、`.codegraph`、`.cache`；保留源码、`components`、`managed_components`。
+- `motor-roi` 临时开发者硬件调试页：
+  - 备份点：`f792882 backup roi before temporary developer debug ui`。
+  - 当前实现提交：`3e58b04 add temporary developer debug panel`。
+  - 入口为 dashboard 右上方小 `DEV` 按钮，点击弹出硬件调试覆盖层。
+  - 参考 `lasttime_my` 硬件调试页，功能包括模式/电机/传感器开关、速度/延时/超时调节、S1-S4、编码器、MTEST、CLASS 注入和活动包裹列表。
+  - 这是临时调试功能，不应长期混进生成 UI。清理边界：
+    - 删除 `components/UI/sdk/developer_debug_ui.c`
+    - 删除 `components/UI/sdk/developer_debug_ui.h`
+    - 从 `components/UI/sdk/ui.c` 移除 `#include "developer_debug_ui.h"` 和 `ui_developer_debug_attach()` 调用
+    - 从 `components/UI/CMakeLists.txt` 移除 `sdk/developer_debug_ui.c`
+    - 如果 UI 不再调用 sorter API，则从 UI 组件依赖中移除 `Sorter_app`
 
 ## Merge Sorter Migration Baseline
 
