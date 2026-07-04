@@ -1,5 +1,24 @@
 # History
 
+## 2026-07-04 Merge Experience Doc Start
+
+- 用户要求：
+  - 写一个合并经验 md 的开头。
+  - 后续将从另外两个对话补齐剩余内容。
+  - 目标是提高后续往 `teammatesproject_old` 类似工程重做迁移的成功率。
+- 修改前根仓库提交：
+  - `bc1c65c Record findlogo merge archive`
+- 已新增：
+  - `docs/agent/MERGE_EXPERIENCE.md`
+- 文档当前覆盖：
+  - 合并经验文档用途。
+  - 新一轮移植前的源工程/成功工程/目标工程对齐方法。
+  - baseline、划边界、小步验证的迁移节奏。
+  - 电机分拣链路与 findlogo 视觉链路第一轮经验摘要。
+  - 后续需要从其它对话补齐的章节方向。
+- 验证：
+  - 文档改动，无需 `idf.py build` / `flash monitor`。
+
 ## 2026-07-03 Findlogo Merge Report And TCP Regression
 
 - 用户要求：
