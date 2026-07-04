@@ -21,7 +21,7 @@
 #include "sdk.h"                       // send_event / get_current_event_table / EVT_VISION
 #include "bsp_lvgl_adapter_init.h"     // BSP_LVGL_Lock / BSP_LVGL_Unlock
 
-#define RGB888_BYTES_PER_PIXEL 5
+#define RGB888_BYTES_PER_PIXEL 3
 
 // 结果队列深度（单独宏，不沿用取帧 ringbuf 深度——二者语义无关）。
 // 复刻 esp-who m_results：容忍检测 FPS > 显示 FPS 时的结果积压。

@@ -191,9 +191,9 @@ void vision_detect_task(void *arg)
         // 三类概率×100（极兔/韵达/中通），A/M 暂同填概率值（占位，后续可分平均/峰值）
         int jt = 0, zt = 0, yd = 0;
         vision_model_get_class_probs(&jt, &zt, &yd);
-        result.ev.jt_a = jt; result.ev.jt_m = jt;
-        result.ev.zt_a = zt; result.ev.zt_m = zt;
-        result.ev.yd_a = yd; result.ev.yd_m = yd;
+        result.ev.jt_a = jt;
+        result.ev.zt_a = zt;
+        result.ev.yd_a = yd;
 
         // push 进结果队列（detect 全程只持轻量 s_mutex，不碰 LVGL 锁）。
         vision_draw_save_result(&result);

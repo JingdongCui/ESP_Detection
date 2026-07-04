@@ -80,9 +80,9 @@ typedef struct {
   int  fps_x10;         // 帧率 ×10（显示拆成 NN.N）
   int  infer_time_ms;   // 推理耗时 ms（假框阶段=0）
   char company[24];     // 类别名/快递公司（占位）
-  int  jt_a, jt_m;      // 极兔 A/M 占比 ×100（占位全 0）
-  int  zt_a, zt_m;      // 中通 A/M
-  int  yd_a, yd_m;      // 韵达 A/M
+  int  jt_a;            // 极兔 A 概率 %(0~100)
+  int  zt_a;            // 中通 A 概率 %(0~100)
+  int  yd_a;            // 韵达 A 概率 %(0~100)
 } vision_result_event_data_t;
 
 typedef void (*event_cb_func_t)(uint8_t event, uint16_t code, uint16_t type,

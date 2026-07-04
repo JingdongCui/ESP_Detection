@@ -14,10 +14,10 @@ dependencies:
   #   # `public` flag doesn't have an effect dependencies of the `main` component.
   #   # All dependencies of `main` are public by default.
   #   public: true
-  espressif/esp_lcd_ek79007: '*'
-  espressif/esp_lcd_touch_gt911: '*'
-  lvgl/lvgl: ^9.2.2
-  espressif/esp_lvgl_adapter: '*'
-  espressif/esp-dl: '*'
-  espressif/esp_cam_sensor: ^2.1.0
-  espressif/esp_sccb_intf: '*'
+  espressif/esp_lcd_ek79007: '==1.0.4'
+  espressif/esp_lcd_touch_gt911: '==1.2.0~2'
+  lvgl/lvgl: '==9.5.0'
+  espressif/esp_lvgl_adapter: '==0.4.3'
+  espressif/esp-dl: '==3.3.7'
+  espressif/esp_cam_sensor: '==2.2.0'
+  espressif/esp_sccb_intf: '==0.0.8'

@@ -216,6 +216,9 @@ extern lv_obj_t *scr_dashboard_label_runtime_express_company;
 extern lv_obj_t *scr_dashboard_label_JT_A;
 extern lv_obj_t *scr_dashboard_label_ZT_A;
 extern lv_obj_t *scr_dashboard_label_YD_A;
+extern lv_obj_t *scr_dashboard_slider_jt;
+extern lv_obj_t *scr_dashboard_slider_zt;
+extern lv_obj_t *scr_dashboard_slider_yd;
 extern lv_obj_t *scr_dashboard_imgbtn_logo;
 
 /* ============================================================================
@@ -345,9 +348,12 @@ static void ui_vision_result_event_cb(uint8_t event, uint16_t code, uint16_t typ
                           v->fps_x10 / 10, v->fps_x10 % 10);
     ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_infer_time, "%d", v->infer_time_ms);
     ui_label_set_text_safe(scr_dashboard_label_runtime_express_company, v->company);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_JT_A, "A:%d.%02d%%", v->jt_a / 100, v->jt_a % 100);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_ZT_A, "A:%d.%02d%%", v->zt_a / 100, v->zt_a % 100);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_YD_A, "A:%d.%02d%%", v->yd_a / 100, v->yd_a % 100);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_JT_A, "A:%d.00%%", ui_clamp_percent(v->jt_a));
+    ui_label_set_text_fmt_safe(scr_dashboard_label_ZT_A, "A:%d.00%%", ui_clamp_percent(v->zt_a));
+    ui_label_set_text_fmt_safe(scr_dashboard_label_YD_A, "A:%d.00%%", ui_clamp_percent(v->yd_a));
+    lv_slider_set_value(scr_dashboard_slider_jt, ui_clamp_percent(v->jt_a), LV_ANIM_OFF);
+    lv_slider_set_value(scr_dashboard_slider_zt, ui_clamp_percent(v->zt_a), LV_ANIM_OFF);
+    lv_slider_set_value(scr_dashboard_slider_yd, ui_clamp_percent(v->yd_a), LV_ANIM_OFF);
 }
 
 static uint32_t ui_register_vision_events(event_table_t *table)

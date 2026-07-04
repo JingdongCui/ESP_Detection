@@ -21,6 +21,8 @@
 #include <string>
 #include <cstring>
 #include <cstdio>
+#include <map>
+#include <vector>
 
 #include "esp_heap_caps.h"
 #include "esp_timer.h"
@@ -46,12 +48,12 @@ static const char *TAG = "vision_model";
 // 是 ESPDet-Pico 架构标准，两个模型通用，无需改。
 // ============================================================
 // 模型1：面单检测（单分类，category 恒 0）
-#define VISION_WAYBILL_MODEL_FILE  "det_pico_224_224_waybill.espdl"  // 用户面单模型(重导出)
-#define VISION_WAYBILL_SCORE_THR   0.50f
+#define VISION_WAYBILL_MODEL_FILE  "det_pico_224_224_waybill.espdl"  // 全屏范围找面单模型 224*224输入
+#define VISION_WAYBILL_SCORE_THR   0.70f
 #define VISION_WAYBILL_NMS_THR     0.70f
 // 模型2：logo 三分类（0=极兔 1=韵达 2=中通）
-#define VISION_LOGO_MODEL_FILE     "pico_224_224.espdl"  // 暂用面单模型占位
-#define VISION_LOGO_SCORE_THR      0.25f
+#define VISION_LOGO_MODEL_FILE     "findlogo.espdl"  // 面单范围找logo模型 224*224输入
+#define VISION_LOGO_SCORE_THR      0.50f
 #define VISION_LOGO_NMS_THR        0.70f
 
 // SPIFFS 挂载点与分区标签（模型文件由 spiffs_create_partition_image(storage model) 打包）。
@@ -66,7 +68,7 @@ static const char *TAG = "vision_model";
 //     句柄保持 NULL → vision_model_run 返回 -1（detect 侧按 0 框处理）。
 //     用于隔离验证：框架能起来跑=框架 OK 问题在模型；仍崩=框架问题。
 // 0 = 正常加载模型。
-#define VISION_MODEL_BYPASS_LOAD   1
+#define VISION_MODEL_BYPASS_LOAD   0
 
 // 1 = ESP-DL 双核推理；0 = 单核推理。
 #define VISION_MODEL_MULTI_CORE_INFERENCE 0
@@ -79,6 +81,7 @@ static const char *TAG = "vision_model";
 //测试模块 板子上原图放models目录下，vision_model_init()会加载模型并跑一遍固定图像测试
 //通过则代表板子能正确加载模型并跑推理，失败则代表板子有问题
 #define VISION_FIXED_IMAGE_TEST_ENABLE 1
+#define VISION_FIXED_IMAGE_TENSOR_DUMP 0
 #define VISION_WAYBILL_TEST_IMAGE_FILE "waybill102460001.bin"
 #define VISION_WAYBILL_TEST_IMAGE_W    1024
 #define VISION_WAYBILL_TEST_IMAGE_H    600
@@ -100,12 +103,148 @@ static const char *TAG = "vision_model";
 
 namespace {
 
+static void dump_tensor_stats(const char *tag, const char *kind, const char *name,
+                              dl::TensorBase *t, float score_thr)
+{
+    if (!t || !t->data) {
+        SEGGER_RTT_printf(0, "[tensor-dump][%s] %s %s null\n", tag, kind, name);
+        ESP_LOGI(TAG, "[tensor-dump][%s] %s %s null", tag, kind, name);
+        return;
+    }
+
+    int n = 1;
+    for (int d : t->shape) {
+        n *= d;
+    }
+
+    int minv = 9999;
+    int maxv = -9999;
+    int thr_q = 0;
+    float score_exp = DL_SCALE(t->exponent);
+    bool is_score = strncmp(name, "score", 5) == 0;
+    if (t->dtype == dl::DATA_TYPE_INT8) {
+        int8_t *p = (int8_t *)t->data;
+        for (int i = 0; i < n; i++) {
+            if (p[i] < minv) minv = p[i];
+            if (p[i] > maxv) maxv = p[i];
+        }
+        if (is_score) {
+            thr_q = (int)dl::quantize<int8_t>(dl::math::inverse_sigmoid(score_thr), 1.f / score_exp);
+        }
+    } else if (t->dtype == dl::DATA_TYPE_INT16) {
+        int16_t *p = (int16_t *)t->data;
+        for (int i = 0; i < n; i++) {
+            if (p[i] < minv) minv = p[i];
+            if (p[i] > maxv) maxv = p[i];
+        }
+        if (is_score) {
+            thr_q = (int)dl::quantize<int16_t>(dl::math::inverse_sigmoid(score_thr), 1.f / score_exp);
+        }
+    } else {
+        SEGGER_RTT_printf(0, "[tensor-dump][%s] %s %s dtype=%d unsupported\n",
+                          tag, kind, name, (int)t->dtype);
+        ESP_LOGI(TAG, "[tensor-dump][%s] %s %s dtype=%d unsupported",
+                 tag, kind, name, (int)t->dtype);
+        return;
+    }
+
+    int shape0 = t->shape.size() > 0 ? t->shape[0] : -1;
+    int shape1 = t->shape.size() > 1 ? t->shape[1] : -1;
+    int shape2 = t->shape.size() > 2 ? t->shape[2] : -1;
+    int shape3 = t->shape.size() > 3 ? t->shape[3] : -1;
+    float sigmoid_max = is_score ? dl::math::sigmoid(maxv * score_exp) : 0.0f;
+    SEGGER_RTT_printf(0,
+                      "[tensor-dump][%s] %s %s dtype=%d exp=%d shape=[%d,%d,%d,%d] raw_min=%d raw_max=%d thr_q=%d sigmoid_max=%.4f\n",
+                      tag, kind, name, (int)t->dtype, (int)t->exponent,
+                      shape0, shape1, shape2, shape3,
+                      minv, maxv, thr_q, sigmoid_max);
+    ESP_LOGI(TAG,
+             "[tensor-dump][%s] %s %s dtype=%d exp=%d shape=[%d,%d,%d,%d] raw_min=%d raw_max=%d thr_q=%d sigmoid_max=%.4f",
+             tag, kind, name, (int)t->dtype, (int)t->exponent,
+             shape0, shape1, shape2, shape3,
+             minv, maxv, thr_q, sigmoid_max);
+}
+
+static dl::TensorBase *find_model_tensor(dl::Model *model, const char *name)
+{
+    auto &inputs = model->get_inputs();
+    auto input = inputs.find(name);
+    if (input != inputs.end()) {
+        return input->second;
+    }
+    auto &outputs = model->get_outputs();
+    auto output = outputs.find(name);
+    if (output != outputs.end()) {
+        return output->second;
+    }
+    return model->get_intermediate(name);
+}
+
+static void dump_model_tensor(const char *tag, dl::Model *model, const char *name, float score_thr)
+{
+    dump_tensor_stats(tag, "live", name, find_model_tensor(model, name), score_thr);
+}
+
+static void update_score_prob(float score, int *prob)
+{
+    int p = (int)(score * 100.0f + 0.5f);
+    if (p < 0) {
+        p = 0;
+    } else if (p > 100) {
+        p = 100;
+    }
+    if (p > *prob) {
+        *prob = p;
+    }
+}
+
+template <typename T>
+static void collect_score_tensor_probs(dl::TensorBase *score, int *jt, int *zt, int *yd)
+{
+    if (!score || !score->data || score->shape.size() < 4) {
+        return;
+    }
+    int h = score->shape[1];
+    int w = score->shape[2];
+    int c = score->shape[3];
+    if (h <= 0 || w <= 0 || c < 3) {
+        return;
+    }
+
+    T *score_ptr = (T *)score->data;
+    float score_exp = DL_SCALE(score->exponent);
+    int cells = h * w;
+    for (int i = 0; i < cells; i++) {
+        update_score_prob(dl::math::sigmoid(dl::dequantize(score_ptr[0], score_exp)), jt);
+        update_score_prob(dl::math::sigmoid(dl::dequantize(score_ptr[1], score_exp)), yd);
+        update_score_prob(dl::math::sigmoid(dl::dequantize(score_ptr[2], score_exp)), zt);
+        score_ptr += c;
+    }
+}
+
+static void collect_model_score_probs(dl::Model *model, int *jt, int *zt, int *yd)
+{
+    const char *score_names[] = {"score0", "score1", "score2"};
+    for (const char *name : score_names) {
+        dl::TensorBase *score = find_model_tensor(model, name);
+        if (!score || !score->data) {
+            continue;
+        }
+        if (score->dtype == dl::DATA_TYPE_INT8) {
+            collect_score_tensor_probs<int8_t>(score, jt, zt, yd);
+        } else if (score->dtype == dl::DATA_TYPE_INT16) {
+            collect_score_tensor_probs<int16_t>(score, jt, zt, yd);
+        }
+    }
+}
+
 // ESPDet-Pico 检测器：构造里装配 model + 前处理器 + 后处理器。
 // 复刻 esp-detection 部署模板 espdet_detect::ESPDet 的装配顺序与参数。
 class PicoDetect : public dl::detect::DetectImpl {
 public:
     PicoDetect(const char *path, float score_thr, float nms_thr)
     {
+        m_score_thr = score_thr;
         // 从 SPIFFS 以文件路径（fopen 语义）加载 .espdl。
         m_model = new dl::Model(path, fbs::MODEL_LOCATION_IN_SDCARD);
 
@@ -144,8 +283,10 @@ public:
                               (int)test_ret, esp_err_to_name(test_ret));
         }
 
+#if !VISION_FIXED_IMAGE_TENSOR_DUMP
         // test 后再 minimize，回收中间张量内存供实际推理使用。
         m_model->minimize();
+#endif
 
         // mean=0 / std=255 → 归一化到 [0,1]。rgb_swap 用默认 false（模型接收 RGB）；
         // 源帧的真实色序由 vision_detector_run 里 img_t.pix_type 声明（BGR888），
@@ -159,7 +300,10 @@ public:
             {{8, 8, 4, 4}, {16, 16, 8, 8}, {32, 32, 16, 16}});
     }
 
-    std::list<dl::detect::result_t> &run_with_runtime_mode(const dl::image::img_t &img)
+    std::list<dl::detect::result_t> &run_with_runtime_mode(const dl::image::img_t &img,
+                                                            int *jt = nullptr,
+                                                            int *zt = nullptr,
+                                                            int *yd = nullptr)
     {
         DL_LOG_INFER_LATENCY_INIT();
         DL_LOG_INFER_LATENCY_START();
@@ -169,6 +313,11 @@ public:
         DL_LOG_INFER_LATENCY_START();
         m_model->run(VISION_MODEL_RUNTIME_MODE);
         DL_LOG_INFER_LATENCY_END_PRINT("detect", "model");
+
+        if (jt && zt && yd) {
+            *jt = *zt = *yd = 0;
+            collect_model_score_probs(m_model, jt, zt, yd);
+        }
 
         DL_LOG_INFER_LATENCY_START();
         m_postprocessor->clear_result();
@@ -181,13 +330,57 @@ public:
 
     std::list<dl::detect::result_t> &run_fixed_test(const char *tag, const dl::image::img_t &img)
     {
-        (void)tag;
         m_image_preprocessor->preprocess(img);
+#if VISION_FIXED_IMAGE_TENSOR_DUMP
+        const char *dump_names[] = {
+            "images",
+            "/model.4/cv2/act/Relu_output_0",
+            "PPQ_Variable_52",
+            "/model.13/cv2/act/Relu_output_0",
+            "/model.14/Resize_output_0",
+            "/model.15/Concat_output_0",
+            "/model.16/cv1/act/Relu_output_0",
+            "/model.16/cv2/act/Relu_output_0",
+            "score0",
+            "score1",
+            "score2",
+        };
+        std::map<std::string, dl::TensorBase *> user_outputs;
+        for (const char *name : dump_names) {
+            dl::TensorBase *src = find_model_tensor(m_model, name);
+            if (src && src->data && strcmp(name, "images") != 0) {
+                user_outputs[name] = new dl::TensorBase(src->shape, nullptr, src->exponent, src->dtype);
+            } else if (strcmp(name, "images") != 0) {
+                SEGGER_RTT_printf(0, "[tensor-dump][%s] prepare %s null\n", tag, name);
+                ESP_LOGI(TAG, "[tensor-dump][%s] prepare %s null", tag, name);
+            }
+        }
+        std::map<std::string, dl::TensorBase *> &inputs = m_model->get_inputs();
+        m_model->run(inputs, VISION_MODEL_RUNTIME_MODE, user_outputs);
+        dump_model_tensor(tag, m_model, "images", m_score_thr);
+        for (const char *name : dump_names) {
+            if (strcmp(name, "images") == 0) {
+                continue;
+            }
+            auto it = user_outputs.find(name);
+            dump_tensor_stats(tag, "copy", name, it != user_outputs.end() ? it->second : nullptr, m_score_thr);
+        }
+        for (auto &kv : user_outputs) {
+            delete kv.second;
+        }
+#else
         m_model->run(VISION_MODEL_RUNTIME_MODE);
+        dump_model_tensor(tag, m_model, "score0", m_score_thr);
+        dump_model_tensor(tag, m_model, "score1", m_score_thr);
+        dump_model_tensor(tag, m_model, "score2", m_score_thr);
+#endif
         m_postprocessor->clear_result();
         m_postprocessor->postprocess();
         return m_postprocessor->get_result(img.width, img.height);
     }
+
+private:
+    float m_score_thr = 0.0f;
 };
 
 } // namespace
@@ -226,9 +419,10 @@ extern "C" void vision_detector_free(vision_detector_t *det)
     }
 }
 
-extern "C" int vision_detector_run(vision_detector_t *det,
-                                   const uint8_t *img, int width, int height,
-                                   vision_model_det_t *out, int max)
+static int vision_detector_run_internal(vision_detector_t *det,
+                                        const uint8_t *img, int width, int height,
+                                        vision_model_det_t *out, int max,
+                                        int *jt, int *zt, int *yd)
 {
     if (!det || !det->model || !img || !out || max < 1) {
         return -1;
@@ -242,7 +436,7 @@ extern "C" int vision_detector_run(vision_detector_t *det,
     // ImagePreprocessor 目标为 RGB888(rgb_swap=false)，esp-dl 依 BGR→RGB 自动交换红蓝。
     in.pix_type = dl::image::DL_IMAGE_PIX_TYPE_BGR888;
 
-    std::list<dl::detect::result_t> &res = det->model->run_with_runtime_mode(in);
+    std::list<dl::detect::result_t> &res = det->model->run_with_runtime_mode(in, jt, zt, yd);
 
     int n = 0;
     for (const dl::detect::result_t &r : res) {
@@ -262,6 +456,23 @@ extern "C" int vision_detector_run(vision_detector_t *det,
         n++;
     }
     return n;
+}
+
+extern "C" int vision_detector_run(vision_detector_t *det,
+                                   const uint8_t *img, int width, int height,
+                                   vision_model_det_t *out, int max)
+{
+    return vision_detector_run_internal(det, img, width, height, out, max,
+                                        nullptr, nullptr, nullptr);
+}
+
+static int vision_detector_run_with_probs(vision_detector_t *det,
+                                          const uint8_t *img, int width, int height,
+                                          vision_model_det_t *out, int max,
+                                          int *jt, int *zt, int *yd)
+{
+    return vision_detector_run_internal(det, img, width, height, out, max,
+                                        jt, zt, yd);
 }
 
 // ===== 第二层：级联编排 =====
@@ -370,7 +581,11 @@ static void run_fixed_image_detector_test(const char *tag, vision_detector_t *de
                       tag, image_name, width, height, (unsigned)bytes, n);
     ESP_LOGI(TAG, "[fixed-test][%s] image=%s w=%d h=%d bytes=%u n=%d",
              tag, image_name, width, height, (unsigned)bytes, n);
+    int best = -1;
     for (int i = 0; i < n; i++) {
+        if (best < 0 || out[i].score > out[best].score) {
+            best = i;
+        }
         int score_x1000 = (int)(out[i].score * 1000.0f + 0.5f);
         SEGGER_RTT_printf(0,
                           "[fixed-test][%s] i=%d box=[%d,%d,%d,%d] cat=%d score=%d.%03d\n",
@@ -381,6 +596,13 @@ static void run_fixed_image_detector_test(const char *tag, vision_detector_t *de
                  tag, i,
                  out[i].box[0], out[i].box[1], out[i].box[2], out[i].box[3],
                  out[i].category, score_x1000 / 1000, score_x1000 % 1000);
+    }
+    if (best >= 0) {
+        int best_score_x1000 = (int)(out[best].score * 1000.0f + 0.5f);
+        ESP_LOGI(TAG, "[fixed-test][%s] best_cat=%d best_score=%d.%03d",
+                 tag, out[best].category, best_score_x1000 / 1000, best_score_x1000 % 1000);
+    } else {
+        ESP_LOGI(TAG, "[fixed-test][%s] score=none (n=0)", tag);
     }
 
     heap_caps_free(img);
@@ -538,19 +760,13 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
 
     // 4) 模型2：ROI 子图跑 logo（输出 ROI 局部坐标）。
     vision_model_det_t lg[VISION_MODEL_MAX_LOGO];
-    int nlg = vision_detector_run(s_logo, roi, roi_w, roi_h,
-                                  lg, VISION_MODEL_MAX_LOGO);
+    int nlg = vision_detector_run_with_probs(s_logo, roi, roi_w, roi_h,
+                                             lg, VISION_MODEL_MAX_LOGO,
+                                             &s_prob_jt, &s_prob_zt, &s_prob_yd);
 
-    // 5) 三类概率取模型2各类别最高分，同时只返回最高分 logo 框用于画框。
+    // 5) 三类概率来自模型2原始 score tensor；画框仍只取 NMS 后最高分 logo 框。
     int best_lg = -1;
     for (int i = 0; i < nlg; i++) {
-        int p = (int)(lg[i].score * 100.0f);
-        switch (lg[i].category) {
-            case 0: if (p > s_prob_jt) s_prob_jt = p; break;
-            case 1: if (p > s_prob_yd) s_prob_yd = p; break;
-            case 2: if (p > s_prob_zt) s_prob_zt = p; break;
-            default: break;
-        }
         if (best_lg < 0 || lg[i].score > lg[best_lg].score) {
             best_lg = i;
         }
