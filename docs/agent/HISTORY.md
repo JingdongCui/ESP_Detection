@@ -70,6 +70,26 @@
   - `idf.py -p /dev/ttyUSB0 monitor` 使用 115200，启动到 `System initialization done`。
   - 90 秒 monitor 窗口未见 panic/reboot。
 
+## 2026-07-04 ROI logo single-box display
+
+- 用户要求检查画框链路，并把 logo 检测阶段调整为只画最高置信度的一个框。
+- 检查结果：
+  - `vision_model_run()` 生成检测框，传统 ROI 固定产出 1 个面单框，logo 模型原先最多返回 `VISION_MODEL_MAX_LOGO=4` 个 logo 框。
+  - `vision_detect.c` 负责将原图坐标缩放到 preview 坐标并保存到结果队列。
+  - `vision_draw.c` 只按 `stage` 遍历队列画框；多框来源在模型编排层，不在 UI 层。
+- 修改：
+  - `components/vision/detector/vision_model.cpp`
+  - logo 模型仍最多取 4 个候选用于比较，但只将最高 `score` 的 logo 框映射回原图并写入 `dets[1]`。
+  - 面单框 `dets[0]` 保持不变，因此正常结果为 1 个面单框 + 1 个 logo 框。
+  - 三类概率/文本分类也同步使用同一个最高分 logo，避免文本和画框不一致。
+- 提交：
+  - `c4a2de0 show only best logo detection box`
+- 验证：
+  - `idf.py build` 通过。
+  - `idf.py -p /dev/ttyUSB0 -b 921600 flash` 通过，app/partition/storage hash verified。
+  - `idf.py -p /dev/ttyUSB0 monitor` 使用 115200，启动到 `System initialization done`。
+  - 90 秒 monitor 窗口未见 panic/reboot。
+
 ## Archived
 
 - `docs/agent/archive/2026-07-04-merge-ui-dependency-docs.md`

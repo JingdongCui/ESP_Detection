@@ -117,6 +117,10 @@ idf.py -p /dev/ttyUSB0 monitor
     - 从 `components/UI/sdk/ui.c` 移除 `#include "developer_debug_ui.h"` 和 `ui_developer_debug_attach()` 调用
     - 从 `components/UI/CMakeLists.txt` 移除 `sdk/developer_debug_ui.c`
     - 如果 UI 不再调用 sorter API，则从 UI 组件依赖中移除 `Sorter_app`
+- `motor-roi` ROI 画框边界：
+  - 当前最多显示 1 个传统 ROI 面单框 + 1 个 logo 框。
+  - logo 模型候选仍保留最多 4 个用于比较，但只将最高置信度候选写入最终检测结果，画框层因此只画最高分 logo。
+  - 该限制位于 `components/vision/detector/vision_model.cpp` 的 `vision_model_run()`，不是 UI 生成内容或 `vision_draw.c` 的开关。
 
 ## Merge Sorter Migration Baseline
 

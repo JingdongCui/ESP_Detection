@@ -11,7 +11,7 @@
 - two-stage 分支：
   - `motor-two-stage`: `7a18be7 disable sorter sensors on console uart pins`
 - 传统 ROI 分支：
-  - `motor-roi`: `8da7918 hide preview while developer debug panel is open`
+  - `motor-roi`: `c4a2de0 show only best logo detection box`
 - 已移植内容：
   - `components/Sorter_app`
   - BSP 电机、编码器、分拣传感器和 sorter debug config
@@ -21,6 +21,7 @@
   - two-stage 打包前未改 UI 显示内容。
   - ROI 分支按用户新要求新增临时 `DEV` 开发者入口和硬件调试弹窗，来源参考 `lasttime_my` 硬件调试页。
   - DEV 调试页打开时会临时隐藏 `scr_dashboard_cont_dashboard`，使 camera preview 刷新逻辑跳过 dashboard blit，避免 preview 遮挡调试页；关闭 DEV 后恢复打开前的隐藏状态。
+  - ROI 分支当前检测结果最多显示 2 个框：传统 ROI 面单框 1 个 + 最高置信度 logo 框 1 个；只限制 logo 框数量，不改 UI 生成内容。
   - 临时 UI 改动集中在 `components/UI/sdk/developer_debug_ui.*`、`components/UI/sdk/ui.c` 一行挂载、`components/UI/CMakeLists.txt`。
 - 硬件引脚调整：
   - GT911 touch INT 从 GPIO32 改为 GPIO24，避免与电机 PWM GPIO32 冲突。
@@ -40,6 +41,8 @@
   - `3e58b04 add temporary developer debug panel`
 - ROI DEV preview 遮挡修复提交：
   - `8da7918 hide preview while developer debug panel is open`
+- ROI logo 单框显示提交：
+  - `c4a2de0 show only best logo detection box`
 
 ## Verification
 
@@ -61,6 +64,10 @@
   - `idf.py -p /dev/ttyUSB0 monitor` 到 `System initialization done`，90 秒窗口未见 panic/reboot。
   - 串口有模型自检 `Test output box0 does not match` 错误，但继续启动；该现象不由调试 UI 引入。
 - DEV preview 遮挡修复后：
+  - `idf.py build` 通过。
+  - `idf.py -p /dev/ttyUSB0 -b 921600 flash` 通过，app/partition/storage hash verified。
+  - `idf.py -p /dev/ttyUSB0 monitor` 使用 115200，启动到 `System initialization done`，90 秒窗口未见 panic/reboot。
+- logo 单框显示调整后：
   - `idf.py build` 通过。
   - `idf.py -p /dev/ttyUSB0 -b 921600 flash` 通过，app/partition/storage hash verified。
   - `idf.py -p /dev/ttyUSB0 monitor` 使用 115200，启动到 `System initialization done`，90 秒窗口未见 panic/reboot。
