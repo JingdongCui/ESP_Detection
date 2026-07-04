@@ -54,6 +54,22 @@
   - 90 秒 monitor 窗口未见新增 panic/reboot。
   - 启动日志出现 `dl::Model: Test output box0 does not match`，但系统继续启动；记录为模型自检现象，不是临时调试 UI 的启动阻塞。
 
+## 2026-07-04 ROI developer debug preview hide
+
+- 用户实测触摸正常，但 camera preview 会遮挡 DEV 调试页的一部分画面。
+- 按用户建议，在 DEV 页面打开时隐藏 page1/dashboard 容器：
+  - 修改：`components/UI/sdk/developer_debug_ui.c`
+  - 打开 DEV 时记录 `scr_dashboard_cont_dashboard` 原隐藏状态并添加 `LV_OBJ_FLAG_HIDDEN`。
+  - 关闭 DEV 时若打开前未隐藏，则移除 `LV_OBJ_FLAG_HIDDEN`。
+- 该实现复用现有 `vision_app.c` preview 绘制边界；preview 任务检测到 `scr_dashboard_cont_dashboard` hidden 后跳过 dashboard blit，从而避免覆盖调试页。
+- 提交：
+  - `8da7918 hide preview while developer debug panel is open`
+- 验证：
+  - `idf.py build` 通过。
+  - `idf.py -p /dev/ttyUSB0 -b 921600 flash` 通过，app/partition/storage hash verified。
+  - `idf.py -p /dev/ttyUSB0 monitor` 使用 115200，启动到 `System initialization done`。
+  - 90 秒 monitor 窗口未见 panic/reboot。
+
 ## Archived
 
 - `docs/agent/archive/2026-07-04-merge-ui-dependency-docs.md`

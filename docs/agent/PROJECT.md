@@ -107,9 +107,10 @@ idf.py -p /dev/ttyUSB0 monitor
   - 排除 `build`、`.git`、`.codegraph`、`.cache`；保留源码、`components`、`managed_components`。
 - `motor-roi` 临时开发者硬件调试页：
   - 备份点：`f792882 backup roi before temporary developer debug ui`。
-  - 当前实现提交：`3e58b04 add temporary developer debug panel`。
+  - 当前实现提交：`8da7918 hide preview while developer debug panel is open`。
   - 入口为 dashboard 右上方小 `DEV` 按钮，点击弹出硬件调试覆盖层。
   - 参考 `lasttime_my` 硬件调试页，功能包括模式/电机/传感器开关、速度/延时/超时调节、S1-S4、编码器、MTEST、CLASS 注入和活动包裹列表。
+  - DEV 调试页打开时会隐藏 `scr_dashboard_cont_dashboard`，让 camera preview 绘制逻辑停止刷新 dashboard 区域，避免 preview 遮挡调试页；关闭 DEV 后恢复原隐藏状态。
   - 这是临时调试功能，不应长期混进生成 UI。清理边界：
     - 删除 `components/UI/sdk/developer_debug_ui.c`
     - 删除 `components/UI/sdk/developer_debug_ui.h`
