@@ -62,6 +62,47 @@ cd /home/kazeform/2026esp/merge
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
+`new_merge` 构建、烧录和运行期监控：
+
+```bash
+cd /home/kazeform/2026esp/new_merge
+idf.py build
+idf.py -p /dev/ttyUSB0 -b 921600 flash
+idf.py -p /dev/ttyUSB0 monitor
+```
+
+- `new_merge` flash 可用 921600。
+- `new_merge` 运行期 monitor 当前应使用默认 115200；`-b 921600 monitor` 会乱码。
+
+## New Merge Motor Migration
+
+- 2026-07-04 已将 `lasttime_merge` 电机分拣链路移植到 `new_merge`，并保留 `new_merge` 原 UI 显示内容。
+- `new_merge` 是独立 git 仓库，当前关键分支：
+  - `base-before-motor`: 迁移前基线。
+  - `motor-two-stage`: two-stage 模型路径 + 电机分拣链路。
+  - `motor-roi`: 传统 ROI 路径 + 电机分拣链路。
+- 当前 `new_merge` 两个电机分支都包含：
+  - `components/Sorter_app`
+  - BSP 电机、编码器、分拣传感器
+  - vision 分类到 sorter class 的提交链路
+  - 真实硬件调试启动路径
+- UI 边界：
+  - 不从 `lasttime_merge` 迁移 UI 显示差异。
+  - 修改前后应保持 `git diff -- components/UI components/UI/generated components/UI/sdk` 为空。
+- `new_merge` 当前硬件引脚边界：
+  - GT911 touch INT 使用 GPIO24。
+  - 电机 2 PWM A 使用 GPIO32；不要再把 GT911 INT 放回 GPIO32。
+  - ESP32-P4 console UART 使用 GPIO37/GPIO38。
+  - sorter S1/S3 当前置为 `-1`，避免占用 console UART。
+  - sorter S2/S4 当前使用 GPIO23/GPIO22。
+- `new_merge` 当前验证状态：
+  - `motor-two-stage` build 通过。
+  - `motor-roi` build 通过。
+  - `motor-roi` 已在 `/dev/ttyUSB0` flash 成功，ESP32-P4 revision v1.0，app/partition/storage hash verified。
+  - `motor-roi` 运行到 `vision started`、`SORTDBG ready`、`System initialization done`，90 秒 monitor 窗口未见 panic/reboot。
+- 当前真实四传感器链路未完整验证；S1/S3 实际 GPIO 需要硬件重新指定后再打开。
+- 本轮按用户要求未运行 TCP 模拟测试。
+
 ## Merge Sorter Migration Baseline
 
 - 2026-07-02 已将 `old_project` 电机分拣链路第一轮移植到 `merge`。
