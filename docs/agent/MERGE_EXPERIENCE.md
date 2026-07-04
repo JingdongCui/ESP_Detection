@@ -20,6 +20,20 @@
 - 当前成功工程：提供最近一次迁移后的落地做法和踩坑修正，优先级高于最早的 old project 记忆。
 - 目标工程：只接受必要改动，尽量不顺手重构、不无证据升级依赖、不混入与本轮目标无关的 UI 或硬件改动。
 
+## 当前 merge 基线
+
+截至 2026-07-04，`merge` 当前可作为下一阶段合并的基线：
+
+- 视觉链路：传统算法 ROI 第一阶段 + `findlogo.espdl` 第二阶段。
+- 分拣链路：scheduler typed event 优化后版本，默认 A/B/C 电机速度为 60%。
+- 硬件调试模式：TCP 模拟链路关闭，真实传感器输入和电机输出开启。
+- UI 状态刷新：`system_monitor()` 始终启动，继续向 UI 发送 `EVT_SYSTEM_MONITOR_CHANGED`。
+- 串口日志：`sysmon` 周期 CPU INFO 表关闭，`ISP_AWB` warning 降到 ERROR，monitor 更适合看分拣/视觉关键日志。
+- 目标板配置：按旧版 ESP32-P4 处理，`ESP32P4_REV_MIN_FULL=0`、`ESP32P4_REV_MAX_FULL=199`、CPU 360MHz。
+- 最新阶段提交：`merge` 工程 `84c9c72 fix ui monitor and pin merge dependencies`。
+
+不要再把旧的 rev301/400MHz 状态当作默认基线。若下一阶段目标板换回新版本 ESP32-P4，必须明确改回并重新验证。
+
 ## Checkpoint 和对照
 
 合并前必须有可回退点。工程目录有 git 时在工程目录提交；根目录文档有改动时在根目录提交。不要依赖“我记得改了哪些文件”。
@@ -54,14 +68,30 @@ ESP-IDF component manager 的依赖状态要同时看三处：
 
 - `findlogo.espdl` 在原锁定 `esp-dl 3.3.2` 下能 build，但实机加载模型时在 `fbs::FbsModel::get_operation_parameter(...)` 触发 Load access fault / Guru Meditation。
 - 因此保留 `esp-dl 3.3.6` 是有证据的必要兼容更新。
-- 但 `merge` 曾连带升级了 `esp_cam_sensor`、`esp_video`、`esp_ipa`、`usb_host_uvc`、`esp_lcd_ek79007`、`esp_lvgl_adapter`、`esp_new_jpeg` 等。后续要优先收窄到“只保留必要升级”，不要把所有新版本都当作模型接入的必要条件。
+- 但 `merge` 曾连带升级了 `esp_cam_sensor`、`esp_video`、`esp_ipa`、`usb_host_uvc`、`esp_lcd_ek79007`、`esp_lvgl_adapter` 等。后续排查确认这不是全局库坏了，而是 manifest 约束太松导致的无关升级。
+- 2026-07-04 已在 `merge` 中收窄依赖：只保留模型加载所需的新 `esp-dl` 及其必要依赖，其它相机/视频/屏/UI adapter 回到旧工程基线附近。
 
 推荐的依赖处理方式：
 
 - 先保留目标工程原锁定依赖。
 - 如果模型加载崩溃，再只升级直接相关库，并保留崩溃日志证据。
-- 对 `merge` 当前链路，`esp-dl 3.3.6` 是必要项；相机、视频、屏驱、LVGL adapter 等应单独验证是否需要升级。
+- 对 `merge` 当前链路，`esp-dl 3.3.6` 是必要项；相机、视频、屏驱、LVGL adapter 等不应跟随无关升级。
 - 全局组件缓存里同时存在多个版本是正常现象，不要先清缓存。工程按 lock 和 hash 取版本，真正要查的是 lock 是否被改脏。
+
+`merge` 当前钉住的关键版本：
+
+- `espressif/esp-dl = 3.3.6`
+- `espressif/dl_fft = 0.4.0`
+- `espressif/esp_new_jpeg = 1.0.2`
+- `espressif/esp_lv_decoder = 0.4.3`
+- `espressif/esp_cam_sensor = 2.2.0`
+- `espressif/esp_video = 2.2.0`
+- `espressif/esp_ipa = 2.1.0`
+- `espressif/usb_host_uvc = 2.5.0`
+- `espressif/esp_lcd_ek79007 = 1.0.4`
+- `espressif/esp_lvgl_adapter = 0.4.3`
+
+如果 `idf.py fullclean` 提示 `managed_components` 里组件被修改，不要直接清全局缓存。可以先把工程内 `managed_components` 临时改名备份，再让 `idf.py reconfigure` 按当前 manifest/lock 重新生成。确认新目录可 build 后，再删除自己创建的临时备份。
 
 ## sdkconfig 和芯片 revision
 
@@ -77,6 +107,7 @@ ESP32-P4 rev `<3.0` 和 `>=3.0` 配置互斥。旧板和新板不能混用同一
 - `sdkconfig.defaults` 和实际 `sdkconfig` 可能不一致，最终 build/flash 以 `sdkconfig` 为准。
 - `idf.py build` 可能 reconfigure，并根据 defaults 或 Kconfig 调整生成内容。改动后要查 `git diff`。
 - 之前为了高版本板烧录，`merge` 保留过 rev301/400MHz；如果用户手上换成旧版本芯片，必须显式改回旧板配置。
+- 2026-07-04 实机烧录确认当前板为 `ESP32-P4 revision v1.0`，旧板配置可烧录并启动。
 
 验证时看启动日志：
 
@@ -159,6 +190,8 @@ UI 问题不一定是 UI 代码或库问题。先查数据生产链路。
 - `system_monitor()` 应继续启动，保证 UI 事件还在。
 - `sysmon` 的串口 INFO/RTT 输出可以降级、关闭或限频。
 - 不要为了 monitor 干净关掉业务数据源。
+- 本次 `merge` 的落地做法是：`System_Init()` 无论硬件调试模式与否都调用 `system_monitor()`；`components/system_monitor/system_monitor.c` 用 `MONITOR_SERIAL_CPU_LOG_ENABLE=0` 关闭周期性 CPU INFO 表；`main/system_init.c` 把 `ISP_AWB` 日志降到 ERROR。
+- 用户现场已观察到 UI CPU/内存/运行时间恢复刷新。
 
 生成 UI 迁移时还要明确哪些旧 UI 没迁移。当前 `merge` 没有完整搬旧工程手动分拣面板：
 
@@ -318,4 +351,3 @@ old 工程“什么都没动但跑不了”：
 8. 最后补 UI：只接现有 API 和事件，不直接耦合 scheduler 内部。
 
 每一步都要能单独回滚、单独说明成功标准。
-

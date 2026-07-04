@@ -147,6 +147,18 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migra
   - `warnings=0,drops=0,pose_asserts=0,desyncs=0,faults=0`
   - 完成分布：`class1=7,class2=7,class3=6`
 - 烧录可用 `idf.py -p /dev/ttyUSB0 -b 921600 flash`；运行期 monitor 可读波特率为 115200，`-b 921600 monitor` 会输出乱码。
+- 2026-07-04 当前 `merge` 已按旧板重新收口：
+  - 最新阶段提交：`84c9c72 fix ui monitor and pin merge dependencies`。
+  - 实机烧录识别芯片 `ESP32-P4 revision v1.0`。
+  - 启动日志确认 `efuse_init: Min chip rev: v0.0`、`Max chip rev: v1.99`、`cpu freq: 360000000 Hz`。
+  - `idf.py build` 成功。
+  - `idf.py -p /dev/ttyUSB0 -b 921600 flash` 成功，app/partition/storage hash verified。
+  - `system_monitor()` 在硬件调试模式下也启动，UI CPU/内存/运行时间恢复刷新。
+  - `sysmon` 串口 CPU INFO 表关闭，`ISP_AWB` warning 降到 ERROR，monitor 不再被该 warning 刷屏。
+- 2026-07-04 `merge` 当前依赖收窄：
+  - 保留 `esp-dl 3.3.6`，因为 `findlogo.espdl` 在 `esp-dl 3.3.2` 上实机加载崩溃。
+  - 必要新依赖：`dl_fft 0.4.0`、`esp_new_jpeg 1.0.2`、`esp_lv_decoder 0.4.3`。
+  - 无关升级收回到基线：`esp_cam_sensor 2.2.0`、`esp_video 2.2.0`、`esp_ipa 2.1.0`、`usb_host_uvc 2.5.0`、`esp_lcd_ek79007 1.0.4`、`esp_lvgl_adapter 0.4.3`。
 
 ## Merge Project Sensor Chain
 
