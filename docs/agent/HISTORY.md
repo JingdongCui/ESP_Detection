@@ -1,5 +1,28 @@
 # History
 
+## 2026-07-04 Merge Experience Doc Expansion
+
+- 用户要求：
+  - 完善 `docs/agent/MERGE_EXPERIENCE.md`。
+  - 为接下来相似合并工作做准备。
+  - 记录踩过的坑、需要注意的点和经验。
+- 修改前根仓库 checkpoint：
+  - `b4201eb checkpoint before expanding merge experience`
+- 已扩展：
+  - `docs/agent/MERGE_EXPERIENCE.md`
+- 新增重点内容：
+  - 合并前 checkpoint、baseline、边界和小步验证原则。
+  - 依赖排查要同时看 manifest、lock、managed component hash，尤其注意组件自己的 `idf_component.yml`。
+  - `esp-dl 3.3.6` 是 `findlogo.espdl` 实机加载崩溃后的必要升级；但相机/视频/屏/UI adapter 等连带升级要单独证明。
+  - 旧/新 ESP32-P4 revision 与 360/400MHz 配置不能混用。
+  - `build/project_description.json` 可能仍指向微信临时目录，不能无脑信任旧 build。
+  - `system_monitor()` 既是 UI 状态数据源又会刷日志，硬件调试时不能为干净 monitor 直接关掉数据源。
+  - RGB/BGR、模型类别、概率接口和物理出口必须分开记录和映射。
+  - TCP 20 包必须配合 `log_audit`，不能只看模拟器最终 ok。
+  - 端口 `/dev/ttyUSB0`/`/dev/ttyACM0` 和 flash/monitor 波特率要分开确认。
+- 验证：
+  - 文档改动，无需 `idf.py build` / `flash monitor`。
+
 ## 2026-07-04 Merge Experience Doc Start
 
 - 用户要求：
