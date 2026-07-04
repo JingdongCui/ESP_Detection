@@ -7,6 +7,20 @@
 - 相关对照工程：`bug_project`
 - 根目录 git 仓库已初始化，用于跟踪根目录 agent 文档；`bug_project` 和 `merge_project` 各自仍有独立 git 仓库。
 
+## Dataset Notes
+
+- 2026-07-04 已整理 `MyAlbums` 为后续训练数据集：
+  - 目录只保留 `16_9/`、`4_3/`、`half/` 三类和 `DATASET_MANIFEST.csv`。
+  - 顶层原目录名包含 `16_9` 的归入 `16_9`，包含 `half` 的归入 `half`，未标注的归入 `4_3`；`zt1higher` 按未标注规则归入 `4_3`。
+  - 图片统一命名为 `jt_001.jpg`、`yd_001.jpg`、`zt_001.jpg` 形式，每个分类目录内按品牌独立编号。
+  - 数量：`16_9=430`，`4_3=368`，`half=180`，总计 `978` 张 jpg。
+  - `half` 当前只有 `jt=94` 和 `yd=86`，原始数据里没有 half 标注的 `zt` 目录。
+  - `MyAlbums` 子目录内已初始化独立 git，原始基线提交 `830536a`，整理后提交 `8a51bc4`。
+- 给队友的数据集压缩包：
+  - `/home/kazeform/2026esp/MyAlbums_dataset_20260704.zip`
+  - 包内包含 `MyAlbums/16_9`、`MyAlbums/4_3`、`MyAlbums/half` 和 `MyAlbums/DATASET_MANIFEST.csv`，不包含 `.git`。
+  - `zip -T` 校验通过，包内 jpg 数量为 `978`。
+
 ## Hardware
 
 - 目标芯片：ESP32-P4
