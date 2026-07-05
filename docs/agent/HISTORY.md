@@ -1,5 +1,28 @@
 # History
 
+## 2026-07-05 host maintenance layout and TCP default split
+
+- 用户反馈系统维护页链路端口卡片错位，并指出“默认关闭 TCP 模拟分拣链路”不应关闭板端和上位机的 TCP 通信。
+- 定位：
+  - `ReservePage.qml` 右侧链路端口区域固定高 `276`，但复用 4 张 `MetricCard`，两行卡片加标题/边距超过面板高度，导致错位/溢出。
+  - `new_merge/main/system_init.c` 中 `SORTER_TCP_LINK_ENABLE` 默认值为 `0`，重烧录后 `ethernet_app_start()` 不执行，板端不会连接上位机。
+- 修改前 checkpoint：
+  - 上位机：`34338dd checkpoint before maintenance layout fix`。
+  - 板端：`5e507e6 checkpoint before tcp default split`。
+- 已修改：
+  - 上位机 `ReservePage.qml` 增加紧凑 `PortCard`，链路端口四卡片从通用 `MetricCard` 改为专用端口卡，面板高度改为 `242`。
+  - 板端 `SORTER_TCP_LINK_ENABLE` 默认改回 `1`，默认启动 control `5000` 和 image `5001` 上位机链路。
+  - 板端新增 `SORTER_TCP_SIM_LINE_OUTPUT_ENABLE`，默认 `0`；默认 tick 使用 `sorting_sim_control_tick(NULL, NULL)`，保持本地调度 tick，但不把 tick 产生的模拟状态线输出到 TCP。
+  - 上位机发来的 `CONFIG`、`HW_STATUS` 等 SIM line 命令仍走 `process_rx_packet()`，可处理并按需回复。
+- 验证：
+  - 上位机 `cmake --build --preset debug` 通过。
+  - 上位机 `QT_QPA_PLATFORM=offscreen timeout 8s ./build/debug/bin/esp32_host_no_inference` 可启动到 timeout；验证进程监听 `192.168.10.1:5000/5001`。
+  - 板端 `idf.py build` 通过，app 大小 `0x4eecc0`，factory 分区剩余约 18%。
+  - 板端 `idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0 flash` 成功。
+  - monitor 120 秒窗口启动到 `System initialization done`，chip revision `v1.0`，app min/max `v0.0/v1.99`，S1/S2/S4 为 GPIO53/23/22，S3 disabled，未见 panic/reboot。
+  - `ss` 轮询确认 `192.168.10.1:5000` 和 `192.168.10.1:5001` 均保持 `ESTABLISHED`。
+  - `~/Documents/ESP32Host/images/latest_preview.jpg` 更新时间为 `2026-07-05 19:39:56 +0800`，证明 JPEG 图像链路实际接收。
+
 ## 2026-07-05 host delivery polish
 
 - 用户要求把上位机从 demo/占位感打磨为可交付作品：

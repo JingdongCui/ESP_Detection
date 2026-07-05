@@ -173,8 +173,10 @@ idf.py -p /dev/ttyUSB0 monitor
   - control/metrics/sorter protocol：TCP `192.168.10.1:5000`。
   - image：TCP `192.168.10.1:5001`。
 - 2026-07-05 后续默认策略：
-  - `SORTER_TCP_LINK_ENABLE` 默认值为 `0`，板端默认不启动 Ethernet 模拟分拣链路。
-  - 需要联调上位机时，通过编译期定义显式启用 `SORTER_TCP_LINK_ENABLE=1`。
+  - `SORTER_TCP_LINK_ENABLE` 默认值为 `1`，板端默认启动与上位机的 Ethernet TCP 通信链路。
+  - `SORTER_TCP_SIM_LINE_OUTPUT_ENABLE` 默认值为 `0`，板端默认不把 20ms tick 产生的 Ethernet 模拟分拣状态线输出到上位机。
+  - 默认仍接收上位机 `CONFIG`、`HW_STATUS`、time sync 等控制包；control `5000`、image `5001`、metrics/JPEG 链路保持可用。
+  - 若现场需要把调度器 tick 输出的 SIM line 也推给上位机，可编译期显式启用 `SORTER_TCP_SIM_LINE_OUTPUT_ENABLE=1`。
   - TCP SIM line 发送层过滤掉 `STATUS,reason=tick/sensor1/package_new/vision`。
   - `PKG` SIM line 按 `id/belt/state/class` 去重；状态不变时最多 1 秒心跳一次，避免 20ms tick 刷屏。
 - metrics：
@@ -201,6 +203,11 @@ idf.py -p /dev/ttyUSB0 monitor
   - TCP control/image 均连接上位机 `192.168.10.1:5000/5001`。
   - telemetry 每秒更新；实测 `image_encoded=15`、`image_sent=15`、drop/fail 均 0，JPEG 约 39 KB，encode 约 332-367 ms，send 约 8-19 ms。
   - 上位机最新 preview 文件：`~/Documents/ESP32Host/images/latest_preview.jpg`。
+- 2026-07-05 默认 TCP 策略修正验证：
+  - `motor-roi` flash 新固件成功，ESP32-P4 revision `v1.0`。
+  - monitor 120 秒窗口启动到 `System initialization done`，未见 panic/reboot。
+  - 上位机 offscreen 监听 `192.168.10.1:5000/5001` 后，`ss` 确认 control/image 两条连接均 `ESTABLISHED`。
+  - `~/Documents/ESP32Host/images/latest_preview.jpg` 更新时间到 `2026-07-05 19:39:56 +0800`，JPEG 接收正常。
 - 2026-07-05 低 revision 实机修正：
   - 普通 `xTaskCreatePinnedToCore` 分配 TCP task stack 会因内部 RAM 紧张失败；TCP task stack 改用 `xTaskCreatePinnedToCoreWithCaps(..., MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)`。
   - ESP-IDF 5.5 的 M2C cache sync 不允许 `ESP_CACHE_MSYNC_FLAG_UNALIGNED`；snapshot buffer 需 cache-line 对齐后用纯 `ESP_CACHE_MSYNC_FLAG_DIR_M2C`。

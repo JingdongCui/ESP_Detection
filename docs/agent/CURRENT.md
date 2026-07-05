@@ -2,36 +2,41 @@
 
 ## Goal
 
-打磨 `esp32_host_no_inference`，从演示/占位风格调整为可交付的板端视觉分拣上位机。
+修正上位机系统维护页端口卡片布局，并调整 `new_merge` 默认 TCP 策略：默认开启上位机通信链路，默认关闭 Ethernet 模拟分拣状态输出。
 
 ## Current State
 
 - 上位机当前分支：`tcp-board-align`。
-- 修改前 checkpoint：`ef188a1 checkpoint before delivery polish`。
+- 上位机修改前 checkpoint：`34338dd checkpoint before maintenance layout fix`。
+- 板端当前分支：`motor-roi`。
+- 板端修改前 checkpoint：`5e507e6 checkpoint before tcp default split`。
 - 已修改：
-  - 移除离线假数据源 `DemoDataSource`，无设备时不再注入假 metrics / detection。
-  - 首页删除底部“实时事件流”整行。
-  - 视觉页历史改为“包裹图像记录”，图片接收记录显示 `包裹#N`，不再显示“图片帧/画质增强”等调试文案。
-  - 预留页改为“系统维护”，展示监听状态、最后遥测、累计接收、保存目录、端口、图片链路健康和运行日志。
-  - Header / README / 控制页文案改成交付口径：待连接、系统维护、遥测/控制命令等。
+  - `ReservePage.qml` 的链路端口区域改为专用紧凑 `PortCard`，避免 4 张 `MetricCard` 在固定 276 高度面板内溢出错位。
+  - `SORTER_TCP_LINK_ENABLE` 默认改回 `1`，重烧录后默认启动上位机 TCP control/image 链路。
+  - 新增 `SORTER_TCP_SIM_LINE_OUTPUT_ENABLE`，默认 `0`；默认仍运行分拣 tick，但不把 tick 过程的模拟状态线发到上位机。
+  - 上位机发来的 `CONFIG` / `HW_STATUS` 等 SIM line 控制命令仍会处理并可回复。
 
 ## Verification
 
 - 上位机：
-  - `cmake --preset debug`：通过。
   - `cmake --build --preset debug`：通过。
-  - `QT_QPA_PLATFORM=offscreen timeout 8s ./build/debug/bin/esp32_host_no_inference`：可启动到 timeout，无 QML 加载错误输出。
-  - `rg` 检查无 `演示/demo/图片帧/画质增强/预留接口/实时事件流` 等交付前文案残留。
-- 本轮未改板端代码，未执行 `idf.py build/flash/monitor`。
+  - `QT_QPA_PLATFORM=offscreen timeout 8s ./build/debug/bin/esp32_host_no_inference`：可启动到 timeout。
+  - 验证监听：`192.168.10.1:5000/5001` 均 LISTEN。
+- 板端：
+  - `idf.py build`：通过，app 大小 `0x4eecc0`，factory 分区剩余约 18%。
+  - `idf.py -p /dev/serial/by-id/... flash`：通过，ESP32-P4 revision `v1.0`，bootloader/app/partition/storage hash verified。
+  - `script -qfec "timeout 120s idf.py -p /dev/serial/by-id/... monitor" /tmp/new_merge_tcp_default_monitor.log`：到 `System initialization done`，120 秒窗口未见 panic/reboot。
+  - `ss` 轮询确认 `192.168.10.1:5000` 与 `192.168.10.1:5001` 均长期 `ESTABLISHED`。
+  - `~/Documents/ESP32Host/images/latest_preview.jpg` 更新时间到 `2026-07-05 19:39:56 +0800`，说明 JPEG 图像链路实际接收。
 
 ## Notes
 
-- 无设备连接时，上位机保持空状态和待连接文案；监听服务仍自动启动。
-- `包裹#N` 为上位机本地接收顺序号，每次应用启动从 1 开始。
+- 上位机 offscreen 验证时仍可见既有 Qt 警告：`QTcpServer` 跨线程 child 创建、部分导航按钮 binding loop、DetectionPage 一个 undefined bool；本轮未处理这些非本次根因问题。
+- 旧固件重烧录后连接不上，是因为上一阶段把 `SORTER_TCP_LINK_ENABLE` 默认设成 `0`，导致 `ethernet_app_start()` 不执行。
 
 ## Next Step
 
-- 如需现场验证，启动上位机后复位板端，确认维护页端口/日志、视觉页包裹记录和首页指标正常更新。
+- 提交上位机和板端改动，并同步根目录 agent 文档提交。
 
 ## Blockers
 
