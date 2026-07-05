@@ -15,7 +15,10 @@
 #include "driver/jpeg_encode.h"
 
 #include "bsp_lcd.h"
+#include "bsp_lvgl_adapter_init.h"
 #include "usb_device_uvc.h"
+
+#include "lvgl.h"
 
 static const char *TAG = "screen_uvc";
 
@@ -52,11 +55,27 @@ static esp_err_t capture_screen_rgb(int out_w, int out_h)
     }
 
     size_t out_size = (size_t)out_w * out_h * RGB_BYTES_PER_PX;
-    // 抓 fb0。DOUBLE_DIRECT 抗撕裂下 LVGL 在两块 fb 间交替刷新，
-    // PPA 搬运是亚毫秒级，撕裂窗口极小，用于监控足够。
+
+    // DOUBLE_DIRECT 下 LVGL(DIRECT 模式)的两块 draw buffer 就是 fb0/fb1 本身，每帧交替：
+    // 渲染进后台 buffer，flush 提交后成为前台(DSI 扫描源)。死读 fb0 会有一半的帧读到
+    // 正被 LVGL 改写的后台 buffer → 撕裂+滞后。故须抓当前前台 fb。
+    // 持 LVGL 锁串行化渲染任务：此刻 buf_active 稳定指向下一帧的后台 buffer，前台=另一块。
+    // PPA 搬运在锁内完成(BLOCKING，亚毫秒)，LVGL 不可能同时改写前台，零撕裂。
+    lv_display_t *disp = BSP_LVGL_GetDisplay();
+    void *front = fb0;
+    BSP_LVGL_Lock();
+    if (disp) {
+        lv_draw_buf_t *back_buf = lv_display_get_buf_active(disp);
+        void *back = back_buf ? (void *)back_buf->data : NULL;
+        if (back == fb0 && fb1) {
+            front = fb1;
+        } else if (back == fb1) {
+            front = fb0;
+        }
+    }
     ppa_srm_oper_config_t srm = {
         .in = {
-            .buffer = fb0,
+            .buffer = front,
             .pic_w = SCREEN_W,
             .pic_h = SCREEN_H,
             .block_w = SCREEN_W,
@@ -82,6 +101,7 @@ static esp_err_t capture_screen_rgb(int out_w, int out_h)
         .mode = PPA_TRANS_MODE_BLOCKING,
     };
     ret = ppa_do_scale_rotate_mirror(s_ppa, &srm);
+    BSP_LVGL_Unlock();
     if (ret != ESP_OK) {
         return ret;
     }
