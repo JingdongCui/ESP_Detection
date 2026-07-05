@@ -83,12 +83,25 @@ typedef void (*ui_brightness_handler_t)(int percent);
 // vision 的 roi_tuning_request_calibration，请求下一帧执行 ROI 自适应调参。
 typedef void (*ui_calibration_handler_t)(void);
 
+// 识别设置开关回调：enabled 为 true 表示启用对应功能。
+typedef void (*ui_bool_switch_handler_t)(bool enabled);
+
+// 百分比值回调：percent 为 0~100；getter 返回当前默认/运行时值，setter 写入业务层。
+typedef int  (*ui_percent_getter_t)(void);
+typedef void (*ui_percent_handler_t)(int percent);
+
 /* dashboard 业务 handler 集合：由 main 一次性填好传入 ui_bind_dashboard。
  * 用结构体而非裸参数，后期新增业务只需在此追加字段，不改 ui_bind_dashboard 签名，
  * main 端也只多填一行。未填(NULL)的 handler 对应交互被安全忽略。 */
 typedef struct {
-    ui_brightness_handler_t brightness;    // 亮度滑块 → 背光
-    ui_calibration_handler_t calibration;  // LOGO 按键 → ROI 校准
+    ui_brightness_handler_t brightness;              // 亮度滑块 → 背光
+    ui_calibration_handler_t calibration;            // LOGO 按键 → ROI 校准
+    ui_bool_switch_handler_t detection_enabled;      // 检测开关 → vision 推理门控
+    ui_bool_switch_handler_t preview_overlay_enabled;// 预览叠加框开关 → vision 画框门控
+    ui_percent_getter_t waybill_score_threshold_get; // 面单阈值滑块默认值读取
+    ui_percent_handler_t waybill_score_threshold_set;// 面单阈值滑块 → vision 模型阈值
+    ui_percent_getter_t logo_score_threshold_get;    // Logo 阈值滑块默认值读取
+    ui_percent_handler_t logo_score_threshold_set;   // Logo 阈值滑块 → vision 模型阈值
     // 新增业务 handler 在此追加，例如：
     // ui_xxx_handler_t xxx;
 } ui_dashboard_handlers_t;

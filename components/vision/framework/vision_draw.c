@@ -17,6 +17,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "esp_log.h"
+#include "vision.h"
 #include "vision_internal.h"
 #include "sdk.h"                       // send_event / get_current_event_table / EVT_VISION
 #include "bsp_lvgl_adapter_init.h"     // BSP_LVGL_Lock / BSP_LVGL_Unlock
@@ -32,7 +33,7 @@
 // 注意：预览缓冲由 PPA 以 PPA_SRM_COLOR_MODE_RGB888 输出，其内存字节序为 B,G,R
 // （LCD 直刷路径下 p[0]=蓝、p[1]=绿、p[2]=红，摄像头预览色正常即印证此序）。
 // 故下方写入按 B,G,R 排列；传入的 (r,g,b) 按语义命名。
-#define BOX_LINE_WIDTH 2
+#define BOX_LINE_WIDTH 3
 
 static const char *TAG = "vision_draw";
 
@@ -42,6 +43,15 @@ static vision_det_frame_t s_queue[VISION_RESULT_QUEUE_DEPTH];  // 环形数组
 static int s_head;                                      // 最旧元素位置（pop 端）
 static int s_count;                                     // 当前元素数
 static vision_det_frame_t s_current;                    // 最近对齐选中的结果（复刻 m_result）
+static bool s_current_valid;
+
+static void reset_result_queue_locked(void)
+{
+    s_head = 0;
+    s_count = 0;
+    memset(&s_current, 0, sizeof(s_current));
+    s_current_valid = false;
+}
 
 // 初始化结果队列 mutex（复刻 esp-who 构造函数里建 m_res_mutex）。
 // 必须在 vision_start 单线程阶段、检测/显示任务创建之前调用——detect(core1) 与
@@ -54,9 +64,7 @@ bool vision_draw_init(void)
         ESP_LOGE(TAG, "no memory for result mutex");
         return false;
     }
-    s_head = 0;
-    s_count = 0;
-    memset(&s_current, 0, sizeof(s_current));
+    reset_result_queue_locked();
     return true;
 }
 
@@ -176,25 +184,36 @@ void vision_draw_lcd_disp_cb(uint8_t *preview_buf, int preview_w, int preview_h,
     // 时间戳对齐（复刻 lcd_disp_cb 的 skip-future）：
     // 队首结果 timestamp <= 显示帧 timestamp 就取并 pop，直到结果比帧更新为止。
     // 留下的 s_current 是最贴合当前显示帧的结果。
+    bool has_new_result = false;
     while (s_count > 0) {
         vision_det_frame_t *front = &s_queue[s_head];
         if (front->timestamp <= disp_timestamp) {
             s_current = *front;
+            s_current_valid = true;
+            has_new_result = true;
             s_head = (s_head + 1) % VISION_RESULT_QUEUE_DEPTH;
             s_count--;
         } else {
             break;
         }
     }
-    vision_det_frame_t to_draw = s_current;  // 拷出，缩短持锁时间
+    if (!s_current_valid) {
+        xSemaphoreGive(s_mutex);
+        return;
+    }
+    vision_det_frame_t to_draw = s_current;
     xSemaphoreGive(s_mutex);
 
-    draw_results_on_buf(preview_buf, preview_w, preview_h, &to_draw);
+    if (vision_is_preview_overlay_enabled()) {
+        draw_results_on_buf(preview_buf, preview_w, preview_h, &to_draw);
+    }
 
-    // 投递与本显示帧对齐的文本（detect 已填好整份 ev，含空帧的"无目标"）。
+    if (!has_new_result) {
+        return;
+    }
+
     // 持一次 LVGL 锁，独立于显示任务后续的 blit 锁段——避免锁嵌套与持锁时长叠加。
-    // send_event 是同步回调派发（见 evt.c），ui_vision_result_event_cb 仅 label set，
-    // 非阻塞。全系统持 LVGL 锁的只剩 display 与 LVGL worker，回到 esp-who 式单持锁者。
+    // send_event 是同步回调派发（见 evt.c），ui_vision_result_event_cb 仅 label set，非阻塞。
     BSP_LVGL_Lock();
     send_event(get_current_event_table(), EVT_VISION, EVT_VISION_RESULT_CHANGED,
                (uint8_t *)&to_draw.ev, 0);

@@ -15,6 +15,15 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+extern lv_obj_t *scr_dashboard_sw_detect;
+extern lv_obj_t *scr_dashboard_sw_preview_overlay;
+extern lv_obj_t *scr_dashboard_slider_confidence_threshold_mian;
+extern lv_obj_t *scr_dashboard_label_confidence_value_mian;
+extern lv_obj_t *scr_dashboard_slider_confidence_threshold_logo;
+extern lv_obj_t *scr_dashboard_label_confidence_value_logo;
+extern lv_obj_t *scr_dashboard_label_runtime_confidence_threshole_mian;
+extern lv_obj_t *scr_dashboard_label_runtime_confidence_threshole_logo;
+
 /* 文本未变则跳过 set_text，避免无谓的 free/realloc/文本重新布局/invalidate 重绘。
  * LVGL label 内部已保存当前文本，直接比对即可，无需维护影子状态。 */
 static void ui_label_set_text_safe(lv_obj_t *label, const char *txt)
@@ -209,10 +218,13 @@ extern lv_obj_t *scr_dashboard_label_task_count_value;
 extern lv_obj_t *scr_dashboard_slider_82EIlsYJ;
 extern lv_obj_t *scr_dashboard_label_runtime_bright__data;
 extern lv_obj_t *scr_dashboard_label_runtime_recognition_status;
-extern lv_obj_t *scr_dashboard_label_runtime_confidence;
+extern lv_obj_t *scr_dashboard_label_runtime_confidence_mian;
+extern lv_obj_t *scr_dashboard_slider_runtime_confidence_mian;
+extern lv_obj_t *scr_dashboard_label_runtime_confidence_logo;
+extern lv_obj_t *scr_dashboard_slider_runtime_confidence_logo;
 extern lv_obj_t *scr_dashboard_label_runtime_recognition_fps;
 extern lv_obj_t *scr_dashboard_label_runtime_infer_time;
-extern lv_obj_t *scr_dashboard_label_runtime_express_company;
+extern lv_obj_t *scr_dashboard_label_init_express_company;
 extern lv_obj_t *scr_dashboard_label_JT_A;
 extern lv_obj_t *scr_dashboard_label_ZT_A;
 extern lv_obj_t *scr_dashboard_label_YD_A;
@@ -343,11 +355,14 @@ static void ui_vision_result_event_cb(uint8_t event, uint16_t code, uint16_t typ
     vision_result_event_data_t *v = (vision_result_event_data_t *)data;
 
     ui_label_set_text_safe(scr_dashboard_label_runtime_recognition_status, v->status);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_confidence, "%d%%", v->confidence);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_confidence_mian, "%d%%", ui_clamp_percent(v->confidence));
+    lv_slider_set_value(scr_dashboard_slider_runtime_confidence_mian, ui_clamp_percent(v->confidence), LV_ANIM_OFF);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_confidence_logo, "%d%%", ui_clamp_percent(v->logo_confidence));
+    lv_slider_set_value(scr_dashboard_slider_runtime_confidence_logo, ui_clamp_percent(v->logo_confidence), LV_ANIM_OFF);
     ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_recognition_fps, "%d.%d",
                           v->fps_x10 / 10, v->fps_x10 % 10);
     ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_infer_time, "%d", v->infer_time_ms);
-    ui_label_set_text_safe(scr_dashboard_label_runtime_express_company, v->company);
+    ui_label_set_text_safe(scr_dashboard_label_init_express_company, v->company);
     ui_label_set_text_fmt_safe(scr_dashboard_label_JT_A, "A:%d.00%%", ui_clamp_percent(v->jt_a));
     ui_label_set_text_fmt_safe(scr_dashboard_label_ZT_A, "A:%d.00%%", ui_clamp_percent(v->zt_a));
     ui_label_set_text_fmt_safe(scr_dashboard_label_YD_A, "A:%d.00%%", ui_clamp_percent(v->yd_a));
@@ -441,11 +456,109 @@ static void ui_attach_calibration_button(void)
                         LV_EVENT_CLICKED, NULL);
 }
 
+static void ui_detection_switch_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
+        return;
+    }
+    if (s_handlers.detection_enabled) {
+        s_handlers.detection_enabled(lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED));
+    }
+}
+
+static void ui_preview_overlay_switch_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
+        return;
+    }
+    if (s_handlers.preview_overlay_enabled) {
+        s_handlers.preview_overlay_enabled(lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED));
+    }
+}
+
+static void ui_attach_detection_switches(void)
+{
+    if (scr_dashboard_sw_detect) {
+        lv_obj_add_event_cb(scr_dashboard_sw_detect, ui_detection_switch_event_cb,
+                            LV_EVENT_VALUE_CHANGED, NULL);
+        ui_state_modify(scr_dashboard_sw_detect, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
+        lv_obj_send_event(scr_dashboard_sw_detect, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+    if (scr_dashboard_sw_preview_overlay) {
+        lv_obj_add_event_cb(scr_dashboard_sw_preview_overlay, ui_preview_overlay_switch_event_cb,
+                            LV_EVENT_VALUE_CHANGED, NULL);
+        ui_state_modify(scr_dashboard_sw_preview_overlay, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
+        lv_obj_send_event(scr_dashboard_sw_preview_overlay, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+}
+
+static void ui_set_waybill_threshold_text(int pct)
+{
+    pct = ui_clamp_percent(pct);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_confidence_value_mian, "%d%%", pct);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_confidence_threshole_mian, "%d%%", pct);
+}
+
+static void ui_set_logo_threshold_text(int pct)
+{
+    pct = ui_clamp_percent(pct);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_confidence_value_logo, "%d%%", pct);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_confidence_threshole_logo, "%d%%", pct);
+}
+
+static void ui_waybill_threshold_slider_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
+        return;
+    }
+    int pct = ui_clamp_percent((int)lv_slider_get_value(lv_event_get_target(e)));
+    ui_set_waybill_threshold_text(pct);
+    if (s_handlers.waybill_score_threshold_set) {
+        s_handlers.waybill_score_threshold_set(pct);
+    }
+}
+
+static void ui_logo_threshold_slider_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
+        return;
+    }
+    int pct = ui_clamp_percent((int)lv_slider_get_value(lv_event_get_target(e)));
+    ui_set_logo_threshold_text(pct);
+    if (s_handlers.logo_score_threshold_set) {
+        s_handlers.logo_score_threshold_set(pct);
+    }
+}
+
+static void ui_attach_confidence_threshold_sliders(void)
+{
+    if (scr_dashboard_slider_confidence_threshold_mian) {
+        lv_obj_add_event_cb(scr_dashboard_slider_confidence_threshold_mian,
+                            ui_waybill_threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+        int pct = s_handlers.waybill_score_threshold_get ?
+                  s_handlers.waybill_score_threshold_get() : 0;
+        lv_slider_set_value(scr_dashboard_slider_confidence_threshold_mian,
+                            ui_clamp_percent(pct), LV_ANIM_OFF);
+        lv_obj_send_event(scr_dashboard_slider_confidence_threshold_mian, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+    if (scr_dashboard_slider_confidence_threshold_logo) {
+        lv_obj_add_event_cb(scr_dashboard_slider_confidence_threshold_logo,
+                            ui_logo_threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+        int pct = s_handlers.logo_score_threshold_get ?
+                  s_handlers.logo_score_threshold_get() : 0;
+        lv_slider_set_value(scr_dashboard_slider_confidence_threshold_logo,
+                            ui_clamp_percent(pct), LV_ANIM_OFF);
+        lv_obj_send_event(scr_dashboard_slider_confidence_threshold_logo, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+}
+
 // 第二层聚合点：挂载本屏所有控件交互。新增一路 UI 交互→业务时，在此加一行。
 static void ui_attach_all_widgets(void)
 {
     ui_attach_brightness_slider();   // 内部同步默认亮度并触发一次回调点亮背光
     ui_attach_calibration_button();
+    ui_attach_detection_switches();
+    ui_attach_confidence_threshold_sliders();
     // ui_attach_xxx();              // ← 新增控件交互挂载放这里
 }
 

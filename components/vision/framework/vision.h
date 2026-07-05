@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include "esp_err.h"
 
 #ifdef __cplusplus
@@ -14,6 +15,11 @@ esp_err_t vision_start(void);
  * memcpy 到常驻 PSRAM buffer 并做 C2M cache 回写，通过 RTT 打印其地址与字节数，
  * 供主机经 JTAG dump_image 拉成 .bin。由 UI 业务按键（dashboard LOGO 键）触发。 */
 void vision_frame_dump_request(void);
+
+void vision_set_detection_enabled(bool enabled);
+bool vision_is_detection_enabled(void);
+void vision_set_preview_overlay_enabled(bool enabled);
+bool vision_is_preview_overlay_enabled(void);
 
 #ifdef __cplusplus
 }

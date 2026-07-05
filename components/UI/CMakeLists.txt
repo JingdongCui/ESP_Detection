@@ -30,6 +30,7 @@ idf_component_register(
         "generated/images/sys_a_212x66.c"
         "generated/images/sysc_212x66.c"
         "generated/images/sysc1_212x66.c"
+        "generated/fonts/lv_font_MiSansVF_12_12.c"
         "generated/fonts/lv_font_MiSansVF_14_14.c"
         "generated/fonts/lv_font_MiSansVF_16_16.c"
         "generated/fonts/lv_font_MiSansVF_24_24.c"

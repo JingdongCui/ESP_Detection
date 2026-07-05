@@ -76,6 +76,11 @@ int vision_model_last_infer_ms(void);
 // 取三类（极兔/韵达/中通）概率 ×100（来自模型2 logo 分类）。桩填占位值。
 void vision_model_get_class_probs(int *jt, int *zt, int *yd);
 
+int vision_model_get_waybill_score_threshold_percent(void);
+int vision_model_get_logo_score_threshold_percent(void);
+void vision_model_set_waybill_score_threshold_percent(int percent);
+void vision_model_set_logo_score_threshold_percent(int percent);
+
 #ifdef __cplusplus
 }
 #endif

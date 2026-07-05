@@ -10,6 +10,7 @@
 #include "ui.h"
 #include "ethernet_app.h"
 #include "vision.h"
+#include "vision_model.h"
 #include "roi_tuning.h"
 #include "system_monitor.h"
 
@@ -39,8 +40,14 @@ void System_Init(void)
     // dashboard 统一绑定：内部完成事件注册(数据→UI)与控件交互挂载(交互→业务)两层接线。
     // 复合字面量内联注入背光/校准 handler，解耦 UI 与 bsp/vision；后期加业务在此多填一个字段。
     ui_bind_dashboard(&(ui_dashboard_handlers_t){
-        .brightness  = BSP_LCD_SetBrightness,
+        .brightness = BSP_LCD_SetBrightness,
         .calibration = vision_frame_dump_request,   // 诊断期临时占用：LOGO 键触发抓帧（ROI 校准仍为 stub）
+        .detection_enabled = vision_set_detection_enabled,
+        .preview_overlay_enabled = vision_set_preview_overlay_enabled,
+        .waybill_score_threshold_get = vision_model_get_waybill_score_threshold_percent,
+        .waybill_score_threshold_set = vision_model_set_waybill_score_threshold_percent,
+        .logo_score_threshold_get = vision_model_get_logo_score_threshold_percent,
+        .logo_score_threshold_set = vision_model_set_logo_score_threshold_percent,
     });
     BSP_LVGL_Unlock();
 

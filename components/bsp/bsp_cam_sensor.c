@@ -22,8 +22,17 @@
 // （留 2 个给驱动：1 个正在 DMA 写、1 个排队待命），推理帧在被回收前的安全距离即此深度。
 // 改大可线性增大防竞态时间窗口，代价为每缓冲多占 w×h×2 字节 PSRAM。详见
 // docs/零拷贝peek竞态风险.md。此宏是缓冲数的唯一来源，vision 经 getter 读取。
-#define CAM_FB_COUNT    5
-#define CAM_SCCB_FREQ   100000   // SCCB（摄像头控制总线）时钟频率 100 kHz
+#define CAM_FB_COUNT      5
+#define CAM_FPS_DIV_MODE  1       // 0=30fps，1=15fps（CSI 驱动通过 skip_frames 只支持整除降帧）
+#define CAM_SCCB_FREQ     100000  // SCCB（摄像头控制总线）时钟频率 100 kHz
+
+#if CAM_FPS_DIV_MODE == 0
+#define CAM_TARGET_FPS    30
+#elif CAM_FPS_DIV_MODE == 1
+#define CAM_TARGET_FPS    15
+#else
+#error "CAM_FPS_DIV_MODE must be 0 (30fps) or 1 (15fps)"
+#endif
 #define CAM_RESET_PIN   -1       // 复位引脚，-1 表示硬件未接（不由驱动控制）
 #define CAM_PWDN_PIN    -1       // 掉电引脚，-1 表示硬件未接（不由驱动控制）
 
@@ -86,6 +95,16 @@ esp_err_t cam_sensor_init(void)
         return ESP_FAIL;
     }
 
+    struct v4l2_streamparm parm = { .type = V4L2_BUF_TYPE_VIDEO_CAPTURE };
+    parm.parm.capture.capability = V4L2_CAP_TIMEPERFRAME;
+    parm.parm.capture.timeperframe.numerator = 1;
+    parm.parm.capture.timeperframe.denominator = CAM_TARGET_FPS;
+    if (ioctl(s_fd, VIDIOC_S_PARM, &parm) != 0) {
+        ESP_LOGW(TAG, "VIDIOC_S_PARM %dfps unsupported, keep sensor default", CAM_TARGET_FPS);
+    } else if (ioctl(s_fd, VIDIOC_G_PARM, &parm) != 0) {
+        ESP_LOGW(TAG, "VIDIOC_G_PARM failed after setting fps");
+    }
+
     // 申请缓冲（REQBUFS），再逐个 QUERYBUF 取偏移、mmap 映射到用户空间、
     // QBUF 入队等待填充。三步缺一不可。
     struct v4l2_requestbuffers req = {
@@ -126,7 +145,9 @@ esp_err_t cam_sensor_init(void)
         return ESP_FAIL;
     }
 
-    ESP_LOGI(TAG, "camera init: %dx%d RGB888, %d buffers, streaming", s_width, s_height, CAM_FB_COUNT);
+    ESP_LOGI(TAG, "camera init: %dx%d RGB888, %d buffers, %dfps, streaming",
+             s_width, s_height, CAM_FB_COUNT,
+             parm.parm.capture.timeperframe.denominator / parm.parm.capture.timeperframe.numerator);
     return ESP_OK;
 }
 

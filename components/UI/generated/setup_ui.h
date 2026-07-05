@@ -84,10 +84,10 @@ LV_FONT_DECLARE(lv_font_MiSans_Heavy_24_24);
 LV_FONT_DECLARE(lv_font_MiSans_Heavy_16_16);
 LV_FONT_DECLARE(lv_font_MiSansVF_24_24);
 LV_FONT_DECLARE(lv_font_MiSansVF_16_16);
+LV_FONT_DECLARE(lv_font_MiSansVF_12_12);
 
 lv_obj_t * setup_scr_dashboard(void);
 void setupUi(void);
-
 
 #ifdef __cplusplus
 }

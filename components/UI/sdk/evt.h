@@ -76,7 +76,8 @@ enum vision_evt_enum {
 
 typedef struct {
   char status[24];      // "识别成功" / "无目标" / "等待中"
-  int  confidence;      // 最高分框置信度 %(0~100)；无框=0
+  int  confidence;      // 面单最高分框置信度 %(0~100)；无框=0
+  int  logo_confidence; // Logo 最高分框置信度 %(0~100)；无框=0
   int  fps_x10;         // 帧率 ×10（显示拆成 NN.N）
   int  infer_time_ms;   // 推理耗时 ms（假框阶段=0）
   char company[24];     // 类别名/快递公司（占位）

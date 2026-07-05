@@ -472,9 +472,13 @@ lv_obj_t * scr_dashboard_btn_pid_speed_50 = NULL;
 lv_obj_t * scr_dashboard_btn_pid_speed_50_label = NULL;
 lv_obj_t * scr_dashboard_cont_detect = NULL;
 lv_obj_t * scr_dashboard_cont_detect_confidence = NULL;
-lv_obj_t * scr_dashboard_slider_confidence_threshold = NULL;
+lv_obj_t * scr_dashboard_slider_confidence_threshold_mian = NULL;
+lv_obj_t * scr_dashboard_label_confidence_value_mian = NULL;
+lv_obj_t * scr_dashboard_slider_confidence_threshold_logo = NULL;
+lv_obj_t * scr_dashboard_label_confidence_value_logo = NULL;
 lv_obj_t * scr_dashboard_label_confidence_threshold = NULL;
-lv_obj_t * scr_dashboard_label_confidence_value = NULL;
+lv_obj_t * scr_dashboard_label_text_mian = NULL;
+lv_obj_t * scr_dashboard_label_text_logo = NULL;
 lv_obj_t * scr_dashboard_cont_detect_switch = NULL;
 lv_obj_t * scr_dashboard_label_detect_switch = NULL;
 lv_obj_t * scr_dashboard_sw_detect = NULL;
@@ -495,23 +499,32 @@ lv_obj_t * scr_dashboard_cont_container_live = NULL;
 lv_obj_t * scr_dashboard_cont_live_vedio = NULL;
 lv_obj_t * scr_dashboard_label_text_live = NULL;
 lv_obj_t * scr_dashboard_cont_detection = NULL;
-lv_obj_t * scr_dashboard_slider_runtime_confidence = NULL;
-lv_obj_t * scr_dashboard_label_text_detection = NULL;
-lv_obj_t * scr_dashboard_label_runtime_recognition_status = NULL;
-lv_obj_t * scr_dashboard_label_runtime_confidence = NULL;
-lv_obj_t * scr_dashboard_label_text_confidence = NULL;
+lv_obj_t * scr_dashboard_slider_runtime_confidence_mian = NULL;
+lv_obj_t * scr_dashboard_slider_runtime_confidence_logo = NULL;
+lv_obj_t * scr_dashboard_label_runtime_confidence_mian = NULL;
+lv_obj_t * scr_dashboard_label_runtime_confidence_logo = NULL;
 lv_obj_t * scr_dashboard_label_runtime_recognition_fps = NULL;
-lv_obj_t * scr_dashboard_label_xtdVl6dh = NULL;
+lv_obj_t * scr_dashboard_label_runtime_recognition_status = NULL;
+lv_obj_t * scr_dashboard_label_text_mian_confidence = NULL;
+lv_obj_t * scr_dashboard_label_text_logo_confidence = NULL;
+lv_obj_t * scr_dashboard_label_text_detection = NULL;
+lv_obj_t * scr_dashboard_label_text_fps = NULL;
 lv_obj_t * scr_dashboard_cont_data = NULL;
 lv_obj_t * scr_dashboard_cont_01 = NULL;
 lv_obj_t * scr_dashboard_label_ms = NULL;
 lv_obj_t * scr_dashboard_label_runtime_infer_time = NULL;
 lv_obj_t * scr_dashboard_label_text01 = NULL;
 lv_obj_t * scr_dashboard_cont_03 = NULL;
-lv_obj_t * scr_dashboard_label_runtime_confidence_threshole = NULL;
+lv_obj_t * scr_dashboard_label_runtime_confidence_threshole_mian = NULL;
+lv_obj_t * scr_dashboard_label_runtime_confidence_threshole_logo = NULL;
+lv_obj_t * scr_dashboard_label_mian = NULL;
+lv_obj_t * scr_dashboard_labe_logo = NULL;
 lv_obj_t * scr_dashboard_label_text03 = NULL;
 lv_obj_t * scr_dashboard_cont_04 = NULL;
-lv_obj_t * scr_dashboard_label_runtime_express_company = NULL;
+lv_obj_t * scr_dashboard_label_YD = NULL;
+lv_obj_t * scr_dashboard_label_ZT = NULL;
+lv_obj_t * scr_dashboard_label_JT = NULL;
+lv_obj_t * scr_dashboard_label_init_express_company = NULL;
 lv_obj_t * scr_dashboard_label_text04 = NULL;
 lv_obj_t * scr_dashboard_cont_live_data = NULL;
 lv_obj_t * scr_dashboard_label_text_JT = NULL;
@@ -9923,7 +9936,7 @@ static lv_obj_t * create_ui(void) {
     lv_obj_set_x(scr_dashboard_cont_detect_confidence, 16);
     lv_obj_set_y(scr_dashboard_cont_detect_confidence, 0);
     lv_obj_set_width(scr_dashboard_cont_detect_confidence, 669);
-    lv_obj_set_height(scr_dashboard_cont_detect_confidence, 56);
+    lv_obj_set_height(scr_dashboard_cont_detect_confidence, 130);
     lv_obj_set_scrollbar_mode(scr_dashboard_cont_detect_confidence, LV_SCROLLBAR_MODE_OFF);
     lv_obj_set_layout(scr_dashboard_cont_detect_confidence, LV_LAYOUT_NONE);
     // Add style for scr_dashboard_cont_detect_confidence - LV_PART_MAIN | LV_STATE_DEFAULT
@@ -9944,30 +9957,78 @@ static lv_obj_t * create_ui(void) {
     ui_flag_modify(scr_dashboard_cont_detect_confidence, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_detect_confidence, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_detect_confidence, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
-    // Create scr_dashboard_slider_confidence_threshold
-    scr_dashboard_slider_confidence_threshold = lv_slider_create(scr_dashboard_cont_detect_confidence);
-    lv_obj_set_x(scr_dashboard_slider_confidence_threshold, 121);
-    lv_obj_set_y(scr_dashboard_slider_confidence_threshold, 24);
-    lv_obj_set_width(scr_dashboard_slider_confidence_threshold, 480);
-    lv_obj_set_height(scr_dashboard_slider_confidence_threshold, 8);
-    lv_obj_set_scrollbar_mode(scr_dashboard_slider_confidence_threshold, LV_SCROLLBAR_MODE_OFF);
-    lv_slider_set_range(scr_dashboard_slider_confidence_threshold, 0, 100);
-    lv_slider_set_value(scr_dashboard_slider_confidence_threshold, 0, LV_ANIM_OFF);
-    // Add style for scr_dashboard_slider_confidence_threshold - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_slider_confidence_threshold, lv_color_hex(0x05161A), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_slider_confidence_threshold, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_slider_confidence_threshold - LV_PART_INDICATOR | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_slider_confidence_threshold, lv_color_hex(0x217A96), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_slider_confidence_threshold, lv_color_hex(0x84D5E0), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_slider_confidence_threshold, 200, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_slider_confidence_threshold, LV_GRAD_DIR_NONE, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_slider_confidence_threshold - LV_PART_KNOB | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_slider_confidence_threshold, lv_color_hex(0xBDD3D6), LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_slider_confidence_threshold, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
+    // Create scr_dashboard_slider_confidence_threshold_mian
+    scr_dashboard_slider_confidence_threshold_mian = lv_slider_create(scr_dashboard_cont_detect_confidence);
+    lv_obj_set_x(scr_dashboard_slider_confidence_threshold_mian, 121);
+    lv_obj_set_y(scr_dashboard_slider_confidence_threshold_mian, 60);
+    lv_obj_set_width(scr_dashboard_slider_confidence_threshold_mian, 480);
+    lv_obj_set_height(scr_dashboard_slider_confidence_threshold_mian, 8);
+    lv_obj_set_scrollbar_mode(scr_dashboard_slider_confidence_threshold_mian, LV_SCROLLBAR_MODE_OFF);
+    lv_slider_set_range(scr_dashboard_slider_confidence_threshold_mian, 0, 100);
+    lv_slider_set_value(scr_dashboard_slider_confidence_threshold_mian, 0, LV_ANIM_OFF);
+    // Add style for scr_dashboard_slider_confidence_threshold_mian - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_confidence_threshold_mian, lv_color_hex(0x05161A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_confidence_threshold_mian, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_confidence_threshold_mian - LV_PART_INDICATOR | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_confidence_threshold_mian, lv_color_hex(0x217A96), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_slider_confidence_threshold_mian, lv_color_hex(0x84D5E0), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_confidence_threshold_mian, 200, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_slider_confidence_threshold_mian, LV_GRAD_DIR_NONE, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_confidence_threshold_mian - LV_PART_KNOB | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_confidence_threshold_mian, lv_color_hex(0xBDD3D6), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_confidence_threshold_mian, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_confidence_value_mian
+    scr_dashboard_label_confidence_value_mian = lv_label_create(scr_dashboard_cont_detect_confidence);
+    lv_obj_set_x(scr_dashboard_label_confidence_value_mian, 618);
+    lv_obj_set_y(scr_dashboard_label_confidence_value_mian, 57);
+    lv_obj_set_width(scr_dashboard_label_confidence_value_mian, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_confidence_value_mian, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_confidence_value_mian, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_confidence_value_mian, "00%");
+    lv_label_set_long_mode(scr_dashboard_label_confidence_value_mian, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_confidence_value_mian - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_confidence_value_mian, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_confidence_value_mian, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_confidence_value_mian, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_confidence_value_mian, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_slider_confidence_threshold_logo
+    scr_dashboard_slider_confidence_threshold_logo = lv_slider_create(scr_dashboard_cont_detect_confidence);
+    lv_obj_set_x(scr_dashboard_slider_confidence_threshold_logo, 121);
+    lv_obj_set_y(scr_dashboard_slider_confidence_threshold_logo, 96);
+    lv_obj_set_width(scr_dashboard_slider_confidence_threshold_logo, 480);
+    lv_obj_set_height(scr_dashboard_slider_confidence_threshold_logo, 8);
+    lv_obj_set_scrollbar_mode(scr_dashboard_slider_confidence_threshold_logo, LV_SCROLLBAR_MODE_OFF);
+    lv_slider_set_range(scr_dashboard_slider_confidence_threshold_logo, 0, 100);
+    lv_slider_set_value(scr_dashboard_slider_confidence_threshold_logo, 0, LV_ANIM_OFF);
+    // Add style for scr_dashboard_slider_confidence_threshold_logo - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_confidence_threshold_logo, lv_color_hex(0x05161A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_confidence_threshold_logo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_confidence_threshold_logo - LV_PART_INDICATOR | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_confidence_threshold_logo, lv_color_hex(0x217A96), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_slider_confidence_threshold_logo, lv_color_hex(0x84D5E0), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_confidence_threshold_logo, 200, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_slider_confidence_threshold_logo, LV_GRAD_DIR_NONE, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_confidence_threshold_logo - LV_PART_KNOB | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_confidence_threshold_logo, lv_color_hex(0xBDD3D6), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_confidence_threshold_logo, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_confidence_value_logo
+    scr_dashboard_label_confidence_value_logo = lv_label_create(scr_dashboard_cont_detect_confidence);
+    lv_obj_set_x(scr_dashboard_label_confidence_value_logo, 618);
+    lv_obj_set_y(scr_dashboard_label_confidence_value_logo, 93);
+    lv_obj_set_width(scr_dashboard_label_confidence_value_logo, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_confidence_value_logo, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_confidence_value_logo, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_confidence_value_logo, "00%");
+    lv_label_set_long_mode(scr_dashboard_label_confidence_value_logo, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_confidence_value_logo - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_confidence_value_logo, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_confidence_value_logo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_confidence_value_logo, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_confidence_value_logo, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Create scr_dashboard_label_confidence_threshold
     scr_dashboard_label_confidence_threshold = lv_label_create(scr_dashboard_cont_detect_confidence);
     lv_obj_set_x(scr_dashboard_label_confidence_threshold, 25);
-    lv_obj_set_y(scr_dashboard_label_confidence_threshold, 21);
+    lv_obj_set_y(scr_dashboard_label_confidence_threshold, 19);
     lv_obj_set_width(scr_dashboard_label_confidence_threshold, LV_SIZE_CONTENT);
     lv_obj_set_height(scr_dashboard_label_confidence_threshold, LV_SIZE_CONTENT);
     lv_obj_set_scrollbar_mode(scr_dashboard_label_confidence_threshold, LV_SCROLLBAR_MODE_OFF);
@@ -9976,26 +10037,38 @@ static lv_obj_t * create_ui(void) {
     // Add style for scr_dashboard_label_confidence_threshold - LV_PART_MAIN | LV_STATE_DEFAULT
     lv_obj_set_style_text_color(scr_dashboard_label_confidence_threshold, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(scr_dashboard_label_confidence_threshold, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_confidence_threshold, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_confidence_threshold, &lv_font_Misans_Heavy_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(scr_dashboard_label_confidence_threshold, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Create scr_dashboard_label_confidence_value
-    scr_dashboard_label_confidence_value = lv_label_create(scr_dashboard_cont_detect_confidence);
-    lv_obj_set_x(scr_dashboard_label_confidence_value, 618);
-    lv_obj_set_y(scr_dashboard_label_confidence_value, 21);
-    lv_obj_set_width(scr_dashboard_label_confidence_value, LV_SIZE_CONTENT);
-    lv_obj_set_height(scr_dashboard_label_confidence_value, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_confidence_value, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_confidence_value, "00%");
-    lv_label_set_long_mode(scr_dashboard_label_confidence_value, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_confidence_value - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_confidence_value, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(scr_dashboard_label_confidence_value, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_confidence_value, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_confidence_value, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_text_mian
+    scr_dashboard_label_text_mian = lv_label_create(scr_dashboard_cont_detect_confidence);
+    lv_obj_set_x(scr_dashboard_label_text_mian, 46);
+    lv_obj_set_y(scr_dashboard_label_text_mian, 54);
+    lv_obj_set_width(scr_dashboard_label_text_mian, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_text_mian, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_text_mian, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_text_mian, "面单");
+    lv_label_set_long_mode(scr_dashboard_label_text_mian, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_text_mian - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_text_mian, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_text_mian, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_text_mian, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_text_logo
+    scr_dashboard_label_text_logo = lv_label_create(scr_dashboard_cont_detect_confidence);
+    lv_obj_set_x(scr_dashboard_label_text_logo, 46);
+    lv_obj_set_y(scr_dashboard_label_text_logo, 93);
+    lv_obj_set_width(scr_dashboard_label_text_logo, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_text_logo, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_text_logo, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_text_logo, "Logo");
+    lv_label_set_long_mode(scr_dashboard_label_text_logo, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_text_logo - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_text_logo, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_text_logo, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_text_logo, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Create scr_dashboard_cont_detect_switch
     scr_dashboard_cont_detect_switch = lv_obj_create(scr_dashboard_cont_detect);
     lv_obj_set_x(scr_dashboard_cont_detect_switch, 16);
-    lv_obj_set_y(scr_dashboard_cont_detect_switch, 68);
+    lv_obj_set_y(scr_dashboard_cont_detect_switch, 142);
     lv_obj_set_width(scr_dashboard_cont_detect_switch, 669);
     lv_obj_set_height(scr_dashboard_cont_detect_switch, 56);
     lv_obj_set_scrollbar_mode(scr_dashboard_cont_detect_switch, LV_SCROLLBAR_MODE_OFF);
@@ -10042,7 +10115,7 @@ static lv_obj_t * create_ui(void) {
     // Create scr_dashboard_cont_detect_overlay
     scr_dashboard_cont_detect_overlay = lv_obj_create(scr_dashboard_cont_detect);
     lv_obj_set_x(scr_dashboard_cont_detect_overlay, 16);
-    lv_obj_set_y(scr_dashboard_cont_detect_overlay, 136);
+    lv_obj_set_y(scr_dashboard_cont_detect_overlay, 210);
     lv_obj_set_width(scr_dashboard_cont_detect_overlay, 669);
     lv_obj_set_height(scr_dashboard_cont_detect_overlay, 56);
     lv_obj_set_scrollbar_mode(scr_dashboard_cont_detect_overlay, LV_SCROLLBAR_MODE_OFF);
@@ -10272,7 +10345,7 @@ static lv_obj_t * create_ui(void) {
     lv_obj_set_x(scr_dashboard_cont_detection, 652);
     lv_obj_set_y(scr_dashboard_cont_detection, 5);
     lv_obj_set_width(scr_dashboard_cont_detection, 340);
-    lv_obj_set_height(scr_dashboard_cont_detection, 104);
+    lv_obj_set_height(scr_dashboard_cont_detection, 108);
     lv_obj_set_scrollbar_mode(scr_dashboard_cont_detection, LV_SCROLLBAR_MODE_OFF);
     lv_obj_set_layout(scr_dashboard_cont_detection, LV_LAYOUT_NONE);
     // Add style for scr_dashboard_cont_detection - LV_PART_MAIN | LV_STATE_DEFAULT
@@ -10293,28 +10366,134 @@ static lv_obj_t * create_ui(void) {
     ui_flag_modify(scr_dashboard_cont_detection, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_detection, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_detection, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
-    // Create scr_dashboard_slider_runtime_confidence
-    scr_dashboard_slider_runtime_confidence = lv_slider_create(scr_dashboard_cont_detection);
-    lv_obj_set_x(scr_dashboard_slider_runtime_confidence, 107);
-    lv_obj_set_y(scr_dashboard_slider_runtime_confidence, 81);
-    lv_obj_set_width(scr_dashboard_slider_runtime_confidence, 220);
-    lv_obj_set_height(scr_dashboard_slider_runtime_confidence, 6);
-    lv_obj_set_scrollbar_mode(scr_dashboard_slider_runtime_confidence, LV_SCROLLBAR_MODE_OFF);
-    lv_slider_set_range(scr_dashboard_slider_runtime_confidence, 0, 100);
-    lv_slider_set_value(scr_dashboard_slider_runtime_confidence, 0, LV_ANIM_OFF);
-    // Add style for scr_dashboard_slider_runtime_confidence - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_slider_runtime_confidence, lv_color_hex(0x0B0E0E), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_slider_runtime_confidence, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_slider_runtime_confidence - LV_PART_INDICATOR | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_slider_runtime_confidence, lv_color_hex(0x70D296), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_slider_runtime_confidence, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_slider_runtime_confidence - LV_PART_KNOB | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_slider_runtime_confidence, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_slider_runtime_confidence, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
-    ui_flag_modify(scr_dashboard_slider_runtime_confidence, LV_OBJ_FLAG_CLICKABLE, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_slider_runtime_confidence, LV_OBJ_FLAG_SNAPPABLE, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_slider_runtime_confidence, LV_OBJ_FLAG_CLICK_FOCUSABLE, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_slider_runtime_confidence, LV_OBJ_FLAG_GESTURE_BUBBLE, UI_FLAG_ACTION_REMOVE);
+    // Create scr_dashboard_slider_runtime_confidence_mian
+    scr_dashboard_slider_runtime_confidence_mian = lv_slider_create(scr_dashboard_cont_detection);
+    lv_obj_set_x(scr_dashboard_slider_runtime_confidence_mian, 127);
+    lv_obj_set_y(scr_dashboard_slider_runtime_confidence_mian, 71);
+    lv_obj_set_width(scr_dashboard_slider_runtime_confidence_mian, 200);
+    lv_obj_set_height(scr_dashboard_slider_runtime_confidence_mian, 6);
+    lv_obj_set_scrollbar_mode(scr_dashboard_slider_runtime_confidence_mian, LV_SCROLLBAR_MODE_OFF);
+    lv_slider_set_range(scr_dashboard_slider_runtime_confidence_mian, 0, 100);
+    lv_slider_set_value(scr_dashboard_slider_runtime_confidence_mian, 0, LV_ANIM_OFF);
+    // Add style for scr_dashboard_slider_runtime_confidence_mian - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_runtime_confidence_mian, lv_color_hex(0x0B0E0E), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_runtime_confidence_mian, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_runtime_confidence_mian - LV_PART_INDICATOR | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_runtime_confidence_mian, lv_color_hex(0x70D296), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_runtime_confidence_mian, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_runtime_confidence_mian - LV_PART_KNOB | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_runtime_confidence_mian, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_runtime_confidence_mian, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+    ui_flag_modify(scr_dashboard_slider_runtime_confidence_mian, LV_OBJ_FLAG_CLICKABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_slider_runtime_confidence_mian, LV_OBJ_FLAG_SNAPPABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_slider_runtime_confidence_mian, LV_OBJ_FLAG_CLICK_FOCUSABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_slider_runtime_confidence_mian, LV_OBJ_FLAG_GESTURE_BUBBLE, UI_FLAG_ACTION_REMOVE);
+    // Create scr_dashboard_slider_runtime_confidence_logo
+    scr_dashboard_slider_runtime_confidence_logo = lv_slider_create(scr_dashboard_cont_detection);
+    lv_obj_set_x(scr_dashboard_slider_runtime_confidence_logo, 127);
+    lv_obj_set_y(scr_dashboard_slider_runtime_confidence_logo, 91);
+    lv_obj_set_width(scr_dashboard_slider_runtime_confidence_logo, 200);
+    lv_obj_set_height(scr_dashboard_slider_runtime_confidence_logo, 6);
+    lv_obj_set_scrollbar_mode(scr_dashboard_slider_runtime_confidence_logo, LV_SCROLLBAR_MODE_OFF);
+    lv_slider_set_range(scr_dashboard_slider_runtime_confidence_logo, 0, 100);
+    lv_slider_set_value(scr_dashboard_slider_runtime_confidence_logo, 0, LV_ANIM_OFF);
+    // Add style for scr_dashboard_slider_runtime_confidence_logo - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_runtime_confidence_logo, lv_color_hex(0x0B0E0E), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_runtime_confidence_logo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_runtime_confidence_logo - LV_PART_INDICATOR | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_runtime_confidence_logo, lv_color_hex(0x70D296), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_runtime_confidence_logo, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_runtime_confidence_logo - LV_PART_KNOB | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_runtime_confidence_logo, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_runtime_confidence_logo, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+    ui_flag_modify(scr_dashboard_slider_runtime_confidence_logo, LV_OBJ_FLAG_CLICKABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_slider_runtime_confidence_logo, LV_OBJ_FLAG_SNAPPABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_slider_runtime_confidence_logo, LV_OBJ_FLAG_CLICK_FOCUSABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_slider_runtime_confidence_logo, LV_OBJ_FLAG_GESTURE_BUBBLE, UI_FLAG_ACTION_REMOVE);
+    // Create scr_dashboard_label_runtime_confidence_mian
+    scr_dashboard_label_runtime_confidence_mian = lv_label_create(scr_dashboard_cont_detection);
+    lv_obj_set_x(scr_dashboard_label_runtime_confidence_mian, 93);
+    lv_obj_set_y(scr_dashboard_label_runtime_confidence_mian, 64);
+    lv_obj_set_width(scr_dashboard_label_runtime_confidence_mian, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_runtime_confidence_mian, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_confidence_mian, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_runtime_confidence_mian, "--");
+    lv_label_set_long_mode(scr_dashboard_label_runtime_confidence_mian, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_runtime_confidence_mian - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_runtime_confidence_mian, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_label_runtime_confidence_mian, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_label_runtime_confidence_mian, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_runtime_confidence_mian, &lv_font_Misans_Heavy_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_runtime_confidence_mian, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_runtime_confidence_logo
+    scr_dashboard_label_runtime_confidence_logo = lv_label_create(scr_dashboard_cont_detection);
+    lv_obj_set_x(scr_dashboard_label_runtime_confidence_logo, 93);
+    lv_obj_set_y(scr_dashboard_label_runtime_confidence_logo, 84);
+    lv_obj_set_width(scr_dashboard_label_runtime_confidence_logo, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_runtime_confidence_logo, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_confidence_logo, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_runtime_confidence_logo, "--");
+    lv_label_set_long_mode(scr_dashboard_label_runtime_confidence_logo, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_runtime_confidence_logo - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_runtime_confidence_logo, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_label_runtime_confidence_logo, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_label_runtime_confidence_logo, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_runtime_confidence_logo, &lv_font_Misans_Heavy_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_runtime_confidence_logo, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_runtime_recognition_fps
+    scr_dashboard_label_runtime_recognition_fps = lv_label_create(scr_dashboard_cont_detection);
+    lv_obj_set_x(scr_dashboard_label_runtime_recognition_fps, 207);
+    lv_obj_set_y(scr_dashboard_label_runtime_recognition_fps, 13);
+    lv_obj_set_width(scr_dashboard_label_runtime_recognition_fps, 100);
+    lv_obj_set_height(scr_dashboard_label_runtime_recognition_fps, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_recognition_fps, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_runtime_recognition_fps, "--");
+    lv_label_set_long_mode(scr_dashboard_label_runtime_recognition_fps, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_runtime_recognition_fps - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_runtime_recognition_fps, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_runtime_recognition_fps, &lv_font_MiSans_Heavy_16_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_runtime_recognition_fps, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_runtime_recognition_status
+    scr_dashboard_label_runtime_recognition_status = lv_label_create(scr_dashboard_cont_detection);
+    lv_obj_set_x(scr_dashboard_label_runtime_recognition_status, 76);
+    lv_obj_set_y(scr_dashboard_label_runtime_recognition_status, 29);
+    lv_obj_set_width(scr_dashboard_label_runtime_recognition_status, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_runtime_recognition_status, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_recognition_status, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_runtime_recognition_status, "等待中");
+    lv_label_set_long_mode(scr_dashboard_label_runtime_recognition_status, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_runtime_recognition_status - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_runtime_recognition_status, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_label_runtime_recognition_status, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_label_runtime_recognition_status, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_runtime_recognition_status, &lv_font_MiSansVF_24_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_runtime_recognition_status, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_text_mian_confidence
+    scr_dashboard_label_text_mian_confidence = lv_label_create(scr_dashboard_cont_detection);
+    lv_obj_set_x(scr_dashboard_label_text_mian_confidence, 10);
+    lv_obj_set_y(scr_dashboard_label_text_mian_confidence, 64);
+    lv_obj_set_width(scr_dashboard_label_text_mian_confidence, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_text_mian_confidence, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_text_mian_confidence, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_text_mian_confidence, "面单置信度:");
+    lv_label_set_long_mode(scr_dashboard_label_text_mian_confidence, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_text_mian_confidence - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_text_mian_confidence, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_text_mian_confidence, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_text_mian_confidence, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_text_logo_confidence
+    scr_dashboard_label_text_logo_confidence = lv_label_create(scr_dashboard_cont_detection);
+    lv_obj_set_x(scr_dashboard_label_text_logo_confidence, 10);
+    lv_obj_set_y(scr_dashboard_label_text_logo_confidence, 84);
+    lv_obj_set_width(scr_dashboard_label_text_logo_confidence, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_text_logo_confidence, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_text_logo_confidence, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_text_logo_confidence, "Logo置信度:");
+    lv_label_set_long_mode(scr_dashboard_label_text_logo_confidence, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_text_logo_confidence - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_text_logo_confidence, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_text_logo_confidence, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_text_logo_confidence, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Create scr_dashboard_label_text_detection
     scr_dashboard_label_text_detection = lv_label_create(scr_dashboard_cont_detection);
     lv_obj_set_x(scr_dashboard_label_text_detection, 12);
@@ -10328,75 +10507,19 @@ static lv_obj_t * create_ui(void) {
     lv_obj_set_style_text_color(scr_dashboard_label_text_detection, lv_color_hex(0x8EA5AD), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(scr_dashboard_label_text_detection, &lv_font_Misans_Heavy_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(scr_dashboard_label_text_detection, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Create scr_dashboard_label_runtime_recognition_status
-    scr_dashboard_label_runtime_recognition_status = lv_label_create(scr_dashboard_cont_detection);
-    lv_obj_set_x(scr_dashboard_label_runtime_recognition_status, 77);
-    lv_obj_set_y(scr_dashboard_label_runtime_recognition_status, 34);
-    lv_obj_set_width(scr_dashboard_label_runtime_recognition_status, LV_SIZE_CONTENT);
-    lv_obj_set_height(scr_dashboard_label_runtime_recognition_status, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_recognition_status, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_runtime_recognition_status, "等待中");
-    lv_label_set_long_mode(scr_dashboard_label_runtime_recognition_status, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_runtime_recognition_status - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_runtime_recognition_status, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_line_space(scr_dashboard_label_runtime_recognition_status, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_letter_space(scr_dashboard_label_runtime_recognition_status, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_runtime_recognition_status, &lv_font_MiSansVF_24_24, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_runtime_recognition_status, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Create scr_dashboard_label_runtime_confidence
-    scr_dashboard_label_runtime_confidence = lv_label_create(scr_dashboard_cont_detection);
-    lv_obj_set_x(scr_dashboard_label_runtime_confidence, 68);
-    lv_obj_set_y(scr_dashboard_label_runtime_confidence, 77);
-    lv_obj_set_width(scr_dashboard_label_runtime_confidence, LV_SIZE_CONTENT);
-    lv_obj_set_height(scr_dashboard_label_runtime_confidence, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_confidence, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_runtime_confidence, "--");
-    lv_label_set_long_mode(scr_dashboard_label_runtime_confidence, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_runtime_confidence - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_runtime_confidence, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_line_space(scr_dashboard_label_runtime_confidence, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_letter_space(scr_dashboard_label_runtime_confidence, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_runtime_confidence, &lv_font_Misans_Heavy_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_runtime_confidence, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Create scr_dashboard_label_text_confidence
-    scr_dashboard_label_text_confidence = lv_label_create(scr_dashboard_cont_detection);
-    lv_obj_set_x(scr_dashboard_label_text_confidence, 12);
-    lv_obj_set_y(scr_dashboard_label_text_confidence, 77);
-    lv_obj_set_width(scr_dashboard_label_text_confidence, LV_SIZE_CONTENT);
-    lv_obj_set_height(scr_dashboard_label_text_confidence, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_text_confidence, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_text_confidence, "置信度:");
-    lv_label_set_long_mode(scr_dashboard_label_text_confidence, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_text_confidence - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_text_confidence, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_text_confidence, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_text_confidence, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Create scr_dashboard_label_runtime_recognition_fps
-    scr_dashboard_label_runtime_recognition_fps = lv_label_create(scr_dashboard_cont_detection);
-    lv_obj_set_x(scr_dashboard_label_runtime_recognition_fps, 227);
-    lv_obj_set_y(scr_dashboard_label_runtime_recognition_fps, 8);
-    lv_obj_set_width(scr_dashboard_label_runtime_recognition_fps, 100);
-    lv_obj_set_height(scr_dashboard_label_runtime_recognition_fps, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_recognition_fps, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_runtime_recognition_fps, "--");
-    lv_label_set_long_mode(scr_dashboard_label_runtime_recognition_fps, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_runtime_recognition_fps - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_runtime_recognition_fps, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_runtime_recognition_fps, &lv_font_Misans_Heavy_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_runtime_recognition_fps, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Create scr_dashboard_label_xtdVl6dh
-    scr_dashboard_label_xtdVl6dh = lv_label_create(scr_dashboard_cont_detection);
-    lv_obj_set_x(scr_dashboard_label_xtdVl6dh, 294);
-    lv_obj_set_y(scr_dashboard_label_xtdVl6dh, 9);
-    lv_obj_set_width(scr_dashboard_label_xtdVl6dh, LV_SIZE_CONTENT);
-    lv_obj_set_height(scr_dashboard_label_xtdVl6dh, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_xtdVl6dh, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_xtdVl6dh, "FPS");
-    lv_label_set_long_mode(scr_dashboard_label_xtdVl6dh, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_xtdVl6dh - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_xtdVl6dh, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_xtdVl6dh, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_xtdVl6dh, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_text_fps
+    scr_dashboard_label_text_fps = lv_label_create(scr_dashboard_cont_detection);
+    lv_obj_set_x(scr_dashboard_label_text_fps, 285);
+    lv_obj_set_y(scr_dashboard_label_text_fps, 13);
+    lv_obj_set_width(scr_dashboard_label_text_fps, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_text_fps, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_text_fps, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_text_fps, "FPS");
+    lv_label_set_long_mode(scr_dashboard_label_text_fps, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_text_fps - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_text_fps, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_text_fps, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_text_fps, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Create scr_dashboard_cont_data
     scr_dashboard_cont_data = lv_obj_create(scr_dashboard_cont_dashboard);
     lv_obj_set_x(scr_dashboard_cont_data, 652);
@@ -10519,22 +10642,70 @@ static lv_obj_t * create_ui(void) {
     ui_flag_modify(scr_dashboard_cont_03, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_03, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_03, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
-    // Create scr_dashboard_label_runtime_confidence_threshole
-    scr_dashboard_label_runtime_confidence_threshole = lv_label_create(scr_dashboard_cont_03);
-    lv_obj_set_x(scr_dashboard_label_runtime_confidence_threshole, 2);
-    lv_obj_set_y(scr_dashboard_label_runtime_confidence_threshole, 32);
-    lv_obj_set_width(scr_dashboard_label_runtime_confidence_threshole, 100);
-    lv_obj_set_height(scr_dashboard_label_runtime_confidence_threshole, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_confidence_threshole, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_runtime_confidence_threshole, "--");
-    lv_label_set_long_mode(scr_dashboard_label_runtime_confidence_threshole, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_runtime_confidence_threshole - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_runtime_confidence_threshole, lv_color_hex(0xDDEBE7), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(scr_dashboard_label_runtime_confidence_threshole, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_line_space(scr_dashboard_label_runtime_confidence_threshole, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_letter_space(scr_dashboard_label_runtime_confidence_threshole, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_runtime_confidence_threshole, &lv_font_MiSans_Heavy_24_24, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_runtime_confidence_threshole, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_runtime_confidence_threshole_mian
+    scr_dashboard_label_runtime_confidence_threshole_mian = lv_label_create(scr_dashboard_cont_03);
+    lv_obj_set_x(scr_dashboard_label_runtime_confidence_threshole_mian, 22);
+    lv_obj_set_y(scr_dashboard_label_runtime_confidence_threshole_mian, 27);
+    lv_obj_set_width(scr_dashboard_label_runtime_confidence_threshole_mian, 100);
+    lv_obj_set_height(scr_dashboard_label_runtime_confidence_threshole_mian, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_confidence_threshole_mian, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_runtime_confidence_threshole_mian, "--");
+    lv_label_set_long_mode(scr_dashboard_label_runtime_confidence_threshole_mian, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_runtime_confidence_threshole_mian - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_runtime_confidence_threshole_mian, lv_color_hex(0xDDEBE7), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_runtime_confidence_threshole_mian, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_label_runtime_confidence_threshole_mian, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_label_runtime_confidence_threshole_mian, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_runtime_confidence_threshole_mian, &lv_font_MiSans_Heavy_16_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_runtime_confidence_threshole_mian, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_runtime_confidence_threshole_logo
+    scr_dashboard_label_runtime_confidence_threshole_logo = lv_label_create(scr_dashboard_cont_03);
+    lv_obj_set_x(scr_dashboard_label_runtime_confidence_threshole_logo, 22);
+    lv_obj_set_y(scr_dashboard_label_runtime_confidence_threshole_logo, 49);
+    lv_obj_set_width(scr_dashboard_label_runtime_confidence_threshole_logo, 100);
+    lv_obj_set_height(scr_dashboard_label_runtime_confidence_threshole_logo, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_confidence_threshole_logo, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_runtime_confidence_threshole_logo, "--");
+    lv_label_set_long_mode(scr_dashboard_label_runtime_confidence_threshole_logo, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_runtime_confidence_threshole_logo - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_runtime_confidence_threshole_logo, lv_color_hex(0xDDEBE7), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_runtime_confidence_threshole_logo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_label_runtime_confidence_threshole_logo, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_label_runtime_confidence_threshole_logo, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_runtime_confidence_threshole_logo, &lv_font_MiSans_Heavy_16_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_runtime_confidence_threshole_logo, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_mian
+    scr_dashboard_label_mian = lv_label_create(scr_dashboard_cont_03);
+    lv_obj_set_x(scr_dashboard_label_mian, 15);
+    lv_obj_set_y(scr_dashboard_label_mian, 29);
+    lv_obj_set_width(scr_dashboard_label_mian, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_mian, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_mian, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_mian, "面单");
+    lv_label_set_long_mode(scr_dashboard_label_mian, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_mian - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_mian, lv_color_hex(0xDDEBE7), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_mian, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_label_mian, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_label_mian, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_mian, &lv_font_MiSansVF_12_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_mian, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_labe_logo
+    scr_dashboard_labe_logo = lv_label_create(scr_dashboard_cont_03);
+    lv_obj_set_x(scr_dashboard_labe_logo, 15);
+    lv_obj_set_y(scr_dashboard_labe_logo, 49);
+    lv_obj_set_width(scr_dashboard_labe_logo, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_labe_logo, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_labe_logo, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_labe_logo, "Logo");
+    lv_label_set_long_mode(scr_dashboard_labe_logo, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_labe_logo - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_labe_logo, lv_color_hex(0xDDEBE7), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_labe_logo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_labe_logo, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_labe_logo, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_labe_logo, &lv_font_MiSansVF_12_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_labe_logo, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Create scr_dashboard_label_text03
     scr_dashboard_label_text03 = lv_label_create(scr_dashboard_cont_03);
     lv_obj_set_x(scr_dashboard_label_text03, 6);
@@ -10573,22 +10744,73 @@ static lv_obj_t * create_ui(void) {
     ui_flag_modify(scr_dashboard_cont_04, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_04, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_04, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
-    // Create scr_dashboard_label_runtime_express_company
-    scr_dashboard_label_runtime_express_company = lv_label_create(scr_dashboard_cont_04);
-    lv_obj_set_x(scr_dashboard_label_runtime_express_company, 2);
-    lv_obj_set_y(scr_dashboard_label_runtime_express_company, 32);
-    lv_obj_set_width(scr_dashboard_label_runtime_express_company, 100);
-    lv_obj_set_height(scr_dashboard_label_runtime_express_company, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_runtime_express_company, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_runtime_express_company, "--");
-    lv_label_set_long_mode(scr_dashboard_label_runtime_express_company, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_runtime_express_company - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_runtime_express_company, lv_color_hex(0xDDEBE7), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(scr_dashboard_label_runtime_express_company, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_line_space(scr_dashboard_label_runtime_express_company, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_letter_space(scr_dashboard_label_runtime_express_company, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_runtime_express_company, &lv_font_MiSans_Heavy_24_24, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_runtime_express_company, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_YD
+    scr_dashboard_label_YD = lv_label_create(scr_dashboard_cont_04);
+    lv_obj_set_x(scr_dashboard_label_YD, 2);
+    lv_obj_set_y(scr_dashboard_label_YD, 32);
+    lv_obj_set_width(scr_dashboard_label_YD, 100);
+    lv_obj_set_height(scr_dashboard_label_YD, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_YD, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_YD, "韵达");
+    lv_label_set_long_mode(scr_dashboard_label_YD, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_YD - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_YD, lv_color_hex(0xCDAD3D), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_YD, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_label_YD, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_label_YD, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_YD, &lv_font_MiSans_Heavy_24_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_YD, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_flag_modify(scr_dashboard_label_YD, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
+    // Create scr_dashboard_label_ZT
+    scr_dashboard_label_ZT = lv_label_create(scr_dashboard_cont_04);
+    lv_obj_set_x(scr_dashboard_label_ZT, 2);
+    lv_obj_set_y(scr_dashboard_label_ZT, 32);
+    lv_obj_set_width(scr_dashboard_label_ZT, 100);
+    lv_obj_set_height(scr_dashboard_label_ZT, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_ZT, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_ZT, "中通");
+    lv_label_set_long_mode(scr_dashboard_label_ZT, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_ZT - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_ZT, lv_color_hex(0x39A0BE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_ZT, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_label_ZT, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_label_ZT, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_ZT, &lv_font_MiSans_Heavy_24_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_ZT, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_flag_modify(scr_dashboard_label_ZT, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
+    // Create scr_dashboard_label_JT
+    scr_dashboard_label_JT = lv_label_create(scr_dashboard_cont_04);
+    lv_obj_set_x(scr_dashboard_label_JT, 2);
+    lv_obj_set_y(scr_dashboard_label_JT, 32);
+    lv_obj_set_width(scr_dashboard_label_JT, 100);
+    lv_obj_set_height(scr_dashboard_label_JT, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_JT, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_JT, "极兔");
+    lv_label_set_long_mode(scr_dashboard_label_JT, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_JT - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_JT, lv_color_hex(0xC23B3B), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_JT, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_label_JT, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_label_JT, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_JT, &lv_font_MiSans_Heavy_24_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_JT, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_flag_modify(scr_dashboard_label_JT, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
+    // Create scr_dashboard_label_init_express_company
+    scr_dashboard_label_init_express_company = lv_label_create(scr_dashboard_cont_04);
+    lv_obj_set_x(scr_dashboard_label_init_express_company, 2);
+    lv_obj_set_y(scr_dashboard_label_init_express_company, 32);
+    lv_obj_set_width(scr_dashboard_label_init_express_company, 100);
+    lv_obj_set_height(scr_dashboard_label_init_express_company, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_init_express_company, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_init_express_company, "---");
+    lv_label_set_long_mode(scr_dashboard_label_init_express_company, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_init_express_company - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_init_express_company, lv_color_hex(0xDDEBE7), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_init_express_company, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(scr_dashboard_label_init_express_company, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(scr_dashboard_label_init_express_company, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_init_express_company, &lv_font_MiSans_Heavy_24_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_init_express_company, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Create scr_dashboard_label_text04
     scr_dashboard_label_text04 = lv_label_create(scr_dashboard_cont_04);
     lv_obj_set_x(scr_dashboard_label_text04, 7);
@@ -10655,12 +10877,12 @@ static lv_obj_t * create_ui(void) {
     lv_obj_set_style_text_align(scr_dashboard_label_text_ZT, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Create scr_dashboard_label_JT_A
     scr_dashboard_label_JT_A = lv_label_create(scr_dashboard_cont_live_data);
-    lv_obj_set_x(scr_dashboard_label_JT_A, 54);
+    lv_obj_set_x(scr_dashboard_label_JT_A, 52);
     lv_obj_set_y(scr_dashboard_label_JT_A, 11);
     lv_obj_set_width(scr_dashboard_label_JT_A, LV_SIZE_CONTENT);
     lv_obj_set_height(scr_dashboard_label_JT_A, LV_SIZE_CONTENT);
     lv_obj_set_scrollbar_mode(scr_dashboard_label_JT_A, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_JT_A, "0.00%");
+    lv_label_set_text(scr_dashboard_label_JT_A, "--");
     lv_label_set_long_mode(scr_dashboard_label_JT_A, LV_LABEL_LONG_WRAP);
     // Add style for scr_dashboard_label_JT_A - LV_PART_MAIN | LV_STATE_DEFAULT
     lv_obj_set_style_text_color(scr_dashboard_label_JT_A, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -10681,12 +10903,12 @@ static lv_obj_t * create_ui(void) {
     lv_obj_set_style_text_align(scr_dashboard_label_text_YD, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Create scr_dashboard_label_ZT_A
     scr_dashboard_label_ZT_A = lv_label_create(scr_dashboard_cont_live_data);
-    lv_obj_set_x(scr_dashboard_label_ZT_A, 54);
+    lv_obj_set_x(scr_dashboard_label_ZT_A, 52);
     lv_obj_set_y(scr_dashboard_label_ZT_A, 36);
     lv_obj_set_width(scr_dashboard_label_ZT_A, LV_SIZE_CONTENT);
     lv_obj_set_height(scr_dashboard_label_ZT_A, LV_SIZE_CONTENT);
     lv_obj_set_scrollbar_mode(scr_dashboard_label_ZT_A, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_ZT_A, "0.00%");
+    lv_label_set_text(scr_dashboard_label_ZT_A, "--");
     lv_label_set_long_mode(scr_dashboard_label_ZT_A, LV_LABEL_LONG_WRAP);
     // Add style for scr_dashboard_label_ZT_A - LV_PART_MAIN | LV_STATE_DEFAULT
     lv_obj_set_style_text_color(scr_dashboard_label_ZT_A, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -10694,12 +10916,12 @@ static lv_obj_t * create_ui(void) {
     lv_obj_set_style_text_align(scr_dashboard_label_ZT_A, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Create scr_dashboard_label_YD_A
     scr_dashboard_label_YD_A = lv_label_create(scr_dashboard_cont_live_data);
-    lv_obj_set_x(scr_dashboard_label_YD_A, 54);
+    lv_obj_set_x(scr_dashboard_label_YD_A, 52);
     lv_obj_set_y(scr_dashboard_label_YD_A, 61);
     lv_obj_set_width(scr_dashboard_label_YD_A, LV_SIZE_CONTENT);
     lv_obj_set_height(scr_dashboard_label_YD_A, LV_SIZE_CONTENT);
     lv_obj_set_scrollbar_mode(scr_dashboard_label_YD_A, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_YD_A, "0.00%");
+    lv_label_set_text(scr_dashboard_label_YD_A, "--");
     lv_label_set_long_mode(scr_dashboard_label_YD_A, LV_LABEL_LONG_WRAP);
     // Add style for scr_dashboard_label_YD_A - LV_PART_MAIN | LV_STATE_DEFAULT
     lv_obj_set_style_text_color(scr_dashboard_label_YD_A, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -10762,7 +10984,7 @@ static lv_obj_t * create_ui(void) {
     lv_obj_set_style_bg_color(scr_dashboard_slider_yd, lv_color_hex(0x0B0E0E), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(scr_dashboard_slider_yd, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Add style for scr_dashboard_slider_yd - LV_PART_INDICATOR | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_slider_yd, lv_color_hex(0xD1C23F), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(scr_dashboard_slider_yd, lv_color_hex(0xF4CF4A), LV_PART_INDICATOR | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(scr_dashboard_slider_yd, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
     // Add style for scr_dashboard_slider_yd - LV_PART_KNOB | LV_STATE_DEFAULT
     lv_obj_set_style_bg_color(scr_dashboard_slider_yd, lv_color_hex(0xFFFFFF), LV_PART_KNOB | LV_STATE_DEFAULT);
@@ -10774,7 +10996,7 @@ static lv_obj_t * create_ui(void) {
     // Create scr_dashboard_cont_circle_data
     scr_dashboard_cont_circle_data = lv_obj_create(scr_dashboard_cont_dashboard);
     lv_obj_set_x(scr_dashboard_cont_circle_data, 652);
-    lv_obj_set_y(scr_dashboard_cont_circle_data, 113);
+    lv_obj_set_y(scr_dashboard_cont_circle_data, 119);
     lv_obj_set_width(scr_dashboard_cont_circle_data, 340);
     lv_obj_set_height(scr_dashboard_cont_circle_data, 120);
     lv_obj_set_scrollbar_mode(scr_dashboard_cont_circle_data, LV_SCROLLBAR_MODE_OFF);
@@ -10999,7 +11221,7 @@ static lv_obj_t * create_ui(void) {
     lv_obj_set_width(scr_dashboard_label_title_A, LV_SIZE_CONTENT);
     lv_obj_set_height(scr_dashboard_label_title_A, LV_SIZE_CONTENT);
     lv_obj_set_scrollbar_mode(scr_dashboard_label_title_A, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_title_A, "基于ESP32-P4的校园快递智能分拣系统与YOLO轻量化部署优化");
+    lv_label_set_text(scr_dashboard_label_title_A, "基于ESP32-P4的快递智能分拣系统与YOLO轻量化部署优化");
     lv_label_set_long_mode(scr_dashboard_label_title_A, LV_LABEL_LONG_WRAP);
     // Add style for scr_dashboard_label_title_A - LV_PART_MAIN | LV_STATE_DEFAULT
     lv_obj_set_style_text_color(scr_dashboard_label_title_A, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);

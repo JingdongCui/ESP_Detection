@@ -13,6 +13,7 @@
  * （=fb_count-2，当前 3）撑出的时间窗口保证——推理在该帧被挤成最旧并还驱动前读完即可。
  * 这是 ESP-who 原生的"概率保证"，已知风险见 docs/零拷贝peek竞态风险.md。
  */
+#include <stdatomic.h>
 #include <string.h>
 #include "freertos/FreeRTOS.h"      // FreeRTOS 基础类型与 portMAX_DELAY
 #include "freertos/task.h"          // xTaskCreatePinnedToCore / vTaskDelay
@@ -62,6 +63,29 @@ extern lv_obj_t *scr_dashboard_cont_dashboard;   // 仪表盘根容器（决定�
 extern lv_obj_t *scr_dashboard_cont_live_vedio;  // 视频预览子容器（提供绘制坐标/尺寸）
 
 static const char *TAG = "vision";
+
+static atomic_bool s_detection_enabled = ATOMIC_VAR_INIT(true);
+static atomic_bool s_preview_overlay_enabled = ATOMIC_VAR_INIT(true);
+
+void vision_set_detection_enabled(bool enabled)
+{
+    atomic_store(&s_detection_enabled, enabled);
+}
+
+bool vision_is_detection_enabled(void)
+{
+    return atomic_load(&s_detection_enabled);
+}
+
+void vision_set_preview_overlay_enabled(bool enabled)
+{
+    atomic_store(&s_preview_overlay_enabled, enabled);
+}
+
+bool vision_is_preview_overlay_enabled(void)
+{
+    return atomic_load(&s_preview_overlay_enabled);
+}
 
 // ---- 预览（PPA 缩放 + 硬件搬运到 fb）资源，仅显示任务使用 ----
 static ppa_client_handle_t s_ppa;       // PPA SRM 客户端句柄（缩放 + scale=1.0 搬运共用）
