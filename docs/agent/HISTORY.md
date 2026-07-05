@@ -1,5 +1,24 @@
 # History
 
+## 2026-07-05 host package-focused data display polish
+
+- 用户要求继续优化上位机数据显示：
+  - 第一个页面不要写队列深度、已编码 JPEG、丢弃、无帧、最新大小，改成总包裹数和三类快递数量。
+  - 第二个页面不要显示图片分辨率，不要显示检测目标数量；默认每张图片有一个目标，是三类之一。
+  - 第四个页面链路端口卡片仍拥挤，需要调整布局。
+- 已修改：
+  - `HostController` 新增 `courierStatsCards` 和 `imageHealthCards`，把首页业务统计与维护页链路健康拆开。
+  - 首页底部改为 `总包裹数/极兔/中通/韵达` 四张卡。
+  - 首页顶部把“图像帧数/检测目标”改为“总包裹数/最新类别”。
+  - `latestFrameInfo` 不再拼接图片宽高和 JPEG 格式，改为包裹/类别/置信度。
+  - 视觉页主图底栏移除“检测目标 N 个”，历史记录移除分辨率和目标数量文案。
+  - 系统维护页链路端口区改为控制/图像端口并排，板端地址和上位机地址各自独占整行。
+  - 系统维护页图片链路健康改用 `imageHealthCards`，继续保留 JPEG 发送、链路队列、链路跳过、快照状态、最新体积等诊断信息。
+- 验证：
+  - `cmake --build --preset debug` 通过。
+  - `git diff --check` 通过。
+  - `QT_QPA_PLATFORM=offscreen timeout 8s ./build/debug/bin/esp32_host_no_inference` 可启动到 timeout，无 QML 输出。
+
 ## 2026-07-05 host image category display and courier stats
 
 - 用户要求上位机显示图片时带快递类别：极兔/中通/韵达之一；视觉检测页体现该功能；快递统计作为 feature 替换图片链路中的失败统计，不再显示发送失败。
