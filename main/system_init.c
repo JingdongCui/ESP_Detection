@@ -15,6 +15,7 @@
 #include "vision_model.h"
 #include "roi_tuning.h"
 #include "system_monitor.h"
+#include "screen_uvc.h"
 
 static const char *TAG = "system";
 
@@ -81,6 +82,13 @@ void System_Init(void)
 
     //启动视觉链路：采集 + PPA 缩放 + LCD 视频区域直刷。需在 setupUi 建好预览容器后调用。
     vision_start();
+
+    //启动全屏 UVC 视频流：DSI 合成屏 → PPA 修色 → 硬件 JPEG → USB UVC 推给 PC。
+    //需在 vision_start 之后：此时 LVGL/DSI framebuffer 已在持续刷新合成画面。
+    esp_err_t uvc_ret = screen_uvc_start();
+    if (uvc_ret != ESP_OK) {
+        ESP_LOGW(TAG, "screen UVC stream start failed: %s", esp_err_to_name(uvc_ret));
+    }
 
     //sorting_sim_debug_start();
     //sorting_sim_control_set_motor_output_enabled(true);
