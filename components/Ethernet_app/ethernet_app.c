@@ -389,30 +389,22 @@ static esp_err_t ensure_image_resources(void)
 
 static esp_err_t produce_jpeg_snapshot(image_slot_t *slot)
 {
-    int src_w = 0;
-    int src_h = 0;
-    size_t rgb_len = 0;
-    int64_t frame_ts = 0;
     int64_t start_ms = monotonic_ms();
+    uint16_t class_id = 1;
+    uint8_t conf = 0;
 
-    esp_err_t ret = vision_copy_latest_frame_scaled_rgb888(s_snapshot_rgb,
-                                                           SNAPSHOT_WIDTH,
-                                                           SNAPSHOT_HEIGHT,
-                                                           SNAPSHOT_RGB_BYTES,
-                                                           &src_w,
-                                                           &src_h,
-                                                           &rgb_len,
-                                                           &frame_ts);
-    if (ret != ESP_OK) {
-        (void)frame_ts;
-        return ret;
+    // 阻塞等一张「识别成功新包裹」带框快照（vision 侧同帧缩放+画框已完成）。
+    // 1s 超时：无新包裹则返回 NOT_FOUND，由 producer 记 no_frame 并继续等。
+    if (!vision_boxed_snapshot_take(s_snapshot_rgb, SNAPSHOT_RGB_BYTES,
+                                    &class_id, &conf, 1000)) {
+        return ESP_ERR_NOT_FOUND;
     }
 
     int encoded = 0;
     jpeg_enc_set_quality(s_jpeg_enc, JPEG_QUALITY);
     jpeg_error_t err = jpeg_enc_process(s_jpeg_enc,
                                         s_snapshot_rgb,
-                                        (int)rgb_len,
+                                        (int)SNAPSHOT_RGB_BYTES,
                                         slot->jpeg,
                                         JPEG_OUTBUF_BYTES,
                                         &encoded);
@@ -424,25 +416,16 @@ static esp_err_t produce_jpeg_snapshot(image_slot_t *slot)
     slot->jpeg_len = (size_t)encoded;
     slot->created_ms = monotonic_ms();
     slot->encode_ms = (int)(slot->created_ms - start_ms);
-    slot->src_w = src_w;
-    slot->src_h = src_h;
-    vision_classification_t cls = {
-        .class_id = 1,
-        .confidence_pct = 0,
-        .valid = false,
-    };
-    if (vision_get_latest_classification(&cls)) {
-        if (cls.class_id < 1 || cls.class_id > 3) {
-            cls.class_id = 1;
-        }
-        if (cls.confidence_pct < 0) {
-            cls.confidence_pct = 0;
-        } else if (cls.confidence_pct > 100) {
-            cls.confidence_pct = 100;
-        }
+    slot->src_w = SNAPSHOT_WIDTH;
+    slot->src_h = SNAPSHOT_HEIGHT;
+    if (class_id < 1 || class_id > 3) {
+        class_id = 1;
     }
-    slot->class_id = (uint16_t)cls.class_id;
-    slot->confidence_pct = (uint8_t)cls.confidence_pct;
+    if (conf > 100) {
+        conf = 100;
+    }
+    slot->class_id = class_id;
+    slot->confidence_pct = conf;
     return ESP_OK;
 }
 
@@ -747,19 +730,13 @@ static void control_tcp_task(void *arg)
 static void image_producer_task(void *arg)
 {
     (void)arg;
-    int64_t next_image_ms = monotonic_ms() + TCP_IMAGE_INTERVAL_MS;
 
     while (true) {
         xEventGroupWaitBits(s_eth_events, TCP_CONNECT_READY_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
-        int64_t now_ms = monotonic_ms();
-        if (now_ms < next_image_ms) {
-            vTaskDelay(pdMS_TO_TICKS(100));
-            continue;
-        }
-        next_image_ms = now_ms + TCP_IMAGE_INTERVAL_MS;
 
         EventBits_t bits = xEventGroupGetBits(s_eth_events);
         if ((bits & TCP_IMAGE_CONNECTED_BIT) == 0) {
+            vTaskDelay(pdMS_TO_TICKS(200));
             continue;
         }
         if (ensure_image_resources() != ESP_OK) {
@@ -771,6 +748,7 @@ static void image_producer_task(void *arg)
             continue;
         }
 
+        int64_t now_ms = monotonic_ms();
         image_slot_t *slot = NULL;
         if (xSemaphoreTake(s_image_lock, portMAX_DELAY) == pdTRUE) {
             queue_drop_stale_locked(now_ms);
@@ -781,10 +759,11 @@ static void image_producer_task(void *arg)
             xSemaphoreGive(s_image_lock);
         }
         if (!slot) {
+            vTaskDelay(pdMS_TO_TICKS(100));   // 队列满，让发送任务腾位
             continue;
         }
 
-        esp_err_t ret = produce_jpeg_snapshot(slot);
+        esp_err_t ret = produce_jpeg_snapshot(slot);   // 内部阻塞等边沿快照（1s 超时）
         if (xSemaphoreTake(s_image_lock, portMAX_DELAY) == pdTRUE) {
             EventBits_t current_bits = xEventGroupGetBits(s_eth_events);
             if (ret == ESP_OK && (current_bits & TCP_IMAGE_CONNECTED_BIT) != 0) {

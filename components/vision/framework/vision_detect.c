@@ -218,9 +218,21 @@ void vision_detect_task(void *arg)
             s_display_has_last_hit = false;
             s_display_miss_count = 0;
         } else if (best_waybill >= 0 && best_logo >= 0) {
+            // 上升沿：上一个包裹已离开（miss 超阈值 has_last_hit 归零）或从无 → 新包裹首次识别成功。
+            // 仅此刻发一帧带框图；同一包裹后续持续命中 has_last_hit 已为真，不重发。
+            bool rising_edge = !s_display_has_last_hit;
             s_display_last_hit = result;
             s_display_has_last_hit = true;
             s_display_miss_count = 0;
+            if (rising_edge) {
+                // category 0/1/2 → 协议 class_id 1/2/3；conf 取 logo 置信度。
+                // 传原图坐标 dets[]+n，capture 内映射到 640×375 并 burn-in（图框同帧同步）。
+                uint16_t cls = (uint16_t)(result.items[best_logo].category + 1);
+                uint8_t conf = (uint8_t)result.ev.logo_confidence;
+                vision_boxed_snapshot_capture(fb.buf, fb.width, fb.height, dets, n, cls, conf);
+                SEGGER_RTT_printf(0, "[vision_det] BOXED SNAPSHOT captured cls=%u conf=%u boxes=%d\n",
+                                  (unsigned)cls, (unsigned)conf, n);
+            }
         } else if (s_display_has_last_hit && s_display_miss_count < VISION_DISPLAY_MISS_KEEP_COUNT) {
             s_display_miss_count++;
             vision_det_frame_t held = s_display_last_hit;

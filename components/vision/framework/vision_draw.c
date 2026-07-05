@@ -224,6 +224,14 @@ static void draw_results_on_buf(uint8_t *buf, int w, int h, const vision_det_fra
     }
 }
 
+void vision_draw_boxes_rgb888(uint8_t *buf, int w, int h, const vision_det_frame_t *frame)
+{
+    if (!buf || !frame || w <= 0 || h <= 0) {
+        return;
+    }
+    draw_results_on_buf(buf, w, h, frame);
+}
+
 void vision_draw_lcd_disp_cb(uint8_t *preview_buf, int preview_w, int preview_h,
                              int64_t disp_timestamp)
 {

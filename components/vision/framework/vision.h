@@ -40,6 +40,14 @@ esp_err_t vision_copy_latest_frame_scaled_rgb888(uint8_t *dst,
                                                  size_t *out_len,
                                                  int64_t *timestamp_us);
 
+// 阻塞等待一张「识别成功边沿·带框」RGB888 快照并拷贝到 dst（640×375×3）。
+// 该快照由 vision 检测侧在新包裹首次命中时生成（面单+logo 框已 burn-in）。
+// class_id_out 取值 1~3（极兔/韵达/中通），conf_out 为 logo 置信度 0~100。
+// 返回 true 表示 dst 已填入一帧；false 表示 timeout_ms 内无新包裹。
+bool vision_boxed_snapshot_take(uint8_t *dst, size_t dst_capacity,
+                                uint16_t *class_id_out, uint8_t *conf_out,
+                                uint32_t timeout_ms);
+
 #ifdef __cplusplus
 }
 #endif

@@ -81,6 +81,18 @@ bool vision_draw_get_latest_classification(vision_classification_t *out);
 void vision_draw_lcd_disp_cb(uint8_t *preview_buf, int preview_w, int preview_h,
                              int64_t disp_timestamp);
 
+// 在任意 RGB888 缓冲上画检测框（面单绿框打底、logo 分类色框覆盖），复用显示侧同一画框逻辑。
+// buf 尺寸为 w×h×3；frame->items[].box 必须已是 buf 坐标系（调用方负责缩放/clip）。
+void vision_draw_boxes_rgb888(uint8_t *buf, int w, int h, const vision_det_frame_t *frame);
+
+// 检测侧在「新包裹识别成功」上升沿调用：用当前原图帧 src(src_w×src_h RGB888)
+// 硬件缩放到 640×375，按同比例映射 dets[] 原图坐标框并 burn-in，生成带框快照，
+// 经信号量交给以太网侧消费。忙于上一张消费时本次静默跳过（不阻塞检测任务）。
+// dets 为原图坐标检测框数组（vision_model_det_t，含 category/score/stage）。
+void vision_boxed_snapshot_capture(const uint8_t *src, int src_w, int src_h,
+                                   const vision_model_det_t *dets, int det_count,
+                                   uint16_t class_id, uint8_t confidence_pct);
+
 // 取预览区域尺寸（vision_app.c 内 static，检测侧据此做坐标 rescale）。
 // vision_start 完成后才有效；之前返回 0。
 void vision_get_preview_size(int *w, int *h);
