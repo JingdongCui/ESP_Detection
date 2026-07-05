@@ -2,45 +2,47 @@
 
 ## Goal
 
-优化 `new_merge` TCP 图片/CPU 数据链路，降低 CPU 占用和发送窗口峰值：
-- CPU/内存 metrics 实时发送。
-- 图片允许延迟，测试阶段按 5 秒一张。
-- 允许双 TCP 通道和压缩图片。
+打断 TCP 上位机对齐任务，先处理 `new_merge` 板端 revision/串口/传感器占用：
+- 降低 ESP32-P4 revision 支持，兼容低 revision 板。
+- 恢复 UART console，方便烧录后 monitor。
+- 只停用占用串口 GPIO37/38 中当前实际占用的传感器 GPIO38，不把所有传感器置 `-1`。
 
 ## Current State
 
 - `new_merge` 分支：`motor-roi`。
 - 修改前已在 `new_merge` 提交现场 checkpoint：
-  - `0559655 checkpoint before tcp cpu optimization`
+  - `9c4be17 checkpoint before revision and serial config`
 - 已实现：
-  - TCP control 通道：`192.168.10.1:5000`，用于 time sync、SIM_LINE、sorter tick、metrics。
-  - TCP image 通道：`192.168.10.1:5001`，用于低优先级 JPEG 图片发送。
-  - metrics 周期：1 秒。
-  - image 测试周期：5 秒。
-  - image 尺寸：`640x375` RGB888 快照，经 `esp_new_jpeg` 编码为 JPEG。
-  - JPEG quality：60，subsample：4:4:4，避免 `640x375` 奇数高度在 4:2:0 下不确定。
-  - image queue 深度：2；host 慢或断线时不无限排队。
-  - Ethernet metrics 不再调用 `uxTaskGetSystemState()`，改读 `system_monitor_get_metrics()` 缓存。
-  - Ethernet image 不再直接 `cam_sensor_get_frame()`，改通过 vision 新增的 `vision_copy_latest_frame_scaled_rgb888()` 从最新 ring frame 生成 PPA 缩放快照。
-  - PPA 写入 snapshot 后执行 M2C cache invalidate，确保 JPEG 读取新图。
-  - `main/system_init.c` 新增 `SORTER_TCP_LINK_ENABLE=1`，调试模式下也可启动 TCP；`system_monitor()` 在 Ethernet 前启动。
-- 静态检查：
-  - `components/Ethernet_app` 内不再出现 `cam_sensor_get_frame`。
-  - `components/Ethernet_app` 内不再出现 `uxTaskGetSystemState`。
+  - `sdkconfig` / `sdkconfig.defaults` 改为 ESP32-P4 low revision 路径：
+    - `CONFIG_ESP32P4_SELECTS_REV_LESS_V3=y`
+    - `CONFIG_ESP32P4_REV_MIN_0=y`
+    - `CONFIG_ESP32P4_REV_MIN_FULL=0`
+    - `CONFIG_ESP_REV_MIN_FULL=0`
+    - `CONFIG_ESP32P4_REV_MAX_FULL=199`
+    - `CONFIG_ESP_REV_MAX_FULL=199`
+  - UART console 恢复为 UART0、115200，并保留 secondary USB Serial/JTAG。
+  - sorter sensor 当前配置：
+    - S1=GPIO53
+    - S2=GPIO23
+    - S3=-1
+    - S4=GPIO22
+- 注意：低 revision Kconfig 会联动默认 CPU 频率到 360MHz。
 
 ## Verification
 
 - `cd /home/kazeform/2026esp/new_merge && idf.py build`：通过。
-- 生成 app：`build/sample_project.bin`，大小 `0x4fbed0`，factory 分区剩余约 17%。
-- 当前无 `/dev/ttyACM*` 或 `/dev/ttyUSB*`，无法执行 `idf.py flash monitor`。
+- 低 revision build 使用 `<3.0` ROM linker scripts，生成 app：`build/sample_project.bin`，大小 `0x4ec5e0`，factory 分区剩余约 18%。
+- USB 枚举能看到 `10c4:ea60 Silicon Labs CP210x UART Bridge`，但当前没有 `/dev/ttyUSB*`、`/dev/ttyACM*` 或 `/dev/serial/by-id` 节点。
+- `dmesg` 需要权限，当前无法读取；`cp210x/usbserial` 未显示已加载。
+- 因无 tty 节点，暂无法执行 `idf.py flash monitor`。
 
 ## Immediate Next Step
 
-- 等板子接入后执行：
+- 处理系统串口枚举后执行：
   - `idf.py -p <port> -b 921600 flash`
   - `idf.py -p <port> monitor`
-  - 上位机同时监听 `5000` metrics/control 与 `5001` JPEG image。
+  - 确认 boot log 中 min/max chip revision 和 UART console 输出。
 
 ## Blockers
 
-- 当前没有板子/串口设备，无法实机验证 Ethernet 连接、JPEG 编码耗时、CPU 峰值和 image queue 行为。
+- 板子 USB 已枚举为 CP210x，但系统未生成 tty 节点，无法烧录/监控。

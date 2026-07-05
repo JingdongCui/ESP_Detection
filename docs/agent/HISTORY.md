@@ -1,5 +1,36 @@
 # History
 
+## 2026-07-05 new_merge low revision UART restore
+
+- 用户打断 TCP 上位机对齐任务，要求先处理 revision 支持和串口占用。
+- 初始要求“把传感器设置为 -1”后用户明确修正：不要全部置 `-1`，只改 GPIO37/38 中占用串口的传感器。
+- 修改前在 `new_merge` 提交现场 checkpoint：`9c4be17 checkpoint before revision and serial config`。
+- 当前 `new_merge` 分支：`motor-roi`。
+- 修改内容：
+  - `components/bsp/include/sorter_debug_config.h`: 只将 `SORTER_SENSOR_S3_GPIO` 从 `38` 改为 `-1`。
+  - S1/S2/S4 保持 `53/23/22`。
+  - `sdkconfig` / `sdkconfig.defaults`: 启用 ESP32-P4 low revision 路径：
+    - `CONFIG_ESP32P4_SELECTS_REV_LESS_V3=y`
+    - `CONFIG_ESP32P4_REV_MIN_0=y`
+    - `CONFIG_ESP32P4_REV_MIN_FULL=0`
+    - `CONFIG_ESP_REV_MIN_FULL=0`
+    - `CONFIG_ESP32P4_REV_MAX_FULL=199`
+    - `CONFIG_ESP_REV_MAX_FULL=199`
+  - `sdkconfig`: 恢复 UART console 到 UART0、115200，secondary USB Serial/JTAG enabled。
+- 过程记录：
+  - 第一次仅修改 revision full 值后 build 仍选择 `ESP32P4_REV_MIN_301`，说明 Kconfig 选择项未切换。
+  - 查阅 ESP-IDF `components/esp_hw_support/port/esp32p4/Kconfig.hw_support` 后，补上 `ESP32P4_SELECTS_REV_LESS_V3=y` 和 `ESP32P4_REV_MIN_0=y`。
+  - 第二次 build 日志使用 `<3.0` ROM linker scripts，说明低 revision 选择生效。
+  - `idf.py build` 通过；app 大小 `0x4ec5e0`，factory 分区剩余约 18%。
+  - `sdkconfig` 被 build 重新生成为 LF，已恢复成仓库原 CRLF，避免全文件换行 diff。
+- 串口状态：
+  - `find /dev -maxdepth 1 \( -name 'ttyACM*' -o -name 'ttyUSB*' \) -print` 无输出。
+  - `lsusb` 能看到 `10c4:ea60 Silicon Labs CP210x UART Bridge`。
+  - `/dev/serial/by-id`、`/dev/serial/by-path` 不存在。
+  - `dmesg` 读取失败：`Operation not permitted`。
+  - `lsmod | rg 'cp210x|usbserial'` 无输出。
+  - 因无 tty 节点，未执行 `idf.py flash monitor`。
+
 ## 2026-07-05 new_merge TCP CPU optimization
 
 - 用户目标：降低 `new_merge` TCP 链路 CPU 占用；业务为实时 CPU/内存 metrics，图片允许延迟；允许双通道和压缩图片。

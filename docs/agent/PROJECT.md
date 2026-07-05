@@ -110,10 +110,10 @@ idf.py -p /dev/ttyUSB0 monitor
 - `new_merge` 当前硬件引脚边界：
   - 2026-07-04 新板 revision 配置后，GT911 touch INT 使用 GPIO21。
   - 电机 2 PWM A 使用 GPIO32；不要再把 GT911 INT 放回 GPIO32。
-  - ESP32-P4 console UART 已关闭，以释放 GPIO37 给 sorter S3；该配置下不要依赖串口 monitor。
-  - sorter S1/S2/S3/S4 当前使用 GPIO53/GPIO23/GPIO37/GPIO22。
+  - ESP32-P4 console UART 已恢复到 UART0、115200；运行期 monitor 使用默认 115200。
+  - sorter S1/S2/S3/S4 当前使用 GPIO53/GPIO23/-1/GPIO22；只停用原占用串口 GPIO38 的 S3，不把全部传感器置 `-1`。
   - GPIO8 是 touch I2C SCL，camera SCCB 复用同一条 GPIO8/7 I2C bus；不要把 sorter sensor 放到 GPIO8。
-  - 当前 `sdkconfig` 支持 ESP32-P4 revision v3.1-v3.99，匹配本轮 `/dev/ttyACM0` 板子 `ESP32-P4 revision v3.1`。
+  - 当前 `sdkconfig` 支持 ESP32-P4 low revision 路径：min v0.0、max v1.99；`ESP32P4_SELECTS_REV_LESS_V3=y`。
 - `new_merge` 当前验证状态：
   - `motor-two-stage` build 通过。
   - `motor-roi` build 通过。
@@ -138,6 +138,13 @@ idf.py -p /dev/ttyUSB0 monitor
   - `idf.py build` 通过。
   - `/dev/ttyACM0`、921600 flash 成功，芯片 `ESP32-P4 revision v3.1`，bootloader/app/partition/storage hash verified。
   - 用户要求本次不运行 monitor；S1=GPIO53/S3=GPIO37 的默认电平和遮挡响应待现场观察。
+- 2026-07-05 用户打断要求恢复串口并降低 revision 支持：
+  - 修改前提交 checkpoint：`9c4be17 checkpoint before revision and serial config`。
+  - 只停用占用串口的 S3 GPIO38：S1/S2/S3/S4 为 GPIO53/GPIO23/-1/GPIO22。
+  - `sdkconfig` / `sdkconfig.defaults` 当前为 ESP32-P4 min v0.0、max v1.99。
+  - UART console 恢复为 UART0、115200，secondary USB Serial/JTAG enabled。
+  - `idf.py build` 通过；app 大小 `0x4ec5e0`，factory 分区剩余约 18%。
+  - 当前 USB 能看到 `10c4:ea60 CP210x`，但没有 `/dev/ttyUSB*`/`/dev/ttyACM*` 节点；未执行 flash/monitor。
 - 当前真实四传感器链路未完整验证；S1/S3 实际 GPIO 需要硬件重新指定后再打开。
 - 本轮按用户要求未运行 TCP 模拟测试。
 - 2026-07-04 two-stage 给队友压缩包：
