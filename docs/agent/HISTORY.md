@@ -1,5 +1,24 @@
 # History
 
+## 2026-07-05 host image history and preview enhancement
+
+- 用户反馈上位机“接收图片历史”看不到，并要求对接收到的图片做画质优化，减少类似椒盐噪声的视觉问题。
+- 问题定位：
+  - `DetectionPage.qml` 右侧历史使用 `host.frameHistory`。
+  - `HostController::applyDetectionFrame()` 才会向 `m_frameHistory` 插入记录。
+  - 单纯收到 `5001` JPEG 只更新 `latest_preview.jpg` / `latestImageUrl`，不会生成历史记录，因此只有图片流、没有 detection JSON 时历史为空。
+- 已修改：
+  - `saveLatestPreviewImage()` 将接收图解码为 `QImage` 后做展示增强。
+  - 增强算法：3x3 中值滤波压制孤立椒盐/彩色噪点，随后轻微反锐化保留边缘；重新编码为质量 88 的 JPEG。
+  - 每帧保存独立 `frame_%06u.jpg`，同时覆盖 `latest_preview.jpg`。
+  - `addImageHistoryRecord()` 在每张图片保存成功后插入历史项，历史上限 48 条。
+  - `DetectionPage.qml` 右侧列表标题改为接收图片历史，并显示真实缩略图；无检测 JSON 的图片帧显示“仅图片帧 画质增强后展示”。
+- 验证：
+  - `cmake --build --preset debug` 通过。
+  - `QT_QPA_PLATFORM=offscreen timeout 8s ./build/debug/bin/esp32_host_no_inference` 可启动到 timeout，无 QML 加载错误输出。
+  - 测试时启动上位机并用本机 `~/Documents/ESP32Host/images/latest_preview.jpg` 按协议模拟发送到 `192.168.10.1:5001`，确认生成 `frame_910001.jpg` 和更新 `latest_preview.jpg`。
+  - 测试期间真实板端也继续写入 `frame_005781.jpg`、`frame_006004.jpg`，说明实时图片历史路径可用。
+
 ## 2026-07-05 host UI parity with board normal dashboard
 
 - 用户要求重新规划：上位机参考板端普通 UI 内容，不把板端 DEV/debug 页面内容作为上位机显示/控制数据；DEV 相关只需要电机调速。

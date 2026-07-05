@@ -222,6 +222,8 @@ idf.py -p /dev/ttyUSB0 monitor
   - 参考 `new_merge` 板端普通 dashboard/settings 页面，不镜像临时 DEV/debug 页面。
   - 保留臃肿信息面板风格，删除本地模型服务/推理工作台页面。
   - 图片预览页默认显示最新板端 JPEG；取消 10 帧节流，收到 `5001` 图片即更新 `latest_preview.jpg`。
+  - 接收图片历史不依赖 detection JSON；每张图片保存为独立 `frame_%06u.jpg` 并插入历史列表，同时覆盖 `latest_preview.jpg`。
+  - host 展示图会做本地画质增强：3x3 中值去椒盐/彩色孤立点 + 轻微锐化，再以 JPEG quality 88 保存。
   - 控制页保留屏幕亮度、置信度阈值、检测开关、预览叠加开关为本地 UI 状态。
   - 新增电机调速，发送 `CONFIG a_speed=<v> b_speed=<v> c_speed=<v>` 到板端。
   - 不显示或控制板端 DEV 页的 S1-S4、编码器、MTEST、包裹注入、`ENC_CLEAR`、专用 `HW_STATUS` 面板。
