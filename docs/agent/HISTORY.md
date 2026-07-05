@@ -1,5 +1,30 @@
 # History
 
+## 2026-07-05 host delivery polish
+
+- 用户要求把上位机从 demo/占位感打磨为可交付作品：
+  - 首页不要显示实时事件流。
+  - 第二页不要出现画质增强说明。
+  - 图片标签从“图片帧”改为“包裹#N”。
+  - 预留页填充为实际可用页面。
+- 用户确认：
+  - 预留页方向为“系统维护”。
+  - 首页底部整行直接删除。
+  - 完全关闭演示模式；无设备时不生成假数据。
+- 修改前上位机提交：`ef188a1 checkpoint before delivery polish`。
+- 已修改：
+  - 从 CMake 移除并删除 `demodatasource.cpp/.h`，`HostController` 不再连接离线假 metrics/detection。
+  - `DashboardPage.qml` 删除底部实时事件流。
+  - `DetectionPage.qml` 改为“包裹图像记录”，历史记录显示 `packageLabel`，无检测结果时显示“预览已接收，等待检测结果”。
+  - `HostController::addImageHistoryRecord()` 为图片记录生成本地 `包裹#N` 标签；内部 TCP seq 仍保留用于选择/查询。
+  - `ReservePage.qml` 重做为系统维护页，包含监听状态、最后遥测、累计接收、保存目录、重新监听、同步时间、运行日志、端口和图片链路健康。
+  - Header / 控制页 / README 文案改为交付口径，不再显示演示、预留接口、画质增强等调试词。
+- 验证：
+  - `cmake --preset debug` 通过。
+  - `cmake --build --preset debug` 通过。
+  - `QT_QPA_PLATFORM=offscreen timeout 8s ./build/debug/bin/esp32_host_no_inference` 可启动到 timeout，无 QML 加载错误输出。
+  - `rg` 检查无 `演示`、`demo`、`图片帧`、`画质增强`、`预留接口`、`实时事件流` 等交付前文案残留。
+
 ## 2026-07-05 new_merge TCP packet filtering and default off
 
 - 用户要求检查 TCP 通信数据包是否有合适过滤、是否刷屏，并默认停掉以太网模拟分拣链路。
