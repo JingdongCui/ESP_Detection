@@ -1,5 +1,52 @@
 # History
 
+## 2026-07-05 new_merge host TCP/JPEG low revision validation
+
+- 读取 `docs/agent/PROJECT.md`、`CURRENT.md`、`HISTORY.md`，确认 `new_merge` 当前分支为 `motor-roi`，提交为 `ceae9b5`。
+- 按规则为 `esp32_host_no_inference` 初始化独立 git：
+  - `f9ae6d9 baseline host no inference`
+  - 分支 `tcp-board-align`
+- 上位机协议对齐提交：`2ad49e8 align host tcp protocol with board`。
+  - `packetprotocol.h` 将 `0x12` 改名为 `kTypeSimLine`，不再称为 inference result。
+  - `HostNetworkWorker` 对 `0x12` 直接按 UTF-8 SIM line 写日志。
+  - 初始控制只发送 `TimeSyncJson(0x10)` 和 `SIM_LINE("HW_STATUS")`。
+  - 不再发送板端不解析的 `ControlJson(0x11)` / `upload_format`。
+  - `motor_speed` 映射为 `CONFIG a_speed=<v> b_speed=<v> c_speed=<v>`。
+  - `conveyor` / `auto_run` 映射为板端 `CONFIG mode=... motor_output=... sensor_input=...`。
+  - `brightness`、`fill_light`、`danger_threshold` 只保留本地 UI 状态。
+  - README 更新 PC/board IP、5000/5001、防火墙、JPEG 固定端口和 no-inference 说明。
+- 上位机验证：
+  - `cmake --preset debug` 通过。
+  - `cmake --build --preset debug` 通过。
+  - offscreen 运行后监听 `192.168.10.1:5000` 和 `192.168.10.1:5001`。
+- 板端首次 monitor 验证 `ceae9b5`：
+  - ESP32-P4 revision `v1.0`，app min/max 为 `v0.0` / `v1.99`。
+  - UART0 115200 console 正常。
+  - S1=GPIO53，S2=GPIO23，S3 disabled，S4=GPIO22。
+  - `System initialization done`。
+  - 发现三条 TCP task 创建失败：`create TCP control/image producer/image sender task failed`。
+- 板端修正提交：
+  - `c88a38a checkpoint before tcp task stack fix`
+  - `50f132a allocate tcp task stacks in psram`
+    - 使用 `xTaskCreatePinnedToCoreWithCaps(..., MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)`。
+    - 失败日志补充 internal/PSRAM 空闲量。
+  - `12ec1cf fix jpeg snapshot cache sync`
+    - snapshot RGB buffer 改为 64 字节对齐。
+    - PPA 后 M2C cache sync 移除 `ESP_CACHE_MSYNC_FLAG_UNALIGNED`。
+  - `14ff3a2 move jpeg producer off busy core`
+    - image producer 从 core1 移到 core0，优先级 3；sender 保持 core0 优先级 2。
+- 板端验证：
+  - `idf.py build` 通过，app 大小 `0x4ec6c0`，factory 剩余约 18%。
+  - `idf.py flash` 全量烧录 `12ec1cf` 成功，bootloader/app/partition/storage hash verified。
+  - `idf.py app-flash` 烧录 `14ff3a2` 成功，app hash verified。
+  - monitor 验证 `14ff3a2` 启动到 `System initialization done`，无 panic/reboot。
+  - `ss` 显示 control `5000` 与 image `5001` 均 ESTABLISHED。
+  - telemetry 显示 metrics 每秒更新，示例：`image_encoded=15`、`image_sent=15`、drop/fail 均 0，最近 JPEG 约 `39184` bytes，encode 约 `332ms`，send 约 `12ms`。
+  - `~/Documents/ESP32Host/images/latest_preview.jpg` 更新时间为 `2026-07-05 18:11:06 +0800`，大小 `39184` bytes。
+- 串口经验：
+  - 显式 `-b 921600/460800/115200` 多次遇到 stub 或 app 写入中断。
+  - 直接 `idf.py flash` 可成功，失败后重试也可成功；app-only 变更优先用 `idf.py app-flash` 降低串口暴露时间。
+
 ## 2026-07-05 new_merge low revision UART restore
 
 - 用户打断 TCP 上位机对齐任务，要求先处理 revision 支持和串口占用。

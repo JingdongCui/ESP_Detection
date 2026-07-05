@@ -187,8 +187,40 @@ idf.py -p /dev/ttyUSB0 monitor
   - 通过 `vision_copy_latest_frame_scaled_rgb888()` 从 vision ring 最新帧生成 PPA 缩放快照。
   - 快照接口在 PPA 写完后做 M2C cache invalidate，确保 JPEG 编码读取的是新图。
 - 已知验证状态：
-  - `idf.py build` 通过。
-  - 当前无串口设备，尚未 flash/monitor 验证实际 Ethernet、JPEG 编码耗时、CPU 峰值和丢图策略。
+  - 2026-07-05 低 revision ESP32-P4 v1.0 实机验证通过。
+  - 当前已验证提交：`14ff3a2 move jpeg producer off busy core`。
+  - `idf.py build` 通过，app 大小约 `0x4ec6c0`，factory 分区剩余约 18%。
+  - `idf.py flash` 全量烧录 `12ec1cf` 成功，`idf.py app-flash` 烧录 `14ff3a2` 成功。
+  - monitor 确认 app min/max chip rev 为 `v0.0` / `v1.99`，芯片为 `v1.0`，UART0 115200 正常。
+  - sensors：S1=GPIO53、S2=GPIO23、S3 disabled、S4=GPIO22。
+  - TCP control/image 均连接上位机 `192.168.10.1:5000/5001`。
+  - telemetry 每秒更新；实测 `image_encoded=15`、`image_sent=15`、drop/fail 均 0，JPEG 约 39 KB，encode 约 332-367 ms，send 约 8-19 ms。
+  - 上位机最新 preview 文件：`~/Documents/ESP32Host/images/latest_preview.jpg`。
+- 2026-07-05 低 revision 实机修正：
+  - 普通 `xTaskCreatePinnedToCore` 分配 TCP task stack 会因内部 RAM 紧张失败；TCP task stack 改用 `xTaskCreatePinnedToCoreWithCaps(..., MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)`。
+  - ESP-IDF 5.5 的 M2C cache sync 不允许 `ESP_CACHE_MSYNC_FLAG_UNALIGNED`；snapshot buffer 需 cache-line 对齐后用纯 `ESP_CACHE_MSYNC_FLAG_DIR_M2C`。
+  - CPU1 长期接近 100%；JPEG producer 不能 pin 到 core1，已移到 core0、priority 3。
+
+## ESP32 Host No Inference
+
+- `/home/kazeform/2026esp/esp32_host_no_inference` 已初始化独立 git 仓库。
+- 当前分支：`tcp-board-align`。
+- 提交：
+  - `f9ae6d9 baseline host no inference`
+  - `2ad49e8 align host tcp protocol with board`
+- 协议边界：
+  - `0x10`：TimeSync JSON。
+  - `0x12`：SIM line，不再作为 inference result JSON。
+  - 不发送板端不解析的 `0x11 ControlJson/upload_format`。
+  - image socket 固定 `5001`，packet type `0x01`，pixel format `2` JPEG。
+  - metrics 固定 `0x02`。
+- 控制映射：
+  - `motor_speed` -> `CONFIG a_speed=<v> b_speed=<v> c_speed=<v>`。
+  - `conveyor=true` -> `CONFIG mode=real motor_output=1 sensor_input=1`。
+  - `conveyor=false` -> `CONFIG motor_output=0 sensor_input=0`。
+  - `auto_run=true` -> `CONFIG mode=real sensor_input=1 motor_output=1`。
+  - `auto_run=false` -> `CONFIG mode=timed sensor_input=0 motor_output=0`。
+  - `brightness`、`fill_light`、`danger_threshold` 仅本地 UI 状态。
 
 ## Merge Sorter Migration Baseline
 
