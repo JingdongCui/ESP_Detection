@@ -172,6 +172,11 @@ idf.py -p /dev/ttyUSB0 monitor
 - 2026-07-05 已将 `new_merge` TCP 链路改为降低 CPU 峰值的双通道设计：
   - control/metrics/sorter protocol：TCP `192.168.10.1:5000`。
   - image：TCP `192.168.10.1:5001`。
+- 2026-07-05 后续默认策略：
+  - `SORTER_TCP_LINK_ENABLE` 默认值为 `0`，板端默认不启动 Ethernet 模拟分拣链路。
+  - 需要联调上位机时，通过编译期定义显式启用 `SORTER_TCP_LINK_ENABLE=1`。
+  - TCP SIM line 发送层过滤掉 `STATUS,reason=tick/sensor1/package_new/vision`。
+  - `PKG` SIM line 按 `id/belt/state/class` 去重；状态不变时最多 1 秒心跳一次，避免 20ms tick 刷屏。
 - metrics：
   - 1 秒周期。
   - 读取 `system_monitor_get_metrics()` 缓存，不在 Ethernet task 内调用 `uxTaskGetSystemState()`。

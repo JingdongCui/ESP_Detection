@@ -1,5 +1,29 @@
 # History
 
+## 2026-07-05 new_merge TCP packet filtering and default off
+
+- 用户要求检查 TCP 通信数据包是否有合适过滤、是否刷屏，并默认停掉以太网模拟分拣链路。
+- 初始分支：`new_merge/motor-two-stage`。
+- 修改前创建 checkpoint：`7060f44 checkpoint before tcp packet filtering review`。
+- TCP 包审计：
+  - packet header 为 40 字节，magic `ESP2`，type `0x01` image、`0x02` metrics、`0x10` time sync、`0x12` SIM line。
+  - metrics 发送周期为 1000ms，读取 `system_monitor_get_metrics()` 缓存。
+  - image 发送周期为 5000ms，队列深度 2，stale 15s，payload 按 8KB chunk 发送。
+  - control task 每 20ms tick；`sorter_scheduler_tick()` 原本每 tick 都会发 `STATUS,reason=tick`，有活动包裹时还会每 tick 发带 `pos` 的 `PKG`，日志层过滤不等于 TCP 发包过滤，存在明显刷屏风险。
+- 已修改：
+  - `main/system_init.c`: `SORTER_TCP_LINK_ENABLE` 默认从 `1` 改为 `0`，仍允许编译期 `-DSORTER_TCP_LINK_ENABLE=1` 覆盖。
+  - `components/Ethernet_app/ethernet_app.c`: 在 `send_sim_line_packet()` 前增加 SIM line 过滤。
+  - 丢弃 `STATUS` reason=`tick`/`sensor1`/`package_new`/`vision`。
+  - 对 `PKG` 按 `id/belt/state/class` 生成签名；签名变化立即发送，未变化时最多 1 秒发一次心跳，避免 20ms position 刷屏。
+  - JPEG `queued`/`sent` 周期日志从 INFO 降到 DEBUG。
+- 验证：
+  - `git diff --check` 通过。
+  - `motor-two-stage` 生成提交：`32dcd9f filter tcp sim packets and disable link by default`。
+  - `motor-two-stage` `idf.py build` 通过，app 大小 `0x4a9380`，factory 分区剩余 `0x156c80`，约 22%。
+  - cherry-pick 到 `motor-roi` 生成提交：`c7ccbc0 filter tcp sim packets and disable link by default`。
+  - `motor-roi` `idf.py build` 通过，app 大小 `0x4ab490`，factory 分区剩余 `0x154b70`，约 22%。
+  - 本轮未执行 flash/monitor。
+
 ## 2026-07-05 host image history and preview enhancement
 
 - 用户反馈上位机“接收图片历史”看不到，并要求对接收到的图片做画质优化，减少类似椒盐噪声的视觉问题。

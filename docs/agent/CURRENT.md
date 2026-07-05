@@ -2,43 +2,41 @@
 
 ## Goal
 
-按 `new_merge` 板端普通 UI 调整 `esp32_host_no_inference`，删除本地推理页面，保留图片预览并补齐板端数据/控制映射。
+检查并收敛 `new_merge` TCP 通信刷屏风险，默认关闭板端以太网模拟分拣链路。
 
 ## Current State
 
-- `new_merge` 板端普通 UI 已整理到 `docs/agent/BOARD_UI_INVENTORY.md`。
-- 上位机 `esp32_host_no_inference` 当前分支：`tcp-board-align`。
-- 已删除上位机本地模型服务/推理工作台页面入口与 QML 文件。
-- Dashboard 继续保持大信息量风格，并增加板端 image link counters：队列、encoded/sent、drop/fail、latest JPEG size、encode/send time。
-- 图片预览页保留原布局，小改为默认显示最新板端 JPEG，叠加框受本地 preview overlay 开关控制。
-- 图片历史已改为接收图片即入历史，不再依赖 detection JSON；历史项保存独立 `frame_XXXXXX.jpg`，点击历史不会被 `latest_preview.jpg` 覆盖影响。
-- 上位机保存展示图前会做画质增强：3x3 中值去椒盐/彩色孤立点，随后轻微锐化；处理结果用于 preview/history 展示，不改板端 TCP 协议。
-- 控制页参考板端普通 settings：
-  - 屏幕亮度：本地 UI 状态。
-  - 置信度阈值：本地 UI 状态，用于低置信度标记。
-  - 检测开关：本地 UI 状态。
-  - 预览叠加框：本地 UI 状态。
-  - 电机速度：发送 `CONFIG a_speed=<v> b_speed=<v> c_speed=<v>`。
-- 临时 DEV/debug 页内容不进入上位机：S1-S4、编码器、MTEST、包裹注入、`ENC_CLEAR`、专用 `HW_STATUS` 面板均未添加。
+- `new_merge` 已同步分支：
+  - `motor-two-stage`: `32dcd9f filter tcp sim packets and disable link by default`
+  - `motor-roi`: `c7ccbc0 filter tcp sim packets and disable link by default`
+- 修改前 checkpoint：`7060f44 checkpoint before tcp packet filtering review`。
+- TCP 包审计：
+  - packet header 固定 40 字节，type `0x02` metrics、`0x01` JPEG image、`0x12` SIM line。
+  - metrics 已按 1 秒发送。
+  - image 已按 5 秒尝试生成，队列深度 2，发送按 8KB chunk yield。
+  - 原 control task 每 20ms 调用 `sorting_sim_control_tick()`；scheduler 会每 tick 发 `STATUS,reason=tick`，有活动包裹时还会每 tick 发 `PKG,...pos=...`，日志层有过滤但 TCP 发包层没有过滤，存在刷屏风险。
+- 已修改：
+  - `SORTER_TCP_LINK_ENABLE` 默认改为 `0`，板端默认不启动 Ethernet control/image 模拟链路。
+  - TCP SIM line 发送前过滤：
+    - 丢弃 `STATUS` reason=`tick`/`sensor1`/`package_new`/`vision`。
+    - `PKG` 只在 id/belt/state/class 签名变化时发送；未变化时最多 1 秒心跳一次，忽略 20ms pos 刷新。
+  - JPEG queued/sent 周期日志从 `ESP_LOGI` 降为 `ESP_LOGD`。
 
 ## Verification
 
-- 上位机：
-  - `cmake --preset debug`：通过。
-  - `cmake --build --preset debug`：通过。
-  - `QT_QPA_PLATFORM=offscreen timeout 8s ./build/debug/bin/esp32_host_no_inference`：应用可启动并保持运行到 timeout，无 QML 加载错误输出。
-  - 使用本机 `latest_preview.jpg` 模拟向 `5001` 发送 JPEG 包，确认生成独立 `frame_910001.jpg` 和更新后的 `latest_preview.jpg`。
-- 本轮未改板端代码，未重新运行 `idf.py build/flash/monitor`。
+- 板端：
+  - `motor-two-stage` `idf.py build`：通过；app 大小 `0x4a9380`，factory 分区剩余 `0x156c80`，约 22%。
+  - `motor-roi` `idf.py build`：通过；app 大小 `0x4ab490`，factory 分区剩余 `0x154b70`，约 22%。
+- 本轮未执行 flash/monitor。
 
 ## Notes
 
-- 上位机不再主动发送 `HW_STATUS`，避免把 DEV 页面调试项做成常驻控制。
-- `brightness`、`danger_threshold`、`detection_enabled`、`preview_overlay` 当前只影响本地 UI；板端当前 TCP SIM line 未定义对应普通 dashboard 控制命令。
-- 图片看不到的问题优先看 `5001` image socket 是否连接、`latest_preview.jpg` 和 `frame_*.jpg` 是否更新；上位机已改为每张 JPEG 都刷新 preview 并写入历史，不再 10 帧节流。
+- 默认关闭后现场不会自动连接 `192.168.10.1:5000/5001`，也不会生成 5 秒 JPEG 或 1 秒 metrics。
+- 如需重新启用 TCP 联调，可用编译定义覆盖 `SORTER_TCP_LINK_ENABLE=1`，但默认固件保持关闭。
 
 ## Next Step
 
-- 现场联调时先启动上位机，再复位/重启板端；观察 `5000/5001` 连接、Dashboard image counters、预览页最新 JPEG 是否更新。
+- 如需现场验证，烧录后 monitor 应看到 `硬件分拣调试: TCP模拟链路已关闭`，且不应有 Ethernet connect/JPEG 周期日志。
 
 ## Blockers
 
