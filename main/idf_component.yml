@@ -21,3 +21,4 @@ dependencies:
   espressif/esp-dl: '==3.3.7'
   espressif/esp_cam_sensor: '==2.2.0'
   espressif/esp_sccb_intf: '==0.0.8'
+  espressif/usb_device_uvc: '^1.0.0'
