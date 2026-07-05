@@ -218,9 +218,17 @@ idf.py -p /dev/ttyUSB0 monitor
   - CPU1 长期接近 100%；JPEG producer 不能 pin 到 core1，已移到 core0、priority 3。
 - 2026-07-05 已同步到 `motor-two-stage`：
   - cherry-pick `9e4b23d ceae9b5 50f132a 12ec1cf 14ff3a2` 无冲突。
-  - `motor-two-stage` 当前对应提交：`321b759 move jpeg producer off busy core`。
-  - `idf.py build` 通过，app 大小 `0x4ea5c0`，factory 分区剩余约 18%。
-  - two-stage 尚未实机 flash/monitor；实机验证基准仍是 `motor-roi` 的 `14ff3a2`。
+  - 后续继续同步 `2dcfd7f 58a5143` 并补 S1=GPIO53，当前最新提交：`a390dc3 sync two-stage sorter s1 pin`。
+  - 当前 two-stage 已包含默认开启上位机 TCP、默认关闭 SIM tick 输出、JPEG 分类元数据、S1=53/S2=23/S3=-1/S4=22。
+  - `idf.py build` 通过，app 大小 `0x4ecd30`，factory 分区剩余约 18%。
+  - `/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0` 完整 flash 成功，ESP32-P4 revision `v1.0`。
+  - S1 同步后 `app-flash` 成功；monitor 确认 app version `a390dc3`，min/max chip rev `v0.0/v1.99`，UART0 115200，S1=GPIO53、S2=GPIO23、S3 disabled、S4=GPIO22，启动到 `System initialization done`。
+  - monitor 时未启动上位机，因此 control/image connect failed 为预期重连日志。
+- 2026-07-05 two-stage + 上位机交接包：
+  - `/home/kazeform/2026esp/two_stage_host_handoff_20260705.tar.gz`
+  - `/home/kazeform/2026esp/two_stage_host_handoff_20260705.tar.gz.sha256`
+  - SHA256: `af66e056a34f3aac8d1e09d0a97e95eaf16ca622fed8da84db960d3d04088fd6`。
+  - 包含最新 `new_merge_motor_two_stage`、`esp32_host_no_inference`、差异报告、ESP 移植指南、host 交接说明和两份完整 patch；排除 `.git`、`build`、`.codegraph`、`.qtcreator` 和本地调试帧。
 
 ## ESP32 Host No Inference
 

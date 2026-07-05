@@ -1,5 +1,32 @@
 # History
 
+## 2026-07-05 two-stage host handoff package
+
+- 用户要求切到两阶段模型并跟进最新，基于“未修改 TCP 链路版本”写差异报告，打包上位机和 ESP 工程给队友接手。
+- 用户确认：
+  - ESP 差异基线使用 `motor-two-stage` 的 `7a18be7 disable sorter sensors on console uart pins`。
+  - 直接推进 `motor-two-stage` 分支。
+  - 交接包只包含 latest two-stage ESP 工程 + host，不包含 ROI 或 teammate_project。
+- `motor-two-stage` 已同步：
+  - cherry-pick `2dcfd7f enable host tcp by default without sim output` -> `f0ad05e`。
+  - cherry-pick `58a5143 attach category metadata to jpeg packets` -> `2930984`。
+  - 发现 two-stage 仍为 S1 disabled，而 ROI 最新硬件语义为 S1=53、S2=23、S3=-1、S4=22；补最小提交 `a390dc3 sync two-stage sorter s1 pin`。
+- 验证：
+  - ESP `idf.py build` 通过，app size `0x4ecd30`，factory 分区剩余约 18%。
+  - 完整 `idf.py flash` 通过，ESP32-P4 revision `v1.0`，bootloader/app/partition/storage hash verified。
+  - S1 同步后 `idf.py app-flash` 通过，app hash verified。
+  - monitor 确认 app version `a390dc3`，min/max chip rev `v0.0/v1.99`，UART0 115200 正常。
+  - monitor 确认 `sort sensor S1 configured on GPIO 53`、S2=23、S3 disabled、S4=22，启动到 `System initialization done`。
+  - monitor 时未启动 host，因此 control/image connect failed 为预期重连日志。
+  - host `cmake --build --preset debug` 通过。
+- 交接包：
+  - `/home/kazeform/2026esp/two_stage_host_handoff_20260705.tar.gz`
+  - `/home/kazeform/2026esp/two_stage_host_handoff_20260705.tar.gz.sha256`
+  - 大小约 140 MB。
+  - SHA256: `af66e056a34f3aac8d1e09d0a97e95eaf16ca622fed8da84db960d3d04088fd6`。
+  - 包内包含 `docs/README.md`、`docs/ESP_MIGRATION_GUIDE.md`、`docs/HOST_HANDOFF.md`、`docs/DIFF_REPORT.md`，以及 ESP/host 两份完整 patch。
+  - 已排除 `.git`、`build`、`.codegraph`、`.qtcreator` 和本地调试帧文件。
+
 ## 2026-07-05 host package-focused data display polish
 
 - 用户要求继续优化上位机数据显示：
