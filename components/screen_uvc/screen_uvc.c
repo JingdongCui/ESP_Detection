@@ -8,6 +8,7 @@
 #include "esp_err.h"
 #include "esp_heap_caps.h"
 #include "esp_cache.h"
+#include "esp_private/esp_cache_private.h"
 #include "esp_timer.h"
 
 #include "driver/ppa.h"
@@ -27,9 +28,9 @@ static const char *TAG = "screen_uvc";
 // JPEG 输出缓冲：1024x600 q80/444 经验峰值 ~300-450KB，取 768KB 留裕量。
 #define JPEG_OUT_CAP        (768 * 1024)
 #define UVC_XFER_CAP        JPEG_OUT_CAP
-#define JPEG_QUALITY        80
+#define JPEG_QUALITY        95
 
-static ppa_client_handle_t   s_ppa;             // SRM 客户端（做 rgb_swap + 缩放）
+static ppa_client_handle_t   s_ppa;             // SRM 客户端（做缩放）
 static jpeg_encoder_handle_t s_jpeg;            // 硬件 JPEG 编码器
 static uint8_t              *s_rgb;             // PPA 输出 = JPEG 输入（R,G,B，编码器对齐）
 static size_t                s_rgb_alloc;       // s_rgb 实际分配大小
@@ -41,7 +42,7 @@ static uvc_fb_t              s_fb;              // 交还给 UVC 的帧描述（
 static volatile int          s_out_w = SCREEN_W;
 static volatile int          s_out_h = SCREEN_H;
 
-// 从 DSI framebuffer 抓一帧 → PPA 硬件缩放并交换 R/B → 输出到 s_rgb（R,G,B，out_w×out_h）。
+// 从 DSI framebuffer 抓一帧 → PPA 硬件缩放 → 输出到 s_rgb（RGB888，out_w×out_h）。
 static esp_err_t capture_screen_rgb(int out_w, int out_h)
 {
     void *fb0 = NULL, *fb1 = NULL;
@@ -76,8 +77,8 @@ static esp_err_t capture_screen_rgb(int out_w, int out_h)
         .rotation_angle = PPA_SRM_ROTATION_ANGLE_0,
         .scale_x = (float)out_w / SCREEN_W,
         .scale_y = (float)out_h / SCREEN_H,
-        // framebuffer 内存序为 B,G,R；置位后 PPA 硬件把 R/B 交换成编码器要的 R,G,B。
-        .rgb_swap = true,
+        // framebuffer 内存序为 BGR
+        .rgb_swap = false,
         .mode = PPA_TRANS_MODE_BLOCKING,
     };
     ret = ppa_do_scale_rotate_mirror(s_ppa, &srm);
@@ -88,7 +89,7 @@ static esp_err_t capture_screen_rgb(int out_w, int out_h)
     return esp_cache_msync(s_rgb, out_size, ESP_CACHE_MSYNC_FLAG_DIR_M2C);
 }
 
-// UVC 主机请求一帧：抓屏(缩放到协商尺寸)→修色→硬件 JPEG，填 s_fb 返回。失败返回 NULL。
+// UVC 主机请求一帧：抓屏(缩放到协商尺寸)→硬件 JPEG，填 s_fb 返回。失败返回 NULL。
 static uvc_fb_t *uvc_fb_get_cb(void *cb_ctx)
 {
     (void)cb_ctx;
@@ -158,16 +159,29 @@ static void uvc_stop_cb(void *cb_ctx)
 
 esp_err_t screen_uvc_start(void)
 {
-    // 1) JPEG 编码输入缓冲（同时作 PPA 输出）：按全屏最大尺寸用编码器对齐分配。
-    jpeg_encode_memory_alloc_cfg_t in_mem = { .buffer_direction = JPEG_ENC_ALLOC_INPUT_BUFFER };
-    s_rgb = (uint8_t *)jpeg_alloc_encoder_mem(MAX_RGB_SIZE, &in_mem, &s_rgb_alloc);
+    // 1) JPEG 编码输入缓冲（同时作 PPA 输出）。关键：PPA SRM 要求输出缓冲【地址与大小都按
+    // cache line 对齐】(ppa_srm.c 校验)，否则 ppa_do_scale_rotate_mirror 返回 ESP_ERR_INVALID_ARG。
+    // jpeg_alloc_encoder_mem(INPUT) 内部走 heap_caps_calloc 不做对齐，故不能用——必须自己按
+    // cache 对齐分配。JPEG 输入侧对对齐无要求，64B 对齐同时满足两者。
+    size_t cache_align = 0;
+    esp_cache_get_alignment(MALLOC_CAP_SPIRAM | MALLOC_CAP_DMA, &cache_align);
+    if (cache_align == 0) {
+        cache_align = 64;
+    }
+    s_rgb_alloc = (MAX_RGB_SIZE + cache_align - 1) & ~(cache_align - 1);
+    s_rgb = (uint8_t *)heap_caps_aligned_calloc(cache_align, 1, s_rgb_alloc,
+                                                MALLOC_CAP_SPIRAM | MALLOC_CAP_DMA);
     if (!s_rgb) {
-        ESP_LOGE(TAG, "alloc rgb input buffer failed (%u bytes)", (unsigned)MAX_RGB_SIZE);
+        ESP_LOGE(TAG, "alloc rgb buffer failed (%u bytes, align %u)",
+                 (unsigned)s_rgb_alloc, (unsigned)cache_align);
         return ESP_ERR_NO_MEM;
     }
 
-    // 2) JPEG 输出 + UVC 传输缓冲（PSRAM）。
-    s_jpeg_out = (uint8_t *)heap_caps_malloc(JPEG_OUT_CAP, MALLOC_CAP_SPIRAM);
+    // 2) JPEG 输出缓冲：编码器要求【输出缓冲地址按 cache line 对齐】(jpeg_encode.c:144)，
+    // 否则 jpeg_encoder_process 返回 ESP_ERR_INVALID_ARG。故与输入同样按 cache 对齐分配。
+    // (输入侧无对齐要求，见 jpeg_encode.c:345；输入对齐是 PPA 输出的需求。)
+    s_jpeg_out = (uint8_t *)heap_caps_aligned_calloc(cache_align, 1, JPEG_OUT_CAP,
+                                                     MALLOC_CAP_SPIRAM | MALLOC_CAP_DMA);
     s_uvc_xfer = (uint8_t *)heap_caps_malloc(UVC_XFER_CAP, MALLOC_CAP_SPIRAM);
     if (!s_jpeg_out || !s_uvc_xfer) {
         ESP_LOGE(TAG, "alloc jpeg/uvc buffer failed");
