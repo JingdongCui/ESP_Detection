@@ -1,3 +1,4 @@
+#include "esp_err.h"
 #include "esp_log.h"
 #include "system_init.h"
 #include "bsp_lcd.h"
@@ -9,6 +10,7 @@
 #include "setup_ui.h"
 #include "ui.h"
 #include "ethernet_app.h"
+#include "sorting_sim_control.h"
 #include "vision.h"
 #include "vision_model.h"
 #include "roi_tuning.h"
@@ -16,8 +18,34 @@
 
 static const char *TAG = "system";
 
+//硬件分拣调试模式：上位机 TCP 链路关闭，系统仅在 RTT 输出调试信息
+#define SORTER_HARDWARE_DEBUG_MONITOR 1
+#ifndef SORTER_TCP_LINK_ENABLE
+#define SORTER_TCP_LINK_ENABLE 1
+#endif
+//日志过滤：1关闭所有模块日志，仅保留系统、分拣仿真、视觉、BSP 关键日志
+#ifndef SORTER_LOG_FILTER_ENABLE
+#define SORTER_LOG_FILTER_ENABLE 0
+#endif
+
+static void configure_monitor_logging(void)
+{
+#if SORTER_LOG_FILTER_ENABLE
+    esp_log_level_set("*", ESP_LOG_WARN);
+    esp_log_level_set("system", ESP_LOG_INFO);
+    esp_log_level_set("sorting_sim", ESP_LOG_INFO);
+    esp_log_level_set("bsp_motor", ESP_LOG_INFO);
+    esp_log_level_set("bsp_sort_sensor", ESP_LOG_INFO);
+    esp_log_level_set("bsp_encoder", ESP_LOG_INFO);
+    esp_log_level_set("vision", ESP_LOG_INFO);
+    esp_log_level_set("vision_model", ESP_LOG_WARN);
+    esp_log_level_set("ISP_AWB", ESP_LOG_ERROR);
+#endif
+}
+
 void System_Init(void)
 {
+    configure_monitor_logging();
     ESP_LOGI(TAG, "System initialization start");
 
     BSP_LCD_Init();
@@ -54,11 +82,21 @@ void System_Init(void)
     //启动视觉链路：采集 + PPA 缩放 + LCD 视频区域直刷。需在 setupUi 建好预览容器后调用。
     vision_start();
 
-    //启动以太网链路和静态 IP；当前只启用基础 IPv4 网络，没有创建 TCP/UDP 应用服务
-    //ethernet_app_start();
+    //sorting_sim_debug_start();
+    //sorting_sim_control_set_motor_output_enabled(true);
+    //sorting_sim_control_set_sensor_input_enabled(true);
 
     //启动系统监视：后台周期采集 CPU/内存/系统指标，写入快照并通过 RTT 打印
     system_monitor();
-    
+
+#if SORTER_TCP_LINK_ENABLE
+    esp_err_t eth_ret = ethernet_app_start();
+    if (eth_ret != ESP_OK) {
+        ESP_LOGW(TAG, "Ethernet sorter link start failed: %s", esp_err_to_name(eth_ret));
+    }
+#elif SORTER_HARDWARE_DEBUG_MONITOR
+    ESP_LOGI(TAG, "硬件分拣调试: 上位机TCP链路已关闭");
+#endif
+
     ESP_LOGI(TAG, "System initialization done");
 }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 #include "esp_err.h"
 
 #ifdef __cplusplus
@@ -20,6 +22,23 @@ void vision_set_detection_enabled(bool enabled);
 bool vision_is_detection_enabled(void);
 void vision_set_preview_overlay_enabled(bool enabled);
 bool vision_is_preview_overlay_enabled(void);
+
+typedef struct {
+    int class_id;
+    int confidence_pct;
+    bool valid;
+} vision_classification_t;
+
+bool vision_get_latest_classification(vision_classification_t *out);
+
+esp_err_t vision_copy_latest_frame_scaled_rgb888(uint8_t *dst,
+                                                 int dst_w,
+                                                 int dst_h,
+                                                 size_t dst_capacity,
+                                                 int *src_w,
+                                                 int *src_h,
+                                                 size_t *out_len,
+                                                 int64_t *timestamp_us);
 
 #ifdef __cplusplus
 }

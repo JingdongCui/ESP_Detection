@@ -32,6 +32,7 @@
 #include "vision_internal.h"           // 已含 evt.h → vision_result_event_data_t
 #include "vision_model.h"              // C 封装层：vision_model_run / 耗时 / 三类概率
 #include "roi_tuning.h"                // ROI 颜色阈值校准（C 接口，extern "C"）
+#include "sorting_sim_control.h"
 
 //允许miss次数
 #define VISION_DISPLAY_MISS_KEEP_COUNT 5
@@ -193,6 +194,8 @@ void vision_detect_task(void *arg)
             int cat = result.items[best_logo].category;
             if (cat >= 0 && cat < 3) {
                 strcpy(result.ev.company, kClassName[cat]);
+                sorting_sim_control_submit_vision_category(
+                    cat, result.items[best_logo].score);
             } else {
                 strcpy(result.ev.company, "--");
             }

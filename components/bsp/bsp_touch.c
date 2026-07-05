@@ -8,7 +8,7 @@
 #define TOUCH_I2C_SCL_GPIO  8
 #define TOUCH_I2C_SDA_GPIO  7
 #define TOUCH_RST_GPIO      33
-#define TOUCH_INT_GPIO      32
+#define TOUCH_INT_GPIO      21   // 原为 32，与 Motor1(B段) PWM_A 冲突，改到 J1 空闲脚 GPIO21
 
 #define TOUCH_H_RES         1024
 #define TOUCH_V_RES         600

@@ -49,7 +49,7 @@ static const char *TAG = "vision_model";
 // 是 ESPDet-Pico 架构标准，两个模型通用，无需改。
 // ============================================================
 // 模型1：面单检测（单分类，category 恒 0）
-#define VISION_WAYBILL_MODEL_FILE  "waybill_new.espdl"  // 全屏范围找面单模型 224*224输入
+#define VISION_WAYBILL_MODEL_FILE  "waybill.espdl"  // 全屏范围找面单模型 224*224输入
 #define VISION_WAYBILL_SCORE_THR_DEFAULT 0.80f
 #define VISION_WAYBILL_NMS_THR     0.70f
 // 模型2：logo 三分类（0=极兔 1=韵达 2=中通）

@@ -44,6 +44,41 @@ static int s_head;                                      // 最旧元素位置（
 static int s_count;                                     // 当前元素数
 static vision_det_frame_t s_current;                    // 最近对齐选中的结果（复刻 m_result）
 static bool s_current_valid;
+static vision_classification_t s_latest_classification;
+
+static vision_classification_t classification_from_event(const vision_result_event_data_t *ev)
+{
+    vision_classification_t cls = {
+        .class_id = 1,
+        .confidence_pct = 0,
+        .valid = false,
+    };
+    if (!ev) {
+        return cls;
+    }
+
+    cls.confidence_pct = ev->confidence;
+    if (cls.confidence_pct < 0) {
+        cls.confidence_pct = 0;
+    } else if (cls.confidence_pct > 100) {
+        cls.confidence_pct = 100;
+    }
+
+    if (strcmp(ev->company, "中通") == 0) {
+        cls.class_id = 2;
+        cls.valid = true;
+    } else if (strcmp(ev->company, "韵达") == 0) {
+        cls.class_id = 3;
+        cls.valid = true;
+    } else if (strcmp(ev->company, "极兔") == 0) {
+        cls.class_id = 1;
+        cls.valid = true;
+    }
+    if (!cls.valid) {
+        cls.confidence_pct = 0;
+    }
+    return cls;
+}
 
 static void reset_result_queue_locked(void)
 {
@@ -51,6 +86,9 @@ static void reset_result_queue_locked(void)
     s_count = 0;
     memset(&s_current, 0, sizeof(s_current));
     s_current_valid = false;
+    s_latest_classification.class_id = 1;
+    s_latest_classification.confidence_pct = 0;
+    s_latest_classification.valid = false;
 }
 
 // 初始化结果队列 mutex（复刻 esp-who 构造函数里建 m_res_mutex）。
@@ -81,8 +119,20 @@ void vision_draw_save_result(const vision_det_frame_t *frame)
     }
     int tail = (s_head + s_count) % VISION_RESULT_QUEUE_DEPTH;
     s_queue[tail] = *frame;
+    s_latest_classification = classification_from_event(&frame->ev);
     s_count++;
     xSemaphoreGive(s_mutex);
+}
+
+bool vision_draw_get_latest_classification(vision_classification_t *out)
+{
+    if (!out || !s_mutex) {
+        return false;
+    }
+    xSemaphoreTake(s_mutex, portMAX_DELAY);
+    *out = s_latest_classification;
+    xSemaphoreGive(s_mutex);
+    return true;
 }
 
 // 在 RGB888 缓冲上画一条水平/垂直实线段（含 clip，防越界）。颜色 (r,g,b) 逐框传入。

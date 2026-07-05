@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "bsp_encoder.h"
+#include "sorter_debug_config.h"
 #include "driver/gpio.h"
 #include "driver/pulse_cnt.h"
 #include "esp_check.h"
@@ -10,23 +11,13 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/portmacro.h"
 
-#define BSP_ENCODER_NUM 3                       // 编码器数量，当前板子有 3 个编码器，ID 分别是 0、1、2
-#define BSP_ENCODER_PHASE_PULSES_PER_REV 12     // 编码器单相每转 12 个脉冲
+#define BSP_ENCODER_NUM SORTER_ENCODER_COUNT    // 编码器数量，当前板子有 3 个编码器，ID 分别是 0、1、2
+#define BSP_ENCODER_PHASE_PULSES_PER_REV SORTER_ENCODER_PHASE_PULSES_PER_REV
 #define BSP_ENCODER_PCNT_COUNTS_PER_REV (BSP_ENCODER_PHASE_PULSES_PER_REV * 4)  // 使用 A/B 双相双边沿计数，原始 PCNT 计数约为单相脉冲数的 4 倍。
-#define BSP_ENCODER_SAMPLE_PERIOD_MS 100        // 编码器速度采样周期，周期到达后读取 PCNT 计数并清零。
-#define BSP_ENCODER_WHEEL_DIAMETER_MM 76        // 车轮直径，单位 mm；速度换算时用它计算轮周长。
-#define BSP_ENCODER_GLITCH_FILTER_NS 1000       // PCNT 毛刺滤波时间，单位:us 过滤过短的抖动脉冲。
+#define BSP_ENCODER_SAMPLE_PERIOD_MS SORTER_ENCODER_SAMPLE_PERIOD_MS
+#define BSP_ENCODER_WHEEL_DIAMETER_MM SORTER_ENCODER_WHEEL_DIAMETER_MM
+#define BSP_ENCODER_GLITCH_FILTER_NS SORTER_ENCODER_GLITCH_FILTER_NS
 #define BSP_ENCODER_PI 3.14159265358979323846f
-
-// 6 个编码器输入 GPIO
-#define BSP_ENCODER0_GPIO_A 5
-#define BSP_ENCODER0_GPIO_B 6
-
-#define BSP_ENCODER1_GPIO_A -1
-#define BSP_ENCODER1_GPIO_B -1
-
-#define BSP_ENCODER2_GPIO_A -1
-#define BSP_ENCODER2_GPIO_B -1
 
 static const char *TAG = "bsp_encoder";
 
@@ -45,9 +36,15 @@ typedef struct {
 
 // 三路编码器的 GPIO 配置表，数组下标和 bsp_encoder_id_t 一一对应。
 static const bsp_encoder_gpio_config_t s_encoder_gpio_configs[BSP_ENCODER_NUM] = {
-    { .gpio_a = BSP_ENCODER0_GPIO_A, .gpio_b = BSP_ENCODER0_GPIO_B },
-    { .gpio_a = BSP_ENCODER1_GPIO_A, .gpio_b = BSP_ENCODER1_GPIO_B },
-    { .gpio_a = BSP_ENCODER2_GPIO_A, .gpio_b = BSP_ENCODER2_GPIO_B },
+    { .gpio_a = SORTER_ENCODER0_GPIO_A, .gpio_b = SORTER_ENCODER0_GPIO_B },
+    { .gpio_a = SORTER_ENCODER1_GPIO_A, .gpio_b = SORTER_ENCODER1_GPIO_B },
+    { .gpio_a = SORTER_ENCODER2_GPIO_A, .gpio_b = SORTER_ENCODER2_GPIO_B },
+};
+
+static const bool s_encoder_reverse[BSP_ENCODER_NUM] = {
+    SORTER_ENCODER0_REVERSE != 0,
+    SORTER_ENCODER1_REVERSE != 0,
+    SORTER_ENCODER2_REVERSE != 0,
 };
 
 // 保存 3 路编码器的 PCNT unit/channel 句柄，后续采样和清零都通过这些句柄访问硬件计数器。
@@ -133,6 +130,11 @@ static float encoder_count_to_speed_cm_s(int count)
     return (float)count * wheel_circumference_cm / (float)BSP_ENCODER_PCNT_COUNTS_PER_REV / sample_period_s;
 }
 
+static float apply_encoder_direction(bsp_encoder_id_t encoder_id, float speed_cm_s)
+{
+    return s_encoder_reverse[encoder_id] ? -speed_cm_s : speed_cm_s;
+}
+
 // 更新指定编码器的速度值，使用临界区保护共享变量。
 static void update_encoder_speed(bsp_encoder_id_t encoder_id, float speed_cm_s)
 {
@@ -164,7 +166,7 @@ static void encoder_sample_timer_cb(void *arg)
         int count = 0;
         esp_err_t ret = pcnt_unit_get_count(s_encoders[i].unit, &count);
         if (ret == ESP_OK) {
-            update_encoder_speed(i, encoder_count_to_speed_cm_s(count));
+            update_encoder_speed(i, apply_encoder_direction(i, encoder_count_to_speed_cm_s(count)));
             ESP_LOGD(TAG, "encoder %d count: %d, speed: %.2f cm/s", i, count, s_encoder_speed_cm_s[i]);
             ret = pcnt_unit_clear_count(s_encoders[i].unit);
         }
@@ -233,4 +235,3 @@ static esp_err_t init_encoder_pcnt(bsp_encoder_id_t encoder_id)
     ESP_RETURN_ON_ERROR(pcnt_unit_clear_count(encoder->unit), TAG, "clear PCNT unit failed");
     return pcnt_unit_start(encoder->unit);
 }
-

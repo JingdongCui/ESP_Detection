@@ -89,6 +89,7 @@ bool vision_is_preview_overlay_enabled(void)
 
 // ---- 预览（PPA 缩放 + 硬件搬运到 fb）资源，仅显示任务使用 ----
 static ppa_client_handle_t s_ppa;       // PPA SRM 客户端句柄（缩放 + scale=1.0 搬运共用）
+static ppa_client_handle_t s_snapshot_ppa;
 static int s_preview_x;                 // 预览区域左上角 X（屏幕坐标）
 static int s_preview_y;                 // 预览区域左上角 Y（屏幕坐标）
 static int s_preview_w;                 // 预览区域宽度
@@ -159,6 +160,77 @@ void vision_get_preview_size(int *w, int *h)
     if (h) {
         *h = s_preview_h;
     }
+}
+
+esp_err_t vision_copy_latest_frame_scaled_rgb888(uint8_t *dst,
+                                                 int dst_w,
+                                                 int dst_h,
+                                                 size_t dst_capacity,
+                                                 int *src_w,
+                                                 int *src_h,
+                                                 size_t *out_len,
+                                                 int64_t *timestamp_us)
+{
+    if (!dst || dst_w <= 0 || dst_h <= 0 || !s_ring_mutex || !s_snapshot_ppa) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    size_t need = (size_t)dst_w * (size_t)dst_h * RGB888_BYTES_PER_PIXEL;
+    if (dst_capacity < need) {
+        return ESP_ERR_INVALID_SIZE;
+    }
+
+    esp_err_t ret = ESP_ERR_NOT_FOUND;
+    xSemaphoreTake(s_ring_mutex, portMAX_DELAY);
+    if (s_ring_count > 0) {
+        int idx = (s_ring_head + s_ring_count - 1) % s_ring_cap;
+        const vision_frame_t fb = s_ring[idx];
+
+        if (src_w) {
+            *src_w = fb.width;
+        }
+        if (src_h) {
+            *src_h = fb.height;
+        }
+        if (out_len) {
+            *out_len = need;
+        }
+        if (timestamp_us) {
+            *timestamp_us = fb.timestamp;
+        }
+
+        ppa_srm_oper_config_t srm = {
+            .in = {
+                .buffer = (void *)fb.buf,
+                .pic_w = fb.width,
+                .pic_h = fb.height,
+                .block_w = fb.width,
+                .block_h = fb.height,
+                .block_offset_x = 0,
+                .block_offset_y = 0,
+                .srm_cm = PPA_SRM_COLOR_MODE_RGB888,
+            },
+            .out = {
+                .buffer = dst,
+                .buffer_size = need,
+                .pic_w = dst_w,
+                .pic_h = dst_h,
+                .block_offset_x = 0,
+                .block_offset_y = 0,
+                .srm_cm = PPA_SRM_COLOR_MODE_RGB888,
+            },
+            .rotation_angle = PPA_SRM_ROTATION_ANGLE_0,
+            .scale_x = (float)dst_w / fb.width,
+            .scale_y = (float)dst_h / fb.height,
+            .mode = PPA_TRANS_MODE_BLOCKING,
+        };
+        ret = ppa_do_scale_rotate_mirror(s_snapshot_ppa, &srm);
+        if (ret == ESP_OK) {
+            ret = esp_cache_msync(dst, need, ESP_CACHE_MSYNC_FLAG_DIR_M2C);
+        }
+    }
+    xSemaphoreGive(s_ring_mutex);
+    return ret;
 }
 
 // fetch 任务把新帧并入 ringbuf：满则先 pop 最旧帧 QBUF 还驱动，再 push 新帧。
@@ -417,6 +489,11 @@ esp_err_t vision_start(void)
         ESP_LOGE(TAG, "ppa_register_client failed: %s", esp_err_to_name(ret));
         return ret;
     }
+    ret = ppa_register_client(&ppa_cfg, &s_snapshot_ppa);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "snapshot ppa_register_client failed: %s", esp_err_to_name(ret));
+        return ret;
+    }
 
     // A2：中转缓冲（需 DMA 能力供 PPA 搬运），放 PSRAM。
     s_preview_buf = heap_caps_malloc(s_preview_buf_size, MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
@@ -506,4 +583,9 @@ esp_err_t vision_start(void)
     ESP_LOGI(TAG, "vision started: preview %dx%d at %d,%d, ring depth %d",
              s_preview_w, s_preview_h, s_preview_x, s_preview_y, s_ring_cap);
     return ESP_OK;
+}
+
+bool vision_get_latest_classification(vision_classification_t *out)
+{
+    return vision_draw_get_latest_classification(out);
 }

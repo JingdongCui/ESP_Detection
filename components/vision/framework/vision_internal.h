@@ -16,6 +16,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "evt.h"           // vision_result_event_data_t（UI 文本投递结构）
+#include "vision.h"        // vision_classification_t
 #include "vision_model.h"  // vision_stage_t（级联阶段，画框据此分色）
 
 #ifdef __cplusplus
@@ -71,6 +72,8 @@ bool vision_draw_init(void);
 // 检测侧 push 一帧结果进队列（复刻 WhoDetectResultLCDDisp::save_detect_result）。
 // 内部加 mutex 保护，可跨任务调用。
 void vision_draw_save_result(const vision_det_frame_t *frame);
+
+bool vision_draw_get_latest_classification(vision_classification_t *out);
 
 // 显示侧回调：按 disp_timestamp 对齐取最贴合的结果，在 preview_buf(RGB888) 上画框
 // （复刻 lcd_disp_cb + draw_detect_results_on_img）。须在持显示锁、draw_bitmap 前调用。

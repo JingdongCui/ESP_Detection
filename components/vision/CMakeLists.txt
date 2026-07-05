@@ -12,6 +12,7 @@ idf_component_register(
     REQUIRES
         bsp
         UI
+        Sorter_app
         esp_driver_ppa
         esp_lcd
         system_monitor

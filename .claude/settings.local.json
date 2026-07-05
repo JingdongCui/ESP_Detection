@@ -198,7 +198,17 @@
       "Bash(cmd //c start \"\" \"frame_bgr.png\")",
       "Bash(grep -nB1 -A4 \"^  idf:\" dependencies.lock)",
       "Bash(grep -nB1 -A6 \"esp_lvgl_adapter\" dependencies.lock)",
-      "Bash(git restore *)"
+      "Bash(git restore *)",
+      "Bash(PYTHONIOENCODING=utf-8 python3 *)",
+      "Bash(cp \"E:/two_stage_host_handoff_20260705/new_merge_motor_two_stage/components/bsp/bsp_sort_sensor.c\" \"E:/ESP32P4_Detection/components/bsp/bsp_sort_sensor.c\")",
+      "Bash(cp \"E:/two_stage_host_handoff_20260705/new_merge_motor_two_stage/components/bsp/include/bsp_sort_sensor.h\" \"E:/ESP32P4_Detection/components/bsp/include/bsp_sort_sensor.h\")",
+      "Bash(cp \"E:/two_stage_host_handoff_20260705/new_merge_motor_two_stage/components/bsp/include/sorter_debug_config.h\" \"E:/ESP32P4_Detection/components/bsp/include/sorter_debug_config.h\")",
+      "Bash(cp \"E:/two_stage_host_handoff_20260705/new_merge_motor_two_stage/components/bsp/bsp_motor.c\" \"E:/ESP32P4_Detection/components/bsp/bsp_motor.c\")",
+      "Bash(cp \"E:/two_stage_host_handoff_20260705/new_merge_motor_two_stage/components/bsp/include/bsp_motor.h\" \"E:/ESP32P4_Detection/components/bsp/include/bsp_motor.h\")",
+      "Bash(cp \"E:/two_stage_host_handoff_20260705/new_merge_motor_two_stage/components/Ethernet_app/ethernet_app.c\" \"E:/ESP32P4_Detection/components/Ethernet_app/ethernet_app.c\")",
+      "Bash(cp \"E:/two_stage_host_handoff_20260705/new_merge_motor_two_stage/components/Ethernet_app/include/ethernet_app.h\" \"E:/ESP32P4_Detection/components/Ethernet_app/include/ethernet_app.h\")",
+      "Bash(curl -sL --max-time 25 \"https://raw.githubusercontent.com/espressif/esp-iot-solution/master/components/usb/usb_device_uvc/include/usb_device_uvc.h\")",
+      "Bash(git checkout *)"
     ]
   }
 }
