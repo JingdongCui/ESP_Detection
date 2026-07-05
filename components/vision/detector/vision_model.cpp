@@ -22,6 +22,7 @@
 #include <cstring>
 #include <cstdio>
 #include <map>
+#include <mutex>
 #include <vector>
 
 #include "esp_heap_caps.h"
@@ -48,13 +49,35 @@ static const char *TAG = "vision_model";
 // 是 ESPDet-Pico 架构标准，两个模型通用，无需改。
 // ============================================================
 // 模型1：面单检测（单分类，category 恒 0）
-#define VISION_WAYBILL_MODEL_FILE  "det_pico_224_224_waybill.espdl"  // 全屏范围找面单模型 224*224输入
-#define VISION_WAYBILL_SCORE_THR   0.70f
+#define VISION_WAYBILL_MODEL_FILE  "waybill_new.espdl"  // 全屏范围找面单模型 224*224输入
+#define VISION_WAYBILL_SCORE_THR_DEFAULT 0.80f
 #define VISION_WAYBILL_NMS_THR     0.70f
 // 模型2：logo 三分类（0=极兔 1=韵达 2=中通）
-#define VISION_LOGO_MODEL_FILE     "findlogo.espdl"  // 面单范围找logo模型 224*224输入
-#define VISION_LOGO_SCORE_THR      0.50f
+#define VISION_LOGO_MODEL_FILE     "logo.espdl"  // 面单范围找logo模型 224*224输入
+#define VISION_LOGO_SCORE_THR_DEFAULT 0.60f
 #define VISION_LOGO_NMS_THR        0.70f
+
+static std::mutex s_threshold_mutex;
+static std::mutex s_model_mutex;
+static float s_waybill_score_thr = VISION_WAYBILL_SCORE_THR_DEFAULT;
+static float s_logo_score_thr = VISION_LOGO_SCORE_THR_DEFAULT;
+
+static int clamp_percent(int percent)
+{
+    if (percent < 0) {
+        return 0;
+    }
+    if (percent > 100) {
+        return 100;
+    }
+    return percent;
+}
+
+static int score_thr_to_percent(float value)
+{
+    int percent = (int)(value * 100.0f + 0.5f);
+    return clamp_percent(percent);
+}
 
 // SPIFFS 挂载点与分区标签（模型文件由 spiffs_create_partition_image(storage model) 打包）。
 #define VISION_MODEL_SPIFFS_BASE   "/spiffs"
@@ -98,6 +121,9 @@ static const char *TAG = "vision_model";
 // 编排层临时缓冲上限（面单只取最高分 1 个，logo 若干）。
 #define VISION_MODEL_MAX_WB   4
 #define VISION_MODEL_MAX_LOGO 4
+
+static uint8_t *s_roi_buf;
+static size_t s_roi_cap;
 
 // ===== 第一层：原子模型（DetectImpl 子类，装配三件套）=====
 
@@ -300,6 +326,14 @@ public:
             {{8, 8, 4, 4}, {16, 16, 8, 8}, {32, 32, 16, 16}});
     }
 
+    void set_runtime_score_thr(float score_thr)
+    {
+        m_score_thr = score_thr;
+        if (m_postprocessor) {
+            m_postprocessor->set_score_thr(score_thr);
+        }
+    }
+
     std::list<dl::detect::result_t> &run_with_runtime_mode(const dl::image::img_t &img,
                                                             int *jt = nullptr,
                                                             int *zt = nullptr,
@@ -419,6 +453,14 @@ extern "C" void vision_detector_free(vision_detector_t *det)
     }
 }
 
+static void vision_detector_set_score_threshold(vision_detector_t *det, float score_thr)
+{
+    std::lock_guard<std::mutex> lock(s_model_mutex);
+    if (det && det->model) {
+        det->model->set_runtime_score_thr(score_thr);
+    }
+}
+
 static int vision_detector_run_internal(vision_detector_t *det,
                                         const uint8_t *img, int width, int height,
                                         vision_model_det_t *out, int max,
@@ -436,6 +478,7 @@ static int vision_detector_run_internal(vision_detector_t *det,
     // ImagePreprocessor 目标为 RGB888(rgb_swap=false)，esp-dl 依 BGR→RGB 自动交换红蓝。
     in.pix_type = dl::image::DL_IMAGE_PIX_TYPE_BGR888;
 
+    std::lock_guard<std::mutex> lock(s_model_mutex);
     std::list<dl::detect::result_t> &res = det->model->run_with_runtime_mode(in, jt, zt, yd);
 
     int n = 0;
@@ -658,6 +701,42 @@ static bool mount_model_spiffs(void)
     return true;
 }
 
+extern "C" int vision_model_get_waybill_score_threshold_percent(void)
+{
+    std::lock_guard<std::mutex> lock(s_threshold_mutex);
+    return score_thr_to_percent(s_waybill_score_thr);
+}
+
+extern "C" int vision_model_get_logo_score_threshold_percent(void)
+{
+    std::lock_guard<std::mutex> lock(s_threshold_mutex);
+    return score_thr_to_percent(s_logo_score_thr);
+}
+
+extern "C" void vision_model_set_waybill_score_threshold_percent(int percent)
+{
+    percent = clamp_percent(percent);
+    float score_thr = percent / 100.0f;
+    {
+        std::lock_guard<std::mutex> lock(s_threshold_mutex);
+        s_waybill_score_thr = score_thr;
+    }
+    SEGGER_RTT_printf(0, "[vision-thr] waybill set percent=%d score_thr=%.2f\n", percent, score_thr);
+    vision_detector_set_score_threshold(s_waybill, score_thr);
+}
+
+extern "C" void vision_model_set_logo_score_threshold_percent(int percent)
+{
+    percent = clamp_percent(percent);
+    float score_thr = percent / 100.0f;
+    {
+        std::lock_guard<std::mutex> lock(s_threshold_mutex);
+        s_logo_score_thr = score_thr;
+    }
+    SEGGER_RTT_printf(0, "[vision-thr] logo set percent=%d score_thr=%.2f\n", percent, score_thr);
+    vision_detector_set_score_threshold(s_logo, score_thr);
+}
+
 extern "C" bool vision_model_init(void)
 {
     if (VISION_MODEL_BYPASS_LOAD) {
@@ -669,10 +748,17 @@ extern "C" bool vision_model_init(void)
     if (!mount_model_spiffs()) {
         return false;
     }
+    float waybill_score_thr;
+    float logo_score_thr;
+    {
+        std::lock_guard<std::mutex> lock(s_threshold_mutex);
+        waybill_score_thr = s_waybill_score_thr;
+        logo_score_thr = s_logo_score_thr;
+    }
     s_waybill = vision_detector_load(VISION_WAYBILL_MODEL_FILE,
-                                     VISION_WAYBILL_SCORE_THR, VISION_WAYBILL_NMS_THR);
+                                     waybill_score_thr, VISION_WAYBILL_NMS_THR);
     s_logo    = vision_detector_load(VISION_LOGO_MODEL_FILE,
-                                     VISION_LOGO_SCORE_THR, VISION_LOGO_NMS_THR);
+                                     logo_score_thr, VISION_LOGO_NMS_THR);
     if (!s_waybill || !s_logo) {
         vision_detector_free(s_waybill);
         vision_detector_free(s_logo);
@@ -686,8 +772,8 @@ extern "C" bool vision_model_init(void)
     return true;
 }
 
-// 从原图【拷贝】裁剪 ROI 到新分配的独立缓冲（PSRAM）。裁剪矩形 clip 到原图边界。
-// 返回子图指针（调用者负责 heap_caps_free）；出参回填实际 ROI 宽高与左上偏移。
+// 从原图【拷贝】裁剪 ROI 到模块内复用缓冲（PSRAM）。裁剪矩形 clip 到原图边界。
+// 返回子图指针（调用者不得释放）；出参回填实际 ROI 宽高与左上偏移。
 // 失败返回 NULL。原图 buf 只读，不被修改。
 static uint8_t *crop_roi(const uint8_t *buf, int width, int height,
                          const int box[4],
@@ -703,21 +789,26 @@ static uint8_t *crop_roi(const uint8_t *buf, int width, int height,
     if (rw <= 0 || rh <= 0) {
         return NULL;
     }
-    uint8_t *roi = (uint8_t *)heap_caps_malloc((size_t)rw * rh * 3, MALLOC_CAP_SPIRAM);
-    if (!roi) {
+    size_t need = (size_t)rw * rh * 3;
+    if (s_roi_cap < need) {
+        heap_caps_free(s_roi_buf);
+        s_roi_buf = (uint8_t *)heap_caps_malloc(need, MALLOC_CAP_SPIRAM);
+        s_roi_cap = s_roi_buf ? need : 0;
+    }
+    if (!s_roi_buf) {
         return NULL;
     }
     // 逐行拷贝原图 ROI 区域到紧凑子图（stride 从原图整宽收缩为 rw）。
     for (int r = 0; r < rh; r++) {
         const uint8_t *src = buf + ((size_t)(y1 + r) * width + x1) * 3;
-        uint8_t *dst = roi + (size_t)r * rw * 3;
+        uint8_t *dst = s_roi_buf + (size_t)r * rw * 3;
         memcpy(dst, src, (size_t)rw * 3);
     }
     *roi_w = rw;
     *roi_h = rh;
     *off_x = x1;
     *off_y = y1;
-    return roi;
+    return s_roi_buf;
 }
 
 extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
@@ -744,6 +835,15 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
         if (wb[i].score > wb[best].score) {
             best = i;
         }
+    }
+    float waybill_score_thr;
+    {
+        std::lock_guard<std::mutex> lock(s_threshold_mutex);
+        waybill_score_thr = s_waybill_score_thr;
+    }
+    if (wb[best].score < waybill_score_thr) {
+        s_last_infer_ms = (int)((esp_timer_get_time() - t0) / 1000);
+        return 0;
     }
     dets[0] = wb[best];
     dets[0].stage = VISION_STAGE_WAYBILL;
@@ -772,8 +872,14 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
         }
     }
 
+    float logo_score_thr;
+    {
+        std::lock_guard<std::mutex> lock(s_threshold_mutex);
+        logo_score_thr = s_logo_score_thr;
+    }
+
     // 6) 最高分 logo 框加面单左上角偏移，映射回原图坐标 → dets[1]（stage=LOGO）。
-    if (best_lg >= 0 && total < max) {
+    if (best_lg >= 0 && lg[best_lg].score >= logo_score_thr && total < max) {
         vision_model_det_t d = lg[best_lg];
         d.box[0] += off_x;
         d.box[1] += off_y;
@@ -783,7 +889,6 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
         dets[total++] = d;
     }
 
-    heap_caps_free(roi);
     s_last_infer_ms = (int)((esp_timer_get_time() - t0) / 1000);
     return total;
 }

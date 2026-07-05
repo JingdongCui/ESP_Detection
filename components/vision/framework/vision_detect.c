@@ -33,11 +33,16 @@
 #include "vision_model.h"              // C 封装层：vision_model_run / 耗时 / 三类概率
 #include "roi_tuning.h"                // ROI 颜色阈值校准（C 接口，extern "C"）
 
-// 诊断抓帧：UI 线程（core0）按键置位，推理线程（core1）下一帧 memcpy 出"进推理前"整帧
-// 原始 RGB888 到固定 PSRAM buffer，供主机经 JTAG dump_image 拉成 .bin 与 PC 前处理对拍。
+//允许miss次数
+#define VISION_DISPLAY_MISS_KEEP_COUNT 5
+
 static atomic_bool s_frame_dump_request = ATOMIC_VAR_INIT(false);
 static uint8_t    *s_frame_dump_buf;   // 常驻 PSRAM，按需扩容后不释放
 static size_t      s_frame_dump_cap;
+
+static vision_det_frame_t s_display_last_hit;
+static bool s_display_has_last_hit;
+static int s_display_miss_count;
 
 void vision_frame_dump_request(void)
 {
@@ -119,9 +124,13 @@ void vision_detect_task(void *arg)
 
         // ===== 真实推理：原图 RGB888 → ROI/前处理/model->run/后处理 → 原图坐标框 =====
         vision_model_det_t dets[VISION_MAX_BOXES];
-        int n = vision_model_run(fb.buf, fb.width, fb.height, dets, VISION_MAX_BOXES);
-        if (n < 0) {
-            n = 0;  // 推理失败按无目标处理
+        int n = 0;
+        bool detection_enabled = vision_is_detection_enabled();
+        if (detection_enabled) {
+            n = vision_model_run(fb.buf, fb.width, fb.height, dets, VISION_MAX_BOXES);
+            if (n < 0) {
+                n = 0;  // 推理失败按无目标处理
+            }
         }
 
         // rescale 原图坐标 → 预览坐标，逐框 clip（复刻 rescale_detect_result + limit_box）。
@@ -130,7 +139,7 @@ void vision_detect_task(void *arg)
         int pw = 0, ph = 0;
         vision_get_preview_size(&pw, &ph);
         int kept = 0;
-        if (pw > 0 && ph > 0 && fb.width > 0 && fb.height > 0) {
+        if (detection_enabled && pw > 0 && ph > 0 && fb.width > 0 && fb.height > 0) {
             float sx = (float)pw / fb.width;
             float sy = (float)ph / fb.height;
             for (int i = 0; i < n && kept < VISION_MAX_BOXES; i++) {
@@ -159,20 +168,26 @@ void vision_detect_task(void *arg)
         result.count = kept;
 
         // ===== 组装 UI 文本数据进 result.ev（不投递，随结果进队列，由显示侧对齐后 send）=====
-        // 公司/置信度只由 stage==LOGO 的最高分框决定（三分类来自模型2）；面单框不参与分类。
-        // 空帧或无 logo 框同样填好"无目标"那份，保证文本与画框完全同步。
+        int best_waybill = -1;
         int best_logo = -1;
         for (int i = 0; i < result.count; i++) {
-            if (result.items[i].stage != VISION_STAGE_LOGO) {
-                continue;
-            }
-            if (best_logo < 0 || result.items[i].score > result.items[best_logo].score) {
-                best_logo = i;
+            if (result.items[i].stage == VISION_STAGE_WAYBILL) {
+                if (best_waybill < 0 || result.items[i].score > result.items[best_waybill].score) {
+                    best_waybill = i;
+                }
+            } else if (result.items[i].stage == VISION_STAGE_LOGO) {
+                if (best_logo < 0 || result.items[i].score > result.items[best_logo].score) {
+                    best_logo = i;
+                }
             }
         }
-        if (best_logo >= 0) {
+        result.ev.confidence = best_waybill >= 0 ? (int)(result.items[best_waybill].score * 100.0f) : 0;
+        result.ev.logo_confidence = best_logo >= 0 ? (int)(result.items[best_logo].score * 100.0f) : 0;
+        if (!detection_enabled) {
+            strcpy(result.ev.status, "检测关闭");
+            strcpy(result.ev.company, "--");
+        } else if (best_logo >= 0) {
             strcpy(result.ev.status, "识别成功");
-            result.ev.confidence = (int)(result.items[best_logo].score * 100.0f);
             // 类别名映射：0=极兔 1=韵达 2=中通
             static const char *kClassName[3] = {"极兔", "韵达", "中通"};
             int cat = result.items[best_logo].category;
@@ -183,24 +198,47 @@ void vision_detect_task(void *arg)
             }
         } else {
             strcpy(result.ev.status, "无目标");
-            result.ev.confidence = 0;
             strcpy(result.ev.company, "--");
         }
         result.ev.fps_x10 = fps10;
-        result.ev.infer_time_ms = vision_model_last_infer_ms();
-        // 三类概率×100（极兔/韵达/中通），A/M 暂同填概率值（占位，后续可分平均/峰值）
-        int jt = 0, zt = 0, yd = 0;
-        vision_model_get_class_probs(&jt, &zt, &yd);
-        result.ev.jt_a = jt;
-        result.ev.zt_a = zt;
-        result.ev.yd_a = yd;
+        if (detection_enabled) {
+            result.ev.infer_time_ms = vision_model_last_infer_ms();
+            // 三类概率×100（极兔/韵达/中通），A/M 暂同填概率值（占位，后续可分平均/峰值）
+            int jt = 0, zt = 0, yd = 0;
+            vision_model_get_class_probs(&jt, &zt, &yd);
+            result.ev.jt_a = jt;
+            result.ev.zt_a = zt;
+            result.ev.yd_a = yd;
+        }
+
+        if (!detection_enabled) {
+            s_display_has_last_hit = false;
+            s_display_miss_count = 0;
+        } else if (best_waybill >= 0 && best_logo >= 0) {
+            s_display_last_hit = result;
+            s_display_has_last_hit = true;
+            s_display_miss_count = 0;
+        } else if (s_display_has_last_hit && s_display_miss_count < VISION_DISPLAY_MISS_KEEP_COUNT) {
+            s_display_miss_count++;
+            vision_det_frame_t held = s_display_last_hit;
+            held.timestamp = result.timestamp;
+            held.ev.fps_x10 = result.ev.fps_x10;
+            held.ev.infer_time_ms = result.ev.infer_time_ms;
+            held.ev.jt_a = result.ev.jt_a;
+            held.ev.zt_a = result.ev.zt_a;
+            held.ev.yd_a = result.ev.yd_a;
+            result = held;
+        } else {
+            s_display_has_last_hit = false;
+            s_display_miss_count = 0;
+        }
 
         // push 进结果队列（detect 全程只持轻量 s_mutex，不碰 LVGL 锁）。
         vision_draw_save_result(&result);
 
         SEGGER_RTT_printf(0, "[vision_det] frame #%u %dx%d boxes=%d infer=%dms %d.%d fps\n",
                           (unsigned)frame_seq, fb.width, fb.height,
-                          result.count, vision_model_last_infer_ms(),
+                          result.count, result.ev.infer_time_ms,
                           fps10 / 10, fps10 % 10);
     }
 }
