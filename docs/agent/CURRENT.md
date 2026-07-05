@@ -6,8 +6,9 @@
 
 ## Current State
 
-- `new_merge` 分支：`motor-roi`。
-- 当前已验证提交：`14ff3a2 move jpeg producer off busy core`。
+- `new_merge` 当前分支：`motor-two-stage`。
+- `motor-roi` 已验证提交：`14ff3a2 move jpeg producer off busy core`。
+- `motor-two-stage` 已同步提交：`321b759 move jpeg producer off busy core`。
 - 关键提交链：
   - `9e4b23d optimize tcp image metrics link`
   - `ceae9b5 support low revision and restore uart console`
@@ -40,6 +41,9 @@
     - TCP control/image 双连接建立，`ss` 显示 `5000/5001` 均 ESTABLISHED。
     - metrics 每秒写入 `~/Documents/ESP32Host/telemetry.jsonl`。
     - JPEG preview 正常：`image_encoded=15`、`image_sent=15`、drop/fail 均 0；最新 `latest_preview.jpg` 大小约 39 KB。
+- `motor-two-stage`：
+  - cherry-pick `9e4b23d ceae9b5 50f132a 12ec1cf 14ff3a2` 无冲突完成。
+  - `idf.py build` 通过，app 大小 `0x4ea5c0`，factory 分区剩余约 18%。
 
 ## Notes
 
@@ -49,11 +53,7 @@
 
 ## Next Step
 
-- 将已验证的 TCP/revision 修正同步到 `motor-two-stage`：
-  - `git switch motor-two-stage`
-  - cherry-pick `9e4b23d ceae9b5 50f132a 12ec1cf 14ff3a2`
-  - 解决冲突后 `idf.py build`
-  - 保持最终语义：low revision、UART0 console、S1/S2/S3/S4 = `53/23/-1/22`、TCP task PSRAM stack、JPEG cache sync 修正、producer on core0。
+- 如需现场验证 two-stage，执行 `idf.py flash monitor`；当前已完成 build 验证，尚未对 two-stage 实机烧录。
 
 ## Blockers
 

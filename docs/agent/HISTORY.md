@@ -46,6 +46,12 @@
 - 串口经验：
   - 显式 `-b 921600/460800/115200` 多次遇到 stub 或 app 写入中断。
   - 直接 `idf.py flash` 可成功，失败后重试也可成功；app-only 变更优先用 `idf.py app-flash` 降低串口暴露时间。
+- 同步到 `motor-two-stage`：
+  - `git switch motor-two-stage`。
+  - cherry-pick `9e4b23d ceae9b5 50f132a 12ec1cf 14ff3a2` 无冲突完成。
+  - 生成提交：`97d0c96`、`c57a05e`、`3651afa`、`950ca0f`、`321b759`。
+  - `idf.py build` 通过，app 大小 `0x4ea5c0`，factory 分区剩余约 18%。
+  - 未对 `motor-two-stage` 进行实机 flash/monitor；当前实机验证对象仍是 `motor-roi` 的 `14ff3a2`。
 
 ## 2026-07-05 new_merge low revision UART restore
 

@@ -200,6 +200,11 @@ idf.py -p /dev/ttyUSB0 monitor
   - 普通 `xTaskCreatePinnedToCore` 分配 TCP task stack 会因内部 RAM 紧张失败；TCP task stack 改用 `xTaskCreatePinnedToCoreWithCaps(..., MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)`。
   - ESP-IDF 5.5 的 M2C cache sync 不允许 `ESP_CACHE_MSYNC_FLAG_UNALIGNED`；snapshot buffer 需 cache-line 对齐后用纯 `ESP_CACHE_MSYNC_FLAG_DIR_M2C`。
   - CPU1 长期接近 100%；JPEG producer 不能 pin 到 core1，已移到 core0、priority 3。
+- 2026-07-05 已同步到 `motor-two-stage`：
+  - cherry-pick `9e4b23d ceae9b5 50f132a 12ec1cf 14ff3a2` 无冲突。
+  - `motor-two-stage` 当前对应提交：`321b759 move jpeg producer off busy core`。
+  - `idf.py build` 通过，app 大小 `0x4ea5c0`，factory 分区剩余约 18%。
+  - two-stage 尚未实机 flash/monitor；实机验证基准仍是 `motor-roi` 的 `14ff3a2`。
 
 ## ESP32 Host No Inference
 
