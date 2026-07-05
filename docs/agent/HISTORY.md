@@ -1,5 +1,34 @@
 # History
 
+## 2026-07-05 host image category display and courier stats
+
+- 用户要求上位机显示图片时带快递类别：极兔/中通/韵达之一；视觉检测页体现该功能；快递统计作为 feature 替换图片链路中的失败统计，不再显示发送失败。
+- 用户确认：
+  - 允许同时改板端和上位机。
+  - 无法分类时按极兔显示和统计。
+  - 快递统计按收到的 JPEG 图片记录计数。
+- 修改前 checkpoint：
+  - 上位机：`5adbb4f checkpoint before image category display`。
+  - 板端：`a09b055 checkpoint before jpeg category metadata`。
+- 已修改：
+  - 板端 `vision` 增加最新分类快照接口，读取视觉结果里的 `company/confidence`，未知/无目标映射为极兔、置信度 0。
+  - 板端 JPEG 包头复用保留字段：`reserved=class_id`，`reserved2 & 0xff=confidence_pct`。
+  - 上位机 `PacketHeader` 解析 `reserved/reserved2`，图片历史记录写入 `categoryLabel/categoryConfidence`。
+  - 上位机按收到的图片记录累计极兔/中通/韵达数量。
+  - 视觉检测页主图增加类别徽标，历史列表显示类别和置信度。
+  - `imageLinkCards()` 中“失败”卡片替换为“快递统计”卡片。
+  - 修正 `DetectionPage.qml` 的 `hasSelectedFrame` bool 绑定，避免 undefined bool 警告。
+- 验证：
+  - 上位机 `cmake --build --preset debug` 通过。
+  - 上位机 offscreen 启动 8 秒无输出。
+  - 本机模拟发送 3 张 JPEG，分别带 `class_id=1/2/3`，生成 `frame_920001.jpg`、`frame_920002.jpg`、`frame_920003.jpg`。
+  - `rg` 检查无 `发送失败` 或 UI `title: "失败"` 残留；正常上传计数 `JPEG 发送` 保留。
+  - 板端 `idf.py build` 通过，app 大小 `0x4eee40`，factory 分区剩余约 18%。
+  - 板端 `idf.py flash` 成功，ESP32-P4 revision `v1.0`，各分区 hash verified。
+  - monitor 120 秒窗口启动到 `System initialization done`，未见 panic/reboot。
+  - `ss` 轮询确认 `5000/5001` 均保持 `ESTABLISHED`，`latest_preview.jpg` 持续每 5 秒更新。
+  - Python listener 解析真实板端 JPEG 包头：`class_id=1 confidence=0`，说明元数据随图像包发送。
+
 ## 2026-07-05 host maintenance layout and TCP default split
 
 - 用户反馈系统维护页链路端口卡片错位，并指出“默认关闭 TCP 模拟分拣链路”不应关闭板端和上位机的 TCP 通信。

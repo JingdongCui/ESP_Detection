@@ -189,10 +189,14 @@ idf.py -p /dev/ttyUSB0 monitor
   - 使用 `esp_new_jpeg` 编码 JPEG，quality 60，subsample 4:4:4。
   - image queue 深度 2；host 慢时跳过新图，避免无限排队。
   - image payload 按 8KB chunk 发送并 yield。
+  - JPEG 包头 `reserved` 携带快递类别：`1=极兔`、`2=中通`、`3=韵达`。
+  - JPEG 包头 `reserved2` 低 8 bit 携带类别置信度百分比 `0..100`。
+  - 未识别或无目标时按 `极兔` 兼容显示，置信度为 `0`。
 - vision/Ethernet 边界：
   - Ethernet 不直接调用 `cam_sensor_get_frame()`。
   - 通过 `vision_copy_latest_frame_scaled_rgb888()` 从 vision ring 最新帧生成 PPA 缩放快照。
   - 快照接口在 PPA 写完后做 M2C cache invalidate，确保 JPEG 编码读取的是新图。
+  - 通过 `vision_get_latest_classification()` 读取最新分类快照，不在 Ethernet task 内跑推理。
 - 已知验证状态：
   - 2026-07-05 低 revision ESP32-P4 v1.0 实机验证通过。
   - 当前已验证提交：`14ff3a2 move jpeg producer off busy core`。
@@ -230,6 +234,7 @@ idf.py -p /dev/ttyUSB0 monitor
   - `0x12`：SIM line，不再作为 inference result JSON。
   - 不发送板端不解析的 `0x11 ControlJson/upload_format`。
   - image socket 固定 `5001`，packet type `0x01`，pixel format `2` JPEG。
+  - JPEG 包头 `reserved/reserved2` 解析为快递类别和置信度；旧固件或未知值按 `极兔`、`0%` 处理。
 - 2026-07-05 上位机 UI 对齐边界：
   - 参考 `new_merge` 板端普通 dashboard/settings 页面，不镜像临时 DEV/debug 页面。
   - 保留臃肿信息面板风格，删除本地模型服务/推理工作台页面。
@@ -239,6 +244,9 @@ idf.py -p /dev/ttyUSB0 monitor
   - 图片预览页默认显示最新板端 JPEG；取消 10 帧节流，收到 `5001` 图片即更新 `latest_preview.jpg`。
   - 接收图片历史不依赖 detection JSON；每张图片保存为独立 `frame_%06u.jpg` 并插入历史列表，同时覆盖 `latest_preview.jpg`。
   - 上位机显示标签使用本地接收顺序 `包裹#N`，不要在 UI 显示“图片帧/画质增强”等实现细节。
+  - 视觉页主图和历史记录显示快递类别与置信度。
+  - 快递统计按收到的 JPEG 图片记录计数，不按真实包裹 ID；无法分类按极兔统计。
+  - 图片链路统计中不展示“发送失败”卡片，改为“快递统计”。
   - host 展示图会做本地画质增强：3x3 中值去椒盐/彩色孤立点 + 轻微锐化，再以 JPEG quality 88 保存。
   - 控制页保留屏幕亮度、置信度阈值、检测开关、预览叠加开关为本地 UI 状态。
   - 新增电机调速，发送 `CONFIG a_speed=<v> b_speed=<v> c_speed=<v>` 到板端。
