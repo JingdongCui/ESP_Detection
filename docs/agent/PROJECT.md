@@ -218,6 +218,13 @@ idf.py -p /dev/ttyUSB0 monitor
   - `0x12`：SIM line，不再作为 inference result JSON。
   - 不发送板端不解析的 `0x11 ControlJson/upload_format`。
   - image socket 固定 `5001`，packet type `0x01`，pixel format `2` JPEG。
+- 2026-07-05 上位机 UI 对齐边界：
+  - 参考 `new_merge` 板端普通 dashboard/settings 页面，不镜像临时 DEV/debug 页面。
+  - 保留臃肿信息面板风格，删除本地模型服务/推理工作台页面。
+  - 图片预览页默认显示最新板端 JPEG；取消 10 帧节流，收到 `5001` 图片即更新 `latest_preview.jpg`。
+  - 控制页保留屏幕亮度、置信度阈值、检测开关、预览叠加开关为本地 UI 状态。
+  - 新增电机调速，发送 `CONFIG a_speed=<v> b_speed=<v> c_speed=<v>` 到板端。
+  - 不显示或控制板端 DEV 页的 S1-S4、编码器、MTEST、包裹注入、`ENC_CLEAR`、专用 `HW_STATUS` 面板。
   - metrics 固定 `0x02`。
 - 控制映射：
   - `motor_speed` -> `CONFIG a_speed=<v> b_speed=<v> c_speed=<v>`。

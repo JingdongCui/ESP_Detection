@@ -1,5 +1,28 @@
 # History
 
+## 2026-07-05 host UI parity with board normal dashboard
+
+- 用户要求重新规划：上位机参考板端普通 UI 内容，不把板端 DEV/debug 页面内容作为上位机显示/控制数据；DEV 相关只需要电机调速。
+- 读取 `new_merge/components/UI/generated/setup_scr_dashboard.c`、`components/UI/sdk/ui.c`、`components/UI/sdk/ui.h` 后整理 `docs/agent/BOARD_UI_INVENTORY.md`：
+  - 普通 dashboard 包含系统监控、JPEG/视觉预览、检测/历史、普通 settings、about/system 信息。
+  - settings 中存在屏幕亮度、置信度阈值、检测开关、预览叠加、控制模式/速度等普通项。
+  - 当前 UI SDK 只看到亮度和 logo calibration 的业务绑定；置信度/检测/叠加等普通项在上位机先做本地 UI 状态。
+  - 明确不镜像 DEV/debug 页：S1-S4、编码器、MTEST、包裹注入、`ENC_CLEAR`、专用 `HW_STATUS` 面板。
+- 上位机修改：
+  - 删除 `ModelWorkspacePage.qml`，从 `Main.qml` 和 `CMakeLists.txt` 移除模型工作台页面。
+  - 移除 `HostController` / `HostNetworkWorker` 中本地模型服务、推理开关、HTTP 请求、推理结果回发等逻辑。
+  - `HostNetworkWorker::handleImage()` 改为收到每张 `5001` JPEG 都更新预览，不再按 10 帧节流。
+  - `sendInitialControls()` 只做 time sync，不再主动发送 `HW_STATUS`。
+  - Dashboard 增加板端 image link counters，显示 encoded/sent、队列、drop/fail、latest JPEG size、encode/send time。
+  - Detection 页面保留原图片预览/历史结构，默认显示最新板端 JPEG，叠加框受本地 preview overlay 控制。
+  - Control 页面改为普通设置：亮度、置信度阈值、检测开关、预览叠加、电机速度；只有电机速度向板端发送 `CONFIG a_speed=<v> b_speed=<v> c_speed=<v>`。
+  - README 改为板端视觉链路说明，写明 `5000/5001`、PC/board IP、DEV 项不镜像。
+- 验证：
+  - `rg` 检查后，代码/QML 中不再有本地推理页面、YOLO 服务控制、MTEST/encoder/S1-S4 控制残留；剩余 `esp32_host_no_inference` 仅为工程/可执行文件名。
+  - `cmake --preset debug` 通过。
+  - `cmake --build --preset debug` 通过。
+  - `QT_QPA_PLATFORM=offscreen timeout 8s ./build/debug/bin/esp32_host_no_inference` 可启动到 timeout，无 QML 加载错误输出。
+
 ## 2026-07-05 new_merge host TCP/JPEG low revision validation
 
 - 读取 `docs/agent/PROJECT.md`、`CURRENT.md`、`HISTORY.md`，确认 `new_merge` 当前分支为 `motor-roi`，提交为 `ceae9b5`。

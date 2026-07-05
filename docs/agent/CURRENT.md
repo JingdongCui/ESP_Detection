@@ -2,59 +2,41 @@
 
 ## Goal
 
-完成 `new_merge` 低 revision 板端实机验证，并把板端 TCP/JPEG/metrics 链路与上位机 `esp32_host_no_inference` 对齐。
+按 `new_merge` 板端普通 UI 调整 `esp32_host_no_inference`，删除本地推理页面，保留图片预览并补齐板端数据/控制映射。
 
 ## Current State
 
-- `new_merge` 当前分支：`motor-two-stage`。
-- `motor-roi` 已验证提交：`14ff3a2 move jpeg producer off busy core`。
-- `motor-two-stage` 已同步提交：`321b759 move jpeg producer off busy core`。
-- 关键提交链：
-  - `9e4b23d optimize tcp image metrics link`
-  - `ceae9b5 support low revision and restore uart console`
-  - `50f132a allocate tcp task stacks in psram`
-  - `12ec1cf fix jpeg snapshot cache sync`
-  - `14ff3a2 move jpeg producer off busy core`
-- 上位机 `esp32_host_no_inference` 已初始化独立 git：
-  - 分支：`tcp-board-align`
-  - 基线：`f9ae6d9 baseline host no inference`
-  - 协议对齐：`2ad49e8 align host tcp protocol with board`
+- `new_merge` 板端普通 UI 已整理到 `docs/agent/BOARD_UI_INVENTORY.md`。
+- 上位机 `esp32_host_no_inference` 当前分支：`tcp-board-align`。
+- 已删除上位机本地模型服务/推理工作台页面入口与 QML 文件。
+- Dashboard 继续保持大信息量风格，并增加板端 image link counters：队列、encoded/sent、drop/fail、latest JPEG size、encode/send time。
+- 图片预览页保留原布局，小改为默认显示最新板端 JPEG，叠加框受本地 preview overlay 开关控制。
+- 控制页参考板端普通 settings：
+  - 屏幕亮度：本地 UI 状态。
+  - 置信度阈值：本地 UI 状态，用于低置信度标记。
+  - 检测开关：本地 UI 状态。
+  - 预览叠加框：本地 UI 状态。
+  - 电机速度：发送 `CONFIG a_speed=<v> b_speed=<v> c_speed=<v>`。
+- 临时 DEV/debug 页内容不进入上位机：S1-S4、编码器、MTEST、包裹注入、`ENC_CLEAR`、专用 `HW_STATUS` 面板均未添加。
 
 ## Verification
 
 - 上位机：
   - `cmake --preset debug`：通过。
   - `cmake --build --preset debug`：通过。
-  - offscreen 启动后监听：
-    - `192.168.10.1:5000`
-    - `192.168.10.1:5001`
-- 板端：
-  - `idf.py build`：通过，app 大小 `0x4ec6c0`，factory 分区剩余约 18%。
-  - `idf.py flash`：在 `12ec1cf` 全量烧录成功，bootloader/app/partition/storage 均 `Hash of data verified`。
-  - `idf.py app-flash`：`14ff3a2` app 分区烧录成功并 `Hash of data verified`。
-  - monitor 验证：
-    - ESP32-P4 revision `v1.0`。
-    - app `Min chip rev: v0.0`，`Max chip rev: v1.99`。
-    - UART0 115200 console 正常输出。
-    - S1=GPIO53，S2=GPIO23，S3 disabled，S4=GPIO22。
-    - `System initialization done`。
-    - TCP control/image 双连接建立，`ss` 显示 `5000/5001` 均 ESTABLISHED。
-    - metrics 每秒写入 `~/Documents/ESP32Host/telemetry.jsonl`。
-    - JPEG preview 正常：`image_encoded=15`、`image_sent=15`、drop/fail 均 0；最新 `latest_preview.jpg` 大小约 39 KB。
-- `motor-two-stage`：
-  - cherry-pick `9e4b23d ceae9b5 50f132a 12ec1cf 14ff3a2` 无冲突完成。
-  - `idf.py build` 通过，app 大小 `0x4ea5c0`，factory 分区剩余约 18%。
+  - `QT_QPA_PLATFORM=offscreen timeout 8s ./build/debug/bin/esp32_host_no_inference`：应用可启动并保持运行到 timeout，无 QML 加载错误输出。
+- 本轮未改板端代码，未重新运行 `idf.py build/flash/monitor`。
 
 ## Notes
 
-- 低 revision 后 CPU 频率为 360 MHz，CPU1 长期接近 100%；JPEG producer 不能 pin 到 core1，否则会被视觉链路饿死。
-- TCP task 栈需放到 PSRAM，否则 UI/vision 启动后内部 RAM 不足，三条 TCP task 会创建失败。
-- ESP-IDF 5.5 的 `esp_cache_msync()` 在 M2C 方向不允许 `ESP_CACHE_MSYNC_FLAG_UNALIGNED`；snapshot buffer 需 cache-line 对齐后用纯 `ESP_CACHE_MSYNC_FLAG_DIR_M2C`。
+- 上位机不再主动发送 `HW_STATUS`，避免把 DEV 页面调试项做成常驻控制。
+- `brightness`、`danger_threshold`、`detection_enabled`、`preview_overlay` 当前只影响本地 UI；板端当前 TCP SIM line 未定义对应普通 dashboard 控制命令。
+- 图片看不到的问题优先看 `5001` image socket 是否连接、`latest_preview.jpg` 是否更新；上位机已改为每张 JPEG 都刷新 preview，不再 10 帧节流。
 
 ## Next Step
 
-- 如需现场验证 two-stage，执行 `idf.py flash monitor`；当前已完成 build 验证，尚未对 two-stage 实机烧录。
+- 现场联调时先启动上位机，再复位/重启板端；观察 `5000/5001` 连接、Dashboard image counters、预览页最新 JPEG 是否更新。
 
 ## Blockers
 
-- 未阻塞。串口偶发断流，`idf.py flash` 重试可成功；减少风险可用 `idf.py app-flash` 刷 app-only 改动。
+- 未阻塞。
