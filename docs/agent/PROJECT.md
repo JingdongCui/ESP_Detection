@@ -17,9 +17,13 @@
   - `half` 当前只有 `jt=94` 和 `yd=86`，原始数据里没有 half 标注的 `zt` 目录。
   - `MyAlbums` 子目录内已初始化独立 git，原始基线提交 `830536a`，整理后提交 `8a51bc4`。
 - 给队友的数据集压缩包：
-  - `/home/kazeform/2026esp/MyAlbums_dataset_20260704.zip`
-  - 包内包含 `MyAlbums/16_9`、`MyAlbums/4_3`、`MyAlbums/half` 和 `MyAlbums/DATASET_MANIFEST.csv`，不包含 `.git`。
-  - `zip -T` 校验通过，包内 jpg 数量为 `978`。
+  - 已将原 `/home/kazeform/2026esp/MyAlbums_dataset_20260704.zip` 大包删除，改为 1G 以内分包：
+    - `/home/kazeform/2026esp/datasets_001.zip`
+    - `/home/kazeform/2026esp/datasets_002.zip`
+    - `/home/kazeform/2026esp/datasets_003.zip`
+    - `/home/kazeform/2026esp/datasets_004.zip`
+  - 四个分包 `zip -T` 校验通过，合计 jpg 数量为 `978`。
+  - `MyAlbums/.git` 已按要求删除，避免额外占用空间。
 
 ## Hardware
 
@@ -104,16 +108,36 @@ idf.py -p /dev/ttyUSB0 monitor
   - 不从 `lasttime_merge` 迁移 UI 显示差异。
   - 修改前后应保持 `git diff -- components/UI components/UI/generated components/UI/sdk` 为空。
 - `new_merge` 当前硬件引脚边界：
-  - GT911 touch INT 使用 GPIO24。
+  - 2026-07-04 新板 revision 配置后，GT911 touch INT 使用 GPIO21。
   - 电机 2 PWM A 使用 GPIO32；不要再把 GT911 INT 放回 GPIO32。
-  - ESP32-P4 console UART 使用 GPIO37/GPIO38。
-  - sorter S1/S3 当前置为 `-1`，避免占用 console UART。
-  - sorter S2/S4 当前使用 GPIO23/GPIO22。
+  - ESP32-P4 console UART 已关闭，以释放 GPIO37 给 sorter S3；该配置下不要依赖串口 monitor。
+  - sorter S1/S2/S3/S4 当前使用 GPIO53/GPIO23/GPIO37/GPIO22。
+  - GPIO8 是 touch I2C SCL，camera SCCB 复用同一条 GPIO8/7 I2C bus；不要把 sorter sensor 放到 GPIO8。
+  - 当前 `sdkconfig` 支持 ESP32-P4 revision v3.1-v3.99，匹配本轮 `/dev/ttyACM0` 板子 `ESP32-P4 revision v3.1`。
 - `new_merge` 当前验证状态：
   - `motor-two-stage` build 通过。
   - `motor-roi` build 通过。
   - `motor-roi` 已在 `/dev/ttyUSB0` flash 成功，ESP32-P4 revision v1.0，app/partition/storage hash verified。
   - `motor-roi` 运行到 `vision started`、`SORTDBG ready`、`System initialization done`，90 秒 monitor 窗口未见 panic/reboot。
+- 2026-07-04 新板 revision + GPIO20/23/47/22 + GT911 INT GPIO21 验证：
+  - `idf.py build` 通过。
+  - `/dev/ttyACM0`、921600 flash 成功，芯片 `ESP32-P4 revision v3.1`，bootloader/partition/app/storage hash verified。
+  - `idf.py -p /dev/ttyACM0 monitor` 90 秒窗口启动成功，日志显示 `Min chip rev: v3.1`、`Max chip rev: v3.99`、`System initialization done`。
+  - sensor 初始化日志显示 S1=GPIO20、S2=GPIO23、S3=GPIO47、S4=GPIO22。
+  - 启动时 S3 初始 `raw=1 active=1` 触发一次 `sensor_without_package`，约 6.7 秒变回 inactive；未见 panic/reboot。
+- 2026-07-04 因 S1/S3 默认 ON，将 S1/S3 改到 GPIO53/GPIO45：
+  - GPIO45/GPIO53 均为 ESP32-P4 input/output GPIO，工程内未见其它模块占用；GPIO53 另有 ADC2 channel 能力，不影响普通 GPIO 输入。
+  - 修改前提交 20/47 基线：`d4dca6c update new board pins and revision`。
+  - `idf.py build` 通过。
+  - `/dev/ttyACM0`、921600 flash 成功，芯片 `ESP32-P4 revision v3.1`，bootloader/app/partition/storage hash verified。
+  - 用户要求本次不运行 monitor；S1=GPIO53/S3=GPIO45 的默认电平和遮挡响应待现场观察。
+- 2026-07-04 用户继续要求 S3 改到 GPIO37，串口不用：
+  - 修改前提交 53/45 基线：`bad060d move sorter sensors to gpio53 and gpio45`。
+  - GPIO37 原为 console UART0 TX；已将 `sdkconfig` 改为 `ESP_CONSOLE_NONE`/`CONSOLE_UART_NONE`，释放 GPIO37 给 S3。
+  - 当前 sorter S1/S2/S3/S4 为 GPIO53/GPIO23/GPIO37/GPIO22。
+  - `idf.py build` 通过。
+  - `/dev/ttyACM0`、921600 flash 成功，芯片 `ESP32-P4 revision v3.1`，bootloader/app/partition/storage hash verified。
+  - 用户要求本次不运行 monitor；S1=GPIO53/S3=GPIO37 的默认电平和遮挡响应待现场观察。
 - 当前真实四传感器链路未完整验证；S1/S3 实际 GPIO 需要硬件重新指定后再打开。
 - 本轮按用户要求未运行 TCP 模拟测试。
 - 2026-07-04 two-stage 给队友压缩包：
@@ -135,6 +159,29 @@ idf.py -p /dev/ttyUSB0 monitor
   - 当前最多显示 1 个传统 ROI 面单框 + 1 个 logo 框。
   - logo 模型候选仍保留最多 4 个用于比较，但只将最高置信度候选写入最终检测结果，画框层因此只画最高分 logo。
   - 该限制位于 `components/vision/detector/vision_model.cpp` 的 `vision_model_run()`，不是 UI 生成内容或 `vision_draw.c` 的开关。
+
+## New Merge TCP Image/Metrics Link
+
+- 2026-07-05 已将 `new_merge` TCP 链路改为降低 CPU 峰值的双通道设计：
+  - control/metrics/sorter protocol：TCP `192.168.10.1:5000`。
+  - image：TCP `192.168.10.1:5001`。
+- metrics：
+  - 1 秒周期。
+  - 读取 `system_monitor_get_metrics()` 缓存，不在 Ethernet task 内调用 `uxTaskGetSystemState()`。
+  - JSON 里包含 image queue/drop/encode/send 统计，便于现场估算图片链路压力。
+- image：
+  - 测试阶段 5 秒一张；后续业务目标是每个包裹触发一次。
+  - 默认快照尺寸 `640x375`。
+  - 使用 `esp_new_jpeg` 编码 JPEG，quality 60，subsample 4:4:4。
+  - image queue 深度 2；host 慢时跳过新图，避免无限排队。
+  - image payload 按 8KB chunk 发送并 yield。
+- vision/Ethernet 边界：
+  - Ethernet 不直接调用 `cam_sensor_get_frame()`。
+  - 通过 `vision_copy_latest_frame_scaled_rgb888()` 从 vision ring 最新帧生成 PPA 缩放快照。
+  - 快照接口在 PPA 写完后做 M2C cache invalidate，确保 JPEG 编码读取的是新图。
+- 已知验证状态：
+  - `idf.py build` 通过。
+  - 当前无串口设备，尚未 flash/monitor 验证实际 Ethernet、JPEG 编码耗时、CPU 峰值和丢图策略。
 
 ## Merge Sorter Migration Baseline
 

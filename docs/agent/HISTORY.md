@@ -1,6 +1,134 @@
 # History
 
-当前无进行中的任务历史。
+## 2026-07-05 new_merge TCP CPU optimization
+
+- 用户目标：降低 `new_merge` TCP 链路 CPU 占用；业务为实时 CPU/内存 metrics，图片允许延迟；允许双通道和压缩图片。
+- 只读分析：
+  - 当前 `new_merge` 实际默认未启动 TCP：`SORTER_HARDWARE_DEBUG_MONITOR=1` 时跳过 `ethernet_app_start()`。
+  - 旧图片路径由 `SORTING_SIM_TCP_SEND_IMAGES` 控制，默认 0。
+  - 若打开旧图片路径，会在 Ethernet task 内直接 `cam_sensor_get_frame()`，整帧 `memcpy` 到 PSRAM 后 raw TCP 发送。
+  - 当前相机默认 SC2336 MIPI RAW8 1024x600，ISP 输出 RGB888；raw 单帧约 `1024*600*3 = 1.84MB`。
+  - 旧路径会同时带来 V4L2 buffer 竞争、PSRAM 大块拷贝、LwIP/TCP 分片发送和 control/metrics 队头阻塞。
+  - `/home/kazeform/2026upper/esp32_project` 的改进方向包括 `esp_new_jpeg`、control/image 双端口、JPEG payload、独立图片 socket。
+- 用户确认：
+  - 图片默认使用预览尺寸 `640x375`。
+  - 测试阶段先做 5 秒一张；真实业务后续按每个包裹触发。
+  - 图片队列最多 2 张。
+- 修改前在 `new_merge` 提交现场状态：`0559655 checkpoint before tcp cpu optimization`。
+- 已实现：
+  - `components/vision/framework/vision.h` / `vision_app.c` 新增 `vision_copy_latest_frame_scaled_rgb888()`。
+  - 该接口从 vision ring 最新帧生成 PPA 缩放 RGB888 快照；持 ring mutex 保证 V4L2 buffer 生命周期，PPA 后做 M2C cache invalidate。
+  - `components/Ethernet_app/ethernet_app.c` 改为 control/image 双通道：
+    - `5000`：metrics、time sync、SIM_LINE、sorter tick。
+    - `5001`：JPEG 图片发送。
+  - `eth_control` 每 1 秒发送 metrics，读取 `system_monitor_get_metrics()` 缓存，不再枚举 FreeRTOS 任务。
+  - `eth_img_prod` 每 5 秒尝试生成 `640x375` JPEG；队列满或 image socket 未连接时跳过。
+  - `eth_img_send` 低优先级发送 JPEG，payload 按 8KB chunk 发送并 yield。
+  - JPEG encoder 使用 `esp_new_jpeg` C API，quality 60，subsample 4:4:4。
+  - metrics JSON 增加 image queue/drop/encode/send 统计字段。
+  - `main/system_init.c` 新增 `SORTER_TCP_LINK_ENABLE=1`，并将 `system_monitor()` 放在 Ethernet 启动前。
+  - `components/Ethernet_app/CMakeLists.txt` 增加 `system_monitor`、`vision`、`esp_new_jpeg` 依赖，移除失效的 `SORTING_SIM_TCP_SEND_IMAGES=0` 编译定义。
+- 静态检查：
+  - `rg` 确认 `components/Ethernet_app` 内无 `cam_sensor_get_frame`。
+  - `rg` 确认 `components/Ethernet_app` 内无 `uxTaskGetSystemState`。
+- 构建验证：
+  - `cd /home/kazeform/2026esp/new_merge && idf.py build` 通过。
+  - app 大小 `0x4fbed0`，factory 分区剩余约 17%。
+- 实机验证：
+  - `find /dev -maxdepth 1 \( -name 'ttyACM*' -o -name 'ttyUSB*' \) -print` 无输出。
+  - 当前无板子/串口设备，未执行 flash/monitor。
+
+## 2026-07-04 MyAlbums split packages
+
+- 按用户要求删除 `MyAlbums/.git`，`MyAlbums` 从约 7.9G 降到约 2.9G。
+- 删除旧大包 `/home/kazeform/2026esp/MyAlbums_dataset_20260704.zip`。
+- 重新生成 1G 以内分包：
+  - `datasets_001.zip`: 942533582 bytes，339 张 jpg。
+  - `datasets_002.zip`: 942011668 bytes，285 张 jpg。
+  - `datasets_003.zip`: 943555639 bytes，282 张 jpg，包含 `DATASET_MANIFEST.csv`。
+  - `datasets_004.zip`: 232218906 bytes，72 张 jpg。
+- 四个分包均通过 `zip -T`。
+- 分包合计 jpg 数量 978，分类统计仍为 `16_9=430`、`4_3=368`、`half=180`。
+
+## 2026-07-04 new_merge pin revision check
+
+- 读取 `docs/agent/PROJECT.md`、`CURRENT.md`、`HISTORY.md`。
+- 确认 `/home/kazeform/2026esp/new_merge` 为独立 git 仓库，分支 `motor-roi`，修改前工作区干净。
+- 按仓库规则创建修改前空提交：`ed31845 checkpoint before pin revision update`。
+- `new_merge` 无 `.codegraph/`，跳过 CodeGraph。
+- 检查命令：
+  - `rg -n "GPIO...|SCCB|I2C_SCL|TOUCH_INT|SORTER_SENSOR|REV_MIN|REV_MAX" components main sdkconfig sdkconfig.defaults sdkconfig.old ...`
+  - `nl -ba components/bsp/include/sorter_debug_config.h`
+  - `nl -ba components/bsp/bsp_touch.c`
+  - `nl -ba components/bsp/bsp_cam_sensor.c`
+  - `nl -ba sdkconfig sdkconfig.defaults`
+- 结果：
+  - `components/bsp/include/sorter_debug_config.h` 当前 S1=-1、S2=23、S3=-1、S4=22。
+  - `components/bsp/bsp_touch.c` 当前 `TOUCH_I2C_SCL_GPIO=8`、`TOUCH_I2C_SDA_GPIO=7`、`TOUCH_INT_GPIO=24`。
+  - `components/bsp/bsp_cam_sensor.c` 明确复用 touch 已创建的 I2C bus 作为 SCCB，总线为 GPIO8/7。
+  - GPIO21 未见现有硬件占用；GPIO47 未见现有硬件占用；GPIO22/23 已为目标 S4/S2。
+  - GPIO8 与 touch/camera 控制总线冲突，不能直接作为 sorter S1 输入。
+  - `sdkconfig.defaults` 为 ESP32-P4 rev >=3.0 配置，当前 `sdkconfig` 仍为 rev <3.0 配置。
+- 用户确认 S1 改用 GPIO20。
+- 补查 GPIO20：未发现工程内硬件 GPIO 占用。
+- 已修改：
+  - `new_merge/components/bsp/include/sorter_debug_config.h`: S1=20, S2=23, S3=47, S4=22。
+  - `new_merge/components/bsp/bsp_touch.c`: `TOUCH_INT_GPIO=21`。
+  - `new_merge/sdkconfig`: `CONFIG_ESP32P4_REV_MIN_301=y`, `CONFIG_ESP_REV_MIN_FULL=301`, `CONFIG_ESP32P4_REV_MAX_FULL=399`, `CONFIG_ESP_REV_MAX_FULL=399`。
+- 当前可用串口：`/dev/ttyACM0`。
+- `idf.py build` 成功；生成 `build/sample_project.bin`，app 大小 `0x4bed40`，factory 分区剩余约 21%。
+- `idf.py -p /dev/ttyACM0 -b 921600 flash` 成功：
+  - 识别芯片 `ESP32-P4 revision v3.1`。
+  - bootloader、app、partition table、storage 全部 `Hash of data verified`。
+- 首次 `idf.py -p /dev/ttyACM0 monitor` 因非 TTY 失败；改用带 PTY 执行 `timeout 90s idf.py -p /dev/ttyACM0 monitor`。
+- monitor 结果：
+  - boot log: `chip revision: v3.1`。
+  - app log: `Min chip rev: v3.1`, `Max chip rev: v3.99`, `Chip rev: v3.1`。
+  - `vision started: preview 640x375 at 19,118, ring depth 3`。
+  - `SORTDBG ready`。
+  - `sort sensor S1 configured on GPIO 20`。
+  - `sort sensor S2 configured on GPIO 23`。
+  - `sort sensor S3 configured on GPIO 47`。
+  - `sort sensor S4 configured on GPIO 22`。
+  - `System initialization done`。
+  - 启动时 S3 初始 `raw=1 active=1` 触发一次 `sensor_without_package`，约 6.7 秒日志显示 S3 稳定变为 `raw=0 active=0`。
+  - 90 秒 monitor 窗口未见 panic/reboot。
+- 用户后续反馈：无遮挡时 S2/S4 默认 OFF 正常，S1/S3 默认 ON，且不只是反相问题。
+- 只读检查：
+  - `new_merge` 无 `.codegraph/`，继续跳过 CodeGraph。
+  - `components/bsp/bsp_sort_sensor.c` 对 S1-S4 统一配置为 input、`GPIO_PULLUP_DISABLE`、`GPIO_PULLDOWN_ENABLE`、`GPIO_INTR_DISABLE`。
+  - `components/bsp/include/sorter_debug_config.h` 中四个 active level 都是 1，没有 S1/S3 特殊反相。
+  - ESP-IDF `soc/gpio_num.h` 标注 GPIO20/GPIO47 都是 input/output。
+  - ESP-IDF `soc_caps.h` 中 ESP32-P4 有效 GPIO mask 覆盖 GPIO0-54，有效 digital IO pad 为 GPIO16-54；GPIO20/GPIO47 都在范围内。
+  - 工程内显式 `*_GPIO` 占用：motor 2/3/4/5/32/36，touch/camera I2C 7/8，touch reset/int 33/21，LCD backlight/reset 26/27，Ethernet 31/52/51，sensors 20/23/47/22。
+  - 未查到 GPIO20/GPIO47 被其它工程模块复用。
+- 串口命令：
+  - 第一次 pyserial 打开 `/dev/ttyACM0` 触发板子复位，命令发送过早，只读到启动日志。
+  - 第二次等待 `System initialization done` 后发送 `HW_STATUS`，返回：`SIMOUT HW_STATUS,mtest=0,s1=1,s2=0,s3=1,s4=0,s1_valid=1,s2_valid=1,s3_valid=1,s4_valid=1,...`。
+  - 因 S1 默认 active，调度器已创建一个 package 并进入 `holding_at_s2`，会干扰实物联调。
+- 结论：未查到软件资源冲突；S1/S3 默认 ON 更像外部电路/接线/管脚电平问题，或内部下拉不足以压住输入。
+
+- 用户确认：S1 插 GPIO53，S3 插 NC 标注的 GPIO45。
+- 检查 GPIO45/GPIO53：
+  - ESP-IDF `soc/gpio_num.h` 标注二者均为 input/output。
+  - 工程内未查到 GPIO45/GPIO53 被其它模块占用。
+  - GPIO53 另有 ADC2 channel 能力，不影响普通 GPIO 输入。
+- 按规则在继续改 S1/S3 前提交当前已验证引脚/revision 基线：`d4dca6c update new board pins and revision`。
+- 已修改 `new_merge/components/bsp/include/sorter_debug_config.h`: S1=53, S2=23, S3=45, S4=22。
+- `idf.py build` 成功，app 大小仍为 `0x4bed40`，factory 分区剩余约 21%。
+- `idf.py -p /dev/ttyACM0 -b 921600 flash` 成功：芯片 `ESP32-P4 revision v3.1`，bootloader、app、partition table、storage 全部 `Hash of data verified`。
+- 按用户要求，本次未运行 monitor。
+- 用户继续要求 S3 改到 GPIO37，且串口不用。
+- 按规则在继续改 S3 前提交当前 53/45 基线：`bad060d move sorter sensors to gpio53 and gpio45`。
+- 检查发现 GPIO37 是当前 ESP32-P4 console UART0 TX；为释放 GPIO37 给 S3，修改 `sdkconfig` 关闭 console UART：
+  - `CONFIG_ESP_CONSOLE_NONE=y`
+  - `CONFIG_CONSOLE_UART_NONE=y`
+  - `CONFIG_ESP_CONSOLE_UART_NONE=y`
+  - UART console num 改为 `-1`
+- 已修改 `new_merge/components/bsp/include/sorter_debug_config.h`: S1=53, S2=23, S3=37, S4=22。
+- `idf.py build` 成功，app 大小 `0x4bac20`，factory 分区剩余约 21%。
+- `idf.py -p /dev/ttyACM0 -b 921600 flash` 成功：芯片 `ESP32-P4 revision v3.1`，bootloader、app、partition table、storage 全部 `Hash of data verified`。
+- 按用户要求，本次不运行 monitor。
 
 ## Archived
 
