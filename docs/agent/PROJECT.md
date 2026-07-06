@@ -102,8 +102,15 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0 monitor
 ```
 
-- `ESP32P4_Detection` 当前 app version：`71e63c6`。
-- `ESP32P4_Detection` 当前默认分拣皮带超时：A=`4500ms`、B=`2000ms`、C=`2000ms`。
+- `ESP32P4_Detection` 当前 app version：`a82793b`。
+- `ESP32P4_Detection` 当前默认分拣调度配置集中在 `components/bsp/include/sorter_debug_config.h`：
+  - 默认速度：A/B/C = `100%`。
+  - 默认交接延时：`SORTER_DEFAULT_HANDOFF_DELAY_MS=1000`。
+  - 默认皮带超时：A=`4500ms`、B=`2000ms`、C=`2000ms`。
+  - 默认 lost timeout：min=`3000ms`、max=`6000ms`。
+  - 引脚、传感器 active level、编码器参数也在同一个文件。
+  - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `sorter_config_default()` 从这些宏读取默认值。
+- `ESP32P4_Detection` 当前启动路径会调用 `sorting_sim_debug_start()`、`sorting_sim_control_set_motor_output_enabled(true)`、`sorting_sim_control_set_sensor_input_enabled(true)`，开机启用分拣调试入口、电机输出和真实传感器输入。
 - 当前稳定串口为 CP2102N by-id 路径；monitor 使用默认 `115200`。
 
 ## 2026-07-06 Workspace Cleanup

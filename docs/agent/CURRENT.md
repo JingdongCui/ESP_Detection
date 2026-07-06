@@ -2,7 +2,7 @@
 
 ## Goal
 
-解压队友 2026-07-06 发来的 ESP 和上位机 zip，整理根目录工程，归档旧工程，烧录队友 ESP 工程，并将电机分拣默认超时时间从 `6s/3s/3s` 改为 `4.5s/2s/2s`。
+在 `ESP32P4_Detection` 中启用开机分拣链路，并把电机默认速度/默认延时集中到与引脚相同的配置文件，方便现场修改。
 
 ## Current State
 
@@ -10,6 +10,13 @@
   - 分支：`feat/screen-uvc-stream`
   - zip 导入/精简基线：`23bac51 baseline recovered teammate project`
   - 超时修改提交：`71e63c6 tune sorter belt timeouts`
+  - 开机自动启用分拣链路提交：`3af4d57 enable sorter autostart`
+  - 当前默认分拣配置集中在 `components/bsp/include/sorter_debug_config.h`
+    - 默认速度：A/B/C = `100%`
+    - 默认交接延时：`1000ms`
+    - 默认皮带超时：A=`4500ms`、B=`2000ms`、C=`2000ms`
+    - 默认 lost timeout：min=`3000ms`、max=`6000ms`
+  - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `sorter_config_default()` 已改为读取上述宏。
 - 当前活跃上位机工程：`/home/kazeform/2026esp/esp32_host_no_inference`
   - 分支：`master`
   - zip 导入基线：`9a5e5f2 baseline teammate host project`
@@ -36,27 +43,23 @@
 
 ## Verification
 
-- `idf.py build` 通过。
-  - app version：`71e63c6`
-  - app size：`0x50fee0`
-  - factory 分区剩余：`0xf0120`，约 16%。
-- `idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0 flash` 成功。
-  - ESP32-P4 revision：`v1.0`
-  - bootloader/app/partition/storage 均 hash verified。
-- `idf.py monitor` 120 秒窗口验证：
-  - app version：`71e63c6`
-  - min/max chip rev：`v0.0/v1.99`
-  - PSRAM：32 MB，200 MHz
-  - camera：SC2336 detected，`1024x600 RGB888`
-  - UVC：`screen UVC stream started: default 1024x600 MJPEG q90`
-  - Ethernet：`Ethernet Started`
-  - 启动到 `System initialization done`
-  - 未见 panic/reboot。
-- monitor 中 logo 模型自检出现一次 `compare_elements` 不一致错误，但模型继续加载、fixed image tests 继续执行，vision 和系统初始化完成；当前记录为非致命现象。
+- 2026-07-06 开机自动启用分拣链路后：
+  - `idf.py build` 通过。
+  - `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00` flash 成功。
+  - 芯片：ESP32-P4 revision `v3.1`。
+  - bootloader、app、partition、storage 均 hash verified。
+  - monitor 已看到 app version `cf81a8e-dirty`、min/max chip rev `v3.1/v3.99`、PSRAM 32 MB、camera/LVGL 初始化；后续被 `ISP_AWB` warning 刷屏，用户中断，不作为完整运行期验证。
+- 2026-07-06 默认速度/默认延时集中配置后：
+  - `idf.py build` 通过。
+  - app version：`a82793b`
+  - app size：`0x526180`
+  - factory 分区剩余：`0xd9e80`，约 14%。
+  - 用户要求本次不烧录。
 
 ## Next Step
 
-- 如需继续现场验证，重点看新 UVC 预览、Ethernet 图像链路和真实分拣节拍是否符合 `4.5s/2s/2s`。
+- 如需现场修改速度/延时/引脚，优先改 `ESP32P4_Detection/components/bsp/include/sorter_debug_config.h`。
+- 下次需要实机时再烧录，并重点验证 A/B/C 速度 100% 下的节拍和稳定性。
 
 ## Blockers
 

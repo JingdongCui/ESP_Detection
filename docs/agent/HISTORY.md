@@ -1,5 +1,47 @@
 # History
 
+## 2026-07-06 ESP32P4_Detection sorter autostart and default speed config
+
+- 用户询问 `ESP32_Detection`/`ESP32P4_Detection` 中电机调试默认是否开启、是否开机自动启动电机。
+- 检查结论：
+  - 根目录无 `.codegraph/`，跳过 CodeGraph。
+  - `main/system_init.c` 中 `SORTER_HARDWARE_DEBUG_MONITOR=1`。
+  - 但 `bsp_motor_init()`、`sorting_sim_debug_start()`、`sorting_sim_control_set_motor_output_enabled(true)`、`sorting_sim_control_set_sensor_input_enabled(true)` 原本均未在开机路径实际调用。
+  - `sorting_sim_control.c` 内部默认 `s_motor_output_enabled=true`、`s_sensor_input_enabled=true`，收到上位机 `CONFIG`/`MOTOR_TEST` 或真实链路触发时可初始化并输出电机。
+- 用户要求设置为自动启动并烧录：
+  - 修改前提交 `cf81a8e checkpoint before motor autostart`，其中包含此前未提交的 `sdkconfig` rev v3.1 相关变化。
+  - 修改 `main/system_init.c`，开机调用：
+    - `sorting_sim_debug_start()`
+    - `sorting_sim_control_set_motor_output_enabled(true)`
+    - `sorting_sim_control_set_sensor_input_enabled(true)`
+  - 提交：`3af4d57 enable sorter autostart`。
+  - `idf.py build` 通过，app size `0x526180`，factory 分区剩余约 14%。
+  - 使用 `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00` flash 成功。
+  - 芯片识别为 ESP32-P4 revision `v3.1`，bootloader/app/partition/storage 均 hash verified。
+  - monitor 已看到 app version `cf81a8e-dirty`、min/max chip rev `v3.1/v3.99`、PSRAM 32 MB、camera/LVGL 初始化；因 `ISP_AWB` warning 高频刷屏，用户中断，未形成完整 120 秒运行期结论。
+- 用户随后要求：
+  - 默认速度全调到 `100`。
+  - 告知默认延时/默认速度在哪里调。
+  - 给一个方便修改的位置，最好和引脚在同一个地方。
+  - 改完编译，不用烧录。
+- 已修改：
+  - `components/bsp/include/sorter_debug_config.h` 新增默认调度宏：
+    - `SORTER_DEFAULT_MOTOR_A_SPEED_PERCENT=100`
+    - `SORTER_DEFAULT_MOTOR_B_SPEED_PERCENT=100`
+    - `SORTER_DEFAULT_MOTOR_C_SPEED_PERCENT=100`
+    - `SORTER_DEFAULT_HANDOFF_DELAY_MS=1000`
+    - `SORTER_DEFAULT_BELT_A_TIMEOUT_MS=4500`
+    - `SORTER_DEFAULT_BELT_B_TIMEOUT_MS=2000`
+    - `SORTER_DEFAULT_BELT_C_TIMEOUT_MS=2000`
+    - `SORTER_DEFAULT_LOST_TIMEOUT_MIN_MS=3000`
+    - `SORTER_DEFAULT_LOST_TIMEOUT_MAX_MS=6000`
+  - `components/Sorter_app/sorter_core/sorter_scheduler.c` 增加 `#include "sorter_debug_config.h"`，`sorter_config_default()` 改为从上述宏读取默认速度、交接延时、皮带超时和 lost timeout。
+- 验证：
+  - `idf.py build` 通过。
+  - app version：`a82793b`。
+  - app size：`0x526180`，factory 分区剩余 `0xd9e80`，约 14%。
+  - 按用户要求，本次未烧录。
+
 ## 2026-07-06 teammate zip import, cleanup, flash, sorter timeout tuning
 
 - 用户要求：
