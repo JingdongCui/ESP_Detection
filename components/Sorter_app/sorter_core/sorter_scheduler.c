@@ -21,7 +21,7 @@ void sorter_config_default(sorter_config_t *c)
         .c_exit_distance_mm = 360.0f, .c_min_busy_ms = 2500,
         .c_fallback_busy_ms = 8000, .handoff_delay_ms = 1000,
         .lost_timeout_min_ms = 3000, .lost_timeout_max_ms = 6000,
-        .belt_a_timeout_ms = 6000, .belt_b_timeout_ms = 3000, .belt_c_timeout_ms = 3000,
+        .belt_a_timeout_ms = 4500, .belt_b_timeout_ms = 2000, .belt_c_timeout_ms = 2000,
         .motor_a_speed_percent = 60, .motor_b_speed_percent = 60,
         .motor_c_speed_percent = 60,
     };
