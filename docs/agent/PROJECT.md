@@ -3,9 +3,10 @@
 ## Workspace
 
 - 根目录：`/home/kazeform/2026esp`
-- 当前主任务工程：`merge`
-- 相关对照工程：`bug_project`
-- 根目录 git 仓库已初始化，用于跟踪根目录 agent 文档；`bug_project` 和 `merge_project` 各自仍有独立 git 仓库。
+- 当前主任务工程：`ESP32P4_Detection`
+- 当前上位机工程：`esp32_host_no_inference`
+- 历史工程归档目录：`archive_project/`
+- 根目录 git 仓库已初始化，用于跟踪根目录 agent 文档；`ESP32P4_Detection` 和 `esp32_host_no_inference` 各自有独立 git 仓库。
 
 ## Dataset Notes
 
@@ -91,6 +92,34 @@ idf.py -p /dev/ttyUSB0 monitor
 
 - `new_merge` flash 可用 921600。
 - `new_merge` 运行期 monitor 当前应使用默认 115200；`-b 921600 monitor` 会乱码。
+
+`ESP32P4_Detection` 构建、烧录和运行期监控：
+
+```bash
+cd /home/kazeform/2026esp/ESP32P4_Detection
+idf.py build
+idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0 flash
+idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0 monitor
+```
+
+- `ESP32P4_Detection` 当前 app version：`71e63c6`。
+- `ESP32P4_Detection` 当前默认分拣皮带超时：A=`4500ms`、B=`2000ms`、C=`2000ms`。
+- 当前稳定串口为 CP2102N by-id 路径；monitor 使用默认 `115200`。
+
+## 2026-07-06 Workspace Cleanup
+
+- 当前活跃工程只保留：
+  - `ESP32P4_Detection`
+  - `esp32_host_no_inference`
+  - `MyAlbums` 数据集
+  - `docs/agent`
+- 历史工程已移入 `archive_project/`，只用于参考旧代码。
+- `build/`、`managed_components/`、`.codegraph/`、`.cache/`、`.qtcreator/` 等均视为可再生成内容，不需要长期保留。
+- `ESP32P4_Detection(8).zip` 原包不完整：
+  - `unzip` 无法读取 central directory。
+  - `7z` 可恢复大部分源码，但报 `Unexpected end of archive`。
+  - 当前工程是 zip 恢复内容加 `.git` 补齐的 `model/`、`sdkconfig`、`partitions.csv`。
+  - 后续如果队友重发完整 zip，优先替换当前恢复包或直接同步 git。
 
 ## New Merge Motor Migration
 

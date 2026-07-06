@@ -1,5 +1,62 @@
 # History
 
+## 2026-07-06 teammate zip import, cleanup, flash, sorter timeout tuning
+
+- 用户要求：
+  - 解压两个队友刚整理的 zip：`ESP32P4_Detection(8).zip` 和 `esp32_host_no_inference.zip`。
+  - 整理根目录中过多历史工程，创建 `archive_project/`，历史工程只保留参考价值。
+  - 删除 `managed_components` 等无用生成内容。
+  - 烧录解压后的 ESP 工程。
+  - 将电机分拣超时时间从 `6s/3s/3s` 改成 `4.5s/2s/2s`。
+- 修改前根目录创建 checkpoint：`d9e2aef checkpoint before project cleanup`。
+- 解压/恢复：
+  - `esp32_host_no_inference.zip` 可正常解压，已排除 `build/`、`.qtcreator/`、`.claude/`。
+  - `ESP32P4_Detection(8).zip` 损坏：`unzip` 报 central directory 缺失，`7z` 报 `Unexpected end of archive`。
+  - 7z 仍恢复出大部分源码和 `.git`。
+  - 用恢复出的 `.git` 补回缺失的 `model/`、`sdkconfig`、`sdkconfig.defaults`、`partitions.csv` 等构建必需文件。
+- 目录整理：
+  - 活跃 ESP 工程放到 `/home/kazeform/2026esp/ESP32P4_Detection`。
+  - 活跃上位机工程放到 `/home/kazeform/2026esp/esp32_host_no_inference`。
+  - 历史工程移动到 `archive_project/`：
+    - `new_merge_before_zip_20260706`
+    - `esp32_host_no_inference_before_zip_20260706`
+    - `lasttime_merge_before_zip_20260706`
+    - `lasttime_my_before_zip_20260706`
+    - `lasttime_teammate_before_zip_20260706`
+    - `teammate_project_before_zip_20260706`
+    - `ignore_before_zip_20260706`
+    - `esp32_sorter_sim_py_before_zip_20260706`
+  - 清理了 `build/`、`managed_components/`、`.cache/`、`.codegraph/`、`.qtcreator/`、`__pycache__/` 等可再生成目录。
+- Git：
+  - ESP 工程分支：`feat/screen-uvc-stream`。
+  - ESP zip 导入/精简基线提交：`23bac51 baseline recovered teammate project`。
+  - 上位机工程初始化 git，提交：`9a5e5f2 baseline teammate host project`。
+- 超时修改：
+  - 文件：`ESP32P4_Detection/components/Sorter_app/sorter_core/sorter_scheduler.c`
+  - `belt_a_timeout_ms`: `6000` -> `4500`
+  - `belt_b_timeout_ms`: `3000` -> `2000`
+  - `belt_c_timeout_ms`: `3000` -> `2000`
+  - ESP 提交：`71e63c6 tune sorter belt timeouts`。
+- 构建：
+  - `idf.py build` 通过。
+  - app version：`71e63c6`。
+  - app size：`0x50fee0`。
+  - factory 分区剩余：`0xf0120`，约 16%。
+- 烧录：
+  - 端口：`/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0`。
+  - `idf.py -p <by-id-port> flash` 成功。
+  - 芯片：ESP32-P4 revision `v1.0`。
+  - bootloader/app/partition/storage hash verified。
+- 监控：
+  - `idf.py flash monitor` 的 monitor 阶段在非 TTY 下失败：`Monitor requires standard input to be attached to TTY`。
+  - 改用 TTY 执行 `timeout 120s idf.py -p <by-id-port> monitor`。
+  - monitor 确认 app version `71e63c6`、min/max chip rev `v0.0/v1.99`、PSRAM 32 MB 200 MHz。
+  - SC2336 相机检测成功，`1024x600 RGB888`。
+  - UVC 启动：`screen UVC stream started: default 1024x600 MJPEG q90`。
+  - Ethernet 启动：`Ethernet Started`。
+  - 系统启动到 `System initialization done`，120 秒窗口未见 panic/reboot。
+  - logo 模型自检出现一次 `compare_elements` 不一致错误，但模型继续加载、fixed image tests 继续执行，vision 和系统初始化完成，当前按非致命现象记录。
+
 ## 2026-07-05 two-stage host handoff package
 
 - 用户要求切到两阶段模型并跟进最新，基于“未修改 TCP 链路版本”写差异报告，打包上位机和 ESP 工程给队友接手。

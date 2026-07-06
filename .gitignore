@@ -1,0 +1,23 @@
+# Active projects keep their own git repositories.
+/ESP32P4_Detection/
+/esp32_host_no_inference/
+
+# Archived/reference projects and datasets.
+/archive_project/
+/MyAlbums/
+
+# Incoming handoff archives.
+*.zip
+*.tar.gz
+*.tar.gz.sha256
+
+# Local tool/editor state.
+/.codegraph/
+/.obsidian/
+/.agents/
+/.codex/
+.directory
+
+# Scratch notes from earlier sessions.
+summary.md
+Text File.txt

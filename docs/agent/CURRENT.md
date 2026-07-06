@@ -2,53 +2,62 @@
 
 ## Goal
 
-将 `new_merge` 切到两阶段模型分支并跟进最新 TCP/JPEG/分类/硬件配置，生成给队友接手上位机和移植 ESP 改动的交接压缩包。
+解压队友 2026-07-06 发来的 ESP 和上位机 zip，整理根目录工程，归档旧工程，烧录队友 ESP 工程，并将电机分拣默认超时时间从 `6s/3s/3s` 改为 `4.5s/2s/2s`。
 
 ## Current State
 
-- `new_merge` 当前分支：`motor-two-stage`。
-- ESP 差异基线：`7a18be7 disable sorter sensors on console uart pins`。
-- ESP 最新提交：`a390dc3 sync two-stage sorter s1 pin`。
-- 上位机分支：`esp32_host_no_inference/tcp-board-align`。
-- 上位机最新提交：`9728df5 polish package data display`。
-- 已生成交接包：
-  - `/home/kazeform/2026esp/two_stage_host_handoff_20260705.tar.gz`
-  - `/home/kazeform/2026esp/two_stage_host_handoff_20260705.tar.gz.sha256`
-- 包内容：
-  - 最新 two-stage ESP 工程。
-  - 最新上位机工程。
-  - `docs/README.md`
-  - `docs/ESP_MIGRATION_GUIDE.md`
-  - `docs/HOST_HANDOFF.md`
-  - `docs/DIFF_REPORT.md`
-  - ESP 和 host 两份完整 patch。
+- 当前活跃 ESP 工程：`/home/kazeform/2026esp/ESP32P4_Detection`
+  - 分支：`feat/screen-uvc-stream`
+  - zip 导入/精简基线：`23bac51 baseline recovered teammate project`
+  - 超时修改提交：`71e63c6 tune sorter belt timeouts`
+- 当前活跃上位机工程：`/home/kazeform/2026esp/esp32_host_no_inference`
+  - 分支：`master`
+  - zip 导入基线：`9a5e5f2 baseline teammate host project`
+- 历史工程已移动到 `archive_project/`：
+  - `new_merge_before_zip_20260706`
+  - `esp32_host_no_inference_before_zip_20260706`
+  - `lasttime_merge_before_zip_20260706`
+  - `lasttime_my_before_zip_20260706`
+  - `lasttime_teammate_before_zip_20260706`
+  - `teammate_project_before_zip_20260706`
+  - `ignore_before_zip_20260706`
+  - `esp32_sorter_sim_py_before_zip_20260706`
+- 已删除/排除的可再生成或本地缓存：
+  - 各工程 `build/`
+  - 各工程 `managed_components/`
+  - `.codegraph/`
+  - `.cache/`
+  - `.qtcreator/`
+  - `__pycache__/`
+- `ESP32P4_Detection(8).zip` 不是完整标准 zip，`unzip` 报缺少 central directory，`7z` 报 `Unexpected end of archive`。
+  - 已用 7z 尽量恢复源码。
+  - 使用恢复出的 `.git` 从 HEAD 补回构建必需的 `model/`、`sdkconfig`、`sdkconfig.defaults`、`partitions.csv`。
+  - 因此当前 `ESP32P4_Detection` 是“zip 恢复内容 + git 补齐构建文件 + 精简无关工具目录”的可构建工程。
 
 ## Verification
 
-- ESP：
-  - `idf.py build` 通过，app size `0x4ecd30`，factory 分区剩余约 18%。
-  - `idf.py -p <stable-port> -b 921600 flash` 完整烧录通过，bootloader/app/partition/storage hash verified。
-  - 同步 S1 后 `idf.py -p <stable-port> -b 921600 app-flash` 通过，app hash verified。
-  - monitor 确认 ESP32-P4 revision `v1.0`，app min/max `v0.0/v1.99`，UART0 115200 正常。
-  - monitor 确认 S1=GPIO53、S2=GPIO23、S3 disabled、S4=GPIO22，启动到 `System initialization done`，未见 panic/reboot。
-- 上位机：
-  - `cmake --build --preset debug` 通过。
-- 打包：
-  - tar.gz 生成成功，大小约 140 MB。
-  - tar 内容确认包含 docs 和 patches，排除 `.git`、`build`、`.codegraph`、`.qtcreator` 和本地调试帧。
-  - SHA256: `af66e056a34f3aac8d1e09d0a97e95eaf16ca622fed8da84db960d3d04088fd6`。
-
-## Notes
-
-- monitor 时未启动上位机，所以 control/image connect failed 日志是预期重连行为，不代表 TCP 默认关闭。
-- 交接包不包含 ROI 分支、ROI 专属开发者页面或 ROI 模型改动。
-- ESP patch 基于 two-stage `7a18be7..a390dc3`。
-- Host patch 基于 `f9ae6d9..9728df5`。
+- `idf.py build` 通过。
+  - app version：`71e63c6`
+  - app size：`0x50fee0`
+  - factory 分区剩余：`0xf0120`，约 16%。
+- `idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0 flash` 成功。
+  - ESP32-P4 revision：`v1.0`
+  - bootloader/app/partition/storage 均 hash verified。
+- `idf.py monitor` 120 秒窗口验证：
+  - app version：`71e63c6`
+  - min/max chip rev：`v0.0/v1.99`
+  - PSRAM：32 MB，200 MHz
+  - camera：SC2336 detected，`1024x600 RGB888`
+  - UVC：`screen UVC stream started: default 1024x600 MJPEG q90`
+  - Ethernet：`Ethernet Started`
+  - 启动到 `System initialization done`
+  - 未见 panic/reboot。
+- monitor 中 logo 模型自检出现一次 `compare_elements` 不一致错误，但模型继续加载、fixed image tests 继续执行，vision 和系统初始化完成；当前记录为非致命现象。
 
 ## Next Step
 
-- 将交接包发给队友，队友优先阅读 `docs/README.md` 和 `docs/ESP_MIGRATION_GUIDE.md`。
+- 如需继续现场验证，重点看新 UVC 预览、Ethernet 图像链路和真实分拣节拍是否符合 `4.5s/2s/2s`。
 
 ## Blockers
 
-- 未阻塞。
+- 原始 ESP zip 文件不完整；当前工程已可构建烧录，但仍建议让队友后续重新发一份完整 zip 或直接同步 git 仓库。
