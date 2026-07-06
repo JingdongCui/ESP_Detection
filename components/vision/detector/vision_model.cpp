@@ -31,6 +31,9 @@
 #include "esp_err.h"
 #include "esp_spiffs.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"   // ulTaskGetRunTimeCounter / xTaskGetCurrentTaskHandle（分段诊断）
+
 #include "dl_detect_base.hpp"
 #include "dl_detect_espdet_postprocessor.hpp"
 #include "dl_image_preprocessor.hpp"
@@ -50,7 +53,7 @@ static const char *TAG = "vision_model";
 // ============================================================
 // 模型1：面单检测（单分类，category 恒 0）
 #define VISION_WAYBILL_MODEL_FILE  "waybill.espdl"  // 全屏范围找面单模型 224*224输入
-#define VISION_WAYBILL_SCORE_THR_DEFAULT 0.80f
+#define VISION_WAYBILL_SCORE_THR_DEFAULT 0.85f
 #define VISION_WAYBILL_NMS_THR     0.70f
 // 模型2：logo 三分类（0=极兔 1=韵达 2=中通）
 #define VISION_LOGO_MODEL_FILE     "logo.espdl"  // 面单范围找logo模型 224*224输入
@@ -94,7 +97,7 @@ static int score_thr_to_percent(float value)
 #define VISION_MODEL_BYPASS_LOAD   0
 
 // 1 = ESP-DL 双核推理；0 = 单核推理。
-#define VISION_MODEL_MULTI_CORE_INFERENCE 0
+#define VISION_MODEL_MULTI_CORE_INFERENCE 1
 #if VISION_MODEL_MULTI_CORE_INFERENCE
 #define VISION_MODEL_RUNTIME_MODE dl::RUNTIME_MODE_MULTI_CORE
 #else
@@ -524,6 +527,21 @@ static vision_detector_t *s_waybill;   // 模型1句柄（单分类面单）
 static vision_detector_t *s_logo;      // 模型2句柄（三分类 logo）
 static int s_last_infer_ms;            // 最近一次两级合计耗时（ms）
 static int s_prob_jt, s_prob_zt, s_prob_yd;  // 三类概率 ×100（来自模型2）
+
+// 分段推理诊断（仅"完整跑两级"路径填充）：各段墙钟 us + 两级总墙钟/本任务实际运行 us。
+// RUN_TIME_STATS_USING_ESP_TIMER=y，故 ulTaskGetRunTimeCounter 单位=us，与 esp_timer 同源可直接相减。
+// wall-cpu 之差 = 被高优先级任务/中断抢占或锁等待的时间（"真变慢" vs "被挤占"的判据）。
+static int s_seg_wb_us, s_seg_mid_us, s_seg_lg_us;   // 模型1 / (编排+crop) / 模型2 墙钟
+static int s_seg_wall_us, s_seg_cpu_us;              // 两级总墙钟 / 本任务实际运行
+
+// 取当前任务累计运行时间（us）。ulRunTimeCounter 由 RUN_TIME_STATS_USING_ESP_TIMER 供给，
+// 与 esp_timer_get_time 同源同单位；需 configGENERATE_RUN_TIME_STATS + USE_TRACE_FACILITY（均已开）。
+static inline uint32_t vision_task_runtime_us(void)
+{
+    TaskStatus_t st;
+    vTaskGetInfo(xTaskGetCurrentTaskHandle(), &st, pdFALSE, eInvalid);
+    return (uint32_t)st.ulRunTimeCounter;
+}
 static bool s_spiffs_mounted;
 
 #if VISION_FIXED_IMAGE_TEST_ENABLE
@@ -713,6 +731,13 @@ extern "C" int vision_model_get_logo_score_threshold_percent(void)
     return score_thr_to_percent(s_logo_score_thr);
 }
 
+extern "C" const char *vision_model_get_model_info_string(void)
+{
+    // 两个已挂载模型名的静态拼接串，编译期固定，供 UI 关于页显示。
+    static const char s_model_info[] = VISION_WAYBILL_MODEL_FILE " / " VISION_LOGO_MODEL_FILE;
+    return s_model_info;
+}
+
 extern "C" void vision_model_set_waybill_score_threshold_percent(int percent)
 {
     percent = clamp_percent(percent);
@@ -818,12 +843,14 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
         return -1;
     }
     int64_t t0 = esp_timer_get_time();
+    uint32_t cpu0 = vision_task_runtime_us();
     s_prob_jt = s_prob_zt = s_prob_yd = 0;
 
     // 1) 模型1：整张原图跑 waybill。
     vision_model_det_t wb[VISION_MODEL_MAX_WB];
     int nwb = vision_detector_run(s_waybill, buf, width, height,
                                   wb, VISION_MODEL_MAX_WB);
+    int64_t t_wb = esp_timer_get_time();   // 模型1（前处理+推理+后处理）结束
     if (nwb <= 0) {
         s_last_infer_ms = (int)((esp_timer_get_time() - t0) / 1000);
         return 0;   // 无面单：整帧无目标
@@ -853,6 +880,7 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
     int roi_w = 0, roi_h = 0, off_x = 0, off_y = 0;
     uint8_t *roi = crop_roi(buf, width, height, dets[0].box,
                             &roi_w, &roi_h, &off_x, &off_y);
+    int64_t t_crop = esp_timer_get_time();   // 取最高分面单 + ROI 裁剪 memcpy 结束
     if (!roi) {
         s_last_infer_ms = (int)((esp_timer_get_time() - t0) / 1000);
         return total;   // 裁剪失败：只返回面单框
@@ -863,6 +891,7 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
     int nlg = vision_detector_run_with_probs(s_logo, roi, roi_w, roi_h,
                                              lg, VISION_MODEL_MAX_LOGO,
                                              &s_prob_jt, &s_prob_zt, &s_prob_yd);
+    int64_t t_lg = esp_timer_get_time();   // 模型2（ROI 前处理+推理+后处理）结束
 
     // 5) 三类概率来自模型2原始 score tensor；画框仍只取 NMS 后最高分 logo 框。
     int best_lg = -1;
@@ -889,7 +918,30 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
         dets[total++] = d;
     }
 
-    s_last_infer_ms = (int)((esp_timer_get_time() - t0) / 1000);
+    int64_t t_end = esp_timer_get_time();
+    uint32_t cpu_end = vision_task_runtime_us();
+    s_last_infer_ms = (int)((t_end - t0) / 1000);
+
+    // 分段结算：三段之和 == 总墙钟。lg 段含模型2+logo编排，另单列模型2纯推理便于对比。
+    s_seg_wb_us   = (int)(t_wb - t0);        // 模型1：前处理+推理+后处理
+    s_seg_mid_us  = (int)(t_crop - t_wb);    // 取最高分面单 + 读阈值 + ROI 裁剪 memcpy
+    s_seg_lg_us   = (int)(t_end - t_crop);   // 模型2 + logo 编排/坐标映射
+    s_seg_wall_us = (int)(t_end - t0);
+    s_seg_cpu_us  = (int)(cpu_end - cpu0);
+    int lg_pure_us = (int)(t_lg - t_crop);   // 模型2 纯推理（不含末段 logo 编排）
+
+    // 节流每 16 帧打印一行。preempt = 墙钟-任务实际运行 = 被抢占/锁等待（区分真慢 vs 被挤占）。
+    static uint32_t s_diag_n = 0;
+    if ((++s_diag_n & 0x0F) == 0) {
+        int preempt = s_seg_wall_us - s_seg_cpu_us;
+        if (preempt < 0) {
+            preempt = 0;   // 计数器回绕/跨采样误差兜底
+        }
+        SEGGER_RTT_printf(0,
+            "[infer_diag] wb=%dus mid=%dus lg=%dus(m2=%dus) | wall=%dus cpu=%dus preempt=%dus\n",
+            s_seg_wb_us, s_seg_mid_us, s_seg_lg_us, lg_pure_us,
+            s_seg_wall_us, s_seg_cpu_us, preempt);
+    }
     return total;
 }
 

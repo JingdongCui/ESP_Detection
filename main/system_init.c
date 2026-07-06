@@ -77,6 +77,7 @@ void System_Init(void)
         .waybill_score_threshold_set = vision_model_set_waybill_score_threshold_percent,
         .logo_score_threshold_get = vision_model_get_logo_score_threshold_percent,
         .logo_score_threshold_set = vision_model_set_logo_score_threshold_percent,
+        .model_info_get = vision_model_get_model_info_string,
     });
     BSP_LVGL_Unlock();
 

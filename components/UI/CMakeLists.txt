@@ -49,4 +49,5 @@ idf_component_register(
         "sdk"
     REQUIRES
         lvgl
+        Ethernet_app
 )

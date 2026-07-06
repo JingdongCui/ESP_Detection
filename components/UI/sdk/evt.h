@@ -86,6 +86,15 @@ typedef struct {
   int  yd_a;            // 韵达 A 概率 %(0~100)
 } vision_result_event_data_t;
 
+#define EVT_ETHERNET 8
+enum ethernet_evt_enum {
+  EVT_ETHERNET_STATUS_CHANGED = 1,
+};
+
+typedef struct {
+  int connected;   // 1=以太网已连接(获取IP)；0=断开/连接失败
+} ethernet_event_data_t;
+
 typedef void (*event_cb_func_t)(uint8_t event, uint16_t code, uint16_t type,
                                 uint16_t len, uint8_t *data, uint8_t status);
 

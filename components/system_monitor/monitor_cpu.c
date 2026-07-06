@@ -9,9 +9,18 @@
 
 static const char *TAG = "sysmon.cpu";
 
-static int64_t s_prev_cpu_time_us;
-static configRUN_TIME_COUNTER_TYPE s_prev_core_idle[SYSTEM_MONITOR_MAX_CORES];
-static bool s_has_cpu_prev;
+/* CPU 占用采样：用 ~1s 长窗口差分 + EMA 平滑。
+ * idle runtime counter 仅在上下文切换时结算（tasks.c:3686），250ms 短窗口在低切换
+ * 核（如空闲的 c0）上易抓到「IDLE 连续运行、尚未结算」的尾巴，导致 idle_delta 忽 0
+ * 忽满 → usage 在 0/100 间乱跳。拉长到 1s 让分母覆盖足够多次结算，天然平滑；EMA 再
+ * 压制跨秒残余抖动。分子分母同为 esp_timer 微秒时基（RUN_TIME_STATS_USING_ESP_TIMER）。 */
+#define CPU_SAMPLE_WINDOW_US   1000000
+
+static int64_t s_window_start_us;
+static configRUN_TIME_COUNTER_TYPE s_window_core_idle[SYSTEM_MONITOR_MAX_CORES];
+static bool s_has_window;
+static uint8_t s_ema_usage[SYSTEM_MONITOR_MAX_CORES];
+static bool s_has_ema;
 
 typedef struct {
     TaskHandle_t                handle;
@@ -64,27 +73,41 @@ void monitor_cpu_sample(system_monitor_metrics_t *m)
     m->core_count = (uint8_t)cores;
 
     int64_t now_us = esp_timer_get_time();
-    configRUN_TIME_COUNTER_TYPE total_delta = s_has_cpu_prev ?
-        (configRUN_TIME_COUNTER_TYPE)(now_us - s_prev_cpu_time_us) : 0;
+
+    /* 首次调用：只锚定窗口基准，usage 保留调用方（memset 后为 0）的既有值 */
+    if (!s_has_window) {
+        for (int c = 0; c < cores; c++) {
+            s_window_core_idle[c] = ulTaskGetIdleRunTimeCounterForCore(c);
+        }
+        s_window_start_us = now_us;
+        s_has_window = true;
+        return;
+    }
+
+    /* 窗口未满 1s：沿用上次算出的 usage（调用方的 local 快照持久保存该字段） */
+    int64_t total_delta = now_us - s_window_start_us;
+    if (total_delta < CPU_SAMPLE_WINDOW_US) {
+        return;
+    }
 
     uint32_t sum = 0;
     for (int c = 0; c < cores; c++) {
-        configRUN_TIME_COUNTER_TYPE idle_runtime = ulTaskGetIdleRunTimeCounterForCore(c);
-        if (s_has_cpu_prev) {
-            configRUN_TIME_COUNTER_TYPE idle_delta = idle_runtime - s_prev_core_idle[c];
-            uint8_t usage = busy_percent(idle_delta, total_delta);
-            m->cpu_usage_per_core[c] = usage;
-            sum += usage;
-        }
-        s_prev_core_idle[c] = idle_runtime;
-    }
+        configRUN_TIME_COUNTER_TYPE idle_now = ulTaskGetIdleRunTimeCounterForCore(c);
+        configRUN_TIME_COUNTER_TYPE idle_delta = idle_now - s_window_core_idle[c];
+        uint8_t raw = busy_percent(idle_delta, (configRUN_TIME_COUNTER_TYPE)total_delta);
 
-    if (s_has_cpu_prev) {
-        m->cpu_usage_total = (uint8_t)(sum / cores);
-    }
+        /* EMA α=0.5：ema = round((ema + raw) / 2)，兼顾平滑与响应 */
+        uint8_t usage = s_has_ema ?
+            (uint8_t)(((uint32_t)s_ema_usage[c] + raw + 1) / 2) : raw;
+        s_ema_usage[c] = usage;
 
-    s_prev_cpu_time_us = now_us;
-    s_has_cpu_prev = true;
+        m->cpu_usage_per_core[c] = usage;
+        sum += usage;
+        s_window_core_idle[c] = idle_now;
+    }
+    s_has_ema = true;
+    m->cpu_usage_total = (uint8_t)(sum / cores);
+    s_window_start_us = now_us;
 }
 
 void monitor_task_table_sample(system_monitor_metrics_t *m, monitor_task_table_t *tbl)

@@ -17,6 +17,8 @@
 #include "sorting_sim_control.h"
 #include "system_monitor.h"
 #include "vision.h"
+#include "sdk.h"                       // send_event / get_current_event_table / EVT_ETHERNET
+#include "bsp_lvgl_adapter_init.h"     // BSP_LVGL_Lock / BSP_LVGL_Unlock
 #include "lwip/inet.h"
 #include "lwip/sockets.h"
 #include "lwip/sys.h"
@@ -33,6 +35,8 @@
 static const char *TAG = "eth_example";
 
 #define HOST_IP                    "192.168.10.1"
+#define LOCAL_IP                   "192.168.10.2"
+#define LOCAL_NETMASK              "255.255.255.0"
 #define HOST_CONTROL_PORT          5000
 #define HOST_IMAGE_PORT            5001
 #define CONTROL_TASK_STACK_BYTES   8192
@@ -61,7 +65,7 @@ static const char *TAG = "eth_example";
 #define SNAPSHOT_RGB_BYTES         (SNAPSHOT_WIDTH * SNAPSHOT_HEIGHT * 3)
 #define SNAPSHOT_CACHE_ALIGNMENT   64
 #define JPEG_OUTBUF_BYTES          (512 * 1024)
-#define JPEG_QUALITY               60
+#define JPEG_QUALITY               85
 #define IMAGE_QUEUE_DEPTH          2
 
 #define ESP_HOST_MAGIC             0x32505345u
@@ -123,6 +127,11 @@ static TaskHandle_t s_image_send_task;
 static SemaphoreHandle_t s_image_lock;
 static uint32_t s_tx_seq;
 static volatile bool s_control_send_failed;
+
+// 运行时可调（设置页 UI 下发）。指标发送条件 = enabled && interval_ms>0。
+static volatile uint32_t s_metrics_interval_ms = TCP_METRICS_INTERVAL_MS;
+static volatile bool s_report_image_en = true;
+static volatile bool s_report_metrics_en = true;
 
 static uint8_t *s_snapshot_rgb;
 static jpeg_enc_handle_t s_jpeg_enc;
@@ -390,7 +399,7 @@ static esp_err_t ensure_image_resources(void)
 static esp_err_t produce_jpeg_snapshot(image_slot_t *slot)
 {
     int64_t start_ms = monotonic_ms();
-    uint16_t class_id = 1;
+    uint16_t class_id = 0;
     uint8_t conf = 0;
 
     // 阻塞等一张「识别成功新包裹」带框快照（vision 侧同帧缩放+画框已完成）。
@@ -418,8 +427,8 @@ static esp_err_t produce_jpeg_snapshot(image_slot_t *slot)
     slot->encode_ms = (int)(slot->created_ms - start_ms);
     slot->src_w = SNAPSHOT_WIDTH;
     slot->src_h = SNAPSHOT_HEIGHT;
-    if (class_id < 1 || class_id > 3) {
-        class_id = 1;
+    if (class_id > 2) {
+        class_id = 0;
     }
     if (conf > 100) {
         conf = 100;
@@ -712,12 +721,16 @@ static void control_tcp_task(void *arg)
             }
 
             int64_t now_ms = monotonic_ms();
-            if (now_ms >= next_metrics_ms) {
+            uint32_t interval = s_metrics_interval_ms;
+            if (s_report_metrics_en && interval > 0 && now_ms >= next_metrics_ms) {
                 if (send_metrics_packet(sock) != 0) {
                     ESP_LOGW(TAG, "TCP metrics send failed errno=%d", errno);
                     break;
                 }
-                next_metrics_ms = now_ms + TCP_METRICS_INTERVAL_MS;
+                next_metrics_ms = now_ms + interval;
+            } else if (!s_report_metrics_en || interval == 0) {
+                // 关闭期间持续顺延，重新开启后立即发一帧而非补发积压
+                next_metrics_ms = now_ms;
             }
             vTaskDelay(pdMS_TO_TICKS(20));
         }
@@ -733,6 +746,11 @@ static void image_producer_task(void *arg)
 
     while (true) {
         xEventGroupWaitBits(s_eth_events, TCP_CONNECT_READY_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
+
+        if (!s_report_image_en) {
+            vTaskDelay(pdMS_TO_TICKS(200));
+            continue;
+        }
 
         EventBits_t bits = xEventGroupGetBits(s_eth_events);
         if ((bits & TCP_IMAGE_CONNECTED_BIT) == 0) {
@@ -902,12 +920,23 @@ static esp_err_t configure_static_ip(esp_netif_t *netif)
     esp_netif_ip_info_t ip_info = {0};
 
     ESP_RETURN_ON_ERROR(esp_netif_dhcpc_stop(netif), TAG, "stop Ethernet DHCP client failed");
-    ESP_RETURN_ON_FALSE(esp_netif_str_to_ip4("192.168.10.2", &ip_info.ip) == ESP_OK, ESP_FAIL, TAG, "invalid static IP");
-    ESP_RETURN_ON_FALSE(esp_netif_str_to_ip4("255.255.255.0", &ip_info.netmask) == ESP_OK, ESP_FAIL, TAG, "invalid static netmask");
-    ESP_RETURN_ON_FALSE(esp_netif_str_to_ip4("192.168.10.1", &ip_info.gw) == ESP_OK, ESP_FAIL, TAG, "invalid static gateway");
+    ESP_RETURN_ON_FALSE(esp_netif_str_to_ip4(LOCAL_IP, &ip_info.ip) == ESP_OK, ESP_FAIL, TAG, "invalid static IP");
+    ESP_RETURN_ON_FALSE(esp_netif_str_to_ip4(LOCAL_NETMASK, &ip_info.netmask) == ESP_OK, ESP_FAIL, TAG, "invalid static netmask");
+    ESP_RETURN_ON_FALSE(esp_netif_str_to_ip4(HOST_IP, &ip_info.gw) == ESP_OK, ESP_FAIL, TAG, "invalid static gateway");
     ESP_RETURN_ON_ERROR(esp_netif_set_ip_info(netif, &ip_info), TAG, "set Ethernet static IP failed");
 
     return ESP_OK;
+}
+
+// 把以太网连接状态推给 UI（connect/disconnect 图切换）。事件回调同步派发，
+// 回调内仅 imgbtn 切 state，非阻塞；LVGL 操作须在锁内。
+static void post_eth_status_ui(int connected)
+{
+    ethernet_event_data_t data = { .connected = connected };
+    BSP_LVGL_Lock();
+    send_event(get_current_event_table(), EVT_ETHERNET, EVT_ETHERNET_STATUS_CHANGED,
+               (uint8_t *)&data, 0);
+    BSP_LVGL_Unlock();
 }
 
 static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
@@ -927,6 +956,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
     case ETHERNET_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "Ethernet Link Down");
         xEventGroupClearBits(s_eth_events, TCP_CONNECT_READY_BIT | TCP_IMAGE_CONNECTED_BIT);
+        post_eth_status_ui(0);   // 链路断开：UI 切到断开/失败图
         break;
     case ETHERNET_EVENT_START:
         ESP_LOGI(TAG, "Ethernet Started");
@@ -954,6 +984,7 @@ static void got_ip_event_handler(void *arg, esp_event_base_t event_base, int32_t
     ESP_LOGI(TAG, "ETHGW:" IPSTR, IP2STR(&ip_info->gw));
     ESP_LOGI(TAG, "~~~~~~~~~~~");
     xEventGroupSetBits(s_eth_events, TCP_CONNECT_READY_BIT);
+    post_eth_status_ui(1);   // 获取到 IP：UI 切到连接成功图
 }
 
 esp_err_t ethernet_app_start(void)
@@ -992,4 +1023,25 @@ esp_err_t ethernet_app_start(void)
     start_tcp_tasks();
 
     return ESP_OK;
+}
+
+const char *ethernet_app_get_local_ip(void) { return LOCAL_IP; }
+const char *ethernet_app_get_host_ip(void) { return HOST_IP; }
+
+void ethernet_app_set_metrics_interval_ms(uint32_t ms)
+{
+    s_metrics_interval_ms = ms;
+    ESP_LOGI(TAG, "metrics interval set to %lu ms", (unsigned long)ms);
+}
+
+void ethernet_app_set_report_image_enabled(bool en)
+{
+    s_report_image_en = en;
+    ESP_LOGI(TAG, "image report %s", en ? "enabled" : "disabled");
+}
+
+void ethernet_app_set_report_metrics_enabled(bool en)
+{
+    s_report_metrics_en = en;
+    ESP_LOGI(TAG, "metrics report %s", en ? "enabled" : "disabled");
 }

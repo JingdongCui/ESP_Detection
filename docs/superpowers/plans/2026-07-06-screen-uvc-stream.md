@@ -54,41 +54,35 @@ git commit -m "build: add usb_device_uvc dependency for screen UVC stream"
 **Files:**
 - Modify: `sdkconfig`（经 menuconfig 写入；同时把关键项写入 `sdkconfig.defaults` 便于重建）
 
-**背景：** ESP32-P4 的 UVC 走 USB 2.0 OTG **High-Speed** 控制器（DP=GPIO20/DM=GPIO19，专用 PHY，无需 GPIO 矩阵）。烧录/调试走的是独立的 USB-Serial-JTAG 控制器，二者互不影响，可同时使用。UVC 描述符里声明的分辨率必须与我们推流的分辨率一致（1024×600）。
+**背景：** ESP32-P4 的 UVC 走 USB 2.0 OTG **High-Speed** 控制器（DP=GPIO20/DM=GPIO19，专用 PHY）。烧录/调试走独立的 USB-Serial-JTAG 控制器，二者互不影响，可同时使用。
 
-- [ ] **Step 1: 打开 menuconfig 设置 TinyUSB 为高速 + UVC 描述符**
+**已探明的组件行为（Task1 读源码得出）：** `usb_device_uvc@1.3.1` 的 ISOC MJPEG 描述符**恒定广播 4 个分辨率**（`UVC_FRAMES_INFO[cam][0..3]`：`[0]`=CAM1 默认，`[1..3]`=三个 `UVC_MULTI_FRAME_*` 尺寸，库默认 640×480/480×320/320×240），`bDefaultFrameIndex=1` 指向 `[0]`。该宏无 MULTI 开关保护，无法裁成单分辨率。**因此策略调整为：把 `[0]` 设成 1024×600 作默认，固件按主机协商到的分辨率（start_cb 回调参数）用 PPA 缩放输出**——4 种尺寸都能正确工作。真实 Kconfig 符号名（注意 HEIGT 拼写）：`CONFIG_UVC_CAM1_FRAMESIZE_WIDTH` / `CONFIG_UVC_CAM1_FRAMESIZE_HEIGT` / `CONFIG_UVC_CAM1_FRAMERATE` / `CONFIG_TINYUSB_RHPORT_HS`（P4 默认已 HS）/ `CONFIG_FORMAT_MJPEG_CAM1` / `CONFIG_UVC_MODE_ISOC_CAM1`。
 
-Run: `./agentic/idf_build.sh menuconfig`
+- [ ] **Step 1: 把关键项写入 sdkconfig.defaults**
 
-按 Task 1 Step 3 记录到的真实符号名设置以下项（菜单路径以实际组件为准，通常在 `Component config → TinyUSB Stack` 与 `Component config → USB Device UVC` 下）：
-- TinyUSB 使能、USB PHY 选择 **HS / internal**（对应 `CONFIG_TINYUSB_RHPORT_HS=y`，若组件示例用 `sdkconfig.defaults` 提供则以其为准）
-- UVC 传输格式：**JPEG/MJPEG**
-- UVC CAM1 分辨率宽=**1024**、高=**600**
-- 帧率：**15 fps**（够用且带宽宽裕）
-
-- [ ] **Step 2: 把关键项落到 sdkconfig.defaults**
-
-把 Step 1 实际生效的符号（用 `grep -i "uvc\|tinyusb\|rhport" sdkconfig` 查到的真实行）追加到 `sdkconfig.defaults`，示例（**以 grep 到的真实值为准，勿照抄**）：
+在 `sdkconfig.defaults` 追加（符号名已按 Task1 实测组件 Kconfig 确认）：
 
 ```
 CONFIG_TINYUSB_RHPORT_HS=y
-# 下面两行符号名以 Task1-Step3 记录为准
+CONFIG_FORMAT_MJPEG_CAM1=y
+CONFIG_UVC_MODE_ISOC_CAM1=y
 CONFIG_UVC_CAM1_FRAMESIZE_WIDTH=1024
-CONFIG_UVC_CAM1_FRAMESIZE_HEIGHT=600
+CONFIG_UVC_CAM1_FRAMESIZE_HEIGT=600
+CONFIG_UVC_CAM1_FRAMERATE=15
 ```
 
-- [ ] **Step 3: reconfigure 确认配置生效**
+- [ ] **Step 2: reconfigure 确认配置生效**
 
 Run: `./agentic/idf_build.sh reconfigure`（timeout 600000）
 Expected: 无 Kconfig 报错。
-Run: `grep -i "rhport_hs\|uvc" sdkconfig | head -40`
-Expected: HS 与 UVC 分辨率项为期望值。
+Run: `grep -i "framesize_width\|framesize_heigt\|rhport_hs\|mjpeg_cam1\|framerate" sdkconfig`
+Expected: `CONFIG_UVC_CAM1_FRAMESIZE_WIDTH=1024`、`CONFIG_UVC_CAM1_FRAMESIZE_HEIGT=600`、HS/MJPEG 均在。
 
-- [ ] **Step 4: 提交**
+- [ ] **Step 3: 提交**
 
 ```bash
 git add sdkconfig sdkconfig.defaults
-git commit -m "build: configure TinyUSB HS + UVC JPEG 1024x600 descriptor"
+git commit -m "build: configure TinyUSB HS + UVC JPEG default 1024x600 (adaptive)"
 ```
 
 ---
@@ -184,6 +178,7 @@ git commit -m "feat(screen_uvc): add component skeleton"
 #include <sys/time.h>
 
 #include "esp_log.h"
+#include "esp_check.h"
 #include "esp_err.h"
 #include "esp_heap_caps.h"
 #include "esp_cache.h"
@@ -201,15 +196,14 @@ static const char *TAG = "screen_uvc";
 #define SCREEN_W            1024
 #define SCREEN_H            600
 #define RGB_BYTES_PER_PX    3
-#define SCREEN_RGB_SIZE     ((size_t)SCREEN_W * SCREEN_H * RGB_BYTES_PER_PX)
-
+// 缓冲按最大分辨率(全屏)预分配，可覆盖主机协商到的任何更小尺寸。
+#define MAX_RGB_SIZE        ((size_t)SCREEN_W * SCREEN_H * RGB_BYTES_PER_PX)
 // JPEG 输出缓冲：1024x600 q80/444 经验峰值 ~300-450KB，取 768KB 留裕量。
 #define JPEG_OUT_CAP        (768 * 1024)
-// UVC 传输缓冲需 >= 单帧最大 JPEG 大小。
 #define UVC_XFER_CAP        JPEG_OUT_CAP
 #define JPEG_QUALITY        80
 
-static ppa_client_handle_t   s_ppa;             // SRM 客户端（做 rgb_swap + 拷贝）
+static ppa_client_handle_t   s_ppa;             // SRM 客户端（做 rgb_swap + 缩放）
 static jpeg_encoder_handle_t s_jpeg;            // 硬件 JPEG 编码器
 static uint8_t              *s_rgb;             // PPA 输出 = JPEG 输入（R,G,B，编码器对齐）
 static size_t                s_rgb_alloc;       // s_rgb 实际分配大小
@@ -217,9 +211,12 @@ static uint8_t              *s_jpeg_out;        // JPEG 码流输出缓冲
 static uint8_t              *s_uvc_xfer;        // TinyUSB UVC 传输缓冲
 static uvc_fb_t              s_fb;              // 交还给 UVC 的帧描述（复用单缓冲）
 
-// 从 DSI framebuffer 抓一帧 → PPA 硬件搬运并交换 R/B → 输出到 s_rgb（R,G,B）。
-// 返回 ESP_OK 表示 s_rgb 已就绪且已回写到 CPU 可见（cache 已同步）。
-static esp_err_t capture_screen_rgb(void)
+// 主机协商到的输出分辨率（start_cb 写入，fb_get 读取）。默认全屏。
+static volatile int          s_out_w = SCREEN_W;
+static volatile int          s_out_h = SCREEN_H;
+
+// 从 DSI framebuffer 抓一帧 → PPA 硬件缩放并交换 R/B → 输出到 s_rgb（R,G,B，out_w×out_h）。
+static esp_err_t capture_screen_rgb(int out_w, int out_h)
 {
     void *fb0 = NULL, *fb1 = NULL;
     esp_err_t ret = BSP_LCD_GetFrameBuffers(&fb0, &fb1);
@@ -227,6 +224,7 @@ static esp_err_t capture_screen_rgb(void)
         return (ret == ESP_OK) ? ESP_ERR_INVALID_STATE : ret;
     }
 
+    size_t out_size = (size_t)out_w * out_h * RGB_BYTES_PER_PX;
     // 抓 fb0。DOUBLE_DIRECT 抗撕裂下 LVGL 在两块 fb 间交替刷新，
     // PPA 搬运是亚毫秒级，撕裂窗口极小，用于监控足够。
     ppa_srm_oper_config_t srm = {
@@ -243,15 +241,15 @@ static esp_err_t capture_screen_rgb(void)
         .out = {
             .buffer = s_rgb,
             .buffer_size = s_rgb_alloc,
-            .pic_w = SCREEN_W,
-            .pic_h = SCREEN_H,
+            .pic_w = out_w,
+            .pic_h = out_h,
             .block_offset_x = 0,
             .block_offset_y = 0,
             .srm_cm = PPA_SRM_COLOR_MODE_RGB888,
         },
         .rotation_angle = PPA_SRM_ROTATION_ANGLE_0,
-        .scale_x = 1.0f,
-        .scale_y = 1.0f,
+        .scale_x = (float)out_w / SCREEN_W,
+        .scale_y = (float)out_h / SCREEN_H,
         // framebuffer 内存序为 B,G,R；置位后 PPA 硬件把 R/B 交换成编码器要的 R,G,B。
         .rgb_swap = true,
         .mode = PPA_TRANS_MODE_BLOCKING,
@@ -261,27 +259,29 @@ static esp_err_t capture_screen_rgb(void)
         return ret;
     }
     // PPA 写的是 PSRAM，回读前把该区间从内存同步进 cache。
-    return esp_cache_msync(s_rgb, s_rgb_alloc, ESP_CACHE_MSYNC_FLAG_DIR_M2C);
+    return esp_cache_msync(s_rgb, out_size, ESP_CACHE_MSYNC_FLAG_DIR_M2C);
 }
 
-// UVC 主机请求一帧：抓屏→修色→硬件 JPEG，填 s_fb 返回。失败返回 NULL（本帧丢弃）。
+// UVC 主机请求一帧：抓屏(缩放到协商尺寸)→修色→硬件 JPEG，填 s_fb 返回。失败返回 NULL。
 static uvc_fb_t *uvc_fb_get_cb(void *cb_ctx)
 {
     (void)cb_ctx;
-    if (capture_screen_rgb() != ESP_OK) {
+    int out_w = s_out_w, out_h = s_out_h;
+    if (capture_screen_rgb(out_w, out_h) != ESP_OK) {
         return NULL;
     }
 
     jpeg_encode_cfg_t cfg = {
-        .width = SCREEN_W,
-        .height = SCREEN_H,
+        .width = out_w,
+        .height = out_h,
         .src_type = JPEG_ENCODE_IN_FORMAT_RGB888,
         .sub_sample = JPEG_DOWN_SAMPLING_YUV444,   // 444 不做色度下采样，UI/文字最清晰
         .image_quality = JPEG_QUALITY,
     };
     uint32_t out_len = 0;
+    size_t in_size = (size_t)out_w * out_h * RGB_BYTES_PER_PX;
     esp_err_t ret = jpeg_encoder_process(s_jpeg, &cfg,
-                                         s_rgb, SCREEN_RGB_SIZE,
+                                         s_rgb, in_size,
                                          s_jpeg_out, JPEG_OUT_CAP, &out_len);
     if (ret != ESP_OK || out_len == 0) {
         ESP_LOGW(TAG, "jpeg encode fail: %s len=%u", esp_err_to_name(ret), (unsigned)out_len);
@@ -292,8 +292,8 @@ static uvc_fb_t *uvc_fb_get_cb(void *cb_ctx)
     gettimeofday(&tv, NULL);
     s_fb.buf = s_jpeg_out;
     s_fb.len = out_len;
-    s_fb.width = SCREEN_W;
-    s_fb.height = SCREEN_H;
+    s_fb.width = out_w;
+    s_fb.height = out_h;
     s_fb.format = UVC_FORMAT_JPEG;
     s_fb.timestamp = tv;
     return &s_fb;
@@ -307,6 +307,14 @@ static esp_err_t uvc_start_cb(uvc_format_t format, int width, int height, int ra
         ESP_LOGE(TAG, "unsupported UVC format %d (only JPEG)", (int)format);
         return ESP_ERR_NOT_SUPPORTED;
     }
+    // 记录主机协商分辨率；夹到全屏上限（缓冲按全屏预分配）。
+    if (width <= 0 || width > SCREEN_W || height <= 0 || height > SCREEN_H) {
+        ESP_LOGW(TAG, "negotiated %dx%d out of range, clamp to %dx%d", width, height, SCREEN_W, SCREEN_H);
+        width = SCREEN_W;
+        height = SCREEN_H;
+    }
+    s_out_w = width;
+    s_out_h = height;
     return ESP_OK;
 }
 
@@ -324,11 +332,11 @@ static void uvc_stop_cb(void *cb_ctx)
 
 esp_err_t screen_uvc_start(void)
 {
-    // 1) JPEG 编码输入缓冲（同时作 PPA 输出）：用编码器对齐分配。
+    // 1) JPEG 编码输入缓冲（同时作 PPA 输出）：按全屏最大尺寸用编码器对齐分配。
     jpeg_encode_memory_alloc_cfg_t in_mem = { .buffer_direction = JPEG_ENC_ALLOC_INPUT_BUFFER };
-    s_rgb = (uint8_t *)jpeg_alloc_encoder_mem(SCREEN_RGB_SIZE, &in_mem, &s_rgb_alloc);
+    s_rgb = (uint8_t *)jpeg_alloc_encoder_mem(MAX_RGB_SIZE, &in_mem, &s_rgb_alloc);
     if (!s_rgb) {
-        ESP_LOGE(TAG, "alloc rgb input buffer failed (%u bytes)", (unsigned)SCREEN_RGB_SIZE);
+        ESP_LOGE(TAG, "alloc rgb input buffer failed (%u bytes)", (unsigned)MAX_RGB_SIZE);
         return ESP_ERR_NO_MEM;
     }
 
@@ -361,7 +369,7 @@ esp_err_t screen_uvc_start(void)
     ESP_RETURN_ON_ERROR(uvc_device_config(0, &cfg), TAG, "uvc config");
     ESP_RETURN_ON_ERROR(uvc_device_init(), TAG, "uvc init");
 
-    ESP_LOGI(TAG, "screen UVC stream started: %dx%d MJPEG q%d", SCREEN_W, SCREEN_H, JPEG_QUALITY);
+    ESP_LOGI(TAG, "screen UVC stream started: default %dx%d MJPEG q%d", SCREEN_W, SCREEN_H, JPEG_QUALITY);
     return ESP_OK;
 }
 ```

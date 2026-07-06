@@ -11,6 +11,7 @@
  * Author: anyui Team
  */
 #include "ui.h"
+#include "ethernet_app.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -215,6 +216,10 @@ extern lv_obj_t *scr_dashboard_label_runtime_value;
 extern lv_obj_t *scr_dashboard_label_chip_temp_value;
 extern lv_obj_t *scr_dashboard_label_cpu_freq_value;
 extern lv_obj_t *scr_dashboard_label_task_count_value;
+// 设置页 - 关于：运行时长(动态)、可用 PSRAM(动态)、模型信息(绑定时静态填一次)
+extern lv_obj_t *scr_dashboard_label_about_runtime_value;
+extern lv_obj_t *scr_dashboard_label_memory_value;
+extern lv_obj_t *scr_dashboard_label_model_info_value;
 extern lv_obj_t *scr_dashboard_slider_82EIlsYJ;
 extern lv_obj_t *scr_dashboard_label_runtime_bright__data;
 extern lv_obj_t *scr_dashboard_label_runtime_recognition_status;
@@ -232,6 +237,15 @@ extern lv_obj_t *scr_dashboard_slider_jt;
 extern lv_obj_t *scr_dashboard_slider_zt;
 extern lv_obj_t *scr_dashboard_slider_yd;
 extern lv_obj_t *scr_dashboard_imgbtn_logo;
+extern lv_obj_t *scr_dashboard_img_runtime_ethernet_status;
+
+// 设置页 - 网络：本机/主机 IP 显示、上报间隔滑块、图像/指标上报开关
+extern lv_obj_t *scr_dashboard_label_local_ip_value;
+extern lv_obj_t *scr_dashboard_label_host_ip_value;
+extern lv_obj_t *scr_dashboard_slider_report_interval;
+extern lv_obj_t *scr_dashboard_label_report_interval_value;
+extern lv_obj_t *scr_dashboard_sw_report_image;
+extern lv_obj_t *scr_dashboard_sw_report_metrics;
 
 /* ============================================================================
  * 第一层：事件 → 数据 → UI 更新
@@ -332,6 +346,13 @@ static void ui_system_monitor_event_cb(uint8_t event, uint16_t code, uint16_t ty
                           (monitor->chip_temp < 0 ? -monitor->chip_temp : monitor->chip_temp) % 10);
     ui_label_set_text_fmt_safe(scr_dashboard_label_cpu_freq_value, "%d", monitor->cpu_freq_mhz);
     ui_label_set_text_fmt_safe(scr_dashboard_label_task_count_value, "%d", monitor->task_count);
+
+    // 关于页：运行时长同 dashboard(HH:MM:SS)，可用内存取 PSRAM 总量，以 MB 一位小数显示
+    ui_label_set_text_fmt_safe(scr_dashboard_label_about_runtime_value, "%02d:%02d:%02d",
+                          monitor->runtime_sec / 3600, (monitor->runtime_sec / 60) % 60,
+                          monitor->runtime_sec % 60);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_memory_value, "%d.%d MB",
+                          monitor->psram_total_kb / 1024, (monitor->psram_total_kb % 1024) * 10 / 1024);
 }
 
 static uint32_t ui_register_system_monitor_events(event_table_t *table)
@@ -377,12 +398,46 @@ static uint32_t ui_register_vision_events(event_table_t *table)
                           sizeof(vision_result_event_data_t), ui_vision_result_event_cb);
 }
 
+/* 以太网状态：该控件是 imgbtn，RELEASED=disconnect_126x36(断开/失败)，
+ * CHECKED_RELEASED=connect_126x36(已连接)。必须用 lv_imagebutton_set_state 切状态，
+ * 而非 lv_obj_add/remove_state(LV_STATE_CHECKED)——后者仅在有"样式"差异时才 invalidate，
+ * 而两态区别是图片源(set_src)非样式，状态位会改但永不重绘，一直停在旧图(红)。
+ * imagebutton_set_state 末尾调 refr_image 无条件 invalidate，才会真正切图。
+ * 纯事件驱动，断开自动重连时事件会再次到来。 */
+static void ui_ethernet_event_cb(uint8_t event, uint16_t code, uint16_t type,
+                                 uint16_t len, uint8_t *data, uint8_t status)
+{
+    LV_UNUSED(event);
+    LV_UNUSED(code);
+    LV_UNUSED(type);
+    LV_UNUSED(status);
+
+    if (!data || len != sizeof(ethernet_event_data_t)) {
+        return;
+    }
+    if (!scr_dashboard_img_runtime_ethernet_status) {
+        return;
+    }
+
+    ethernet_event_data_t *eth = (ethernet_event_data_t *)data;
+    lv_imagebutton_set_state(scr_dashboard_img_runtime_ethernet_status,
+                             eth->connected ? LV_IMAGEBUTTON_STATE_CHECKED_RELEASED
+                                            : LV_IMAGEBUTTON_STATE_RELEASED);
+}
+
+static uint32_t ui_register_ethernet_events(event_table_t *table)
+{
+    return register_event(table, EVT_ETHERNET, EVT_ETHERNET_STATUS_CHANGED, 0,
+                          sizeof(ethernet_event_data_t), ui_ethernet_event_cb);
+}
+
 // 第一层聚合点：注册本屏所有事件回调。新增一路事件→UI更新时，在此加一行。
 static void ui_register_all_events(void)
 {
     event_table_t *table = get_current_event_table();
     ui_register_system_monitor_events(table);
     ui_register_vision_events(table);
+    ui_register_ethernet_events(table);
     // ui_register_xxx_events(table);   // ← 新增事件注册放这里
 }
 
@@ -552,6 +607,82 @@ static void ui_attach_confidence_threshold_sliders(void)
     }
 }
 
+// 上报间隔滑块拖动：单位秒，0 = 关闭指标上报。更新标签并把毫秒值下发给以太网层。
+static void ui_report_interval_slider_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
+        return;
+    }
+    int sec = (int)lv_slider_get_value(lv_event_get_target(e));
+    if (sec < 0) {
+        sec = 0;
+    }
+    ui_label_set_text_fmt_safe(scr_dashboard_label_report_interval_value, "%02ds", sec);
+    ethernet_app_set_metrics_interval_ms((uint32_t)sec * 1000u);
+}
+
+// 图像上报开关：直接切换以太网层的图像上报总开关。
+static void ui_report_image_switch_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
+        return;
+    }
+    ethernet_app_set_report_image_enabled(lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED));
+}
+
+// 指标上报开关：直接切换以太网层的指标上报总开关。
+static void ui_report_metrics_switch_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
+        return;
+    }
+    ethernet_app_set_report_metrics_enabled(lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED));
+}
+
+// 网络设置页：上电填 IP 显示，挂上报间隔滑块与两个开关，并同步初值到以太网层。
+static void ui_attach_network_controls(void)
+{
+    // 本机 / 主机 IP 为静态配置，上电即固定，直接填显示标签。
+    ui_label_set_text_safe(scr_dashboard_label_local_ip_value, ethernet_app_get_local_ip());
+    ui_label_set_text_safe(scr_dashboard_label_host_ip_value, ethernet_app_get_host_ip());
+
+    if (scr_dashboard_slider_report_interval) {
+        lv_obj_add_event_cb(scr_dashboard_slider_report_interval,
+                            ui_report_interval_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+        // 上报间隔范围 0-10s（覆盖 anyui 生成值，重生成不丢）。
+        lv_slider_set_range(scr_dashboard_slider_report_interval, 0, 10);
+        // 同步以太网层默认间隔（1s），设滑块值并触发一次回调使标签一致。
+        lv_slider_set_value(scr_dashboard_slider_report_interval, 1, LV_ANIM_OFF);
+        lv_obj_send_event(scr_dashboard_slider_report_interval, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+    if (scr_dashboard_sw_report_image) {
+        lv_obj_add_event_cb(scr_dashboard_sw_report_image,
+                            ui_report_image_switch_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+        ui_state_modify(scr_dashboard_sw_report_image, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
+        lv_obj_send_event(scr_dashboard_sw_report_image, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+    if (scr_dashboard_sw_report_metrics) {
+        lv_obj_add_event_cb(scr_dashboard_sw_report_metrics,
+                            ui_report_metrics_switch_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+        ui_state_modify(scr_dashboard_sw_report_metrics, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
+        lv_obj_send_event(scr_dashboard_sw_report_metrics, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+}
+
+// 关于页静态信息：模型信息为编译期固定的已挂载模型名，绑定时经 getter 填一次即可。
+static void ui_attach_about_info(void)
+{
+    if (scr_dashboard_label_model_info_value && s_handlers.model_info_get) {
+        const char *info = s_handlers.model_info_get();
+        if (info) {
+            ui_label_set_text_safe(scr_dashboard_label_model_info_value, info);
+        }
+        // anyui 生成的值列 x=571 只够短文本；模型名较长会在容器(宽669)右侧被截断，
+        // 故左移到 x=470 让 "waybill.espdl / logo.espdl" 完整显示(覆盖生成值，重生成不丢)。
+        lv_obj_set_x(scr_dashboard_label_model_info_value, 470);
+    }
+}
+
 // 第二层聚合点：挂载本屏所有控件交互。新增一路 UI 交互→业务时，在此加一行。
 static void ui_attach_all_widgets(void)
 {
@@ -559,6 +690,8 @@ static void ui_attach_all_widgets(void)
     ui_attach_calibration_button();
     ui_attach_detection_switches();
     ui_attach_confidence_threshold_sliders();
+    ui_attach_network_controls();    // 网络设置页：IP 显示 + 上报间隔/图像/指标控件
+    ui_attach_about_info();          // 关于页：模型信息静态填充
     // ui_attach_xxx();              // ← 新增控件交互挂载放这里
 }
 

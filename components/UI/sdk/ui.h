@@ -90,6 +90,10 @@ typedef void (*ui_bool_switch_handler_t)(bool enabled);
 typedef int  (*ui_percent_getter_t)(void);
 typedef void (*ui_percent_handler_t)(int percent);
 
+// 模型信息 getter：返回 vision 已挂载模型名的静态只读字符串(如 "waybill.espdl / logo.espdl")，
+// 供关于页“模型信息”标签在绑定时一次性填充。返回值须为常驻字符串，UI 不释放。
+typedef const char *(*ui_model_info_getter_t)(void);
+
 /* dashboard 业务 handler 集合：由 main 一次性填好传入 ui_bind_dashboard。
  * 用结构体而非裸参数，后期新增业务只需在此追加字段，不改 ui_bind_dashboard 签名，
  * main 端也只多填一行。未填(NULL)的 handler 对应交互被安全忽略。 */
@@ -102,6 +106,7 @@ typedef struct {
     ui_percent_handler_t waybill_score_threshold_set;// 面单阈值滑块 → vision 模型阈值
     ui_percent_getter_t logo_score_threshold_get;    // Logo 阈值滑块默认值读取
     ui_percent_handler_t logo_score_threshold_set;   // Logo 阈值滑块 → vision 模型阈值
+    ui_model_info_getter_t model_info_get;           // 关于页“模型信息”标签 → vision 已挂载模型名
     // 新增业务 handler 在此追加，例如：
     // ui_xxx_handler_t xxx;
 } ui_dashboard_handlers_t;

@@ -99,7 +99,7 @@ static ppa_client_handle_t s_snapshot_ppa;
 static uint8_t         *s_boxed_buf;        // 640×375×3 RGB888，PSRAM，cache 对齐
 static SemaphoreHandle_t s_boxed_ready;     // 二值：capture give，take 取
 static SemaphoreHandle_t s_boxed_mutex;     // 保护 buffer 填充与拷出不重叠
-static uint16_t         s_boxed_class_id;   // 随快照的类别 1~3
+static uint16_t         s_boxed_class_id;   // 随快照的类别 0~2（0=极兔 1=韵达 2=中通）
 static uint8_t          s_boxed_conf;       // 随快照的 logo 置信度 0~100
 static int s_preview_x;                 // 预览区域左上角 X（屏幕坐标）
 static int s_preview_y;                 // 预览区域左上角 Y（屏幕坐标）

@@ -81,6 +81,10 @@ int vision_model_get_logo_score_threshold_percent(void);
 void vision_model_set_waybill_score_threshold_percent(int percent);
 void vision_model_set_logo_score_threshold_percent(int percent);
 
+// 返回已挂载的两个模型名，中间用 " / " 分隔的常驻只读字符串
+// (如 "waybill.espdl / logo.espdl")，供 UI 关于页“模型信息”标签显示。
+const char *vision_model_get_model_info_string(void);
+
 #ifdef __cplusplus
 }
 #endif

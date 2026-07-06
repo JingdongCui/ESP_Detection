@@ -31,7 +31,7 @@ static const char *TAG = "screen_uvc";
 // JPEG 输出缓冲：1024x600 q80/444 经验峰值 ~300-450KB，取 768KB 留裕量。
 #define JPEG_OUT_CAP        (768 * 1024)
 #define UVC_XFER_CAP        JPEG_OUT_CAP
-#define JPEG_QUALITY        95
+#define JPEG_QUALITY        90
 
 static ppa_client_handle_t   s_ppa;             // SRM 客户端（做缩放）
 static jpeg_encoder_handle_t s_jpeg;            // 硬件 JPEG 编码器

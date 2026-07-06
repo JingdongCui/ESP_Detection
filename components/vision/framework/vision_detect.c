@@ -225,9 +225,9 @@ void vision_detect_task(void *arg)
             s_display_has_last_hit = true;
             s_display_miss_count = 0;
             if (rising_edge) {
-                // category 0/1/2 → 协议 class_id 1/2/3；conf 取 logo 置信度。
+                // category 直接透传为协议类别 0/1/2（0=极兔 1=韵达 2=中通），与上位机一致；conf 取 logo 置信度。
                 // 传原图坐标 dets[]+n，capture 内映射到 640×375 并 burn-in（图框同帧同步）。
-                uint16_t cls = (uint16_t)(result.items[best_logo].category + 1);
+                uint16_t cls = (uint16_t)result.items[best_logo].category;
                 uint8_t conf = (uint8_t)result.ev.logo_confidence;
                 vision_boxed_snapshot_capture(fb.buf, fb.width, fb.height, dets, n, cls, conf);
                 SEGGER_RTT_printf(0, "[vision_det] BOXED SNAPSHOT captured cls=%u conf=%u boxes=%d\n",
