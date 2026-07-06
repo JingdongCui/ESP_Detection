@@ -91,9 +91,9 @@ void System_Init(void)
         ESP_LOGW(TAG, "screen UVC stream start failed: %s", esp_err_to_name(uvc_ret));
     }
 
-    //sorting_sim_debug_start();
-    //sorting_sim_control_set_motor_output_enabled(true);
-    //sorting_sim_control_set_sensor_input_enabled(true);
+    sorting_sim_debug_start();
+    sorting_sim_control_set_motor_output_enabled(true);
+    sorting_sim_control_set_sensor_input_enabled(true);
 
     //启动系统监视：后台周期采集 CPU/内存/系统指标，写入快照并通过 RTT 打印
     system_monitor();
