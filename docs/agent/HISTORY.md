@@ -1,5 +1,55 @@
 # History
 
+## 2026-07-07 ESP32P4_Detection Ethernet and sorter autostart coexistence
+
+- 用户确认旧基线可连接上位机 Ethernet，并要求对比最新版导致连接失败的原因；用户判断可能是电机上电默认启动导致，并要求修改为电机启动与 Ethernet 连接同时存在。
+- 按项目规则，修改前先提交用户已有修改：
+  - `77bd22a checkpoint before ethernet link fix`
+  - 包含现场速度/延时配置和视觉投票相关未提交改动。
+- 初始最新版失败日志：
+  - `E event: create event loop queue failed`
+  - `Ethernet sorter link start failed: ESP_ERR_NO_MEM`
+  - 说明 Ethernet 初始化太晚，内部 RAM 已被 LCD/camera/LVGL/vision/分拣任务占用。
+- 第一次修复：
+  - 新增 `ethernet_app_early_init()`，提前创建默认 event loop 和 Ethernet event group。
+  - 提交：`e032f76 checkpoint ethernet early init attempt`。
+- 用户要求回退到文件夹最开始版本测试 Ethernet：
+  - 使用 `23bac51 baseline recovered teammate project` 作为 zip 导入/精简基线。
+  - 该基线电机开机默认未启动。
+  - 因当前板子为 ESP32-P4 revision v3.1，临时调整 `sdkconfig` revision 后 build/flash。
+  - 用户确认该版本连接成功。
+- 回到最新版 `e032f76` 后继续修复：
+  - `System_Init()` 中将完整 `ethernet_app_start()` 移到分拣硬件启动前。
+  - 新增 `ethernet_app_wait_ready(5000)`，最多等待 5 秒，优先让 control/image TCP 连接建立。
+  - 之后再调用 `sorting_sim_debug_start()`、`sorting_sim_control_set_motor_output_enabled(true)`、`sorting_sim_control_set_sensor_input_enabled(true)`。
+  - 保持 `system_monitor()` 在分拣硬件启动后再启动，减少早期内部 RAM 压力。
+- 用户打断要求关闭 `sdkconfig` 的 LVGL perf monitor bottom right：
+  - `CONFIG_LV_USE_PERF_MONITOR=y` 改为未启用。
+  - bottom right 对齐选项随 perf monitor 关闭不再启用。
+- 第一轮验证：
+  - `idf.py build` 通过。
+  - `idf.py flash` 通过。
+  - 上位机端 `ss` 看到 `5000/5001` 两路均 ESTABLISHED。
+  - monitor 显示 Ethernet ready 后电机启动，但真实 IO task 报 `create real IO task failed`。
+- 第二轮修复：
+  - 将 `sorting_sim_control.c` 中 `sort_real_io` 任务改为 `xTaskCreatePinnedToCoreWithCaps()`。
+  - 任务栈 4096 字节放到 `MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT`。
+  - 失败日志补充 `free_internal` 和 `free_psram`，便于后续定位内存问题。
+- 最终验证：
+  - `idf.py build` 通过。
+  - `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
+  - monitor 关键日志显示：
+    - `Ethernet Started`
+    - `Ethernet Link Up`
+    - `ETHIP:192.168.10.2`
+    - `control connected to host`
+    - `image connected to host`
+    - `Ethernet sorter link ready before sorter hardware start`
+    - `SORT 电机M1: 正转 65%`
+    - `SORT 真实硬件链路已启用`
+  - 主机端 `ss` 确认 `192.168.10.1:5000` 和 `192.168.10.1:5001` 均与 `192.168.10.2` 保持 ESTABLISHED。
+  - 未再出现 Ethernet `ESP_ERR_NO_MEM` 或 `create real IO task failed`。
+
 ## 2026-07-06 ESP32P4_Detection sorter autostart and default speed config
 
 - 用户询问 `ESP32_Detection`/`ESP32P4_Detection` 中电机调试默认是否开启、是否开机自动启动电机。

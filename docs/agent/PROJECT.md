@@ -102,7 +102,10 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0 monitor
 ```
 
-- `ESP32P4_Detection` 当前 app version：`a82793b`。
+- 2026-07-07 当前实测板子也会枚举为 USB Serial/JTAG：
+  - `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`
+  - 芯片 revision：ESP32-P4 `v3.1`
+- `ESP32P4_Detection` 当前 app version 由最新提交决定；2026-07-07 Ethernet/分拣并存修复验证时为 `e032f76-dirty`。
 - `ESP32P4_Detection` 当前默认分拣调度配置集中在 `components/bsp/include/sorter_debug_config.h`：
   - 默认速度：A/B/C = `100%`。
   - 默认交接延时：`SORTER_DEFAULT_HANDOFF_DELAY_MS=1000`。
@@ -110,8 +113,16 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
   - 默认 lost timeout：min=`3000ms`、max=`6000ms`。
   - 引脚、传感器 active level、编码器参数也在同一个文件。
   - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `sorter_config_default()` 从这些宏读取默认值。
-- `ESP32P4_Detection` 当前启动路径会调用 `sorting_sim_debug_start()`、`sorting_sim_control_set_motor_output_enabled(true)`、`sorting_sim_control_set_sensor_input_enabled(true)`，开机启用分拣调试入口、电机输出和真实传感器输入。
-- 当前稳定串口为 CP2102N by-id 路径；monitor 使用默认 `115200`。
+- `ESP32P4_Detection` 当前启动路径先启动 Ethernet 上位机链路并等待 ready，再调用 `sorting_sim_debug_start()`、`sorting_sim_control_set_motor_output_enabled(true)`、`sorting_sim_control_set_sensor_input_enabled(true)`，开机启用分拣调试入口、电机输出和真实传感器输入。
+- Ethernet 默认静态链路：
+  - 板端：`192.168.10.2`
+  - 上位机：`192.168.10.1`
+  - control：TCP `5000`
+  - image：TCP `5001`
+  - 2026-07-07 已验证两路 TCP 与开机默认电机/真实 IO 同时存在。
+- `sort_real_io` 任务栈放在 PSRAM，避免 Ethernet ready 后内部 RAM 紧张导致真实 IO task 创建失败。
+- `sdkconfig` 中 LVGL perf monitor 当前关闭；不要再打开 bottom right perf overlay，除非现场明确需要性能叠层。
+- 串口优先使用 `/dev/serial/by-id/` 稳定路径；当前现场可能是 CP2102N 或 Espressif USB Serial/JTAG，按实际枚举选择。monitor 使用默认 `115200`。
 
 ## 2026-07-06 Workspace Cleanup
 

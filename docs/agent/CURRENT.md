@@ -2,65 +2,54 @@
 
 ## Goal
 
-在 `ESP32P4_Detection` 中启用开机分拣链路，并把电机默认速度/默认延时集中到与引脚相同的配置文件，方便现场修改。
+让 `ESP32P4_Detection` 最新版本在电机/真实分拣链路开机默认启动的同时，Ethernet 上位机连接仍能稳定建立；同时按用户打断要求关闭 `sdkconfig` 中 LVGL perf monitor bottom right 显示。
 
 ## Current State
 
-- 当前活跃 ESP 工程：`/home/kazeform/2026esp/ESP32P4_Detection`
-  - 分支：`feat/screen-uvc-stream`
-  - zip 导入/精简基线：`23bac51 baseline recovered teammate project`
-  - 超时修改提交：`71e63c6 tune sorter belt timeouts`
-  - 开机自动启用分拣链路提交：`3af4d57 enable sorter autostart`
-  - 当前默认分拣配置集中在 `components/bsp/include/sorter_debug_config.h`
-    - 默认速度：A/B/C = `100%`
-    - 默认交接延时：`1000ms`
-    - 默认皮带超时：A=`4500ms`、B=`2000ms`、C=`2000ms`
-    - 默认 lost timeout：min=`3000ms`、max=`6000ms`
-  - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `sorter_config_default()` 已改为读取上述宏。
-- 当前活跃上位机工程：`/home/kazeform/2026esp/esp32_host_no_inference`
-  - 分支：`master`
-  - zip 导入基线：`9a5e5f2 baseline teammate host project`
-- 历史工程已移动到 `archive_project/`：
-  - `new_merge_before_zip_20260706`
-  - `esp32_host_no_inference_before_zip_20260706`
-  - `lasttime_merge_before_zip_20260706`
-  - `lasttime_my_before_zip_20260706`
-  - `lasttime_teammate_before_zip_20260706`
-  - `teammate_project_before_zip_20260706`
-  - `ignore_before_zip_20260706`
-  - `esp32_sorter_sim_py_before_zip_20260706`
-- 已删除/排除的可再生成或本地缓存：
-  - 各工程 `build/`
-  - 各工程 `managed_components/`
-  - `.codegraph/`
-  - `.cache/`
-  - `.qtcreator/`
-  - `__pycache__/`
-- `ESP32P4_Detection(8).zip` 不是完整标准 zip，`unzip` 报缺少 central directory，`7z` 报 `Unexpected end of archive`。
-  - 已用 7z 尽量恢复源码。
-  - 使用恢复出的 `.git` 从 HEAD 补回构建必需的 `model/`、`sdkconfig`、`sdkconfig.defaults`、`partitions.csv`。
-  - 因此当前 `ESP32P4_Detection` 是“zip 恢复内容 + git 补齐构建文件 + 精简无关工具目录”的可构建工程。
+- 活跃 ESP 工程：`/home/kazeform/2026esp/ESP32P4_Detection`
+- 分支：`feat/screen-uvc-stream`
+- 当前板子串口：
+  - `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`
+- 当前上位机进程：
+  - `/home/kazeform/2026esp/esp32_host_no_inference/build/Desktop_Debug/bin/esp32_host_no_inference`
+  - 监听 `192.168.10.1:5000` 和 `192.168.10.1:5001`
+- 已确认旧基线 `23bac51 baseline recovered teammate project` 可连接 Ethernet。
+- 最新版失败原因定位：
+  - 之前在 LCD/camera/LVGL/vision/分拣硬件任务之后再启动 Ethernet，容易因内部 RAM 紧张导致默认 event loop 创建失败，报 `ESP_ERR_NO_MEM`。
+  - 调整后又发现真实 IO task 在 Ethernet 已连接后可能创建失败，因此将 `sort_real_io` 任务栈放到 PSRAM。
+- 当前代码改动：
+  - `ethernet_app_early_init()` 保持早期创建默认 event loop/event group。
+  - 新增 `ethernet_app_wait_ready(timeout_ms)`，等待 control/image 连接准备位。
+  - `System_Init()` 中先启动 Ethernet 并最多等待 5 秒 ready，再开 `sorting_sim_debug_start()`、电机输出和真实传感器输入。
+  - `sort_real_io` 任务使用 `xTaskCreatePinnedToCoreWithCaps()`，栈放到 `MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT`。
+  - `sdkconfig` 中关闭 `CONFIG_LV_USE_PERF_MONITOR`，不再启用 bottom right perf monitor。
 
 ## Verification
 
-- 2026-07-06 开机自动启用分拣链路后：
-  - `idf.py build` 通过。
-  - `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00` flash 成功。
-  - 芯片：ESP32-P4 revision `v3.1`。
-  - bootloader、app、partition、storage 均 hash verified。
-  - monitor 已看到 app version `cf81a8e-dirty`、min/max chip rev `v3.1/v3.99`、PSRAM 32 MB、camera/LVGL 初始化；后续被 `ISP_AWB` warning 刷屏，用户中断，不作为完整运行期验证。
-- 2026-07-06 默认速度/默认延时集中配置后：
-  - `idf.py build` 通过。
-  - app version：`a82793b`
-  - app size：`0x526180`
-  - factory 分区剩余：`0xd9e80`，约 14%。
-  - 用户要求本次不烧录。
+- `idf.py build` 通过。
+- `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
+- 80 秒 monitor 关键日志：
+  - `Ethernet Started`
+  - `Ethernet Link Up`
+  - `ETHIP:192.168.10.2`
+  - `control connected to host`
+  - `image connected to host`
+  - `Ethernet sorter link ready before sorter hardware start`
+  - `SORT 电机M1: 正转 65%`
+  - `SORT 真实硬件链路已启用`
+- 主机端 `ss` 确认：
+  - `192.168.10.1:5000` ESTABLISHED 到 `192.168.10.2`
+  - `192.168.10.1:5001` ESTABLISHED 到 `192.168.10.2`
+- 本次验证未再出现：
+  - `create event loop queue failed`
+  - `Ethernet sorter link start failed: ESP_ERR_NO_MEM`
+  - `create real IO task failed`
 
 ## Next Step
 
-- 如需现场修改速度/延时/引脚，优先改 `ESP32P4_Detection/components/bsp/include/sorter_debug_config.h`。
-- 下次需要实机时再烧录，并重点验证 A/B/C 速度 100% 下的节拍和稳定性。
+- 继续现场实机验证传感器实际电平与分拣节拍。
+- 当前日志中 S2/S4 初始 active 会触发 `sensor_without_package`，需要结合现场遮挡/接线确认是否为正常默认电平。
 
 ## Blockers
 
-- 原始 ESP zip 文件不完整；当前工程已可构建烧录，但仍建议让队友后续重新发一份完整 zip 或直接同步 git 仓库。
+- 无当前阻塞。
