@@ -1,6 +1,5 @@
 #include "sorter_core/sorter_scheduler.h"
 #include "sorter_core/sorter_protocol.h"
-#include "sorter_debug_config.h"
 
 #include "esp_timer.h"
 
@@ -20,15 +19,11 @@ void sorter_config_default(sorter_config_t *c)
         .package_length_mm = 120.0f, .safe_gap_mm = 80.0f,
         .a_start_to_vision_mm = 300.0f, .a_vision_to_b_mm = 520.0f,
         .c_exit_distance_mm = 360.0f, .c_min_busy_ms = 2500,
-        .c_fallback_busy_ms = 8000, .handoff_delay_ms = SORTER_DEFAULT_HANDOFF_DELAY_MS,
-        .lost_timeout_min_ms = SORTER_DEFAULT_LOST_TIMEOUT_MIN_MS,
-        .lost_timeout_max_ms = SORTER_DEFAULT_LOST_TIMEOUT_MAX_MS,
-        .belt_a_timeout_ms = SORTER_DEFAULT_BELT_A_TIMEOUT_MS,
-        .belt_b_timeout_ms = SORTER_DEFAULT_BELT_B_TIMEOUT_MS,
-        .belt_c_timeout_ms = SORTER_DEFAULT_BELT_C_TIMEOUT_MS,
-        .motor_a_speed_percent = SORTER_DEFAULT_MOTOR_A_SPEED_PERCENT,
-        .motor_b_speed_percent = SORTER_DEFAULT_MOTOR_B_SPEED_PERCENT,
-        .motor_c_speed_percent = SORTER_DEFAULT_MOTOR_C_SPEED_PERCENT,
+        .c_fallback_busy_ms = 8000, .handoff_delay_ms = 1000,
+        .lost_timeout_min_ms = 3000, .lost_timeout_max_ms = 6000,
+        .belt_a_timeout_ms = 4500, .belt_b_timeout_ms = 2000, .belt_c_timeout_ms = 2000,
+        .motor_a_speed_percent = 60, .motor_b_speed_percent = 60,
+        .motor_c_speed_percent = 60,
     };
 }
 
