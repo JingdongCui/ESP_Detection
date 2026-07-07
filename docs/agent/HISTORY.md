@@ -49,6 +49,10 @@
     - `SORT 真实硬件链路已启用`
   - 主机端 `ss` 确认 `192.168.10.1:5000` 和 `192.168.10.1:5001` 均与 `192.168.10.2` 保持 ESTABLISHED。
   - 未再出现 Ethernet `ESP_ERR_NO_MEM` 或 `create real IO task failed`。
+- 用户随后澄清：
+  - 目标是关闭 LVGL 自带右下角 perf overlay，但保留工程 UI 里的性能/系统监视显示。
+  - 复核 `sdkconfig` 后确认当前正确配置为 `CONFIG_LV_USE_SYSMON=y` 且 `CONFIG_LV_USE_PERF_MONITOR` 未启用。
+  - `idf.py build` 再次通过，`build/config/sdkconfig.h` 只定义 `CONFIG_LV_USE_SYSMON 1`，未定义 `CONFIG_LV_USE_PERF_MONITOR`。
 
 ## 2026-07-06 ESP32P4_Detection sorter autostart and default speed config
 

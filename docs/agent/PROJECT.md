@@ -121,7 +121,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
   - image：TCP `5001`
   - 2026-07-07 已验证两路 TCP 与开机默认电机/真实 IO 同时存在。
 - `sort_real_io` 任务栈放在 PSRAM，避免 Ethernet ready 后内部 RAM 紧张导致真实 IO task 创建失败。
-- `sdkconfig` 中 LVGL perf monitor 当前关闭；不要再打开 bottom right perf overlay，除非现场明确需要性能叠层。
+- `sdkconfig` 中 `CONFIG_LV_USE_SYSMON=y` 保留，用于工程 UI/system monitor；`CONFIG_LV_USE_PERF_MONITOR` 当前关闭，用于去掉 LVGL 自带右下角 perf overlay。
 - 串口优先使用 `/dev/serial/by-id/` 稳定路径；当前现场可能是 CP2102N 或 Espressif USB Serial/JTAG，按实际枚举选择。monitor 使用默认 `115200`。
 
 ## 2026-07-06 Workspace Cleanup
