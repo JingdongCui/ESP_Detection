@@ -16,7 +16,8 @@
   - `sdkconfig` 恢复 `CONFIG_LV_USE_SYSMON=y`、`CONFIG_LV_USE_PERF_MONITOR=y`、`CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
   - `components/vision/framework/vision_detect.c` 中 `VISION_DISPLAY_MISS_KEEP_COUNT` 从 `5` 改为 `3`。
 - 验证：
-  - `idf.py build` 通过，生成 `build/sample_project.bin`。
+  - 最终 ESP 提交：`35bbca5 restore ethernet init and shorten vision miss hold`。
+  - `idf.py build` 通过，最终 app version 为 `35bbca5`，生成 `build/sample_project.bin`。
   - app 大小 `0x526a20`，factory 分区剩余 `0xd95e0`，约 `14%`。
   - 本轮未执行 `idf.py flash monitor`，原因是用户说明当前没有板子。
 

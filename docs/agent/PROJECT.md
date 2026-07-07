@@ -105,7 +105,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - 2026-07-07 当前实测板子也会枚举为 USB Serial/JTAG：
   - `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`
   - 芯片 revision：ESP32-P4 `v3.1`
-- `ESP32P4_Detection` 当前 app version 由最新提交决定；2026-07-07 本轮恢复 Ethernet 初始化并调整 miss 保持后只完成 build，未烧录。
+- `ESP32P4_Detection` 当前 app version 由最新提交决定；2026-07-07 本轮恢复 Ethernet 初始化并调整 miss 保持后最终 ESP 提交为 `35bbca5`，已完成 build，未烧录。
 - `ESP32P4_Detection` 当前默认分拣调度配置集中在 `components/bsp/include/sorter_debug_config.h`：
   - 默认速度：A/B/C = `100%`。
   - 默认交接延时：`SORTER_DEFAULT_HANDOFF_DELAY_MS=1000`。

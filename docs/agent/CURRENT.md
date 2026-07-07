@@ -19,6 +19,7 @@
   - 调整后又发现真实 IO task 在 Ethernet 已连接后可能创建失败，因此将 `sort_real_io` 任务栈放到 PSRAM。
 - 本次代码改动：
   - 修改前先提交当前脏工作区：`947b8b5 checkpoint before restoring ethernet init`。
+  - 最终 ESP 提交：`35bbca5 restore ethernet init and shorten vision miss hold`。
   - `main/system_init.c` 从 `4946a30 restore lvgl perf monitor overlay` 恢复初始化内容。
   - 恢复后的 `System_Init()` 会启动 `screen_uvc_start()`，再启动 `ethernet_app_start()` 并等待 `ethernet_app_wait_ready(5000)`，之后启动分拣调试入口、电机输出和真实传感器输入。
   - `sdkconfig` 同步恢复 `CONFIG_LV_USE_SYSMON=y`、`CONFIG_LV_USE_PERF_MONITOR=y`、`CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
@@ -26,7 +27,7 @@
 
 ## Verification
 
-- `idf.py build` 通过。
+- `idf.py build` 通过，最终 app version 为 `35bbca5`。
 - 2026-07-07 最终恢复 LVGL 性能显示配置：
   - `sdkconfig`: `CONFIG_LV_USE_SYSMON=y`
   - `sdkconfig`: `CONFIG_LV_USE_PERF_MONITOR=y`
