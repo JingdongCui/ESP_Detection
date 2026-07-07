@@ -1,5 +1,26 @@
 # History
 
+## 2026-07-07 host technical video reference document
+
+- 用户要求编写上位机 host 技术文档，供队友拍摄作品视频和比赛评审展示参考。
+- 用户进一步要求“讲更多的技术”，并选择：
+  - Markdown 文档。
+  - 工程技术主线。
+  - 面向专业评审。
+- 检查 host 工程：
+  - 工程目录：`/home/kazeform/2026esp/esp32_host_no_inference`
+  - 无 `.codegraph/`，按项目规则跳过 CodeGraph。
+  - `README.md` 确认 host 是 Qt 6 桌面上位机，无本地模型服务页，检测与分拣结果来自板端。
+  - `HostNetworkWorker` 确认双 TCP 服务：control `5000/tcp`、image `5001/tcp`。
+  - `packetprotocol` 确认 40 字节自定义 header、magic `"ESP2"`、payload 上限 8 MiB、JPEG/RGB888 类型。
+  - `HostController` 确认图像保存、遥测 JSONL、包裹历史、类别统计、控制节流和 `CONFIG a_speed/b_speed/c_speed` 下发。
+- 新增文档：
+  - `docs/host_technical_video_reference.md`
+  - 内容包括系统定位、架构、双链路、独立网络线程、自定义 packet、图像处理、遥测、链路健康、控制下发、跨平台、视频拍摄清单、答辩稿、评委追问和术语表。
+- 验证说明：
+  - 本次仅新增 Markdown 文档和 agent 记录，未修改 ESP 固件或 host 运行代码。
+  - 不运行 `idf.py build` / `idf.py flash monitor`，原因是无固件/代码变更。
+
 ## 2026-07-07 ESP32P4_Detection failed package class sequence 123123
 
 - 用户要求将上一轮 `12323` 未检出分类序列改回 `123123`，并烧录。
