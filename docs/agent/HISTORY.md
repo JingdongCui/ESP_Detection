@@ -1,5 +1,18 @@
 # History
 
+## 2026-07-07 ESP32P4_Detection miss hold from 3 to 2
+
+- 用户打断上一轮 monitor/flash 验证流程，要求把 miss 次数调到 `2`。
+- 修改：
+  - `components/vision/framework/vision_detect.c` 中 `VISION_DISPLAY_MISS_KEEP_COUNT` 从 `3` 改为 `2`。
+- 验证：
+  - `idf.py build` 通过，生成 `build/sample_project.bin`。
+  - app 大小 `0x526a20`，factory 分区剩余 `0xd95e0`，约 `14%`。
+- 提交：
+  - ESP 提交：`12f5c41 set vision miss hold to two`。
+- 说明：
+  - 该提交尚未烧录；上一轮已烧录并 monitor 到的是 `35bbca5`。
+
 ## 2026-07-07 ESP32P4_Detection restore boot Ethernet init and shorten miss hold
 
 - 用户要求小幅度改动：
