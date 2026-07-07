@@ -1,5 +1,25 @@
 # History
 
+## 2026-07-07 ESP32P4_Detection restore boot Ethernet init and shorten miss hold
+
+- 用户要求小幅度改动：
+  - 上电开启 Ethernet。
+  - `main/system_init.c` 初始化恢复成 git 备份中能连接的内容。
+  - miss 次数从 `5` 改成 `3`。
+  - 用户当前没有板子，无法烧录。
+- 修改前按项目规则提交当前工作区：
+  - ESP 提交：`947b8b5 checkpoint before restoring ethernet init`。
+  - 该提交保存了当时临时关闭完整 Ethernet/UVC/分拣启动、关闭 LVGL perf monitor 的状态，仅作为恢复前备份点。
+- 实施：
+  - 从 `4946a30 restore lvgl perf monitor overlay` 恢复 `main/system_init.c` 和 `sdkconfig`。
+  - 恢复后 `System_Init()` 上电启动 `screen_uvc_start()`，随后启动 `ethernet_app_start()` 并等待 `ethernet_app_wait_ready(5000)`，再启用分拣调试入口、电机输出和真实传感器输入。
+  - `sdkconfig` 恢复 `CONFIG_LV_USE_SYSMON=y`、`CONFIG_LV_USE_PERF_MONITOR=y`、`CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
+  - `components/vision/framework/vision_detect.c` 中 `VISION_DISPLAY_MISS_KEEP_COUNT` 从 `5` 改为 `3`。
+- 验证：
+  - `idf.py build` 通过，生成 `build/sample_project.bin`。
+  - app 大小 `0x526a20`，factory 分区剩余 `0xd95e0`，约 `14%`。
+  - 本轮未执行 `idf.py flash monitor`，原因是用户说明当前没有板子。
+
 ## 2026-07-07 ESP32P4_Detection Ethernet and sorter autostart coexistence
 
 - 用户确认旧基线可连接上位机 Ethernet，并要求对比最新版导致连接失败的原因；用户判断可能是电机上电默认启动导致，并要求修改为电机启动与 Ethernet 连接同时存在。

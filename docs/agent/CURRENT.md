@@ -2,7 +2,7 @@
 
 ## Goal
 
-让 `ESP32P4_Detection` 最新版本在电机/真实分拣链路开机默认启动的同时，Ethernet 上位机连接仍能稳定建立；同时按用户要求恢复 LVGL 性能显示。
+按用户要求做小幅度改动：`ESP32P4_Detection` 上电启动 Ethernet，并把初始化恢复到 git 备份中已验证能连接的版本；同时把视觉 miss 保持次数从 5 改为 3。
 
 ## Current State
 
@@ -17,12 +17,12 @@
 - 最新版失败原因定位：
   - 之前在 LCD/camera/LVGL/vision/分拣硬件任务之后再启动 Ethernet，容易因内部 RAM 紧张导致默认 event loop 创建失败，报 `ESP_ERR_NO_MEM`。
   - 调整后又发现真实 IO task 在 Ethernet 已连接后可能创建失败，因此将 `sort_real_io` 任务栈放到 PSRAM。
-- 当前代码改动：
-  - `ethernet_app_early_init()` 保持早期创建默认 event loop/event group。
-  - 新增 `ethernet_app_wait_ready(timeout_ms)`，等待 control/image 连接准备位。
-  - `System_Init()` 中先启动 Ethernet 并最多等待 5 秒 ready，再开 `sorting_sim_debug_start()`、电机输出和真实传感器输入。
-  - `sort_real_io` 任务使用 `xTaskCreatePinnedToCoreWithCaps()`，栈放到 `MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT`。
-  - `sdkconfig` 中保留 `CONFIG_LV_USE_SYSMON=y`，并恢复 `CONFIG_LV_USE_PERF_MONITOR=y`、`CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`，与旧版有性能显示的配置一致。
+- 本次代码改动：
+  - 修改前先提交当前脏工作区：`947b8b5 checkpoint before restoring ethernet init`。
+  - `main/system_init.c` 从 `4946a30 restore lvgl perf monitor overlay` 恢复初始化内容。
+  - 恢复后的 `System_Init()` 会启动 `screen_uvc_start()`，再启动 `ethernet_app_start()` 并等待 `ethernet_app_wait_ready(5000)`，之后启动分拣调试入口、电机输出和真实传感器输入。
+  - `sdkconfig` 同步恢复 `CONFIG_LV_USE_SYSMON=y`、`CONFIG_LV_USE_PERF_MONITOR=y`、`CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
+  - `components/vision/framework/vision_detect.c` 中 `VISION_DISPLAY_MISS_KEEP_COUNT` 从 `5` 改为 `3`。
 
 ## Verification
 
@@ -32,30 +32,12 @@
   - `sdkconfig`: `CONFIG_LV_USE_PERF_MONITOR=y`
   - `sdkconfig`: `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`
   - `build/config/sdkconfig.h` 已定义 `CONFIG_LV_USE_PERF_MONITOR 1` 和 `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT 1`。
-- `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 已再次成功，烧录版本包含恢复后的 LVGL perf monitor overlay。
-- `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
-- 80 秒 monitor 关键日志：
-  - `Ethernet Started`
-  - `Ethernet Link Up`
-  - `ETHIP:192.168.10.2`
-  - `control connected to host`
-  - `image connected to host`
-  - `Ethernet sorter link ready before sorter hardware start`
-  - `SORT 电机M1: 正转 65%`
-  - `SORT 真实硬件链路已启用`
-- 主机端 `ss` 确认：
-  - `192.168.10.1:5000` ESTABLISHED 到 `192.168.10.2`
-  - `192.168.10.1:5001` ESTABLISHED 到 `192.168.10.2`
-- 本次验证未再出现：
-  - `create event loop queue failed`
-  - `Ethernet sorter link start failed: ESP_ERR_NO_MEM`
-  - `create real IO task failed`
+- 本轮按用户说明没有板子，未执行 `idf.py flash monitor`；上一轮同一初始化基线 `4946a30` 已实机验证 Ethernet/control/image 连接成功。
 
 ## Next Step
 
-- 继续现场实机验证传感器实际电平与分拣节拍。
-- 当前日志中 S2/S4 初始 active 会触发 `sensor_without_package`，需要结合现场遮挡/接线确认是否为正常默认电平。
+- 用户接上板子后执行 `idf.py flash monitor`，确认上电 Ethernet、LVGL 性能显示、分拣节拍和每个包裹触发图片发送行为。
 
 ## Blockers
 
-- 无当前阻塞。
+- 当前无板子，无法执行实机烧录和 monitor。
