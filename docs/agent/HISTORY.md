@@ -1,5 +1,27 @@
 # History
 
+## 2026-07-07 ESP32P4_Detection failed package class sequence 123123
+
+- 用户要求将上一轮 `12323` 未检出分类序列改回 `123123`，并烧录。
+- 修改前按项目规则提交当前现场配置：
+  - `f052c71 checkpoint current hardware runtime config`
+  - 包含 A 电机默认速度 `60`、`system_monitor()` 注释、`main/system_init.c` 中 Ethernet 分拣链路分支 `#if 0` 等现场状态。
+- 修改：
+  - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `next_failed_class()` 序列改为 `CLASS1,CLASS2,CLASS3,CLASS1,CLASS2,CLASS3`。
+  - `components/Sorter_app/sorting_sim_control.c` 的 `failed_class_from_cursor()` 同步改为 `CLASS1,CLASS2,CLASS3,CLASS1,CLASS2,CLASS3`。
+- 提交：
+  - ESP 提交：`a84dbb5 use 123123 failed package class sequence`。
+- 验证：
+  - `idf.py build` 通过。
+  - app version：`a84dbb5`。
+  - app 大小：`0x4fa790`，factory 分区剩余 `0x105870`，约 `17%`。
+  - `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
+  - 芯片：ESP32-P4 revision `v3.1`。
+  - bootloader、app、partition table、storage 全部 `Hash of data verified`。
+  - `timeout 45s idf.py -p ... monitor` 执行，确认 app version `a84dbb5`，启动到 camera/LVGL/分拣运行日志，未见 panic/reboot。
+  - monitor 中看到未检出调度开头包裹为 `class1`、下一包为 `class2`。
+  - `ISP_AWB` warning 高频刷屏，输出被截断；本轮未完整跑满六个未检出包裹验证 `123123` 全序列。
+
 ## 2026-07-07 ESP32P4_Detection failed package class sequence
 
 - 用户要求修改未检出包裹分类：

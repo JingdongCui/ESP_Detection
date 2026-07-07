@@ -105,7 +105,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - 2026-07-07 当前实测板子也会枚举为 USB Serial/JTAG：
   - `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`
   - 芯片 revision：ESP32-P4 `v3.1`
-- `ESP32P4_Detection` 当前 app version 由最新提交和工作区 dirty 状态决定；2026-07-07 最新已烧录版本为 `cad27e5-dirty`，端口为 USB Serial/JTAG 板子。
+- `ESP32P4_Detection` 当前 app version 由最新提交决定；2026-07-07 最新已烧录版本为 `a84dbb5`，端口为 USB Serial/JTAG 板子。
 - `ESP32P4_Detection` 当前默认分拣调度配置集中在 `components/bsp/include/sorter_debug_config.h`：
   - 最新提交基线默认速度：A/B/C = `100%`；当前本地未提交现场差异中 A=`60%`。
   - 默认交接延时：`SORTER_DEFAULT_HANDOFF_DELAY_MS=1000`。
@@ -120,7 +120,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - `ESP32P4_Detection` 当前未检出/视觉失败包裹分类规则：
   - 实际调度入口：`components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `next_failed_class()`。
   - 调试状态显示：`components/Sorter_app/sorting_sim_control.c` 的 `failed_class_from_cursor()`。
-  - 当前规则为 `CLASS1,CLASS2,CLASS3,CLASS2,CLASS3` 循环，即用户口径 `12323`。
+  - 当前规则为 `CLASS1,CLASS2,CLASS3,CLASS1,CLASS2,CLASS3` 循环，即用户口径 `123123`。
 - Ethernet 默认静态链路：
   - 板端：`192.168.10.2`
   - 上位机：`192.168.10.1`
