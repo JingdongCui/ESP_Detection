@@ -53,6 +53,12 @@
   - 目标是关闭 LVGL 自带右下角 perf overlay，但保留工程 UI 里的性能/系统监视显示。
   - 复核 `sdkconfig` 后确认当前正确配置为 `CONFIG_LV_USE_SYSMON=y` 且 `CONFIG_LV_USE_PERF_MONITOR` 未启用。
   - `idf.py build` 再次通过，`build/config/sdkconfig.h` 只定义 `CONFIG_LV_USE_SYSMON 1`，未定义 `CONFIG_LV_USE_PERF_MONITOR`。
+- 用户现场确认 UI 上性能显示仍未出现，要求用 git 恢复之前有性能显示的版本，即使右下角恢复也可以：
+  - 从 git 历史确认 `cf81a8e` 及更早版本均为 `CONFIG_LV_USE_PERF_MONITOR=y`、`CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
+  - 仅恢复 `sdkconfig` 中 LVGL perf monitor 相关配置，不改 Ethernet/电机逻辑。
+  - `idf.py build` 通过，`build/config/sdkconfig.h` 已定义 `CONFIG_LV_USE_PERF_MONITOR 1` 和 `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT 1`。
+  - `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
+  - ESP 提交：`4946a30 restore lvgl perf monitor overlay`。
 
 ## 2026-07-06 ESP32P4_Detection sorter autostart and default speed config
 

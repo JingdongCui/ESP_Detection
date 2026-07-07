@@ -2,7 +2,7 @@
 
 ## Goal
 
-让 `ESP32P4_Detection` 最新版本在电机/真实分拣链路开机默认启动的同时，Ethernet 上位机连接仍能稳定建立；同时关闭 LVGL 自带右下角 perf overlay，但保留工程 UI/system monitor 性能显示。
+让 `ESP32P4_Detection` 最新版本在电机/真实分拣链路开机默认启动的同时，Ethernet 上位机连接仍能稳定建立；同时按用户要求恢复 LVGL 性能显示。
 
 ## Current State
 
@@ -22,15 +22,17 @@
   - 新增 `ethernet_app_wait_ready(timeout_ms)`，等待 control/image 连接准备位。
   - `System_Init()` 中先启动 Ethernet 并最多等待 5 秒 ready，再开 `sorting_sim_debug_start()`、电机输出和真实传感器输入。
   - `sort_real_io` 任务使用 `xTaskCreatePinnedToCoreWithCaps()`，栈放到 `MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT`。
-  - `sdkconfig` 中保留 `CONFIG_LV_USE_SYSMON=y`，关闭 `CONFIG_LV_USE_PERF_MONITOR`，只去掉 LVGL 自带右下角 perf overlay，不关闭工程 UI/system monitor。
+  - `sdkconfig` 中保留 `CONFIG_LV_USE_SYSMON=y`，并恢复 `CONFIG_LV_USE_PERF_MONITOR=y`、`CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`，与旧版有性能显示的配置一致。
 
 ## Verification
 
 - `idf.py build` 通过。
-- 2026-07-07 复核 LVGL 性能显示配置：
+- 2026-07-07 最终恢复 LVGL 性能显示配置：
   - `sdkconfig`: `CONFIG_LV_USE_SYSMON=y`
-  - `sdkconfig`: `# CONFIG_LV_USE_PERF_MONITOR is not set`
-  - `build/config/sdkconfig.h` 只定义 `CONFIG_LV_USE_SYSMON 1`，未定义 `CONFIG_LV_USE_PERF_MONITOR`。
+  - `sdkconfig`: `CONFIG_LV_USE_PERF_MONITOR=y`
+  - `sdkconfig`: `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`
+  - `build/config/sdkconfig.h` 已定义 `CONFIG_LV_USE_PERF_MONITOR 1` 和 `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT 1`。
+- `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 已再次成功，烧录版本包含恢复后的 LVGL perf monitor overlay。
 - `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
 - 80 秒 monitor 关键日志：
   - `Ethernet Started`
