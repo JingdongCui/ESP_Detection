@@ -2,7 +2,7 @@
 
 ## Goal
 
-按用户要求修改发图逻辑：每个包裹对象只发送一次带框图片，并烧录到板子。
+按用户要求修改未检出包裹的分类序列：从固定韵达改为 `1,2,3,2,3` 循环，并烧录到板子。
 
 ## Current State
 
@@ -10,39 +10,31 @@
 - 分支：`feat/screen-uvc-stream`
 - 当前板子串口：
   - `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`
-- 当前上位机进程：
-  - `/home/kazeform/2026esp/esp32_host_no_inference/build/Desktop_Debug/bin/esp32_host_no_inference`
-  - 监听 `192.168.10.1:5000` 和 `192.168.10.1:5001`
-- 已确认旧基线 `23bac51 baseline recovered teammate project` 可连接 Ethernet。
-- 最新版失败原因定位：
-  - 之前在 LCD/camera/LVGL/vision/分拣硬件任务之后再启动 Ethernet，容易因内部 RAM 紧张导致默认 event loop 创建失败，报 `ESP_ERR_NO_MEM`。
-  - 调整后又发现真实 IO task 在 Ethernet 已连接后可能创建失败，因此将 `sort_real_io` 任务栈放到 PSRAM。
 - 本次代码改动：
-  - 修改前先提交当前脏工作区：`947b8b5 checkpoint before restoring ethernet init`。
-  - Ethernet 初始化恢复提交：`35bbca5 restore ethernet init and shorten vision miss hold`。
-  - miss=2 提交：`12f5c41 set vision miss hold to two`。
-  - 最新 ESP 提交：`e2f5afc capture one snapshot per package`。
-  - `main/system_init.c` 从 `4946a30 restore lvgl perf monitor overlay` 恢复初始化内容。
-  - 恢复后的 `System_Init()` 会启动 `screen_uvc_start()`，再启动 `ethernet_app_start()` 并等待 `ethernet_app_wait_ready(5000)`，之后启动分拣调试入口、电机输出和真实传感器输入。
-  - `sdkconfig` 同步恢复 `CONFIG_LV_USE_SYSMON=y`、`CONFIG_LV_USE_PERF_MONITOR=y`、`CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
-  - `components/vision/framework/vision_detect.c` 中 `VISION_DISPLAY_MISS_KEEP_COUNT=2`。
-  - `vision_detect.c` 现在优先用 `sorting_sim_control_get_runtime_debug()` 的 `vision_package_id` 做快照去重：同一包裹 ID 不重复 capture，包裹 ID 变化立即 capture；没有有效包裹 ID 时保留原上升沿兜底。
+  - `components/Sorter_app/sorter_core/sorter_scheduler.c`：未检出/视觉失败的实际调度分类改为 `CLASS1,CLASS2,CLASS3,CLASS2,CLASS3` 循环。
+  - `components/Sorter_app/sorting_sim_control.c`：调试状态里的 `next_failed_class` 同步显示同一 `12323` 序列。
+  - 提交：`cad27e5 use 12323 failed package class sequence`。
+- 当前工作区仍有本轮未处理的现场差异：
+  - `components/bsp/include/sorter_debug_config.h`: A 电机默认速度为 `60`。
+  - `main/system_init.c`: `system_monitor()` 被注释，`SORTER_TCP_LINK_ENABLE` 分支被 `#if 0` 关闭。
+  - 因这些差异未提交，最终烧录 app version 显示为 `cad27e5-dirty`。
 
 ## Verification
 
-- `idf.py build` 通过，最终 app version 为 `e2f5afc`。
-- 2026-07-07 最终恢复 LVGL 性能显示配置：
-  - `sdkconfig`: `CONFIG_LV_USE_SYSMON=y`
-  - `sdkconfig`: `CONFIG_LV_USE_PERF_MONITOR=y`
-  - `sdkconfig`: `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`
-  - `build/config/sdkconfig.h` 已定义 `CONFIG_LV_USE_PERF_MONITOR 1` 和 `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT 1`。
-- 2026-07-07 已将 `e2f5afc` 烧录到 `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`，bootloader/app/partition/storage 均 hash verified。
-- monitor 通过手动复位确认 app version `e2f5afc`，启动到 camera/LVGL/Ethernet 重连阶段。
-- monitor 中 Ethernet control/image 连接到 `192.168.10.1:5000/5001` 返回 `connect failed so_error=104 errno=119`，说明本次上位机未完成连接，未闭环验证实际图片接收。
+- `idf.py build` 通过。
+  - app version：`cad27e5-dirty`。
+  - app 大小：`0x4fa790`，factory 分区剩余 `0x105870`，约 `17%`。
+- `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
+  - 芯片：ESP32-P4 revision `v3.1`。
+  - bootloader、app、partition table、storage 均 `Hash of data verified`。
+- `timeout 45s idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 monitor` 已执行。
+  - 已确认 app version `cad27e5-dirty`。
+  - 启动到 camera/LVGL 初始化，未见 panic/reboot。
+  - `ISP_AWB` warning 高频刷屏，monitor 输出被截断；未做真实包裹触发闭环验证。
 
 ## Next Step
 
-- 启动上位机监听后，走真实包裹或 S1 触发，观察 `[vision_det] BOXED SNAPSHOT captured pkg=...` 是否每个包裹 ID 一次，并确认上位机每个包裹收到一张图。
+- 现场用未检出包裹连续触发，观察分拣类别是否按 `1,2,3,2,3` 重复。
 
 ## Blockers
 

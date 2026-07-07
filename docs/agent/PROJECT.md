@@ -105,18 +105,22 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - 2026-07-07 当前实测板子也会枚举为 USB Serial/JTAG：
   - `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`
   - 芯片 revision：ESP32-P4 `v3.1`
-- `ESP32P4_Detection` 当前 app version 由最新提交决定；2026-07-07 最新 ESP 提交为 `e2f5afc`，已完成 build 并烧录到 USB Serial/JTAG 板子。
+- `ESP32P4_Detection` 当前 app version 由最新提交和工作区 dirty 状态决定；2026-07-07 最新已烧录版本为 `cad27e5-dirty`，端口为 USB Serial/JTAG 板子。
 - `ESP32P4_Detection` 当前默认分拣调度配置集中在 `components/bsp/include/sorter_debug_config.h`：
-  - 默认速度：A/B/C = `100%`。
+  - 最新提交基线默认速度：A/B/C = `100%`；当前本地未提交现场差异中 A=`60%`。
   - 默认交接延时：`SORTER_DEFAULT_HANDOFF_DELAY_MS=1000`。
   - 默认皮带超时：A=`4500ms`、B=`2000ms`、C=`2000ms`。
   - 默认 lost timeout：min=`3000ms`、max=`6000ms`。
   - 引脚、传感器 active level、编码器参数也在同一个文件。
   - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `sorter_config_default()` 从这些宏读取默认值。
-- `ESP32P4_Detection` 当前启动路径先启动 Ethernet 上位机链路并等待 ready，再调用 `sorting_sim_debug_start()`、`sorting_sim_control_set_motor_output_enabled(true)`、`sorting_sim_control_set_sensor_input_enabled(true)`，开机启用分拣调试入口、电机输出和真实传感器输入。
+- `ESP32P4_Detection` 提交基线启动路径先启动 Ethernet 上位机链路并等待 ready，再调用 `sorting_sim_debug_start()`、`sorting_sim_control_set_motor_output_enabled(true)`、`sorting_sim_control_set_sensor_input_enabled(true)`，开机启用分拣调试入口、电机输出和真实传感器输入；当前本地未提交现场差异中 `main/system_init.c` 将该 Ethernet 分支改为 `#if 0`，且注释了 `system_monitor()`。
 - `ESP32P4_Detection` 当前 `main/system_init.c` 初始化内容恢复自 `4946a30 restore lvgl perf monitor overlay`，这是上一轮实机验证 Ethernet/control/image 可连接的基线。
 - `ESP32P4_Detection` 当前视觉检测 miss 保持计数为 `VISION_DISPLAY_MISS_KEEP_COUNT=2`，位于 `components/vision/framework/vision_detect.c`。
 - `ESP32P4_Detection` 当前发图触发逻辑位于 `components/vision/framework/vision_detect.c`：优先按分拣控制层 `vision_package_id` 去重，同一包裹 ID 只 capture 一张带框图，新包裹 ID 立即 capture；无有效包裹 ID 时保留视觉上升沿兜底。
+- `ESP32P4_Detection` 当前未检出/视觉失败包裹分类规则：
+  - 实际调度入口：`components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `next_failed_class()`。
+  - 调试状态显示：`components/Sorter_app/sorting_sim_control.c` 的 `failed_class_from_cursor()`。
+  - 当前规则为 `CLASS1,CLASS2,CLASS3,CLASS2,CLASS3` 循环，即用户口径 `12323`。
 - Ethernet 默认静态链路：
   - 板端：`192.168.10.2`
   - 上位机：`192.168.10.1`

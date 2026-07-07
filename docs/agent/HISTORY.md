@@ -1,5 +1,31 @@
 # History
 
+## 2026-07-07 ESP32P4_Detection failed package class sequence
+
+- 用户要求修改未检出包裹分类：
+  - 初始要求从固定韵达改为 `1,2,3` 轮流。
+  - 之后纠正为 `1,2,3,2,3` 序列循环。
+- 定位：
+  - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `next_failed_class()` 是未检出/视觉失败时实际进入调度的分类来源，旧逻辑固定返回 `SORTER_CLASS_3`（韵达）。
+  - `components/Sorter_app/sorting_sim_control.c` 的 `failed_class_from_cursor()` 只用于调试状态 `next_failed_class` 显示，旧逻辑也固定韵达。
+- 提交：
+  - 修改前基线提交：`7a02852 checkpoint before rotating failed classes`。
+  - 中间提交：`ca118fe rotate failed package classes`，实现 `1,2,3` 循环，随后按用户纠正继续修改。
+  - 最终分类提交：`cad27e5 use 12323 failed package class sequence`。
+- 当前工作区仍有未提交现场差异，未在本任务中回退：
+  - `components/bsp/include/sorter_debug_config.h`: A 电机默认速度为 `60`。
+  - `main/system_init.c`: `system_monitor()` 被注释，`SORTER_TCP_LINK_ENABLE` 分支被 `#if 0` 关闭。
+  - 因这些差异存在，最终构建和烧录版本为 `cad27e5-dirty`。
+- 验证：
+  - `idf.py build` 通过。
+  - app version：`cad27e5-dirty`。
+  - app 大小：`0x4fa790`，factory 分区剩余 `0x105870`，约 `17%`。
+  - `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
+  - 芯片：ESP32-P4 revision `v3.1`。
+  - bootloader、app、partition table、storage 全部 `Hash of data verified`。
+  - `timeout 45s idf.py -p ... monitor` 执行，确认 app version `cad27e5-dirty`，启动到 camera/LVGL 初始化，未见 panic/reboot。
+  - monitor 被 `ISP_AWB` warning 高频刷屏，输出被截断；本轮未用真实未检出包裹闭环验证 `12323` 出料序列。
+
 ## 2026-07-07 ESP32P4_Detection one image per package
 
 - 用户要求修改发图逻辑：每个包裹发送一次图片，并烧录。
