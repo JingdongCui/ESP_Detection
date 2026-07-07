@@ -1,5 +1,27 @@
 # History
 
+## 2026-07-07 ESP32P4_Detection one image per package
+
+- 用户要求修改发图逻辑：每个包裹发送一次图片，并烧录。
+- 定位：
+  - 旧逻辑在 `components/vision/framework/vision_detect.c` 中用 `!s_display_has_last_hit` 的视觉上升沿触发 `vision_boxed_snapshot_capture()`。
+  - 连续包裹如果视觉一直有面单+logo 命中，可能因为没有等到 miss 清空 `s_display_has_last_hit` 而不触发下一张图。
+- 修改：
+  - 新增 `s_last_snapshot_package_id`。
+  - 视觉成功命中时读取 `sorting_sim_control_get_runtime_debug()` 的 `vision_package_id`。
+  - `vision_package_id > 0` 时按包裹 ID 去重：同一 ID 只 capture 一次，新 ID 立即 capture。
+  - `vision_package_id <= 0` 时保留原视觉上升沿兜底，避免没有真实 S1 包裹窗口时完全不发图。
+  - RTT 日志改为输出 `BOXED SNAPSHOT captured pkg=... cls=... conf=... boxes=...`。
+- 验证：
+  - `idf.py build` 通过，最终 app version 为 `e2f5afc`。
+  - app 大小 `0x526d20`，factory 分区剩余 `0xd92e0`，约 `14%`。
+  - `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
+  - bootloader/app/partition/storage 均 hash verified。
+  - monitor 手动复位确认 app version `e2f5afc`，启动到 camera/LVGL/Ethernet 重连阶段。
+  - monitor 中上位机 control/image 连接返回 `connect failed so_error=104 errno=119`，本轮未闭环验证上位机实际收到图片。
+- 提交：
+  - ESP 提交：`e2f5afc capture one snapshot per package`。
+
 ## 2026-07-07 ESP32P4_Detection miss hold from 3 to 2
 
 - 用户打断上一轮 monitor/flash 验证流程，要求把 miss 次数调到 `2`。

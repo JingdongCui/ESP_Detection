@@ -2,7 +2,7 @@
 
 ## Goal
 
-按用户要求把 `ESP32P4_Detection` 视觉 miss 保持次数从 3 调到 2。
+按用户要求修改发图逻辑：每个包裹对象只发送一次带框图片，并烧录到板子。
 
 ## Current State
 
@@ -20,25 +20,29 @@
 - 本次代码改动：
   - 修改前先提交当前脏工作区：`947b8b5 checkpoint before restoring ethernet init`。
   - Ethernet 初始化恢复提交：`35bbca5 restore ethernet init and shorten vision miss hold`。
-  - 最新 ESP 提交：`12f5c41 set vision miss hold to two`。
+  - miss=2 提交：`12f5c41 set vision miss hold to two`。
+  - 最新 ESP 提交：`e2f5afc capture one snapshot per package`。
   - `main/system_init.c` 从 `4946a30 restore lvgl perf monitor overlay` 恢复初始化内容。
   - 恢复后的 `System_Init()` 会启动 `screen_uvc_start()`，再启动 `ethernet_app_start()` 并等待 `ethernet_app_wait_ready(5000)`，之后启动分拣调试入口、电机输出和真实传感器输入。
   - `sdkconfig` 同步恢复 `CONFIG_LV_USE_SYSMON=y`、`CONFIG_LV_USE_PERF_MONITOR=y`、`CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
-  - `components/vision/framework/vision_detect.c` 中 `VISION_DISPLAY_MISS_KEEP_COUNT` 从 `3` 改为 `2`。
+  - `components/vision/framework/vision_detect.c` 中 `VISION_DISPLAY_MISS_KEEP_COUNT=2`。
+  - `vision_detect.c` 现在优先用 `sorting_sim_control_get_runtime_debug()` 的 `vision_package_id` 做快照去重：同一包裹 ID 不重复 capture，包裹 ID 变化立即 capture；没有有效包裹 ID 时保留原上升沿兜底。
 
 ## Verification
 
-- `idf.py build` 通过，最终 app version 为 `12f5c41`。
+- `idf.py build` 通过，最终 app version 为 `e2f5afc`。
 - 2026-07-07 最终恢复 LVGL 性能显示配置：
   - `sdkconfig`: `CONFIG_LV_USE_SYSMON=y`
   - `sdkconfig`: `CONFIG_LV_USE_PERF_MONITOR=y`
   - `sdkconfig`: `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`
   - `build/config/sdkconfig.h` 已定义 `CONFIG_LV_USE_PERF_MONITOR 1` 和 `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT 1`。
-- 2026-07-07 已将 `35bbca5` 烧录到 `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`，monitor 确认 app version `35bbca5`；随后用户要求把 miss 调到 2，本轮 `12f5c41` 只完成 build，尚未烧录。
+- 2026-07-07 已将 `e2f5afc` 烧录到 `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`，bootloader/app/partition/storage 均 hash verified。
+- monitor 通过手动复位确认 app version `e2f5afc`，启动到 camera/LVGL/Ethernet 重连阶段。
+- monitor 中 Ethernet control/image 连接到 `192.168.10.1:5000/5001` 返回 `connect failed so_error=104 errno=119`，说明本次上位机未完成连接，未闭环验证实际图片接收。
 
 ## Next Step
 
-- 如需实机验证最新 miss=2，需要烧录 `12f5c41` 并 monitor 确认启动、电机、Ethernet 和包裹图片发送行为。
+- 启动上位机监听后，走真实包裹或 S1 触发，观察 `[vision_det] BOXED SNAPSHOT captured pkg=...` 是否每个包裹 ID 一次，并确认上位机每个包裹收到一张图。
 
 ## Blockers
 
