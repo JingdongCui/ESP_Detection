@@ -1,5 +1,32 @@
 # History
 
+## 2026-07-08 polish report toward deliverable
+
+- 用户要求把报告从初版扩充到接近可交付版本，并补充：
+  - PSRAM 带宽测试与优化心得，从早期经常蓝屏到修复蓝屏问题。
+  - 多次试验后选择降低摄像头帧率、优化结构、调整仲裁优先级等方式。
+  - 模型训练心得：高质量数据集更重要，反光数据可能伤害模型。
+  - 测试各种量化策略，最终选择精度损失低的策略。
+  - 尽量加入现有图片，并把缺失图片列成表格。
+- 按项目规则读取 `PROJECT.md`、`CURRENT.md`、`HISTORY.md`，根目录无 `.codegraph/`。
+- 参考历史与工程文档：
+  - `ESP32P4_Detection/蓝屏闪烁原因及解决方案.md`
+  - `ESP32P4_Detection/docs/mipi_display_refresh_priority_plan.md`
+  - `ESP32P4_Detection/docs/zerocopy-peek-vs-esp-who.md`
+  - `docs/agent/archive/2026-06-29-blue-screen-camera-diagnostics.md`
+- 重写 `docs/competition_report_draft.md`：
+  - 删除“初稿说明”和“建议配图”。
+  - 扩展摘要、技术特点、创新点、软件系统、工程成果和心得体会。
+  - 将现有上位机截图、板端识别实测图、硬件参数图、机械尺寸图全部纳入报告。
+  - 新增“显示稳定性与 PSRAM 带宽优化”小节。
+  - 新增“图表素材与定稿补充清单”，列出系统整体正式图、实际分拣动作图、板端 UI 正面清晰图等缺失图片。
+- 更新 `docs/report_system_information.md`：
+  - 增加训练数据质量筛选和 PSRAM 稳定性优化信息。
+  - 更新上位机、板端 UI、系统实物图片状态。
+- 更新 `docs/report_unknown_information.md`：
+  - 清理不应进入正文的团队身份信息和未完成闭环功能描述。
+  - 增加后续缺图优先级表。
+
 ## 2026-07-08 add quantization strategy details
 
 - 用户补充：“量化策略为 mse equalization（10,0.1） 无tqt 无bias correction”。
