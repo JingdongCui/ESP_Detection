@@ -152,6 +152,18 @@
 | `传送带位置布局实拍.jpg` | 三段传送带整体布局实拍 |
 | `摄像头安装位置.jpg` | 摄像头安装位置实拍 |
 | `esp32p4板子安装位置背面.jpg` | ESP32-P4 板端背面安装位置实拍 |
+| `系统正面实拍图.jpg` | 系统整体正面实拍 |
+| `分拣过程实拍图.jpg` | 实际分拣过程实拍 |
+| `ui1.jpg` | 板端仪表盘 UI 页面 |
+| `ui2.jpg` | 板端设置 UI 页面 |
+| `ui3.jpg` | 板端日志追踪 UI 页面 |
+| `ui4.jpg` | 板端系统资源 UI 页面 |
 | `docs/report_assets/conveyor_layout_photo.jpg` | 供报告引用的传送带布局图副本 |
 | `docs/report_assets/camera_mount_photo.jpg` | 供报告引用的摄像头安装图副本 |
 | `docs/report_assets/esp32p4_board_rear_mount.jpg` | 供报告引用的板端安装图副本 |
+| `docs/report_assets/system_front_photo.jpg` | 供报告引用的系统整体正面图副本 |
+| `docs/report_assets/sorting_process_photo.jpg` | 供报告引用的实际分拣过程图副本 |
+| `docs/report_assets/board_ui_dashboard.jpg` | 供报告引用的板端仪表盘 UI 副本 |
+| `docs/report_assets/board_ui_settings.jpg` | 供报告引用的板端设置 UI 副本 |
+| `docs/report_assets/board_ui_log.jpg` | 供报告引用的板端日志追踪 UI 副本 |
+| `docs/report_assets/board_ui_system.jpg` | 供报告引用的板端系统资源 UI 副本 |

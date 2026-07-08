@@ -1,5 +1,41 @@
 # History
 
+## 2026-07-08 add latest report photos
+
+- 用户补充：“我又加了一些图 你补充”。
+- 按项目规则读取 `PROJECT.md`、`CURRENT.md`、`HISTORY.md`，根目录无 `.codegraph/`。
+- 新增原始图片：
+  - `ui1.jpg`：板端仪表盘 UI。
+  - `ui2.jpg`：板端设置 UI。
+  - `ui3.jpg`：板端日志追踪 UI。
+  - `ui4.jpg`：板端系统资源 UI。
+  - `系统正面实拍图.jpg`：系统整体正面实拍。
+  - `分拣过程实拍图.jpg`：实际分拣过程实拍，标注极兔、韵达、中通分区。
+- 修改前按 Git 规则提交原始图片：
+  - `da76823 docs: add latest report photos`。
+- 复制报告资产：
+  - `docs/report_assets/system_front_photo.jpg`
+  - `docs/report_assets/sorting_process_photo.jpg`
+  - `docs/report_assets/board_ui_dashboard.jpg`
+  - `docs/report_assets/board_ui_settings.jpg`
+  - `docs/report_assets/board_ui_log.jpg`
+  - `docs/report_assets/board_ui_system.jpg`
+- 更新 `docs/competition_report_draft.md`：
+  - 在第三部分整体介绍加入系统正面实拍图。
+  - 在软件成果中加入 4 张板端 UI 页面图。
+  - 在分拣速度与延迟中加入实际分拣过程图。
+  - 图表素材表加入新资产。
+  - 定稿缺图表中移除已补的系统整体正式图、实际分拣动作图、板端 UI 正面图。
+- 更新资料源：
+  - `docs/report_system_information.md`
+  - `docs/report_unknown_information.md`
+  - `hardware.md`
+- 验证：
+  - `docs/competition_report_draft.md` 未检出“初稿”“建议配图”“学校”“指导老师”等字样。
+  - 报告中所有 Markdown 图片路径均存在。
+  - `git diff --check` 通过。
+  - 未执行 `idf.py build` / `idf.py flash monitor`，因为本轮只改 Markdown 和报告图片资产。
+
 ## 2026-07-08 polish report toward deliverable
 
 - 用户要求把报告从初版扩充到接近可交付版本，并补充：

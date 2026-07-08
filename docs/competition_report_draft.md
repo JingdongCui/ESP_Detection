@@ -331,6 +331,10 @@ ESP32-P4 同时承担摄像头采集、LCD 刷新、模型推理、图像编码�
 
 系统实物与关键局部如下：
 
+![系统正面实拍图](report_assets/system_front_photo.jpg)
+
+系统正面实拍图展示了三段传送带、板端显示、电源/驱动模块和上位机联调环境，能够体现作品的整体搭建形态。
+
 ![系统传送带布局实拍](report_assets/conveyor_layout_photo.jpg)
 
 ![上位机实时监控界面](report_assets/host_page_1_dashboard.png)
@@ -354,6 +358,16 @@ ESP32-P4 同时承担摄像头采集、LCD 刷新、模型推理、图像编码�
 ![板端 LCD 极兔识别实测](report_assets/board_detection_jt.jpg)
 
 图 10 板端 LCD 极兔识别实测界面，显示面单框、Logo 框、识别结果、置信度和 CPU 负载。
+
+板端 UI 还包含仪表盘、参数设置、日志追踪和系统资源监控页面，用于在没有上位机时直接观察识别状态、阈值配置、事件记录和资源占用。
+
+![板端 UI 仪表盘页面](report_assets/board_ui_dashboard.jpg)
+
+![板端 UI 设置页面](report_assets/board_ui_settings.jpg)
+
+![板端 UI 日志追踪页面](report_assets/board_ui_log.jpg)
+
+![板端 UI 系统资源页面](report_assets/board_ui_system.jpg)
 
 ### 3.3 特性成果与量化指标
 
@@ -379,6 +393,10 @@ ESP32-P4 同时承担摄像头采集、LCD 刷新、模型推理、图像编码�
 #### 3.3.2 分拣速度与延迟
 
 系统在良好光照条件下可达到每分钟 20 件以上的分拣速度。识别结果到分拣动作触发的延迟小于 0.1 s，机械交接过程设置 0.1 s 安全延时，以提高包裹进入下一段传送带时的稳定性。
+
+![实际分拣过程实拍图](report_assets/sorting_process_photo.jpg)
+
+实际分拣过程图展示了包裹从主传送带进入端侧检测区域后，根据识别出的快递公司类别进入对应分区的过程。图中标注了极兔、韵达、中通三类分区，对应系统当前支持的三类分拣目标。
 
 #### 3.3.3 通信与上位机记录
 
@@ -407,6 +425,8 @@ ESP32-P4 同时承担摄像头采集、LCD 刷新、模型推理、图像编码�
 | `report_assets/camera_mount_photo.jpg` | 1.2、2.2 | 摄像头安装位置 |
 | `report_assets/esp32p4_board_rear_mount.jpg` | 2.2 | ESP32-P4 板端安装 |
 | `report_assets/hardware_power_driver_board.jpg` | 2.2、3.2 | 电源板、电机驱动板和接线 |
+| `report_assets/system_front_photo.jpg` | 3.1 | 系统整体正面实拍 |
+| `report_assets/sorting_process_photo.jpg` | 3.3 | 实际分拣过程实拍 |
 | `report_assets/host_page_1_dashboard.png` | 2.3、3.1 | 上位机性能总览 |
 | `report_assets/host_page_2_detection.png` | 1.1、2.3 | 上位机视觉检测页 |
 | `report_assets/host_page_3_control.png` | 2.3 | 上位机设备控制页 |
@@ -414,22 +434,24 @@ ESP32-P4 同时承担摄像头采集、LCD 刷新、模型推理、图像编码�
 | `report_assets/board_detection_jt.jpg` | 3.2、3.3 | 板端极兔识别实测 |
 | `report_assets/board_detection_yd.jpg` | 3.3 | 板端韵达识别实测 |
 | `report_assets/board_detection_zt.jpg` | 3.3 | 板端中通识别实测 |
+| `report_assets/board_ui_dashboard.jpg` | 3.2 | 板端仪表盘 UI |
+| `report_assets/board_ui_settings.jpg` | 3.2 | 板端参数设置 UI |
+| `report_assets/board_ui_log.jpg` | 3.2 | 板端日志追踪 UI |
+| `report_assets/board_ui_system.jpg` | 3.2 | 板端系统资源 UI |
 | `../1.jpg`、`../4.jpg`、`../7.jpg`、`../8.jpg`、`../11.jpg` | 2.2 | 电源、电机驱动和电机参数资料图 |
 | `../2b9b7d...jpg`、`../4b210...jpg`、`../7ddf...jpg`、`../7e532...jpg` | 2.2 | 滚筒、铝头座、铝尾座和型材尺寸图 |
 | Mermaid 系统框图、视觉流程图、分拣流程图、上位机流程图 | 1.6、2.1、2.3 | 当前可直接导出为正式流程图 |
 
 #### 3.4.2 定稿前仍建议补充的图片
 
-| 缺失图片 | 建议放置位置 | 当前处理方式 | 优先级 |
+| 仍建议补充图片 | 建议放置位置 | 当前处理方式 | 优先级 |
 | --- | --- | --- | --- |
-| 系统整体正式图 | 2.1、3.1 | 当前用传送带布局实拍和 Mermaid 框图支撑 | 高 |
-| 实际分拣动作图 | 3.1、3.3 | 当前仅有结构图和识别图，缺少包裹进入出口的瞬间照片 | 高 |
-| 板端 UI 正面清晰图 | 3.2 | 当前有三张板端识别实测图，可再补一张正面无倾斜照片 | 高 |
 | 系统整体框图图片版 | 2.1 | 当前为 Mermaid，可后续转为 PNG 或 draw.io 图 | 中 |
 | 光电传感器安装局部图 | 2.2、3.2 | 当前报告只写 GPIO 与功能 | 中 |
-| 电机与传送带出口局部图 | 2.2、3.2 | 当前报告只使用电机参数图和电路实物图 | 中 |
+| 电机与传送带出口局部特写 | 2.2、3.2 | 当前已有系统正面图和分拣过程图，可再补局部清晰照片 | 中 |
 | 数据集样例拼图 | 2.3、3.3 | 当前只写训练集规模和质量筛选原则 | 中 |
 | 量化策略对比表或训练曲线 | 3.3 | 当前只写最终策略和结果，可用实验记录增强说服力 | 中 |
+| 长时间运行或速度测试截图 | 3.3 | 当前写入 20 件/分钟以上和 300 件测试结果，可用现场视频截图进一步支撑 | 低 |
 
 ## 第四部分 总结
 

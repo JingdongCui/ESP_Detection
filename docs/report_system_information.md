@@ -258,10 +258,10 @@
 | --- | --- |
 | 硬件参数图 | `1.jpg`、`4.jpg`、`7.jpg`、`8.jpg`、`11.jpg` |
 | 机械尺寸图 | `2b9b7d1216bb0c666e4a67f205c1bf1d.jpg`、`4b210e605cd33f5b49de57c7b02b2b84.jpg`、`7ddf6ca2ba23b66577575f13253528bd.jpg`、`7e5328ddb76a2681f0dd24bce1040a4a.jpg` |
-| 系统框图 | `hardware.md` 原始记录指向微信临时路径，但仓库内尚未看到对应框图文件 |
+| 系统框图 | 当前报告使用 Mermaid 框图，可后续导出为图片 |
 | 上位机界面 | 已有四张截图：性能总览、视觉检测、设备控制、系统维护 |
-| 板端 UI | 已有极兔、韵达、中通三类板端 LCD 识别实测图 |
-| 系统实物 | 已有传送带布局、摄像头安装、ESP32-P4 板端安装和电源/驱动接线图；仍建议补系统整体正式图 |
+| 板端 UI | 已有极兔、韵达、中通三类板端 LCD 识别实测图，以及仪表盘、设置、日志追踪、系统资源四张 UI 截图 |
+| 系统实物 | 已有系统正面、实际分拣过程、传送带布局、摄像头安装、ESP32-P4 板端安装和电源/驱动接线图 |
 
 新增报告资产：
 
@@ -275,20 +275,25 @@
 | `docs/report_assets/conveyor_layout_photo.jpg` | 三段传送带整体布局实拍 |
 | `docs/report_assets/camera_mount_photo.jpg` | 摄像头安装位置实拍 |
 | `docs/report_assets/esp32p4_board_rear_mount.jpg` | ESP32-P4 板端背面安装位置实拍 |
+| `docs/report_assets/system_front_photo.jpg` | 系统整体正面实拍图 |
+| `docs/report_assets/sorting_process_photo.jpg` | 实际分拣过程实拍图 |
 | `docs/report_assets/board_detection_jt.jpg` | 板端 LCD 极兔识别实测图 |
 | `docs/report_assets/board_detection_yd.jpg` | 板端 LCD 韵达识别实测图 |
 | `docs/report_assets/board_detection_zt.jpg` | 板端 LCD 中通识别实测图 |
+| `docs/report_assets/board_ui_dashboard.jpg` | 板端仪表盘 UI |
+| `docs/report_assets/board_ui_settings.jpg` | 板端设置 UI |
+| `docs/report_assets/board_ui_log.jpg` | 板端日志追踪 UI |
+| `docs/report_assets/board_ui_system.jpg` | 板端系统资源 UI |
 
 定稿前仍建议补充的图片：
 
-| 缺失图片 | 用途 | 当前替代 |
+| 仍建议补充图片 | 用途 | 当前替代 |
 | --- | --- | --- |
-| 系统整体正式图 | 第二部分整体介绍、第三部分整体成果 | Mermaid 框图 + 传送带布局实拍 |
-| 实际分拣动作图 | 第三部分完成情况和性能展示 | 结构图 + 识别实测图 |
-| 板端 UI 正面清晰图 | 软件成果展示 | 三张板端识别实测照片 |
 | 系统整体框图图片版 | 系统组成说明 | Mermaid 系统框图 |
 | 光电传感器安装局部图 | 传感器与分拣触发说明 | GPIO 表格 |
+| 电机与分拣出口局部特写 | 机械和电路成果 | 系统正面图、分拣过程图 |
 | 数据集样例拼图、训练曲线、量化对比表 | 模型训练与部署说明 | 文字说明最终训练和量化策略 |
+| 长时间运行或速度测试截图 | 性能参数证明 | 当前 300 件测试数据和分拣过程图 |
 
 ## 10. 正式报告建议主线
 
