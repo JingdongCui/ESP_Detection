@@ -39,6 +39,21 @@
   - `hardware.md`
   - `docs/report_system_information.md`
   - `docs/report_unknown_information.md`
+- 之后工作区又出现三张用户补充实物图：
+  - `esp32p4板子安装位置背面.jpg`
+  - `传送带位置布局实拍.jpg`
+  - `摄像头安装位置.jpg`
+- 按项目 Git 规则先提交原始实物图：
+  - 根目录提交：`109ac8b docs: add system hardware photos`
+- 复制报告资产：
+  - `docs/report_assets/esp32p4_board_rear_mount.jpg`
+  - `docs/report_assets/conveyor_layout_photo.jpg`
+  - `docs/report_assets/camera_mount_photo.jpg`
+- 继续扩充报告：
+  - 在硬件整体介绍中加入 ESP32-P4 板端安装图。
+  - 在机械设计中加入传送带布局实拍和摄像头安装图。
+  - 在完成情况整体介绍中替换待插入图片为实际传送带布局和上位机截图。
+  - 同步更新 `hardware.md`、`docs/report_system_information.md`、`docs/report_unknown_information.md`。
 
 ## 2026-07-08 competition report markdown draft
 

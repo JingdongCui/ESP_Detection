@@ -262,6 +262,9 @@
 | `docs/report_assets/host_page_3_control.png` | 上位机设备控制界面，来自 `host_p.mp4` 第 30 秒 |
 | `docs/report_assets/host_page_4_system.png` | 上位机系统维护界面，来自 `host_p.mp4` 第 37 秒 |
 | `docs/report_assets/hardware_power_driver_board.jpg` | 电池、电源板和电机驱动板实物接线图 |
+| `docs/report_assets/conveyor_layout_photo.jpg` | 三段传送带整体布局实拍 |
+| `docs/report_assets/camera_mount_photo.jpg` | 摄像头安装位置实拍 |
+| `docs/report_assets/esp32p4_board_rear_mount.jpg` | ESP32-P4 板端背面安装位置实拍 |
 
 ## 10. 正式报告建议主线
 

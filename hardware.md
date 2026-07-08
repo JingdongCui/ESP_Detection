@@ -149,3 +149,9 @@
 | `2b9b7d1216bb0c666e4a67f205c1bf1d.jpg` | 主动/从动滚筒尺寸 |
 | `电池电源板电机驱动板图片.jpg` | 电池/电源板/电机驱动板实物接线照片 |
 | `docs/report_assets/hardware_power_driver_board.jpg` | 供报告引用的电源板与电机驱动板实物图副本 |
+| `传送带位置布局实拍.jpg` | 三段传送带整体布局实拍 |
+| `摄像头安装位置.jpg` | 摄像头安装位置实拍 |
+| `esp32p4板子安装位置背面.jpg` | ESP32-P4 板端背面安装位置实拍 |
+| `docs/report_assets/conveyor_layout_photo.jpg` | 供报告引用的传送带布局图副本 |
+| `docs/report_assets/camera_mount_photo.jpg` | 供报告引用的摄像头安装图副本 |
+| `docs/report_assets/esp32p4_board_rear_mount.jpg` | 供报告引用的板端安装图副本 |
