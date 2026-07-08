@@ -26,6 +26,13 @@
 - 更新 `docs/report_unknown_information.md`：
   - 清理不应进入正文的团队身份信息和未完成闭环功能描述。
   - 增加后续缺图优先级表。
+- 验证：
+  - `docs/competition_report_draft.md` 未检出“初稿”“建议配图”“学校”“指导老师”等字样。
+  - 报告中所有 Markdown 图片路径均存在。
+  - `git diff --check` 通过。
+  - 未执行 `idf.py build` / `idf.py flash monitor`，因为本轮只修改 Markdown 文档。
+- 提交：
+  - 根目录提交 `9a554d4 docs: polish competition report draft`。
 
 ## 2026-07-08 add quantization strategy details
 

@@ -7,6 +7,8 @@
 ## Current State
 
 - 根目录 `.codegraph/` 不存在，跳过 CodeGraph。
+- 报告扩充已完成并提交：
+  - `9a554d4 docs: polish competition report draft`
 - 本轮修改文件：
   - `docs/competition_report_draft.md`
   - `docs/report_system_information.md`
@@ -26,11 +28,13 @@
 
 - 本次只修改 Markdown 文档，未修改 ESP 固件或上位机代码。
 - 未执行 `idf.py build` / `idf.py flash monitor`，原因是无代码改动。
+- `docs/competition_report_draft.md` 未检出“初稿”“建议配图”“学校”“指导老师”等字样。
+- 报告中所有 Markdown 图片路径均存在。
+- `git diff --check` 通过。
 
 ## Next Step
 
-- 运行文档自检和 `git diff --check`。
-- 提交本次报告扩充。
+- 等用户后续补充系统整体正式图、实际分拣图、板子 UI 正面清晰图后，替换进报告对应位置。
 
 ## Blockers
 
