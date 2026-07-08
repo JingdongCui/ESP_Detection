@@ -1,5 +1,15 @@
 # History
 
+## 2026-07-08 add quantization strategy details
+
+- 用户补充：“量化策略为 mse equalization（10,0.1） 无tqt 无bias correction”。
+- 更新 `docs/competition_report_draft.md`：
+  - “模型训练与轻量化部署”小节中明确量化策略为 MSE equalization，参数 `(10, 0.1)`。
+  - 明确未使用 TQT，未启用 bias correction。
+  - “模型训练与部署成果”小节同步写入同一量化策略。
+- 更新 `docs/report_system_information.md`：
+  - 模型训练与部署补充中记录量化策略细节。
+
 ## 2026-07-08 expand report with host screenshots and training details
 
 - 用户要求：
