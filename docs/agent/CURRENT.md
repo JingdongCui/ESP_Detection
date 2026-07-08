@@ -2,48 +2,47 @@
 
 ## Goal
 
-按用户要求调整 ESP32P4_Detection：停掉硬件分拣启动，把性能监视提前启动，并完成构建、烧录、运行验证。
+按用户要求为比赛作品报告整理资料源：
+
+- `hardware.md` 作为已知硬件信息来源。
+- `report_requset.docx` 作为报告内容要求来源。
+- 整理出作品、软硬件、上位机的信息总览。
+- 新增系统信息文档和未知/待补充信息文档。
 
 ## Current State
 
-- 活跃 ESP 工程：`/home/kazeform/2026esp/ESP32P4_Detection`
-- 修改文件：`main/system_init.c`
-- ESP 提交：`e361f65 disable sorter hardware and start monitor earlier`
-- 已烧录 app version：`e361f65`
+- 根目录 `.codegraph/` 不存在，跳过 CodeGraph。
+- 已按项目规则在修改前提交原始输入资料：
+  - 根目录提交：`4fc40c5 checkpoint report source materials`
+  - 包含 `hardware.md`、`report_requset.docx` 和 9 张硬件/机械图片。
+- 本次整理新增/更新：
+  - `hardware.md`：整理为结构化已知硬件信息。
+  - `docs/report_system_information.md`：报告资料源总览。
+  - `docs/report_unknown_information.md`：待补充、待确认、待实测清单。
 
-## Implementation Notes
+## Important Notes
 
-- `system_monitor()` 已前移到 `setupUi()` / `ui_bind_dashboard()` / `BSP_LVGL_Unlock()` 之后立即启动。
-  - 这样 UI 事件表已建立，性能监视可安全推送 CPU/内存指标。
-  - 启动时机早于 `vision_start()`、`screen_uvc_start()`、`ethernet_app_start()`。
-- 硬件分拣启动已停用：
-  - 不再调用 `sorting_sim_debug_start()`。
-  - 不再调用 `sorting_sim_control_set_motor_output_enabled(true)`。
-  - 不再调用 `sorting_sim_control_set_sensor_input_enabled(true)`。
-- Ethernet 上位机链路、图像链路、metrics 链路保留。
+- `report_requset.docx` 已提取出报告结构要求：作品名称、摘要、作品概述、系统组成及功能说明、完成情况及性能参数、总结、参考文献。
+- 当前原始性能记录为：
+  - 光线条件良好时正确率 95% 以上。
+  - 分拣速度每分钟 20 件以上。
+  - 这些指标后续仍需补充样本数、统计方法和现场证据。
+- 当前最新固件状态与正式自动分拣报告口径存在差异：
+  - 最近一次 ESP32P4_Detection 任务停用了硬件分拣启动。
+  - 正式报告前需确认最终演示固件是否恢复真实电机和传感器输入。
 
 ## Verification
 
-- `git diff --check` 通过。
-- `idf.py build` 通过。
-  - app version：`e361f65`
-  - app size：`0x524440`
-  - factory 分区剩余：`0xdbbc0`，约 `14%`
-- 使用端口 `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00` 烧录成功。
-  - 芯片：ESP32-P4 revision `v3.1`
-  - bootloader/app/partition/storage 均 `Hash of data verified`
-- 使用 TTY monitor 跑 60 秒，确认：
-  - app version `e361f65`
-  - UI/LVGL 初始化后出现 `temperature_sensor` 初始化，说明 `system_monitor()` 已提前启动。
-  - 启动到 camera/LVGL/Ethernet image task。
-  - 未见 panic/reboot。
-- monitor 被 `ISP_AWB` warning 高频刷屏并截断；本轮主要依赖代码检查确认硬件分拣启动调用已移除。
+- 本次只修改 Markdown 文档和 agent 记录，未修改 ESP 固件或上位机代码。
+- 当前没有插板子，未执行 `idf.py flash monitor`。
+- 未执行 `idf.py build`，原因是无代码改动；如后续恢复/确认最终演示固件，应按项目规则执行构建、烧录和监控。
 
 ## Next Step
 
-- 现场确认电机不上电、不读取真实分拣传感器输入；上位机仍应接收 metrics 和图像链路。
+- 用户补充作品正式名称、系统实物图、上位机截图、最终接线和分拣测试数据。
+- 后续可基于 `docs/report_system_information.md` 开始撰写正式比赛报告正文。
 
 ## Blockers
 
-- 无代码阻塞。
-- 未接正式上位机和真实硬件负载做完整现场闭环。
+- 当前无板子，无法进行实机验证。
+- 系统框图文件当前只在原始 `hardware.md` 的微信临时路径中出现，仓库内尚未找到正式框图图片。

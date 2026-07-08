@@ -1,5 +1,51 @@
 # History
 
+## 2026-07-08 report source material organization
+
+- 用户要求准备比赛作品文档：
+  - `hardware.md` 是已知硬件信息。
+  - `report_requset.docx` 是报告内容要求。
+  - 先整理现有混乱信息，输出作品/软硬件/上位机信息总览。
+  - 另写一份未知信息、后续需补充或待测内容。
+  - 当前没有插板子。
+- 按项目规则先读取：
+  - `docs/agent/PROJECT.md`
+  - `docs/agent/CURRENT.md`
+  - `docs/agent/HISTORY.md`
+- 根目录无 `.codegraph/`，跳过 CodeGraph。
+- 修改前根目录存在未跟踪资料：
+  - `hardware.md`
+  - `report_requset.docx`
+  - 9 张 jpg 硬件/机械图片
+- 按项目 Git 规则先提交原始资料：
+  - 根目录提交：`4fc40c5 checkpoint report source materials`
+- `report_requset.docx` 提取结果：
+  - 作品名称，不出现学校/指导老师。
+  - 摘要 800 字内。
+  - 第一部分作品概述：功能与特性、应用领域、技术特点、性能指标、创新点、设计流程。
+  - 第二部分系统组成及功能说明：整体、硬件、机械、电路、软件、PC 端/云端、流程图和关键输入输出。
+  - 第三部分完成情况及性能参数：实物照片、机械成果、电路成果、软件界面、量化指标。
+  - 第四部分总结：可扩展之处、心得体会。
+  - 第五部分参考文献。
+- 图片检查：
+  - `1.jpg`：四通道 XL4015 DC-DC 降压电源板参数。
+  - `4.jpg`：直流电机驱动板接口和控制方式。
+  - `7.jpg`：42GM-775 行星直流减速电机完整规格表。
+  - `8.jpg`：12V/24V 电机参数对比与电机尺寸。
+  - `11.jpg`：3A DC-DC 多路电源模块参数对比。
+  - `2b9b7d1216bb0c666e4a67f205c1bf1d.jpg`：主动/从动滚筒尺寸。
+  - `4b210e605cd33f5b49de57c7b02b2b84.jpg`：4080 铝尾座尺寸。
+  - `7ddf6ca2ba23b66577575f13253528bd.jpg`：4080 铝头座尺寸。
+  - `7e5328ddb76a2681f0dd24bce1040a4a.jpg`：4080 国标铝型材尺寸。
+- 整理输出：
+  - 重写 `hardware.md` 为结构化已知硬件信息。
+  - 新增 `docs/report_system_information.md` 作为报告资料源总览。
+  - 新增 `docs/report_unknown_information.md` 作为待补充/待确认/待实测清单。
+- 重要风险记录：
+  - 当前最新固件状态中硬件分拣启动被停用；正式报告如写自动分拣闭环，需确认最终演示固件是否恢复电机和传感器输入。
+  - 性能指标“正确率 95% 以上、20 件/分钟以上”来自原始记录，后续需要补测试样本、统计方法和现场证据。
+  - 用户说明当前没有插板子，本轮不执行 `idf.py flash monitor`。
+
 ## 2026-07-08 ESP32P4_Detection disable sorter hardware and early monitor
 
 - 用户要求：“把硬件分拣停掉，把性能监视放到前面开，然后烧录。”

@@ -8,6 +8,18 @@
 - 历史工程归档目录：`archive_project/`
 - 根目录 git 仓库已初始化，用于跟踪根目录 agent 文档；`ESP32P4_Detection` 和 `esp32_host_no_inference` 各自有独立 git 仓库。
 
+## Report Preparation
+
+- 比赛报告资料源：
+  - `hardware.md`：已知硬件信息整理。
+  - `report_requset.docx`：用户提供的报告内容要求。
+  - `docs/report_system_information.md`：作品、硬件、软件、上位机和性能信息总览。
+  - `docs/report_unknown_information.md`：正式报告前待补充、待确认、待实测清单。
+- 当前报告要求包括：作品名称、摘要、作品概述、系统组成及功能说明、完成情况及性能参数、总结、参考文献。
+- 报告中不能出现学校名称、指导老师等内容。
+- 当前原始性能记录为：光线条件良好时正确率 95% 以上，分拣速度每分钟 20 件以上；正式写入前应补充样本数、统计方法和实测证据。
+- 当前最新固件状态曾停用硬件分拣启动；正式演示前需确认最终使用固件是否恢复真实电机输出和传感器输入。
+
 ## Dataset Notes
 
 - 2026-07-04 已整理 `MyAlbums` 为后续训练数据集：
