@@ -32,6 +32,8 @@
   - 生成缩略检查图并目视检查，未见明显重叠、裁切、表格溢出或图片异常。
   - 检查 `word/document.xml`，文字颜色仅为 `000000`。
   - `git diff --check` 通过。
+- 提交：
+  - `dcd63c4 docs: finalize competition report`。
 
 ## 2026-07-08 add latest report photos
 

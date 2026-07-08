@@ -13,6 +13,8 @@
   - `docs/competition_report_final.docx`
 - 已新增 DOCX 构建脚本：
   - `tools/build_competition_report_docx.py`
+- 定稿已提交：
+  - `dcd63c4 docs: finalize competition report`
 
 ## Verification
 
@@ -27,7 +29,7 @@
 
 ## Next Step
 
-- 提交定稿 Markdown、DOCX 和生成脚本。
+- 无；等待用户后续审阅或提出封面/格式模板调整。
 
 ## Blockers
 
