@@ -1,5 +1,40 @@
 # History
 
+## 2026-07-08 technical expansion for final report
+
+- 用户要求报告技术内容偏少，需要增加每个部分如何实现，重点使用源码中能直接获得的信息。
+- 按项目规则读取 `PROJECT.md`、`CURRENT.md`、`HISTORY.md`，根目录无 `.codegraph/`。
+- 修改前工作区干净；此前已按 Git 规则提交定稿产物 checkpoint：`72aedb8 docs: checkpoint current final report artifacts`。
+- 使用 `documents` 技能处理 DOCX 生成和渲染校验；补装临时 `pdf2image` 到 `/tmp/report_docx_deps` 后，`render_docx.py` 可正常输出页面 PNG。
+- 源码阅读重点：
+  - `system_init.c`：确认板端启动顺序为以太网早期初始化、LCD、触摸、摄像头、LVGL/UI、系统监控、视觉、UVC、以太网。
+  - `bsp_lcd.c`：确认 LCD 为 1024×600 RGB888，DPI clock 26 MHz，double framebuffer，DMA2D，GPIO26 背光 PWM，AXI QoS 为 DW-GDMA read=15、Cache=4、CPU=2。
+  - `vision_app.c` / `vision_internal.h`：确认 ESP-who 风格 zero-copy peek 帧总线、fetch/display/detect 三任务、PPA 缩放和 640×375 带框快照。
+  - `vision_detect.c`：确认检测任务坐标缩放、类别映射、分拣提交、连续 3 次 miss 后 rearm 的快照闸门。
+  - `vision_model.cpp`：确认 `/spiffs/waybill.espdl` 与 `/spiffs/logo.espdl` 两级模型、ROI 拷贝、坐标回映射、默认阈值和分段耗时统计。
+  - `ethernet_app.c`：确认 40 字节包头、control 5000/image 5001、metrics JSON 字段、JPEG quality 85、两槽图像队列和 8 KB chunk 发送。
+  - `sorter_scheduler.c` / `sorting_sim_control.c`：确认包裹状态机、最多 8 包裹、S2/S4 交接、B/C owner、超时兜底、5 次视觉投票和急停/输出使能。
+  - `esp32_host_no_inference`：确认 Qt 网络线程、包头解析、JPEG 校验与保存、`telemetry.jsonl` 记录、电机速度控制命令节流。
+- 更新 `docs/competition_report_final.md`：
+  - 增加系统启动与内部数据流说明。
+  - 增加 BSP/LCD/PSRAM QoS 技术说明。
+  - 增加软件模块与源码文件对应表。
+  - 增加视觉三任务、zero-copy、快照闸门、模型加载、ROI 裁剪、坐标映射和阈值控制说明。
+  - 增加分拣状态机、传送带资源占用、视觉投票、超时和急停说明。
+  - 增加上位机协议头、双 TCP、JPEG 队列、落盘和控制节流说明。
+  - 将“团队完成了...”改为“作品完成了...”，避免队伍身份表述。
+- 更新 `tools/build_competition_report_docx.py`：
+  - 清空 DOCX author、lastModifiedBy、comments、keywords、subject、category。
+- 重新生成 `docs/competition_report_final.docx`，并运行 documents 隐私清理脚本：
+  - `creator` 和 `lastModifiedBy` 为空。
+- 验证：
+  - Markdown 22 张图片路径均存在。
+  - Markdown 和 DOCX 正文均未检出学校、队伍、指导老师、学校名、队名等敏感词。
+  - DOCX 正文文字颜色仅 `000000`，包含 `SimHei`、`SimSun`、`Times New Roman`。
+  - `render_docx.py` 渲染为 25 页 PNG，缩略检查未见明显重叠、图片异常或表格溢出。
+  - `git diff --check` 通过。
+  - 本轮只改报告和生成脚本，未执行 `idf.py build` / `idf.py flash monitor`。
+
 ## 2026-07-08 final report and docx export
 
 - 用户要求做最终优化：

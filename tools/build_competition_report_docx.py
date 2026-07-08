@@ -356,6 +356,11 @@ def build_doc():
     # Footer page number placeholder is intentionally omitted for simple submission style.
     doc.core_properties.title = "基于 ESP32-P4 的快递智能分拣系统与 YOLO 轻量化部署优化"
     doc.core_properties.author = ""
+    doc.core_properties.last_modified_by = ""
+    doc.core_properties.comments = ""
+    doc.core_properties.keywords = ""
+    doc.core_properties.subject = ""
+    doc.core_properties.category = ""
     doc.save(OUT)
     print(OUT)
 
