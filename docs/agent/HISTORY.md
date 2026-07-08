@@ -35,6 +35,8 @@
   - 报告中所有 Markdown 图片路径均存在。
   - `git diff --check` 通过。
   - 未执行 `idf.py build` / `idf.py flash monitor`，因为本轮只改 Markdown 和报告图片资产。
+- 提交：
+  - `45813b1 docs: add latest photos to report`。
 
 ## 2026-07-08 polish report toward deliverable
 

@@ -9,6 +9,8 @@
 - 根目录 `.codegraph/` 不存在，跳过 CodeGraph。
 - 用户新增原始图片已提交：
   - `da76823 docs: add latest report photos`
+- 报告补图已完成并提交：
+  - `45813b1 docs: add latest photos to report`
 - 已复制报告资产：
   - `docs/report_assets/system_front_photo.jpg`
   - `docs/report_assets/sorting_process_photo.jpg`
@@ -34,7 +36,7 @@
 
 ## Next Step
 
-- 提交本次报告补图。
+- 等用户后续补系统框图图片版、光电传感器局部图、数据集样例或训练曲线后继续替换进报告。
 
 ## Blockers
 
