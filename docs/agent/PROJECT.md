@@ -24,7 +24,8 @@
   - Word：`docs/competition_report_final.docx`
   - 生成脚本：`tools/build_competition_report_docx.py`
 - 定稿报告已删除采购/淘宝类硬件资料图和机械尺寸截图，保留系统正面、分拣过程、硬件接线、上位机、板端 UI 等实拍/截图资料。
-- 定稿 Word 要求：全文黑色字；主标题和高层标题黑体；较低层级标题和正文宋体；英文/数字 Times New Roman；已渲染检查 21 页。
+- 定稿 Word 要求：全文黑色字；主标题和高层标题黑体；较低层级标题和正文宋体；英文/数字 Times New Roman；最新已渲染检查 26 页。
+- 2026-07-08 最新报告已删除所有 Mermaid 流程图块，仅保留 `流程图.jpg` 作为系统整体流程图普通图片；其它流程语义均改为文字描述，避免 DOCX 转换出现流程图文本异常。
 
 ## Dataset Notes
 

@@ -1,5 +1,33 @@
 # History
 
+## 2026-07-08 remove mermaid flowcharts from final report
+
+- 用户指出 DOCX 中流程图部分有问题，要求使用目录下 `流程图.jpg` 作为整个系统流程图，删除其它流程图；随后补充流程图格式容易出问题，可将缺失语义改为语言表达。
+- 按项目规则读取 `PROJECT.md`、`CURRENT.md`、`HISTORY.md`，根目录无 `.codegraph/`。
+- 修改前提交上一版技术扩充 checkpoint：
+  - `71301b0 docs: checkpoint technical report expansion`
+- 使用 `documents` 技能处理 DOCX 重新生成和渲染检查。
+- 更新 `docs/competition_report_final.md`：
+  - 删除全部 Mermaid 流程图块。
+  - 在 `1.6 设计流程` 使用 `流程图.jpg` 作为普通图片。
+  - 用文字描述替代其它流程图语义：
+    - 系统层级关系。
+    - 供电和控制信号流向。
+    - 视觉识别处理语义。
+    - 分拣调度处理语义。
+    - 上位机数据处理链路。
+- 重新生成 `docs/competition_report_final.docx`，并运行 documents 隐私清理脚本。
+- 验证：
+  - Markdown 中未检出 ` ```mermaid` 或 `flowchart`。
+  - Markdown 中 23 张图片路径均存在。
+  - DOCX 正文未检出 `flowchart`、`mermaid` 或自动转换产生的“流程图：”文本。
+  - Markdown 和 DOCX 正文均未检出学校、队伍、指导老师、学校名、队名等敏感词。
+  - DOCX 元数据 `creator` 和 `lastModifiedBy` 为空。
+  - DOCX 正文文字颜色仅 `000000`，包含 `SimHei`、`SimSun`、`Times New Roman`。
+  - `render_docx.py` 渲染为 26 页 PNG，检查第 4 页总流程图和全部缩略图，未见明显重叠、图片异常或表格溢出。
+  - `git diff --check` 通过。
+  - 本轮只改报告和 agent 文档，未执行 `idf.py build` / `idf.py flash monitor`。
+
 ## 2026-07-08 technical expansion for final report
 
 - 用户要求报告技术内容偏少，需要增加每个部分如何实现，重点使用源码中能直接获得的信息。
