@@ -40,7 +40,7 @@
 | 实际分拣动作图 | 第三部分成果展示 | 已补 `分拣过程实拍图.jpg` / `docs/report_assets/sorting_process_photo.jpg` |
 | 板端 UI 正面清晰图 | 软件成果展示 | 已补 `ui1.jpg`-`ui4.jpg` / `docs/report_assets/board_ui_*.jpg` |
 
-定稿前仍建议补充：
+最终报告未使用、后续如需答辩或展示材料可继续补充：
 
 | 缺失图片 | 优先级 | 说明 |
 | --- | --- | --- |

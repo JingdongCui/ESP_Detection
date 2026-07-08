@@ -1,5 +1,38 @@
 # History
 
+## 2026-07-08 final report and docx export
+
+- 用户要求做最终优化：
+  - 删除淘宝/采购截图类硬件资料图。
+  - 保留硬件实拍图。
+  - 将系统正面实拍图放到最前面，三段传送带布局图放到后面。
+  - 完成可直接提交的 Markdown 后，再转为 Word。
+  - Word 全文黑色字；标题黑体；较低层级标题和正文宋体；英文使用 Times New Roman。
+- 按项目规则读取 `PROJECT.md`、`CURRENT.md`、`HISTORY.md`，根目录无 `.codegraph/`。
+- 使用 `documents` 技能并读取：
+  - `SKILL.md`
+  - `references/design_presets.md`
+  - `tasks/create_edit.md`
+  - `tasks/verify_render.md`
+- 文档修改：
+  - `docs/competition_report_draft.md` 更名为 `docs/competition_report_final.md`。
+  - 第一部分功能与特性首图改为系统正面实拍图。
+  - 三段传送带布局图移动到机械设计部分。
+  - 删除硬件参数图：`../1.jpg`、`../4.jpg`、`../7.jpg`、`../8.jpg`、`../11.jpg`。
+  - 删除机械尺寸/采购截图：`../2b9b7d...jpg`、`../4b210...jpg`、`../7ddf...jpg`、`../7e532...jpg`。
+  - 删除最终报告中的“图表素材与定稿补充清单”过程性章节。
+  - 图注统一为“图：...”格式，避免手工图号重复。
+- DOCX 生成：
+  - 新增 `tools/build_competition_report_docx.py`。
+  - 生成 `docs/competition_report_final.docx`。
+  - DOCX 中主标题和高层标题使用黑体，较低层级标题和正文使用宋体，英文/数字使用 Times New Roman，正文文字颜色为黑色。
+- 渲染验证：
+  - 使用 LibreOffice 将 DOCX 转为 PDF。
+  - 使用 `pdftoppm` 转为 21 页 PNG。
+  - 生成缩略检查图并目视检查，未见明显重叠、裁切、表格溢出或图片异常。
+  - 检查 `word/document.xml`，文字颜色仅为 `000000`。
+  - `git diff --check` 通过。
+
 ## 2026-07-08 add latest report photos
 
 - 用户补充：“我又加了一些图 你补充”。

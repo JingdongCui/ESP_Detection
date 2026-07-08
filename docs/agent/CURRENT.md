@@ -2,43 +2,33 @@
 
 ## Goal
 
-补充用户新增图片到比赛报告，包括系统正面实拍、实际分拣过程实拍和 4 张板端 UI 页面。
+完成比赛报告定稿：删除采购/淘宝类硬件资料图，只保留实拍图；调整系统正面图位置；生成可提交的 Markdown 和 Word 文档。
 
 ## Current State
 
 - 根目录 `.codegraph/` 不存在，跳过 CodeGraph。
-- 用户新增原始图片已提交：
-  - `da76823 docs: add latest report photos`
-- 报告补图已完成并提交：
-  - `45813b1 docs: add latest photos to report`
-- 已复制报告资产：
-  - `docs/report_assets/system_front_photo.jpg`
-  - `docs/report_assets/sorting_process_photo.jpg`
-  - `docs/report_assets/board_ui_dashboard.jpg`
-  - `docs/report_assets/board_ui_settings.jpg`
-  - `docs/report_assets/board_ui_log.jpg`
-  - `docs/report_assets/board_ui_system.jpg`
-- 已更新：
-  - `docs/competition_report_draft.md`
-  - `docs/report_system_information.md`
-  - `docs/report_unknown_information.md`
-  - `hardware.md`
-  - `docs/agent/CURRENT.md`
-  - `docs/agent/HISTORY.md`
+- 正式 Markdown 已从 `docs/competition_report_draft.md` 更名为：
+  - `docs/competition_report_final.md`
+- 已生成 Word 文档：
+  - `docs/competition_report_final.docx`
+- 已新增 DOCX 构建脚本：
+  - `tools/build_competition_report_docx.py`
 
 ## Verification
 
-- `docs/competition_report_draft.md` 未检出“初稿”“建议配图”“学校”“指导老师”等字样。
-- 报告中所有 Markdown 图片路径均存在。
+- `docs/competition_report_final.md` 未检出“初稿”“建议配图”“学校”“指导老师”“定稿前”“缺失图片”“主要硬件资料图”等不适合最终正文的字样。
+- Markdown 中所有图片路径均存在。
+- 已删除正文中的采购/淘宝类参数截图和机械尺寸截图，仅保留实拍图、上位机截图、板端 UI 和流程内容。
+- Word 文档已用 LibreOffice 渲染为 PDF，再转为 21 页 PNG 检查，未见明显重叠、裁切、表格溢出或图片异常。
+- DOCX 正文 XML 中 `word/document.xml` 的文字颜色仅为 `000000`。
+- DOCX 正文中包含 `SimHei`、`SimSun`、`Times New Roman` 字体设置。
 - `git diff --check` 通过。
-- 本次只修改 Markdown 文档和复制图片资产，不修改 ESP 固件或上位机代码。
-- 未执行 `idf.py build` / `idf.py flash monitor`，原因是无代码改动。
+- 本轮只修改文档和生成报告，不修改 ESP 固件或上位机代码；未执行 `idf.py build` / `idf.py flash monitor`。
 
 ## Next Step
 
-- 等用户后续补系统框图图片版、光电传感器局部图、数据集样例或训练曲线后继续替换进报告。
+- 提交定稿 Markdown、DOCX 和生成脚本。
 
 ## Blockers
 
-- 当前无板子，不执行新的实机验证。
-- 后续仍可补系统框图图片版、光电传感器局部图、数据集样例或训练曲线。
+- 无。
