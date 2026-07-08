@@ -1,5 +1,33 @@
 # History
 
+## 2026-07-08 ESP32P4_Detection disable sorter hardware and early monitor
+
+- 用户要求：“把硬件分拣停掉，把性能监视放到前面开，然后烧录。”
+- 按项目规则先读取 `PROJECT.md`、`CURRENT.md`、`HISTORY.md`。
+- 当前根目录和 ESP 工程均无 `.codegraph/`，跳过 CodeGraph。
+- 修改前 ESP 工作区干净，基线提交为 `e82a832 rearm snapshots after three misses`。
+- 修改：
+  - 文件：`main/system_init.c`
+  - 将 `system_monitor()` 前移到 `setupUi()`、`ui_bind_dashboard()`、`BSP_LVGL_Unlock()` 之后立即启动。
+  - 保证 UI 事件表已建立后再推送系统监视事件，且早于 `vision_start()`、`screen_uvc_start()`、`ethernet_app_start()`。
+  - 停用硬件分拣启动调用：
+    - 删除/不再调用 `sorting_sim_debug_start()`。
+    - 删除/不再调用 `sorting_sim_control_set_motor_output_enabled(true)`。
+    - 删除/不再调用 `sorting_sim_control_set_sensor_input_enabled(true)`。
+  - 保留 Ethernet 上位机链路、image 链路和 metrics 链路。
+- 提交：
+  - ESP 提交：`e361f65 disable sorter hardware and start monitor earlier`。
+- 验证：
+  - 修改后第一次 `idf.py build` 通过。
+  - 提交后再次 `idf.py build` 通过，app version 为 `e361f65`。
+  - app size：`0x524440`；factory 分区剩余：`0xdbbc0`，约 `14%`。
+  - `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
+  - 芯片：ESP32-P4 revision `v3.1`。
+  - bootloader、app、partition table、storage 全部 `Hash of data verified`。
+  - TTY monitor 跑 60 秒，确认 app version `e361f65`，启动到 camera/LVGL/Ethernet image task，未见 panic/reboot。
+  - monitor 中在 LVGL 初始化后较早出现 `temperature_sensor` 初始化，说明 `system_monitor()` 已提前启动。
+  - monitor 被 `ISP_AWB` warning 高频刷屏并截断；本轮主要用代码检查确认硬件分拣启动调用已移除。
+
 ## 2026-07-08 ESP32P4_Detection snapshot rearm after three misses
 
 - 用户要求修改发图逻辑：“改成 3 次 miss 允许发图，避免同一个包裹重复发”。
