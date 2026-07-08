@@ -1,5 +1,47 @@
 # History
 
+## 2026-07-08 ESP32P4_Detection Ethernet image and metrics autostart
+
+- 用户要求调工程：上位机自动连接，并能收到图像和性能参数，改完烧录。
+- 按项目规则先读取 `PROJECT.md`、`CURRENT.md`、`HISTORY.md`。
+- 当前根目录和 ESP 工程均无 `.codegraph/`，跳过 CodeGraph。
+- 检查 ESP 子工程状态：
+  - 分支：`feat/screen-uvc-stream`
+  - 存在未提交现场差异：`components/bsp/include/sorter_debug_config.h` 中 `SORTER_DEFAULT_HANDOFF_DELAY_MS` 从 `500` 改为 `100`。
+  - 按规则先提交该现场差异：`9ecbe05 checkpoint current sorter timing config`。
+- 定位问题：
+  - `main/system_init.c` 中 `system_monitor()` 被注释。
+  - `ethernet_app_start()` 分支被 `#if 0` 屏蔽。
+  - host 工程检查确认 `HostController` 构造时启动 `HostNetworkWorker` 并调用 `startServer()`；`HostNetworkWorker` 自动监听 TCP `5000/5001`，所以本轮无需改 host 代码。
+- 修改：
+  - `main/system_init.c` 恢复 `#if SORTER_TCP_LINK_ENABLE` 下的 `ethernet_app_start()` 和 `ethernet_app_wait_ready()`。
+  - `system_monitor()` 恢复到 Ethernet ready、分拣硬件启动之后执行，并增加失败日志。
+  - 保持 `sorting_sim_debug_start()`、电机输出、真实传感器输入开机启用。
+- 提交：
+  - ESP 提交：`92c32eb enable ethernet image and metrics autostart`。
+- 构建：
+  - 第一次 `idf.py build` 通过，dirty app version 为 `9ecbe05-dirty`。
+  - 提交后再次 `idf.py build` 通过，app version 为 `92c32eb`。
+  - app size：`0x526d80`；factory 分区剩余：`0xd9280`，约 `14%`。
+- 烧录：
+  - 端口：`/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`
+  - `idf.py -p ... flash` 成功。
+  - 芯片：ESP32-P4 revision `v3.1`。
+  - bootloader、app、partition table、storage 全部 `Hash of data verified`。
+- monitor：
+  - 普通管道运行 `idf.py monitor` 失败，原因：`Monitor requires standard input to be attached to TTY`。
+  - 使用 TTY 跑 `timeout 60s idf.py -p ... monitor`。
+  - 看到 app version `92c32eb`，启动到 camera/LVGL/Ethernet 重连阶段，未见 panic/reboot。
+  - 因正式 host 未运行，日志中板端持续尝试连接 `192.168.10.1:5000` 和 `192.168.10.1:5001`，返回 `connect failed so_error=104 errno=119`。
+- 临时 TCP 接收器验证：
+  - 主机 `enp3s0` 为 `192.168.10.1/24`，`5000/5001` 起初无人监听。
+  - 自写临时 Python 接收器监听 `5000/5001`。
+  - 第一次验证接收 control metrics：收到 1 秒周期 metrics 包，包含 `cpu_usage/free_heap/free_psram/image_sent/image_encoded` 等字段。
+  - 对板子执行 `esptool.py ... run` hard reset 后，接收器确认冷启动自动连接：
+    - `ACCEPT port=5000 from=192.168.10.2:53499`
+    - `ACCEPT port=5001 from=192.168.10.2:53500`
+  - 因现场没有触发“识别成功的新包裹”快照，本轮未收到 JPEG payload；已验证 image TCP 通道自动连接成功。
+
 ## 2026-07-07 host technical video reference document
 
 - 用户要求编写上位机 host 技术文档，供队友拍摄作品视频和比赛评审展示参考。

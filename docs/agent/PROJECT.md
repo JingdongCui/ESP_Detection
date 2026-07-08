@@ -105,15 +105,15 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - 2026-07-07 当前实测板子也会枚举为 USB Serial/JTAG：
   - `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`
   - 芯片 revision：ESP32-P4 `v3.1`
-- `ESP32P4_Detection` 当前 app version 由最新提交决定；2026-07-07 最新已烧录版本为 `a84dbb5`，端口为 USB Serial/JTAG 板子。
+- `ESP32P4_Detection` 当前 app version 由最新提交决定；2026-07-08 最新已烧录版本为 `92c32eb`，端口为 USB Serial/JTAG 板子。
 - `ESP32P4_Detection` 当前默认分拣调度配置集中在 `components/bsp/include/sorter_debug_config.h`：
-  - 最新提交基线默认速度：A/B/C = `100%`；当前本地未提交现场差异中 A=`60%`。
-  - 默认交接延时：`SORTER_DEFAULT_HANDOFF_DELAY_MS=1000`。
-  - 默认皮带超时：A=`4500ms`、B=`2000ms`、C=`2000ms`。
+  - 最新提交基线默认速度：A=`60%`、B=`100%`、C=`100%`。
+  - 默认交接延时：`SORTER_DEFAULT_HANDOFF_DELAY_MS=100`。
+  - 默认皮带超时：A=`4500ms`、B=`900ms`、C=`1300ms`。
   - 默认 lost timeout：min=`3000ms`、max=`6000ms`。
   - 引脚、传感器 active level、编码器参数也在同一个文件。
   - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `sorter_config_default()` 从这些宏读取默认值。
-- `ESP32P4_Detection` 提交基线启动路径先启动 Ethernet 上位机链路并等待 ready，再调用 `sorting_sim_debug_start()`、`sorting_sim_control_set_motor_output_enabled(true)`、`sorting_sim_control_set_sensor_input_enabled(true)`，开机启用分拣调试入口、电机输出和真实传感器输入；当前本地未提交现场差异中 `main/system_init.c` 将该 Ethernet 分支改为 `#if 0`，且注释了 `system_monitor()`。
+- `ESP32P4_Detection` 当前启动路径先启动 Ethernet 上位机链路并等待 ready，再调用 `sorting_sim_debug_start()`、`sorting_sim_control_set_motor_output_enabled(true)`、`sorting_sim_control_set_sensor_input_enabled(true)`，开机启用分拣调试入口、电机输出和真实传感器输入；随后启动 `system_monitor()`，用于 UI 和 TCP metrics 性能参数。
 - `ESP32P4_Detection` 当前 `main/system_init.c` 初始化内容恢复自 `4946a30 restore lvgl perf monitor overlay`，这是上一轮实机验证 Ethernet/control/image 可连接的基线。
 - `ESP32P4_Detection` 当前视觉检测 miss 保持计数为 `VISION_DISPLAY_MISS_KEEP_COUNT=2`，位于 `components/vision/framework/vision_detect.c`。
 - `ESP32P4_Detection` 当前发图触发逻辑位于 `components/vision/framework/vision_detect.c`：优先按分拣控制层 `vision_package_id` 去重，同一包裹 ID 只 capture 一张带框图，新包裹 ID 立即 capture；无有效包裹 ID 时保留视觉上升沿兜底。
@@ -126,7 +126,8 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
   - 上位机：`192.168.10.1`
   - control：TCP `5000`
   - image：TCP `5001`
-  - 2026-07-07 已验证两路 TCP 与开机默认电机/真实 IO 同时存在。
+  - 2026-07-08 已验证 host 监听时板端冷启动自动连接 `5000/5001`；control 通道可收到 1 秒周期 metrics 包。
+  - 图像 JPEG payload 由“识别成功的新包裹”快照触发；无包裹时 image TCP 可连接但不会产生图像包。
 - `sort_real_io` 任务栈放在 PSRAM，避免 Ethernet ready 后内部 RAM 紧张导致真实 IO task 创建失败。
 - `sdkconfig` 中 `CONFIG_LV_USE_SYSMON=y` 保留；2026-07-07 用户要求恢复旧版性能显示，当前 `CONFIG_LV_USE_PERF_MONITOR=y` 且 `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
 - 串口优先使用 `/dev/serial/by-id/` 稳定路径；当前现场可能是 CP2102N 或 Espressif USB Serial/JTAG，按实际枚举选择。monitor 使用默认 `115200`。

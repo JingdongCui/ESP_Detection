@@ -2,44 +2,58 @@
 
 ## Goal
 
-按用户要求编写上位机 host 技术展示文档，给队友作为作品视频拍摄和比赛评审展示参考。
+按用户要求调通 ESP32P4_Detection：上位机自动连接后能收到图像链路和性能参数，并完成构建、烧录、现场链路验证。
 
 ## Current State
 
+- 活跃 ESP 工程：`/home/kazeform/2026esp/ESP32P4_Detection`
 - 活跃上位机工程：`/home/kazeform/2026esp/esp32_host_no_inference`
-- 目标文档：`/home/kazeform/2026esp/docs/host_technical_video_reference.md`
-- 文档口径：
-  - 中文 Markdown。
-  - 面向专业评审。
-  - 突出工程技术，不只写拍摄脚本。
-  - 准确说明 host 无本地推理，板端负责视觉推理和分拣闭环，host 负责通信、监控、归档和控制入口。
+- 已确认 host 工程启动时会自动监听：
+  - control/metrics：TCP `5000`
+  - image：TCP `5001`
+- 本轮 ESP 提交：
+  - `9ecbe05 checkpoint current sorter timing config`
+  - `92c32eb enable ethernet image and metrics autostart`
+- 已烧录 app version：`92c32eb`
 
 ## Implementation Notes
 
-- 已检查 host 工程：
-  - Qt 6 Quick + Network + C++17 + CMake。
-  - `HostNetworkWorker` 独立线程监听 `5000/tcp` 控制链路和 `5001/tcp` 图像链路。
-  - `packetprotocol` 使用 40 字节自定义二进制 header。
-  - `HostController` 负责图像保存、遥测、包裹记录、控制节流和 QML 属性适配。
-- 新增文档内容包括：
-  - 系统架构和软件分层。
-  - 双 TCP 链路、自定义 packet、QThread 网络线程。
-  - JPEG/RGB 图像接收、增强、原子保存和历史归档。
-  - CPU/PSRAM/heap/FPS/链路健康等遥测指标。
-  - 电机速度 `CONFIG a_speed/b_speed/c_speed` 下发和 100 ms 节流。
-  - 视频拍摄清单、60 秒/2 分钟答辩稿、评委追问和术语表。
+- `main/system_init.c` 恢复上位机 TCP 链路启动：
+  - `ethernet_app_start()`
+  - `ethernet_app_wait_ready(SORTER_ETHERNET_READY_WAIT_MS)`
+- 恢复 `system_monitor()`，放在 Ethernet ready 和分拣硬件启动之后，避免提前占用内部 RAM。
+- 保持开机分拣硬件入口：
+  - `sorting_sim_debug_start()`
+  - `sorting_sim_control_set_motor_output_enabled(true)`
+  - `sorting_sim_control_set_sensor_input_enabled(true)`
+- host 侧未改代码；代码检查确认 `HostController` 构造函数中启动网络线程并调用 `startServer()`。
 
 ## Verification
 
-- 文档事实对照代码和 README 编写。
-- 本次只新增文档和 agent 记录，不修改 ESP 固件或 host 运行代码。
-- 因无代码改动，不运行 `idf.py build` / `idf.py flash monitor`；需在最终记录中明确原因。
+- `idf.py build` 通过。
+  - app version：`92c32eb`
+  - app size：`0x526d80`
+  - factory 分区剩余：`0xd9280`，约 `14%`
+- 使用端口 `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00` 烧录成功。
+  - 芯片：ESP32-P4 revision `v3.1`
+  - bootloader/app/partition/storage 均 `Hash of data verified`
+- `idf.py monitor` 需 TTY；使用 TTY monitor 跑 60 秒，确认：
+  - app version `92c32eb`
+  - 启动到 camera/LVGL/网络重连阶段，未见 panic/reboot。
+  - host 未监听时，板端持续重试连接 `192.168.10.1:5000/5001`。
+- 临时 TCP 接收器验证：
+  - 主机网口 `enp3s0` 为 `192.168.10.1/24`。
+  - 接收器监听 `5000/5001` 后，板端 control 自动连接成功。
+  - control 通道收到 1 秒周期 metrics 包，包含 CPU/heap/PSRAM/image stats。
+  - hard reset 板子后，冷启动自动连上 `5000` 和 `5001` 两路。
+- 图像 payload 未现场验证到 JPEG 数据，原因是测试时没有触发“识别成功的新包裹”快照；已验证 image TCP 自动连接成功。
 
 ## Next Step
 
-- 检查 Markdown 内容和 git diff。
-- 提交根目录文档改动。
+- 现场打开正式 Qt host 程序后，应看到设备自动在线、性能参数刷新。
+- 放入可识别包裹触发新包裹快照后，host 应收到 JPEG 图像。
 
 ## Blockers
 
-- 无当前阻塞。
+- 无代码阻塞。
+- 当前仅缺少真实包裹触发来闭环验证 JPEG payload。
