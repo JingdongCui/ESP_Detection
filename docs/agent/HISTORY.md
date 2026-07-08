@@ -1,5 +1,38 @@
 # History
 
+## 2026-07-08 ESP32P4_Detection snapshot rearm after three misses
+
+- 用户要求修改发图逻辑：“改成 3 次 miss 允许发图，避免同一个包裹重复发”。
+- 按项目规则先读取 `PROJECT.md`、`CURRENT.md`、`HISTORY.md`。
+- 当前根目录和 ESP 工程均无 `.codegraph/`，跳过 CodeGraph。
+- 修改前 ESP 工作区干净。
+- 定位：
+  - 发图逻辑位于 `components/vision/framework/vision_detect.c`。
+  - 旧逻辑优先按 `vision_package_id` 去重：包裹 ID 变化会立即发图；无 ID 时按视觉上升沿发图。
+  - 该策略在同一实物包裹窗口内如果 ID 抖动/变化，可能重复发图。
+- 修改：
+  - `VISION_DISPLAY_MISS_KEEP_COUNT` 从 `2` 改为 `3`。
+  - 删除 `s_last_snapshot_package_id` 和按包裹 ID 变化立即发图的 gating。
+  - 新增 `s_snapshot_capture_armed`：
+    - 启动/检测关闭后允许发图。
+    - 第一次有效命中抓图后 disarm。
+    - 连续第 3 次 miss 才 rearm。
+    - 连续命中、或 1-2 帧短暂 miss，不再重复抓图。
+  - `vision_package_id` 仍保留用于 RTT 日志 `BOXED SNAPSHOT captured pkg=...`。
+- 提交：
+  - ESP 提交：`e82a832 rearm snapshots after three misses`。
+- 验证：
+  - `git diff --check` 通过。
+  - 修改后第一次 `idf.py build` 通过。
+  - 提交后再次 `idf.py build` 通过，app version 为 `e82a832`。
+  - app size：`0x526c80`；factory 分区剩余：`0xd9380`，约 `14%`。
+  - `idf.py -p /dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00 flash` 成功。
+  - 芯片：ESP32-P4 revision `v3.1`。
+  - bootloader、app、partition table、storage 全部 `Hash of data verified`。
+  - TTY monitor 跑 50 秒，确认 app version `e82a832`，启动到 camera/LVGL/Ethernet image task，未见 panic/reboot。
+  - monitor 中无新包裹快照时 image producer 正常输出 `JPEG snapshot skipped: ESP_ERR_NOT_FOUND`。
+  - 本轮未用真实包裹实测重复发图抑制效果；需现场放包裹验证连续命中只发一次，连续 3 次 miss 后下一包重新发图。
+
 ## 2026-07-08 ESP32P4_Detection Ethernet image and metrics autostart
 
 - 用户要求调工程：上位机自动连接，并能收到图像和性能参数，改完烧录。

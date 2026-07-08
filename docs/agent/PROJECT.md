@@ -105,7 +105,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - 2026-07-07 当前实测板子也会枚举为 USB Serial/JTAG：
   - `/dev/serial/by-id/usb-Espressif_USB_JTAG_serial_debug_unit_E8:F6:0A:E1:7A:D1-if00`
   - 芯片 revision：ESP32-P4 `v3.1`
-- `ESP32P4_Detection` 当前 app version 由最新提交决定；2026-07-08 最新已烧录版本为 `92c32eb`，端口为 USB Serial/JTAG 板子。
+- `ESP32P4_Detection` 当前 app version 由最新提交决定；2026-07-08 最新已烧录版本为 `e82a832`，端口为 USB Serial/JTAG 板子。
 - `ESP32P4_Detection` 当前默认分拣调度配置集中在 `components/bsp/include/sorter_debug_config.h`：
   - 最新提交基线默认速度：A=`60%`、B=`100%`、C=`100%`。
   - 默认交接延时：`SORTER_DEFAULT_HANDOFF_DELAY_MS=100`。
@@ -115,8 +115,8 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
   - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `sorter_config_default()` 从这些宏读取默认值。
 - `ESP32P4_Detection` 当前启动路径先启动 Ethernet 上位机链路并等待 ready，再调用 `sorting_sim_debug_start()`、`sorting_sim_control_set_motor_output_enabled(true)`、`sorting_sim_control_set_sensor_input_enabled(true)`，开机启用分拣调试入口、电机输出和真实传感器输入；随后启动 `system_monitor()`，用于 UI 和 TCP metrics 性能参数。
 - `ESP32P4_Detection` 当前 `main/system_init.c` 初始化内容恢复自 `4946a30 restore lvgl perf monitor overlay`，这是上一轮实机验证 Ethernet/control/image 可连接的基线。
-- `ESP32P4_Detection` 当前视觉检测 miss 保持计数为 `VISION_DISPLAY_MISS_KEEP_COUNT=2`，位于 `components/vision/framework/vision_detect.c`。
-- `ESP32P4_Detection` 当前发图触发逻辑位于 `components/vision/framework/vision_detect.c`：优先按分拣控制层 `vision_package_id` 去重，同一包裹 ID 只 capture 一张带框图，新包裹 ID 立即 capture；无有效包裹 ID 时保留视觉上升沿兜底。
+- `ESP32P4_Detection` 当前视觉检测 miss 保持/发图 rearm 计数为 `VISION_DISPLAY_MISS_KEEP_COUNT=3`，位于 `components/vision/framework/vision_detect.c`。
+- `ESP32P4_Detection` 当前发图触发逻辑位于 `components/vision/framework/vision_detect.c`：启动/检测关闭后允许发图；第一次有效命中 capture 后关闭发图闸门；必须连续 miss 3 次后才重新允许下一次 capture，避免同一个包裹因检测抖动或包裹 ID 变化重复发图。`vision_package_id` 仅用于 RTT 日志，不再决定是否发图。
 - `ESP32P4_Detection` 当前未检出/视觉失败包裹分类规则：
   - 实际调度入口：`components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `next_failed_class()`。
   - 调试状态显示：`components/Sorter_app/sorting_sim_control.c` 的 `failed_class_from_cursor()`。
