@@ -1,5 +1,45 @@
 # History
 
+## 2026-07-08 expand report with host screenshots and training details
+
+- 用户要求：
+  - 从 `/Dsektop/host_p.mp4` 第 14 秒抽取上位机第一个界面截图。
+  - 从同一视频第 30 秒抽取第 3 个界面，第 37 秒抽取第 4 个界面。
+  - 从 `/desktop/HOST_SNAP.mp4` 第 36 秒抽取上位机第二个界面。
+  - 整理文件夹下新增的电池、电源板、电机驱动板图片。
+  - 进一步扩充报告。
+  - 补充模型训练信息：训练集 5000 张图片，改进量化方式，调整数据增强。
+- 按项目规则读取 `PROJECT.md`、`CURRENT.md`、`HISTORY.md`，根目录无 `.codegraph/`。
+- `git status --short` 发现新增图片：
+  - `电池电源板电机驱动板图片.jpg`
+- 修改前先提交新增源图片：
+  - 根目录提交：`b064a6a docs: add hardware board source image`
+- 视频实际路径定位：
+  - `/home/kazeform/Desktop/host_p.mp4`
+  - `/home/kazeform/Desktop/HOST_SNAP.mp4`
+  - 同名文件也存在于 `/home/kazeform/.local/share/WeChat_Data/`
+- 使用 `ffprobe` 确认：
+  - `host_p.mp4`：2560x1440，约 46.8 秒。
+  - `HOST_SNAP.mp4`：2560x1440，约 77.8 秒。
+- 使用 `ffmpeg` 抽帧并整理到 `docs/report_assets/`：
+  - `host_page_1_dashboard.png`：`host_p.mp4` 第 14 秒，性能总览。
+  - `host_page_2_detection.png`：`HOST_SNAP.mp4` 第 36 秒，视觉检测。
+  - `host_page_3_control.png`：`host_p.mp4` 第 30 秒，设备控制。
+  - `host_page_4_system.png`：`host_p.mp4` 第 37 秒，系统维护。
+  - `hardware_power_driver_board.jpg`：电池/电源板/电机驱动板实物接线图副本。
+- 目视检查图片：
+  - 四张上位机截图均为预期页面。
+  - 硬件图显示模块化供电、电机驱动板和接线实物。
+- 修改报告：
+  - 在 `docs/competition_report_draft.md` 中嵌入上位机四张界面截图和硬件接线图。
+  - 增加“模型训练与轻量化部署”小节。
+  - 写入训练集约 5000 张、数据增强调整、量化方式改进、适配 ESP32-P4 部署。
+  - 增加“模型训练与部署成果”性能成果说明。
+- 同步维护资料源：
+  - `hardware.md`
+  - `docs/report_system_information.md`
+  - `docs/report_unknown_information.md`
+
 ## 2026-07-08 competition report markdown draft
 
 - 用户要求：“我补充了文档 你通过git diff来看 更新内容。然后写报告初版 md形式。”

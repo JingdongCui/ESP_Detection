@@ -147,4 +147,5 @@
 | `8.jpg` | 12V/24V 电机参数对比与电机尺寸 |
 | `11.jpg` | 3A DC-DC 多路电源模块参数对比 |
 | `2b9b7d1216bb0c666e4a67f205c1bf1d.jpg` | 主动/从动滚筒尺寸 |
-
+| `电池电源板电机驱动板图片.jpg` | 电池/电源板/电机驱动板实物接线照片 |
+| `docs/report_assets/hardware_power_driver_board.jpg` | 供报告引用的电源板与电机驱动板实物图副本 |
