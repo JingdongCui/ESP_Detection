@@ -1,5 +1,35 @@
 # History
 
+## 2026-07-08 competition report markdown draft
+
+- 用户要求：“我补充了文档 你通过git diff来看 更新内容。然后写报告初版 md形式。”
+- 按项目规则读取 `PROJECT.md`、`CURRENT.md`、`HISTORY.md`。
+- 根目录无 `.codegraph/`，跳过 CodeGraph。
+- `git status --short` 显示用户修改：
+  - `hardware.md`
+  - `docs/report_system_information.md`
+  - `docs/report_unknown_information.md`
+- 通过 `git diff` 确认新增内容：
+  - 正式作品名：`基于ESP32-P4的快递智能分拣系统与YOLO轻量化部署优化`。
+  - 系统价值口径改为物流分拣、自动化产线。
+  - 主线从低成本改为低延迟。
+  - 第一阶段找面单，第二阶段 Logo 三分类。
+  - 不提未检出/分拣失败内容。
+  - S3 按 GPIO38 写，电平确认一致，摄像头安装高度 60cm，焦距手动调节。
+  - 最终口径为使用电机、分拣、传感器。
+  - 发送图片逻辑为每个包裹对象发送一次。
+  - 上位机功能正常，control/image、metrics、图像链路均按成功口径写。
+  - 性能：测试 300 件，每类 100 件；极兔 98/1/1、韵达 93/6/1、中通 99/0/1；整体正确率约 96.7%；速度 20 件/分钟以上；置信度参考 0.8；延迟小于 0.1s；图像接收成功率 99% 以上。
+  - 参考文献需要 5 篇以上。
+- 按项目 Git 规则先提交用户补充：
+  - 根目录提交：`ed3e9d7 docs: add user report details`
+- 新增报告初稿：
+  - `docs/competition_report_draft.md`
+  - 按 `report_requset.docx` 结构撰写：摘要、作品概述、系统组成及功能说明、完成情况及性能参数、总结、参考文献。
+  - 流程图先使用 Mermaid，后续可转图片。
+  - 报告中未包含学校名称和指导老师信息。
+  - 用户补充中“破损检测、超声波测尺寸、云端、翻板机构”等与现有代码/硬件资料不完全一致，未作为已完成成果写入，只在可扩展方向保留。
+
 ## 2026-07-08 report source material organization
 
 - 用户要求准备比赛作品文档：
