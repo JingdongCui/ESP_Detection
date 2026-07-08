@@ -54,6 +54,20 @@
   - 在机械设计中加入传送带布局实拍和摄像头安装图。
   - 在完成情况整体介绍中替换待插入图片为实际传送带布局和上位机截图。
   - 同步更新 `hardware.md`、`docs/report_system_information.md`、`docs/report_unknown_information.md`。
+- 随后新增三张用户补充的板端 LCD 识别实测图：
+  - `实测识别图中通.jpg`
+  - `实测识别图极兔.jpg`
+  - `实测识别图韵达.jpg`
+- 按项目 Git 规则先提交原始识别实测图：
+  - 根目录提交：`963ab7b docs: add board detection result photos`
+- 复制报告资产：
+  - `docs/report_assets/board_detection_zt.jpg`
+  - `docs/report_assets/board_detection_jt.jpg`
+  - `docs/report_assets/board_detection_yd.jpg`
+- 报告继续扩充：
+  - 在软件成果中加入板端 LCD 极兔识别实测。
+  - 在识别准确率测试后加入极兔、韵达、中通三类板端识别实测图。
+  - 更新 `docs/report_system_information.md` 和 `docs/report_unknown_information.md`。
 
 ## 2026-07-08 competition report markdown draft
 

@@ -29,9 +29,15 @@
   - `esp32p4_board_rear_mount.jpg`：ESP32-P4 板端背面安装。
   - `conveyor_layout_photo.jpg`：三段传送带位置布局。
   - `camera_mount_photo.jpg`：摄像头安装位置。
+- 随后又补充三张板端 LCD 识别实测图：
+  - 根目录提交：`963ab7b docs: add board detection result photos`
+  - `board_detection_jt.jpg`：极兔识别实测。
+  - `board_detection_yd.jpg`：韵达识别实测。
+  - `board_detection_zt.jpg`：中通识别实测。
 - 报告补充内容：
   - 嵌入四张上位机截图和硬件接线图。
   - 嵌入传送带布局、摄像头安装和板端安装实物图。
+  - 嵌入板端 LCD 三类识别实测图。
   - 增加模型训练与轻量化部署小节。
   - 写入训练集约 5000 张、调整数据增强、改进量化方式。
   - 同步更新 `hardware.md`、`docs/report_system_information.md`、`docs/report_unknown_information.md`。
@@ -42,7 +48,7 @@
 - 未执行 `idf.py build` / `idf.py flash monitor`，原因是无代码改动。
 - `git diff --check` 通过。
 - 报告初稿中未检出学校/指导老师相关字样。
-- 八个新增报告资产文件均存在且非空。
+- 十一个新增报告资产文件均存在且非空。
 
 ## Next Step
 
@@ -52,4 +58,4 @@
 ## Blockers
 
 - 当前无板子，无法进行新的实机验证。
-- 更正式的系统整体正面/斜 45 度照片和板端 UI 照片仍可后续补充。
+- 更正式的系统整体正面/斜 45 度照片仍可后续补充。

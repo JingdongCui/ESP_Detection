@@ -265,6 +265,9 @@
 | `docs/report_assets/conveyor_layout_photo.jpg` | 三段传送带整体布局实拍 |
 | `docs/report_assets/camera_mount_photo.jpg` | 摄像头安装位置实拍 |
 | `docs/report_assets/esp32p4_board_rear_mount.jpg` | ESP32-P4 板端背面安装位置实拍 |
+| `docs/report_assets/board_detection_jt.jpg` | 板端 LCD 极兔识别实测图 |
+| `docs/report_assets/board_detection_yd.jpg` | 板端 LCD 韵达识别实测图 |
+| `docs/report_assets/board_detection_zt.jpg` | 板端 LCD 中通识别实测图 |
 
 ## 10. 正式报告建议主线
 
