@@ -6,7 +6,8 @@
 - 当前唯一活跃固件工程：`ESP32P4_Detection`，来源为用户提供的 `ESP32P4_Detection(9).zip`。
 - 参考资料总目录：`reference/`。
 - 旧固件：`reference/firmware/ESP32P4_Detection_before_9_20260716/`。
-- 原上位机工程：`reference/host/esp32_host_no_inference/`。
+- 当前活跃上位机工程：`esp32_host_no_inference/`（独立 Git）。
+- 队友上位机参考工程：`New Folder/`，只读参考，不作为活跃工程。
 - 数据集：`reference/datasets/MyAlbums/`。
 - 历史工程：`reference/legacy_projects/archive_project/`。
 - 第 9 版原始包：`reference/source_archives/ESP32P4_Detection_9_original.zip`。
@@ -153,6 +154,18 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
   - image：TCP `5001`
   - 2026-07-08 已验证 host 监听时板端冷启动自动连接 `5000/5001`；control 通道可收到 1 秒周期 metrics 包。
   - 图像 JPEG payload 由“识别成功的新包裹”快照触发；无包裹时 image TCP 可连接但不会产生图像包。
+  - 2026-07-16 起板端 image `type=0x01` 使用 V2：40 字节公共头 + 32 字节图像元数据 + 最多 8 个 16 字节检测框 + 干净 JPEG。
+  - V2 框坐标与 `640x375` JPEG 同帧对齐，面单/Logo 框由上位机 QML 叠加，JPEG 本身不再 burn-in。control/metrics/time-sync 仍使用 V1。
+
+## Host V2 Image Link
+
+- 活跃 Host 已恢复到 `/home/kazeform/2026esp/esp32_host_no_inference`，保留独立 Git 历史。
+- Host 图像协议同时接受 V1/V2：
+  - V1 回退：纯 JPEG，类别/置信度来自 header 保留字段，不产生 QML 框。
+  - V2：解析 frame id、采集时间、推理耗时、主类别、千分制置信度和框数组。
+- `DetectionStage.qml` 使用 `Image.paintedWidth/paintedHeight` 映射 `PreserveAspectFit` 后的真实图像区域；面单绿框，Logo 为极兔红/韵达黄/中通蓝。
+- Host 协议测试通过 CTest 运行，覆盖 V1/V2 header、V2 合法/畸形 payload 和闭区间坐标归一化。
+- 关键提交：Host `dd22a29`，固件 `ba3ef25`。
 - `sort_real_io` 任务在 Vision 建立后、Ethernet 前以 dormant 方式创建并预留 4KB 内部 RAM 栈；Sorter 启动时只启用硬件链路。编码器每 100ms 采样，传感器仍每 10ms 轮询。
 - 2026-07-16 推理回退实测：第 9 包导入基线 `367e0c7` 在同一块 ESP32-P4 v1.0 上连续为约 70–90ms；当前正式提交 `0efa82a` 配合原版 ESP-DL 3.3.7 也稳定约 72–75ms。曾尝试把 ESP-DL 双核 worker 从调用者优先级 4 临时提高到 5，该未提交实验会稳定复现约 459–476ms，必须保持原版“worker 与调用者同优先级”的行为。父任务 runtime 计数不包含两个 ESP-DL worker，不能把 `wall-parent_cpu` 直接解释为抢占等待。
 - 人工分类 UI 的模型类别顺序固定为 `0=极兔、1=韵达、2=中通`，控制层对应 `CLASS1、CLASS3、CLASS2`。弹窗期间只暂停摄像头 framebuffer 预览直刷，采集与推理保持运行；选择成功后恢复预览和 S2 后续分拣。

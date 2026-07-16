@@ -1,5 +1,6 @@
 # Active project keeps its own git repository.
 /ESP32P4_Detection/
+/esp32_host_no_inference/
 
 # Archived/reference projects, datasets, binaries, and incoming source archives.
 /reference/firmware/

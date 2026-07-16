@@ -6,14 +6,13 @@
 
 ## Current State
 
-- 推理耗时回退实验已完成并归档。
-- 活跃固件工作区已恢复干净 `0efa82a`；板上已烧录同一干净版本。
-- ESP-DL worker `+1` 优先级实验和强制暂停预览诊断均已撤销。
+- Host V2 图像链路移植已完成并归档。
+- 活跃 Host 位于 `esp32_host_no_inference/`，固件位于 `ESP32P4_Detection/`，两者工作区均干净。
 
 ## Next Step
 
-- 如继续定位偶发慢帧，优先在原版 ESP-DL 调度上增加 worker 自身 runtime 计数，不再调整 worker 优先级。
+- 现场放置能同时命中面单和 Logo 的包裹，补拍一次真实 V2 叠框效果。
 
 ## Blockers
 
-- 无。
+- 当前镜头视野未命中 Logo，未触发真实 V2 JPEG；协议和坐标已由自动测试覆盖。
