@@ -136,7 +136,9 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
   - 默认 lost timeout：min=`3000ms`、max=`6000ms`。
   - 引脚、传感器 active level、编码器参数也在同一个文件。
   - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `sorter_config_default()` 从这些宏读取默认值。
-- `ESP32P4_Detection` 当前启动路径在 UI 建好后立即启动 `system_monitor()`，早于 vision/UVC/Ethernet，用于 UI 和 TCP metrics 性能参数；随后启动 vision、UVC 和 Ethernet 上位机链路。当前硬件分拣启动已停用，不调用 `sorting_sim_debug_start()`，不启用电机输出，也不启用真实传感器输入。
+- 2026-07-16 已将第 9 包的分拣速度/延时默认值同步到归档旧工程基线，提交为 `470a704`；在 `/dev/ttyUSB0` 的 ESP32-P4 v1.0 上执行 plain `idf.py flash` 成功，四个镜像均通过 Hash 校验。
+- `ESP32P4_Detection` 当前启动路径为：LCD → Touch → Camera → Motor → Encoder → LVGL/UI → System Monitor → Vision → dormant real-IO task → Ethernet → Sorter → UVC。Touch 必须先建立 Camera 复用的 I2C 总线。UVC 末尾初始化存在 JPEG 内部 DMA 内存不足风险，按用户要求暂不继续处理。
+- 启动配置按模块归属维护：日志过滤宏在 `components/system_monitor/system_monitor.c`，TCP 链路宏在 `components/Ethernet_app/ethernet_app.c`，分拣调试及电机/传感器上电默认宏在 `components/Sorter_app/sorting_sim_control.c`；`main/system_init.c` 只负责编排。
 - `ESP32P4_Detection` 当前 `main/system_init.c` 初始化内容恢复自 `4946a30 restore lvgl perf monitor overlay`，这是上一轮实机验证 Ethernet/control/image 可连接的基线。
 - `ESP32P4_Detection` 当前视觉检测 miss 保持/发图 rearm 计数为 `VISION_DISPLAY_MISS_KEEP_COUNT=3`，位于 `components/vision/framework/vision_detect.c`。
 - `ESP32P4_Detection` 当前发图触发逻辑位于 `components/vision/framework/vision_detect.c`：启动/检测关闭后允许发图；第一次有效命中 capture 后关闭发图闸门；必须连续 miss 3 次后才重新允许下一次 capture，避免同一个包裹因检测抖动或包裹 ID 变化重复发图。`vision_package_id` 仅用于 RTT 日志，不再决定是否发图。
@@ -151,7 +153,10 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
   - image：TCP `5001`
   - 2026-07-08 已验证 host 监听时板端冷启动自动连接 `5000/5001`；control 通道可收到 1 秒周期 metrics 包。
   - 图像 JPEG payload 由“识别成功的新包裹”快照触发；无包裹时 image TCP 可连接但不会产生图像包。
-- `sort_real_io` 任务栈放在 PSRAM，避免 Ethernet ready 后内部 RAM 紧张导致真实 IO task 创建失败。
+- `sort_real_io` 任务在 Vision 建立后、Ethernet 前以 dormant 方式创建并预留 4KB 内部 RAM 栈；Sorter 启动时只启用硬件链路。编码器每 100ms 采样，传感器仍每 10ms 轮询。
+- 人工分类 UI 的模型类别顺序固定为 `0=极兔、1=韵达、2=中通`，控制层对应 `CLASS1、CLASS3、CLASS2`。弹窗期间只暂停摄像头 framebuffer 预览直刷，采集与推理保持运行；选择成功后恢复预览和 S2 后续分拣。
+- 真实 S1 建包入口为 `update_vision_s1_locked()`，只在去抖后的 `active && !previous_active` 上升沿调用 `sorter_scheduler_package_new()`。
+- 2026-07-16 人工分类弹窗与预览暂停提交为 `32dc471`；已 build、plain flash、monitor 验证启动完成。完整记录见 `docs/agent/archive/2026-07-16-manual-dialog-preview-pause.md`。
 - `sdkconfig` 中 `CONFIG_LV_USE_SYSMON=y` 保留；2026-07-07 用户要求恢复旧版性能显示，当前 `CONFIG_LV_USE_PERF_MONITOR=y` 且 `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
 - 串口优先使用 `/dev/serial/by-id/` 稳定路径；当前现场可能是 CP2102N 或 Espressif USB Serial/JTAG，按实际枚举选择。monitor 使用默认 `115200`。
 
@@ -510,15 +515,19 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migra
   - 上位机模拟若发送 package id，会比真实传感器更理想；真实传感器事件当前以 `package_id=0` 进入调度器，由调度器选择最早候选包裹。
   - 编码器未接时，真实链路不会可靠调用 `sorter_scheduler_distance()`；C 段完成依赖 `c_fallback_busy_ms` 超时。以太网模拟若发送 `DISTANCE`，不能代表该硬件状态。
   - 上位机模拟没有真实 GPIO 电平、active level、线序、防抖和推理延迟风险；实机仍需用 `sort sensor Sx ...`、`PKG`、`MOTOR` 日志验证。
-- 识别失败分配策略：
-  - `SORTER_CLASS_VISION_FAILED` 和直接提交的 `SORTER_CLASS_UNKNOWN/class=none` 进入调度器时按 class1、class2、class3、class1... 轮番分配。
-  - 视觉超时 `timeout_vision` 使用同一个轮转游标。
+- 识别失败人工确认策略（第 9 包活跃工程，提交 `f82aaa2`）：
+  - 不再按 class1/class2/class3 轮转兜底；未识别包裹会先停止 A 主带并显示阻塞式人工分类弹窗。
+  - 弹窗类别严格按模型编号映射：`cat0=极兔 -> CLASS1`、`cat1=韵达 -> CLASS3`、`cat2=中通 -> CLASS2`；取消按极兔处理。
+  - 人工确认后才恢复调度；B/C 带逻辑未修改。
+  - A 带停车恢复为直接发送 STOP，不再执行分阶段减速，也不再提供 `a_stop_threshold`、`a_stop_target`、`a_decel_rate` 调参字段。
+  - A 带速度随 B 带占用状态联动：B 未预留/占用时使用配置速度；B 已预留或占用时使用 `min(配置速度, 60%)`，因此低于 60% 的配置不会被反向提速；B 释放后恢复配置速度。
 - UI/调试边界：
   - 当前 `merge` 生成 UI 保留视觉 dashboard、日志、设置、系统页。
   - 已对 UI 公司名和 sorter 提交映射做 findlogo 类别顺序适配：`cat0=极兔/JT`、`cat1=韵达/YD`、`cat2=中通/ZT`，物理出口仍为 `JT->CLASS1`、`ZT->CLASS2`、`YD->CLASS3`。
   - 旧工程的分拣手动控制面板未整体迁移；当前屏幕没有直接 CLASS 注入、`MOTOR_TEST`、编码器清零、S1-S4 状态、活动包裹列表或 per-belt 速度/超时编辑控件。
   - `sorting_sim_control_get_settings()`、`sorting_sim_control_apply_settings()`、`sorting_sim_control_get_runtime_debug()`、`sorting_sim_control_get_hardware_status()` 是后续 UI 接入可用的 C API；当前生成 UI 没有调用这些接口。
   - 当前运行时分拣调参主要通过 TCP 或 USB 串口命令完成。
+  - 2026-07-16 `sort_real_io` 的 4096 字节任务栈已迁到 PSRAM（提交 `e1cbd5d`），实机确认 S1/S2/S4 初始化并进入轮询，原任务创建失败已解决；S3 当前未配置 GPIO。
 
 ## Blue-Screen Long-Term Findings
 

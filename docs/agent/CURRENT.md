@@ -2,18 +2,22 @@
 
 ## Goal
 
-等待下一项任务。
+恢复 A 主带直接停车，并根据 B 带占用状态动态限制 A 带速度。
 
 ## Current State
 
-- 电机分拣算法实现文档已完成并归档。
-- 交付文档：`docs/motor_sorting_algorithm.md`。
-- 任务记录：`docs/agent/archive/2026-07-16-motor-sorting-algorithm-documentation.md`。
+- 修改前已创建备份标签 `backup/before-b-belt-speed-control-20260716-5c5358a`。
+- 已删除 A 带分阶段减速状态、参数和调试协议字段；S2 到达或识别失败时恢复为直接发送 STOP。
+- B 带空闲时 A 带使用配置速度；B 带已预留/占用时 A 带使用 `min(配置速度, 60%)`，不会把低于 60% 的设定反向提速。
+- B 带释放后，调度器会恢复 A 带的配置速度；B/C 原有路由和时序未修改。
+- 主机侧调度器回归通过，覆盖 A=100/80/50、B 忙闲切换、S2 直接停车和人工确认恢复。
+- `idf.py build`、`idf.py flash` 均成功；串口启动到 `System initialization done`，监视器已正常退出。
 
 ## Next Step
 
-- 等待用户提出新的开发、验证或文档需求。
+- 现场用真实 S1/S2 和 B 带占用过程确认电机速度切换及分拣节拍。
 
 ## Blockers
 
-- 无。
+- 上位机 `192.168.10.1:5000/5001` 未监听，启动日志持续重连；不影响本次本地分拣逻辑验证。
+- UVC JPEG DMA 内存不足和推理偶发约 480ms 为既有问题，按当前任务范围未处理。
