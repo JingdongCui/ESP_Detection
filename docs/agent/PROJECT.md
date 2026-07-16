@@ -172,6 +172,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - 2026-07-17 长稳结论：未加 guard 的 `0150722` 在连续约 2412 s 时由 `dl_mc0` 触发 Instruction access fault（无效跳转 0x10）；dispatch 完整性 guard 候选 `56a53fd` 随后单轮连续 3660.192 s 无 fatal/reboot/rejection，5000/5001 零连接检查失败，并取得 60 分钟末任务/heap 快照。该结果只支持候选继续验证；因没有触发 guard、单阶段 max 162.326 ms、物理冷启动/真实包裹/UVC 未完成，不得标 stable。
 - 2026-07-17 尾延迟根因补充：`vision_disp` 在 LVGL mutex 内执行阻塞 PPA framebuffer blit，priority-5 LVGL 等锁时会通过 FreeRTOS mutex priority inheritance 把显示任务提升到 5，高于 priority-4 ESP-DL worker。最终候选 `60c9f8a` 设 lvgl/swdraw/vision_disp=3/3/2，fetch/detect/dl_mc0/1=4；5×60 共 300 样本 P50/P95/max=67.312/71.393/132.003 ms，零 >=150/500 ms，严格分布指标首次全部通过。
 - ESP-DL worker 防线从 `b08a1a3` 起校验实际 `forward_args` 虚调用 target 是可执行地址，并在 worker 中重新解析后直接调用；它覆盖无效跳转 0x10 的直接路径，但不能作为上游对象损坏根因已消除的证据。
+- UVC profile 结论：JPEG engine 需要两个 cache-line 对齐 internal-DMA descriptor，不能等到启动末尾 DMA largest 仅 48～76 B 时创建；`7a42b1f` 在 LCD 后提前预留可让 UVC/TinyUSB 成功启动。即使 task priority 降到 3/3，UVC 空闲仍使 1×60 P95/max 回退到 394.671/486.401 ms，因此 `c26dba8` 用 `CONFIG_SCREEN_UVC_ENABLE` 分离 profile，生产默认关闭，UVC 专用构建按需开启。
 - 60 分钟末实测 24/24 任务，所有应用任务最低剩余 >=512 B 且 >=20%；`dl_mc0/1` 最低剩余 880/1785 B。heap integrity=ok，无持续泄漏证据；DMA largest 仅 72 B，仍直接阻塞 UVC JPEG rxlink 分配。
 - 人工分类 UI 的模型类别顺序固定为 `0=极兔、1=韵达、2=中通`，控制层对应 `CLASS1、CLASS3、CLASS2`。弹窗期间只暂停摄像头 framebuffer 预览直刷，采集与推理保持运行；选择成功后恢复预览和 S2 后续分拣。
 - 真实 S1 建包入口为 `update_vision_s1_locked()`，只在去抖后的 `active && !previous_active` 上升沿调用 `sorter_scheduler_package_new()`。

@@ -2,27 +2,34 @@
 
 ## 推荐版本
 
-### A. 当前推荐候选：UI/推理隔离 + 强化 guard + 控制闭环
+### A. 当前推荐候选：生产推理 profile
 
 - 固件分支：`goal/inference-and-device-control`
-- 固件提交：`60c9f8a`
-- 标签：`backup/ui-inference-isolation-candidate-20260717`
+- 固件提交：`c26dba8`
+- 标签：`backup/final-production-candidate-20260717`
 - Host 提交：`6bcee3b`
 
-包含此前完整控制闭环、真实 IO、重连和诊断能力，并增强 ESP-DL worker 实际虚调用目标校验。该版本还把 LVGL/swdraw/preview UI render group 完整保持在 priority-4 推理 worker 下方，阻断 LVGL mutex 优先级继承把预览 blit 提升到 priority 5 的尾延迟路径。
+包含完整控制闭环、真实 IO、重连、强化 ESP-DL target guard 和 UI/推理优先级隔离。默认 `CONFIG_SCREEN_UVC_ENABLE=n`，避免已量化的 USB device 推理回退；需要时可构建 UVC 专用 profile。
 
 5×60 共 300 样本严格通过：P50/P95/max=67.312/71.393/132.003 ms，`>=150 ms` 和 `>=500 ms` 均为 0。任务快照确认 lvgl/swdraw/vision_disp=3/3/2、fetch/detect/dl_mc0/1=4。
 
-限制：它仍是 candidate，不是 stable。最终候选的 61 分钟长稳正在重跑；此前 guard 版长稳通过不能代替新调度配置的长稳结果。也未证明此前 `dl_mc0` 跳转 0x10 的上游根因已消除；UVC、真正断电冷启动、LCD 触摸手感和物理包裹/电机验收未完成。
+最终完整 flash monitor 后 1×60 再次严格通过：67.718/71.507/72.325 ms。性能基线 61 分钟连续性通过，但 1048 样本仍有 8 个 150～218 ms 尖峰，因此它仍是 candidate，不是 stable；物理验收也未完成。
 
-### B. 长稳已通过的 guard 候选
+### B. UVC 可启动实验 profile
+
+- 固件提交：`b0e7a02`
+- 标签：`backup/uvc-starts-latency-regression-20260717`
+
+提前预留 JPEG internal-DMA descriptor 后，板端首次成功启动 JPEG/UVC/TinyUSB，解决 `no memory for jpeg encoder rxlink`。但空闲 1×60 P95/max=394.671/486.401 ms，12 个 >=150 ms；仅用于接好 USB OTG 后继续枚举/拉流实验，不用于生产推理。
+
+### C. 长稳已通过的 guard 候选
 
 - 固件提交：`56a53fd`
 - 标签：`backup/dl-guard-61min-pass-candidate-20260717`
 
 完成一轮 3660.192 s 连续测试，无崩溃/重启/连接失败；适合在怀疑 UI 优先级调整时回退。限制是 825 样本最大 162.326 ms，超过 goal 的 150 ms 门槛，且 guard 只验证 vtable 指针，没有 `b08a1a3` 的实际虚调用目标校验。
 
-### C. 保守功能候选：控制/ISP/重连
+### D. 保守功能候选：控制/ISP/重连
 
 - 固件提交：`b1dfef5`
 - 标签：`backup/control-json-isp-reconnect-candidate-20260717`
@@ -31,7 +38,7 @@
 
 限制：后续长稳测试证明同一代码链的未加 guard 版本可能在约 40 分钟发生 ESP-DL worker Instruction access fault，因此不能作为长稳版本。
 
-### D. 最小推理修复候选
+### E. 最小推理修复候选
 
 - 固件提交：`6ad4fd5`
 - 标签：`backup/inference-70ms-candidate-20260717`
@@ -53,6 +60,7 @@
 | `backup/dl-target-guard-candidate-20260717` | `b08a1a3` | 强化 worker 虚调用防线 | 校验并直接调用已验证的实际 target |
 | `backup/preview-priority-tail-ab-20260717` | `a928dde` | 预览优先级 A/B | P95 改善但 max 155.593 ms 失败 |
 | `backup/ui-worker-priority-tail-ab-20260717` | `f29525d` | swdraw/LVGL 诊断 | 揭示 mutex 优先级继承路径 |
+| `backup/ui-inference-isolation-61min-pass-candidate-20260717` | `60c9f8a` | UI 隔离长稳基线 | 连续性通过；1048 样本 max 217.760 ms |
 
 ## 已完成测试
 
@@ -62,6 +70,8 @@
 - 推理：5×60 共 300 样本；另有 1×100 CPU/wait 诊断；两轮各 61 分钟长稳原始日志均保留。
 - 当前推荐候选长稳：3660.192 s，825 样本，启动 1、fatal 0、guard rejection 0、连接失败 0；60 分钟末 24/24 task 与 heap integrity=ok。
 - 最终 UI 隔离候选 5×60：300 样本 P50/P95/max=67.312/71.393/132.003 ms，全部严格门槛通过。
+- UI 隔离 61 分钟：3660.179 s、boot 1、fatal/guard/连接失败均 0、末尾 task/heap 完整；1048 样本 P50/P95/max=67.308/74.273/217.760 ms，8 个 >=150 ms、0 个 >=500 ms。
+- UVC 专用 profile：JPEG/UVC/TinyUSB 启动成功；空闲 1×60 性能回退已量化并保存。
 - Python 工具 `py_compile` 通过；长稳 JSON 结构、样本数、快照数、连接和 fatal/rejection 断言通过。
 
 详细证据见：
@@ -72,13 +82,14 @@
 - `docs/agent/run_logs/2026-07-17-inference-hard-reset-5x60.json`
 - `docs/agent/run_logs/2026-07-17-inference-ui-isolation.md`
 - `docs/agent/run_logs/2026-07-17-inference-ui-isolated-5x60.json`
+- `docs/agent/run_logs/2026-07-17-final-stability-and-uvc.md`
 
 ## 未完成与现场验收清单
 
 1. 做 5 次真正物理断电冷启动；当前 5 次 reset 是 CP2102N RTS，不可冒充断电。
 2. 用真实包裹覆盖 camera→检测框→分类→S1/S2/S4→三路电机完整路径并拍照/录像；当前视觉页无包裹图。
-3. 完成当前最终候选的 61 分钟真实 IO 长稳，观察是否出现 fatal 或 `dl_guard worker guard rejected`。
-4. 在 LCD 上实际操作触摸与页面切换，确认 UI priority 3 没有明显手感回退。
-5. 上述稳定后再处理 UVC。当前 DMA largest 仅 72 B，JPEG encoder `rxlink` 无法分配，尚无 USB 枚举/视频稳定性结果。
+3. 在 LCD 上实际操作触摸与页面切换，确认 UI priority 3 没有明显手感回退。
+4. 接好 USB OTG，继续 UVC 主机枚举、MJPEG 拉流、画质/帧率和视频稳定性；板端 rxlink 内存问题已解决。
+5. 若要求长稳全样本 max<=150 ms，继续诊断剩余 8 个高相关 wait 尖峰。
 
 在完成这些项目之前，不创建 `stable` 标签，不删除失败证据，也不把自动重启后的恢复计为连续长稳通过。

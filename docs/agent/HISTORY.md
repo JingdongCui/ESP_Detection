@@ -45,3 +45,6 @@
 - `f29525d` 将漂移的 `CONFIG_LV_DRAW_THREAD_PRIO=4` 恢复为 defaults 的 3。实机任务快照捕获 `vision_disp` 虽基础 priority 3 却动态变为 5，结合其在 LVGL mutex 内执行两个阻塞 PPA blit，定位到 LVGL priority 5 等锁导致的 FreeRTOS 优先级继承。
 - `60c9f8a` 设置 LVGL=3、swdraw=3、vision_disp=2，使显示任务持锁继承后仍低于 priority-4 fetch/detect/ESP-DL workers。build、app-flash Hash verified、启动和任务快照通过。
 - 最终候选 5×60 RTS reset 共 300 样本：P50/P95/max=67.312/71.393/132.003 ms，wait P50/P95/max=43.102/45.923/105.904 ms，零 `>=150 ms`、零 `>=500 ms`，四项严格验收全部通过。原始 JSON 和 A/B 报告已归档。
+- UI 隔离基线完成 3660.179 s 长稳：1048 样本 P50/P95/max=67.308/74.273/217.760 ms，8 个 >=150 ms、0 个 >=500 ms；boot/fatal/guard/connection failures=1/0/0/0，3602 s task/heap 快照完整且 integrity=ok。连续性通过但长稳 max 失败，保留真实结论。
+- `7a42b1f` 将 JPEG engine DMA descriptor 提前预留，实板首次成功启动 `UVC Device Start` 和 screen MJPEG UVC，解决 `rxlink` no-memory。`b0e7a02` 把 TinyUSB/UVC task 降到 3/3，仍得到空闲 1×60 P95/max=394.671/486.401 ms，证明 UVC device 路径与 70 ms 推理当前不兼容。
+- `c26dba8` 新增 `CONFIG_SCREEN_UVC_ENABLE` 双 profile：生产默认关闭 UVC，专用构建可开启已验证启动路径。最终全量 `idf.py flash monitor` Hash verified，生产 1×60 P50/P95/max=67.718/71.507/72.325 ms 全通过；UVC 实验版用独立标签保存。

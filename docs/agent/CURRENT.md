@@ -2,67 +2,41 @@
 
 ## Goal
 
-按根目录 `goal.md` 完成 ESP32-P4 推理恢复、上位机设备控制闭环、重连、UVC 与长稳验收，并保留可回退版本。
-
-交付版本选择与完整测试矩阵见 `docs/goal-delivery-2026-07-17.md`。
+按 `goal.md` 完成 ESP32-P4 70 ms 推理、Host 设备控制闭环、重连、长稳与 UVC 调查，并保留多份可回退版本。
 
 ## Current State
 
-- 固件工作分支：`goal/inference-and-device-control`，当前提交 `60c9f8a`；标签 `backup/ui-inference-isolation-candidate-20260717`。
-- 推理回退根因已定位：`sort_dbg` USB Serial/JTAG 调试监视任务会使 ESP-DL 双核阶段约慢 5 倍；真实分拣 IO 不是根因。
-- 生产配置关闭 `SORTER_HARDWARE_DEBUG_MONITOR` 后，真实 S1/S2/S4 与电机保持启用。5 次 RTS 硬复位、每次预热后 60 个样本的预验收结果为：300 样本 P50 74.443 ms、P95 101.947 ms、max 168.072 ms，5 个样本 >=150 ms、0 个样本 >=500 ms。系统性 500～600 ms 回退已消除，但严格 P95/max 门槛未通过，且 RTS 硬复位不等于物理断电冷启动，因此仍是 candidate。
-- 已实现板端 `CONTROL_JSON` 类型 `0x11`：get/state、set、restart、完整 capability、严格类型/范围/step 校验和错误响应。
-- 已覆盖显示亮度、四项 ISP、auto 开关、检测/叠加、双阈值、三路电机、图像/metrics 上报及设备重启。
-- 已修复图像通道空闲时不感知 Host FIN 的重连缺陷；连续测试可在约 3 秒内重新取得 5000/5001 双通道。
-- 已启用 `components/bsp/sc2336_ui_p4_eco4.json`。该文件与官方 ECO4 默认画质参数唯一差异是追加 UI IPA override；此前文件存在但 Kconfig 仍选默认配置，导致 ISP setter 不生效。
-- 集成测试器：`ESP32P4_Detection/tools/control_protocol_integration.py`；正向/负向/畸形 JSON/恢复/ISP/restart/reconnect 均已在实板通过。
-- 推理采集器：`ESP32P4_Detection/tools/inference_latency_acceptance.py`；原始 5x60 证据为 `docs/agent/run_logs/2026-07-17-inference-hard-reset-5x60.json`。
-- 增强采集器后的 1x100 诊断轮全部通过：P50 75.680 ms、P95 94.113 ms、max 110.665 ms、零 >=150 ms；wait P50/P95/max 为 49.891/69.700/87.139 ms。`wb_us` 与 wait 的 Pearson 相关系数 0.9907，与调用任务 CPU 的相关系数仅 0.1058，支持尾延迟来自调度/worker 等待而非调用任务计算变慢；但本轮未复现之前 5/300 的异常，不能据此宣告稳定。
-- 已增加一次性 UART 任务/堆验收快照与导出器 `tools/system_acceptance_snapshot.py`。实板导出 24/24 个任务：20 个内部栈、4 个 PSRAM 栈、0 个未知；`eth_control`、`eth_img_send`、`eth_img_prod`、`cam_isp` 的实际栈地址均在 PSRAM，`vision_det`、`dl_mc0/1`、`sort_real_io` 均在内部 SRAM。
-- 启动阶段所有应用任务最低剩余均 >=512 B 且 >=20%；但该快照不是 60 分钟历史水位，不能完成长稳验收。当前多项任务剩余 >60%，应在覆盖最坏路径与长稳后再缩栈或说明保留原因。
-- 堆完整性为 ok；free/min/largest=6836391/6810219/6684660 B，internal free/largest=26923/21492 B，PSRAM free/largest=6809820/6684660 B。DMA free 仅 1791 B、largest 仅 76 B，直接解释 UVC JPEG `rxlink` 连续 DMA 分配失败。
-- 61 分钟长稳已执行但失败：3660.059 s 内采 826 个 wb_only 样本，P50 75.533 ms、P95 101.564 ms、max 161.204 ms、15 个 >=150 ms、0 个 >=500 ms；约 40 分钟时 Core0 `Instruction access fault`，MEPC/RA=0x10，SP 位于 `dl_mc0` 栈。板端 SW reset 后 Host 自动恢复双通道和推理。
-- panic 栈中地址解析到 `DualCoreWorkerTask`、`Module::forward_args`、`std::function` 与 depthwise-conv 汇编；`dl_mc0` 启动最低剩余 928/1785 B 且 panic dump 仍有大量 A5，普通栈耗尽不是首要解释。精确的无效函数/虚调用目标来源尚未定位。
-- 候选诊断防线 `537cb8e` 为 ESP-DL worker dispatch 保存 op/args 补码与预期 vtable，worker 执行前校验；`56a53fd` 让长稳采集器统计 rejection。它用于阻止已检测到的坏派发和保留证据，不宣称已定位根因。
-- Guard 版本第二轮 61 分钟长稳完整通过连续运行检查：3660.192 s、启动 1 次、715 次双端口检查零失败、fatal 0、guard rejection 0，且在 3602 s 取得第二份 24/24 任务及 heap 快照。825 样本 P50/P95/max=77.625/99.809/162.326 ms，17 个 >=150 ms、0 个 >=500 ms；总体 P95 通过但 max 仍失败，不能标 stable。
-- `b08a1a3` 将 ESP-DL guard 增强为从虚函数成员表示推导 `forward_args` vtable offset，校验实际 target 可执行地址及补码，并让 worker 重解析后直接调用已验证 target；覆盖既往跳转 0x10 的直接失效路径，但不宣称找到对象损坏的上游根因。
-- 尾延迟直接机制已定位：`vision_disp` 在 LVGL mutex 内做阻塞 PPA blit，priority-5 LVGL 等锁时通过优先级继承把显示任务提升到 5，高于 priority-4 ESP-DL workers；实机快照曾捕获 `vision_disp` 动态 priority=5。
-- A/B 仅把 preview 基础优先级降到 3 后，300 样本 P50/P95/max=76.465/98.429/155.593 ms，`>=150 ms` 从 5 降到 2，但 max 仍失败。
-- 最终 `60c9f8a` 将 UI render group 设为 lvgl/swdraw/vision_disp=3/3/2，fetch/detect/dl_mc0/1 保持 4；持锁继承后显示最多为 3。任务快照已确认实际配置。
-- 最终候选 5×60 共 300 样本严格通过：P50/P95/max=67.312/71.393/132.003 ms，`>=150 ms`=0、`>=500 ms`=0；五轮 max=81.755/122.134/72.111/80.151/132.003 ms。
-- 最终候选 61 分钟长稳正在执行，证据增量写入 `2026-07-17-stability-ui-isolated-61min.json/.log`；完成前不把此前 guard 版的长稳结论外推到新调度配置。
-- 60 分钟末 heap integrity=ok，free/min=6836467/6809687 B；所有应用任务仍 >=512 B 且 >=20%，最低是 `dl_mc0/1=880/1785 B (49.3%)`。DMA largest 仍仅 72 B，UVC 阻塞不变。
-- 固件 `idf.py build`、全量 flash、后续 app-flash 均通过 Hash 校验；ESP32-P4 revision v1.0。
-- Host 未改代码，`cmake --build build -j` 与 CTest 1/1 通过；GUI PID 3266170 已恢复，5000/5001 与 192.168.10.2 均为 ESTABLISHED。
-- Host 原生 Qt 四页已截图。第三页上下区所有控制项和板端状态可见；通过 UI 短暂关闭并恢复 detection，第四页运行日志明确记录 false→true，最终双 TCP 通道仍 ESTABLISHED。第二页因现场未触发包裹识别边沿而无图，不能计为相机/检测框视觉通过。
-- UVC 仍在 `jpeg_new_encoder_engine(): no memory for jpeg encoder rxlink` 失败，按 goal 顺序留到控制稳定后处理。
+- 推荐固件：分支 `goal/inference-and-device-control`，提交 `c26dba8`，标签 `backup/final-production-candidate-20260717`；Host 为 `6bcee3b`。
+- 生产 profile 默认 `CONFIG_SCREEN_UVC_ENABLE=n`，保留相机/LCD、真实 S1/S2/S4 与三路电机、Ethernet、CONTROL_JSON、双 TCP、ISP 和强化 ESP-DL guard。
+- 原 500～600 ms 回退根因为 `sort_dbg` USB Serial/JTAG monitor 干扰 ESP-DL；生产配置关闭该调试任务，真实分拣 IO 保持启用。
+- 剩余 UI 尾延迟机制为 LVGL mutex 优先级继承：preview 在锁内阻塞 PPA blit 时曾被 priority-5 LVGL 提升到 5。`60c9f8a` 将 lvgl/swdraw/vision_disp=3/3/2，fetch/detect/dl_mc0/1=4。
+- 5×60 共 300 样本严格通过：P50/P95/max=67.312/71.393/132.003 ms，零 `>=150/500 ms`。
+- `60c9f8a` 的 3660.179 s 长稳完成：boot 1、fatal 0、guard 0、双端口失败 0、末尾 24/24 task 和 heap integrity=ok。1048 样本 P50/P95/max=67.308/74.273/217.760 ms，8 个 `>=150 ms`、0 个 `>=500 ms`；连续性通过，但长稳 max 仍不满足 150 ms。
+- `b08a1a3` 的 guard 由只看 vtable 增强为校验实际 `forward_args` target 可执行性和补码，并由 worker 重解析后直接调用；覆盖无效跳转 0x10 的直接路径，未证明上游对象损坏根因消除。
+- 板端 CONTROL_JSON 全控制面、能力/错误校验、state 回读、restart、5000/5001 重连均已实板通过；Host build、CTest 和四页 UI/状态回显截图已完成。
+- UVC DMA 根因已解决：`7a42b1f` 提前预留 JPEG descriptors 后，板端成功打印 `UVC Device Start` 和 `screen UVC stream started`。
+- UVC 与推理当前冲突：即使 TinyUSB/UVC task 降到 3/3，空闲 1×60 为 P50/P95/max=71.552/394.671/486.401 ms，12 个 `>=150 ms`。实验版保留在 `backup/uvc-starts-latency-regression-20260717`，不用于生产。
+- 最终生产 profile 已完成精确全量 `idf.py flash monitor`，所有镜像 Hash verified；启动 24 tasks、双 TCP 和真实 sorter 正常。最终 1×60 回归 P50/P95/max=67.718/71.507/72.325 ms，严格通过。
 
 ## Backups
 
-- 起点标签：`backup/goal-start-20260717`。
-- 推理候选：`backup/inference-70ms-candidate-20260717`（`6ad4fd5`）。
-- 控制/ISP/重连候选：`backup/control-json-isp-reconnect-candidate-20260717`（`b1dfef5`）。
-- 300 样本预验收候选：`backup/goal-300-sample-tested-candidate-20260717`（`2260596`）。
-- 单轮严格通过诊断候选：`backup/inference-strict-pass-1x100-candidate-20260717`（`8f034e0`，仍非 stable）。
-- 任务/内存证据候选：`backup/task-heap-snapshot-candidate-20260717`（`27c8b83`）。
-- 长稳失败证据点：`backup/61min-failed-evidence-20260717`（`0150722`，不可作为 stable）。
-- Guard 单轮长稳候选：`backup/dl-guard-61min-pass-candidate-20260717`（`56a53fd`，单轮通过但尾延迟/根因/物理验收未完成）。
-- 强化虚调用 guard：`backup/dl-target-guard-candidate-20260717`（`b08a1a3`）。
-- 预览基础优先级 A/B：`backup/preview-priority-tail-ab-20260717`（`a928dde`，max 仍失败）。
-- UI worker 优先级诊断：`backup/ui-worker-priority-tail-ab-20260717`（`f29525d`）。
-- 当前推荐：`backup/ui-inference-isolation-candidate-20260717`（`60c9f8a`，5×60 严格通过，长稳进行中）。
-- A/B 仅供诊断：`backup/ab-sorter-off-20260717`，不可作为生产版本。
+- 最终生产候选：`backup/final-production-candidate-20260717` (`c26dba8`)。
+- UI 隔离长稳基线：`backup/ui-inference-isolation-61min-pass-candidate-20260717` (`60c9f8a`)。
+- UVC 可启动但性能回退版：`backup/uvc-starts-latency-regression-20260717` (`b0e7a02`)。
+- 强化 target guard：`backup/dl-target-guard-candidate-20260717` (`b08a1a3`)。
+- Guard 长稳回退版：`backup/dl-guard-61min-pass-candidate-20260717` (`56a53fd`)。
+- 完整控制回退版：`backup/control-json-isp-reconnect-candidate-20260717` (`b1dfef5`)。
+- 最小 70 ms 修复：`backup/inference-70ms-candidate-20260717` (`6ad4fd5`)。
+- 失败/诊断标签和完整矩阵见 `docs/goal-delivery-2026-07-17.md`。
 
 ## Next Step
 
-1. 完成最终候选的 61 分钟长稳，统计 fatal/reboot/guard/双端口、推理分布、60 分钟 task/heap 水位。
-2. 长稳通过后对最终提交执行一次精确的全量 `idf.py flash monitor`，保留 Hash verified 与启动证据。
-3. 使用物理断电完成 5 次真正冷启动，并在 LCD 实操触摸/页面切换，验证 UI priority 3 无明显手感回退。
-4. 做屏幕亮度、ISP 画面、检测框/包裹图、S1/S2/S4 和三路真实电机现场实拍。
-5. 前述稳定后再处理 UVC JPEG DMA 内存不足与 USB 枚举/视频稳定性。
+1. 用户现场做五次物理断电冷启动、LCD 触摸/亮度/ISP 画面与真实包裹/电机照片录像。
+2. 若继续收敛长稳 max，增加 core-specific ESP-DL worker dispatch/start/end 诊断，关联 priority-11 ISP task 和高优先级中断。
+3. 接好 ESP32-P4 USB OTG 后启用 `CONFIG_SCREEN_UVC_ENABLE`，验证枚举、MJPEG 画质/帧率/长稳；再决定是否能降低 USB 中断干扰或仅保留专用 profile。
 
 ## Blockers
 
-- UVC JPEG DMA internal-memory allocation remains unresolved；启动时 DMA 最大连续块实测仅 76 B。
-- 最终候选 300 样本严格指标已经通过，但 61 分钟长稳、物理断电冷启动、LCD 触摸和真实包裹/电机视觉证据仍未完成，当前不能标 stable。
-- 原版 61 分钟长稳在约 40 分钟发生一次 `dl_mc0` Instruction access fault；强化 guard 覆盖了无效 target 的直接路径，但没有证明上游根因消除。
+- 当前环境无法代替用户执行真正断电、LCD 触摸、真实包裹/传感器/电机观察和照片录像。
+- 当前电脑未接入或未枚举 ESP32-P4 USB OTG，无法完成主机 UVC 拉流验证。
+- 300 样本严格窗口通过，但 1048 样本长稳仍有 8 个 150～218 ms wait 尖峰；加上物理验收未完成，不能创建 stable 标签。
