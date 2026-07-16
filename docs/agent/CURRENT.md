@@ -21,6 +21,7 @@
 - 堆完整性为 ok；free/min/largest=6836391/6810219/6684660 B，internal free/largest=26923/21492 B，PSRAM free/largest=6809820/6684660 B。DMA free 仅 1791 B、largest 仅 76 B，直接解释 UVC JPEG `rxlink` 连续 DMA 分配失败。
 - 固件 `idf.py build`、全量 flash、后续 app-flash 均通过 Hash 校验；ESP32-P4 revision v1.0。
 - Host 未改代码，`cmake --build build -j` 与 CTest 1/1 通过；GUI PID 3266170 已恢复，5000/5001 与 192.168.10.2 均为 ESTABLISHED。
+- Host 原生 Qt 四页已截图。第三页上下区所有控制项和板端状态可见；通过 UI 短暂关闭并恢复 detection，第四页运行日志明确记录 false→true，最终双 TCP 通道仍 ESTABLISHED。第二页因现场未触发包裹识别边沿而无图，不能计为相机/检测框视觉通过。
 - UVC 仍在 `jpeg_new_encoder_engine(): no memory for jpeg encoder rxlink` 失败，按 goal 顺序留到控制稳定后处理。
 
 ## Backups
@@ -37,7 +38,7 @@
 
 1. 使用增强采集器重跑多轮，捕获并定位 150～168 ms 尾延迟；1x100 已通过但尚未复现异常，需继续验证可重复性。
 2. 使用物理断电完成 5 次真正冷启动；启动任务/内存证据已补齐，后续需在 60 分钟长稳结束再次导出历史最低水位与最低 heap。
-3. 用 Host 第三页逐项做 UI 可见闭环和截图/实拍，尤其是屏幕、相机画面、检测框和三路真实电机。
+3. Host 软件 UI/状态回显与截图已完成；继续做屏幕亮度、ISP 画面、检测框/包裹图和三路真实电机的现场实拍观察。
 4. 完成断网/Host 杀进程/恢复与 60～120 分钟真实 IO 长稳。
 5. 控制面稳定后处理 UVC JPEG DMA 内存不足，再做 USB 枚举和视频稳定性验收。
 

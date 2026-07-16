@@ -26,3 +26,6 @@
 - 启动快照：20 个任务栈在 internal、4 个在 PSRAM、0 个 other。Ethernet 三任务和 `cam_isp` 真实位于 PSRAM；关键内部任务中 `vision_det` free_min=9308/11901 B、`sort_real_io`=1984/3949 B、`dl_mc0/1`=928/1785 B。应用任务启动水位均满足 >=512 B 和 >=20%，但仍需 60 分钟后复测。
 - 内存快照：free/min/largest=6836391/6810219/6684660 B，internal free/largest=26923/21492 B，PSRAM free/largest=6809820/6684660 B，DMA free/largest=1791/76 B。DMA 最大连续块 76 B 是 UVC JPEG rxlink `ESP_ERR_NO_MEM` 的直接量化证据。
 - `idf.py flash monitor` 后继续观察到一次 wb=149454 us、cpu=24770 us、wait=124686 us；计算任务 CPU 未抬升，额外耗时集中在 wait。快照硬复位后 Host PID 3266170 的 5000/5001 双通道再次自动 ESTABLISHED。
+- 使用 Hyprland/grim 对原生 Qt Host 四页进行可见验收。性能总览、设备控制上下区、视觉检测、系统维护页均已保存 PNG；设备控制页同步显示 brightness=80、ISP 当前值、detection/overlay、85/60 阈值、A/B/C 电机 60/100/100、上报状态和模型信息。
+- 通过第三页 UI 将 detection 短暂 OFF 再恢复 ON；两个状态分别截图，系统维护页日志明确显示“已发送控制: vision.detection_enabled = false/true”，最终 5000/5001 仍 ESTABLISHED。证明 Host UI→板端协议→Host 日志/状态回显的软件闭环。
+- 视觉检测页当前显示“无”，因为没有现场包裹触发识别/图像上报边沿；该截图只证明页面正常渲染，不能替代相机画面、检测框和 LCD/电机实拍。限制与截图清单记录在 `docs/agent/run_logs/2026-07-17-visual.md`。
