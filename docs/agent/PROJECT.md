@@ -160,6 +160,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 ## Host V2 Image Link
 
 - 活跃 Host 已恢复到 `/home/kazeform/2026esp/esp32_host_no_inference`，保留独立 Git 历史。
+- 2026-07-16 队友交付源码包：`esp32_host_no_inference_v2_20260716.zip`，由 Host 提交 `dd22a29` 直接归档生成，不含 `.git`、构建目录、遥测和 Qt Creator 缓存；同目录提供 `.sha256` 校验文件。
 - Host 图像协议同时接受 V1/V2：
   - V1 回退：纯 JPEG，类别/置信度来自 header 保留字段，不产生 QML 框。
   - V2：解析 frame id、采集时间、推理耗时、主类别、千分制置信度和框数组。

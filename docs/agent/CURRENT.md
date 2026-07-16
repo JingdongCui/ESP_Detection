@@ -6,13 +6,13 @@
 
 ## Current State
 
-- Host V2 图像链路移植已完成并归档。
-- 活跃 Host 位于 `esp32_host_no_inference/`，固件位于 `ESP32P4_Detection/`，两者工作区均干净。
+- Host V2 队友源码包已生成并验证。
+- Dolphin 的 KDE 服务缓存已按正确 locale 全量重建，并已重新打开。
 
 ## Next Step
 
-- 现场放置能同时命中面单和 Logo 的包裹，补拍一次真实 V2 叠框效果。
+- 等待用户确认 Dolphin 的“打开方式”菜单已恢复。
 
 ## Blockers
 
-- 当前镜头视野未命中 Logo，未触发真实 V2 JPEG；协议和坐标已由自动测试覆盖。
+- Dolphin 菜单内容需要用户在 GUI 中右键文件做最终目视确认。
