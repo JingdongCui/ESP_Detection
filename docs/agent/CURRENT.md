@@ -6,7 +6,7 @@
 
 ## Current State
 
-- 固件工作分支：`goal/inference-and-device-control`，当前提交 `2260596`。
+- 固件工作分支：`goal/inference-and-device-control`，当前提交 `8f034e0`（固件二进制与 `2260596` 相同，仅增强主机侧采集工具）。
 - 推理回退根因已定位：`sort_dbg` USB Serial/JTAG 调试监视任务会使 ESP-DL 双核阶段约慢 5 倍；真实分拣 IO 不是根因。
 - 生产配置关闭 `SORTER_HARDWARE_DEBUG_MONITOR` 后，真实 S1/S2/S4 与电机保持启用。5 次 RTS 硬复位、每次预热后 60 个样本的预验收结果为：300 样本 P50 74.443 ms、P95 101.947 ms、max 168.072 ms，5 个样本 >=150 ms、0 个样本 >=500 ms。系统性 500～600 ms 回退已消除，但严格 P95/max 门槛未通过，且 RTS 硬复位不等于物理断电冷启动，因此仍是 candidate。
 - 已实现板端 `CONTROL_JSON` 类型 `0x11`：get/state、set、restart、完整 capability、严格类型/范围/step 校验和错误响应。
@@ -15,6 +15,7 @@
 - 已启用 `components/bsp/sc2336_ui_p4_eco4.json`。该文件与官方 ECO4 默认画质参数唯一差异是追加 UI IPA override；此前文件存在但 Kconfig 仍选默认配置，导致 ISP setter 不生效。
 - 集成测试器：`ESP32P4_Detection/tools/control_protocol_integration.py`；正向/负向/畸形 JSON/恢复/ISP/restart/reconnect 均已在实板通过。
 - 推理采集器：`ESP32P4_Detection/tools/inference_latency_acceptance.py`；原始 5x60 证据为 `docs/agent/run_logs/2026-07-17-inference-hard-reset-5x60.json`。
+- 增强采集器后的 1x100 诊断轮全部通过：P50 75.680 ms、P95 94.113 ms、max 110.665 ms、零 >=150 ms；wait P50/P95/max 为 49.891/69.700/87.139 ms。`wb_us` 与 wait 的 Pearson 相关系数 0.9907，与调用任务 CPU 的相关系数仅 0.1058，支持尾延迟来自调度/worker 等待而非调用任务计算变慢；但本轮未复现之前 5/300 的异常，不能据此宣告稳定。
 - 固件 `idf.py build`、全量 flash、后续 app-flash 均通过 Hash 校验；ESP32-P4 revision v1.0。
 - Host 未改代码，`cmake --build build -j` 与 CTest 1/1 通过；GUI PID 3266170 已恢复，5000/5001 与 192.168.10.2 均为 ESTABLISHED。
 - UVC 仍在 `jpeg_new_encoder_engine(): no memory for jpeg encoder rxlink` 失败，按 goal 顺序留到控制稳定后处理。
@@ -25,11 +26,12 @@
 - 推理候选：`backup/inference-70ms-candidate-20260717`（`6ad4fd5`）。
 - 控制/ISP/重连候选：`backup/control-json-isp-reconnect-candidate-20260717`（`b1dfef5`）。
 - 300 样本预验收候选：`backup/goal-300-sample-tested-candidate-20260717`（`2260596`）。
+- 单轮严格通过诊断候选：`backup/inference-strict-pass-1x100-candidate-20260717`（`8f034e0`，仍非 stable）。
 - A/B 仅供诊断：`backup/ab-sorter-off-20260717`，不可作为生产版本。
 
 ## Next Step
 
-1. 给采集器补 cpu/wait 字段，定位 5/300 个 150～168 ms 尾延迟；修复后重跑严格门槛。
+1. 使用增强采集器重跑多轮，捕获并定位 150～168 ms 尾延迟；1x100 已通过但尚未复现异常，需继续验证可重复性。
 2. 使用物理断电完成 5 次真正冷启动；补任务栈地址/水位、内外 RAM、CPU 与最低 heap 证据。
 3. 用 Host 第三页逐项做 UI 可见闭环和截图/实拍，尤其是屏幕、相机画面、检测框和三路真实电机。
 4. 完成断网/Host 杀进程/恢复与 60～120 分钟真实 IO 长稳。

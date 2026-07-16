@@ -645,4 +645,5 @@ RGB565 必须确认整条显示路径都变成 16 bpp：
 - 当前硬件串口稳定路径：`/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0`；板为 ESP32-P4 revision v1.0。
 - 推理正式采样工具为 `ESP32P4_Detection/tools/inference_latency_acceptance.py`。CP2102N RTS 只能记录为 hard reset，不能替代 goal 要求的物理断电 cold boot。
 - 2026-07-17 的 5x60 hard-reset 基线：P50 74.443 ms、P95 101.947 ms、max 168.072 ms、5/300 >=150 ms、0/300 >=500 ms。该版本已消除系统性约 5 倍回退，但仍有调度型尾延迟，标签只能使用 candidate 命名。
+- 采样器应同时保存 `wb_us/wall_us/cpu_us/wait_us`。2026-07-17 的 1x100 增强诊断中 `corr(wb,wait)=0.9907`、`corr(wb,cpu)=0.1058`，且 max 110.665 ms；这支持延迟波动主要来自 ESP-DL worker/调度等待，但因未复现 150 ms 尾部，不能作为异常根因的最终证明。
 - UVC 当前失败点：硬件 JPEG engine `rxlink` 内部 DMA 内存不足；不应在推理和控制验收完成前混入修复。
