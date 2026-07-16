@@ -52,11 +52,46 @@ class HostController : public QObject
     Q_PROPERTY(QVariantList frameHistory READ frameHistory NOTIFY detectionChanged)
     Q_PROPERTY(QVariantList currentDetections READ currentDetections NOTIFY detectionChanged)
     Q_PROPERTY(QStringList logLines READ logLines NOTIFY logChanged)
-    Q_PROPERTY(int brightness READ brightness NOTIFY controlsChanged)
-    Q_PROPERTY(int motorSpeed READ motorSpeed NOTIFY controlsChanged)
     Q_PROPERTY(int dangerThreshold READ dangerThreshold NOTIFY controlsChanged)
     Q_PROPERTY(bool detectionEnabled READ detectionEnabled NOTIFY controlsChanged)
     Q_PROPERTY(bool previewOverlayEnabled READ previewOverlayEnabled NOTIFY controlsChanged)
+    Q_PROPERTY(int screenBrightness READ screenBrightness NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraBrightness READ cameraBrightness NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraBrightnessMin READ cameraBrightnessMin NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraBrightnessMax READ cameraBrightnessMax NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraBrightnessStep READ cameraBrightnessStep NOTIFY controlsChanged)
+    Q_PROPERTY(bool cameraBrightnessSupported READ cameraBrightnessSupported NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraContrast READ cameraContrast NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraContrastMin READ cameraContrastMin NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraContrastMax READ cameraContrastMax NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraContrastStep READ cameraContrastStep NOTIFY controlsChanged)
+    Q_PROPERTY(bool cameraContrastSupported READ cameraContrastSupported NOTIFY controlsChanged)
+    Q_PROPERTY(bool cameraContrastAuto READ cameraContrastAuto NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraSaturation READ cameraSaturation NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraSaturationMin READ cameraSaturationMin NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraSaturationMax READ cameraSaturationMax NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraSaturationStep READ cameraSaturationStep NOTIFY controlsChanged)
+    Q_PROPERTY(bool cameraSaturationSupported READ cameraSaturationSupported NOTIFY controlsChanged)
+    Q_PROPERTY(bool cameraSaturationAuto READ cameraSaturationAuto NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraHue READ cameraHue NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraHueMin READ cameraHueMin NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraHueMax READ cameraHueMax NOTIFY controlsChanged)
+    Q_PROPERTY(int cameraHueStep READ cameraHueStep NOTIFY controlsChanged)
+    Q_PROPERTY(bool cameraHueSupported READ cameraHueSupported NOTIFY controlsChanged)
+    Q_PROPERTY(int waybillThreshold READ waybillThreshold NOTIFY controlsChanged)
+    Q_PROPERTY(int logoThreshold READ logoThreshold NOTIFY controlsChanged)
+    Q_PROPERTY(int motorASpeed READ motorASpeed NOTIFY controlsChanged)
+    Q_PROPERTY(int motorBSpeed READ motorBSpeed NOTIFY controlsChanged)
+    Q_PROPERTY(int motorCSpeed READ motorCSpeed NOTIFY controlsChanged)
+    Q_PROPERTY(bool reportImageEnabled READ reportImageEnabled NOTIFY controlsChanged)
+    Q_PROPERTY(bool reportMetricsEnabled READ reportMetricsEnabled NOTIFY controlsChanged)
+    Q_PROPERTY(QString exposureText READ exposureText NOTIFY controlsChanged)
+    Q_PROPERTY(QString gainText READ gainText NOTIFY controlsChanged)
+    Q_PROPERTY(QString whiteBalanceText READ whiteBalanceText NOTIFY controlsChanged)
+    Q_PROPERTY(QString localIp READ localIp NOTIFY controlsChanged)
+    Q_PROPERTY(QString hostIp READ hostIp NOTIFY controlsChanged)
+    Q_PROPERTY(QString modelInfo READ modelInfo NOTIFY controlsChanged)
+    Q_PROPERTY(QString controlStatusText READ controlStatusText NOTIFY controlsChanged)
 
 public:
     explicit HostController(QObject *parent = nullptr);
@@ -95,19 +130,67 @@ public:
     QVariantList frameHistory() const;
     QVariantList currentDetections() const;
     QStringList logLines() const;
-    int brightness() const;
-    int motorSpeed() const;
     int dangerThreshold() const;
     bool detectionEnabled() const;
     bool previewOverlayEnabled() const;
+    int screenBrightness() const;
+    int cameraBrightness() const;
+    int cameraBrightnessMin() const;
+    int cameraBrightnessMax() const;
+    int cameraBrightnessStep() const;
+    bool cameraBrightnessSupported() const;
+    int cameraContrast() const;
+    int cameraContrastMin() const;
+    int cameraContrastMax() const;
+    int cameraContrastStep() const;
+    bool cameraContrastSupported() const;
+    bool cameraContrastAuto() const;
+    int cameraSaturation() const;
+    int cameraSaturationMin() const;
+    int cameraSaturationMax() const;
+    int cameraSaturationStep() const;
+    bool cameraSaturationSupported() const;
+    bool cameraSaturationAuto() const;
+    int cameraHue() const;
+    int cameraHueMin() const;
+    int cameraHueMax() const;
+    int cameraHueStep() const;
+    bool cameraHueSupported() const;
+    int waybillThreshold() const;
+    int logoThreshold() const;
+    int motorASpeed() const;
+    int motorBSpeed() const;
+    int motorCSpeed() const;
+    bool reportImageEnabled() const;
+    bool reportMetricsEnabled() const;
+    QString exposureText() const;
+    QString gainText() const;
+    QString whiteBalanceText() const;
+    QString localIp() const;
+    QString hostIp() const;
+    QString modelInfo() const;
+    QString controlStatusText() const;
 
     Q_INVOKABLE void startServer();
     Q_INVOKABLE void sendTimeSync();
-    Q_INVOKABLE void setBrightness(int value);
-    Q_INVOKABLE void setMotorSpeed(int value);
-    Q_INVOKABLE void setDangerThreshold(int value);
+    Q_INVOKABLE void setScreenBrightness(int value);
+    Q_INVOKABLE void setCameraBrightness(int value);
+    Q_INVOKABLE void setCameraContrast(int value);
+    Q_INVOKABLE void setCameraContrastAuto(bool enabled);
+    Q_INVOKABLE void setCameraSaturation(int value);
+    Q_INVOKABLE void setCameraSaturationAuto(bool enabled);
+    Q_INVOKABLE void setCameraHue(int value);
+    Q_INVOKABLE void setWaybillThreshold(int value);
+    Q_INVOKABLE void setLogoThreshold(int value);
+    Q_INVOKABLE void setMotorASpeed(int value);
+    Q_INVOKABLE void setMotorBSpeed(int value);
+    Q_INVOKABLE void setMotorCSpeed(int value);
+    Q_INVOKABLE void setReportImageEnabled(bool enabled);
+    Q_INVOKABLE void setReportMetricsEnabled(bool enabled);
     Q_INVOKABLE void setDetectionEnabled(bool enabled);
     Q_INVOKABLE void setPreviewOverlayEnabled(bool enabled);
+    Q_INVOKABLE void restartDevice();
+    Q_INVOKABLE void requestDeviceState();
     Q_INVOKABLE void sendControl(const QString &command, const QVariant &value);
     Q_INVOKABLE void clearFrameHistory();
 
@@ -134,6 +217,7 @@ private:
     void handleImage(const HostProtocol::PacketHeader &header, const QByteArray &payload);
     void handleTelemetry(const QByteArray &payload);
     void handleDetectionJson(const QByteArray &payload);
+    void handleControlJson(const QByteArray &payload);
     bool saveLatestPreviewImage(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload);
     QVariantList makeImageDetections(quint16 width, quint16 height, const QVariantList &boxes) const;
     void addImageHistoryRecord(quint32 frameSeq, quint16 width, quint16 height, quint16 classId,
@@ -150,6 +234,8 @@ private:
     void queueControlSend(const QString &command, const QVariant &value);
     void flushPendingControl();
     void sendControlNow(const QString &command, const QVariant &value);
+    void sendControlAction(const QString &key);
+    void applyControlState(const QJsonObject &message);
     QVariantMap makeCard(const QString &title, const QString &value, const QString &note, const QString &accent) const;
     QString categoryLabelFromId(int classId) const;
     void updateLatestCategory(int classId, int confidencePct);
@@ -214,9 +300,44 @@ private:
     int m_ztImageCount = 0;
     int m_ydImageCount = 0;
 
-    int m_brightness = 68;
-    int m_motorSpeed = 100;
     int m_dangerThreshold = 50;
     bool m_detectionEnabled = true;
     bool m_previewOverlayEnabled = true;
+    int m_screenBrightness = 80;
+    int m_cameraBrightness = 0;
+    int m_cameraBrightnessMin = 0;
+    int m_cameraBrightnessMax = 255;
+    int m_cameraBrightnessStep = 1;
+    bool m_cameraBrightnessSupported = false;
+    int m_cameraContrast = 0;
+    int m_cameraContrastMin = 0;
+    int m_cameraContrastMax = 255;
+    int m_cameraContrastStep = 1;
+    bool m_cameraContrastSupported = false;
+    bool m_cameraContrastAuto = false;
+    int m_cameraSaturation = 0;
+    int m_cameraSaturationMin = 0;
+    int m_cameraSaturationMax = 255;
+    int m_cameraSaturationStep = 1;
+    bool m_cameraSaturationSupported = false;
+    bool m_cameraSaturationAuto = false;
+    int m_cameraHue = 0;
+    int m_cameraHueMin = -180;
+    int m_cameraHueMax = 180;
+    int m_cameraHueStep = 1;
+    bool m_cameraHueSupported = false;
+    int m_waybillThreshold = 50;
+    int m_logoThreshold = 50;
+    int m_motorASpeed = 60;
+    int m_motorBSpeed = 100;
+    int m_motorCSpeed = 100;
+    bool m_reportImageEnabled = true;
+    bool m_reportMetricsEnabled = true;
+    QString m_exposureText = QStringLiteral("--");
+    QString m_gainText = QStringLiteral("--");
+    QString m_whiteBalanceText = QStringLiteral("--");
+    QString m_localIp = QStringLiteral("192.168.10.2");
+    QString m_hostIp = QStringLiteral("192.168.10.1");
+    QString m_modelInfo = QStringLiteral("--");
+    QString m_controlStatusText = QStringLiteral("等待设备状态");
 };

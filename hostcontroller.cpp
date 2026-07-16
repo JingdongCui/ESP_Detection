@@ -169,6 +169,7 @@ HostController::HostController(QObject *parent)
     connect(m_networkWorker, &HostNetworkWorker::imageResultReady, this, &HostController::onNetworkImageResultReady);
     connect(m_networkWorker, &HostNetworkWorker::metricsReceived, this, &HostController::handleTelemetry);
     connect(m_networkWorker, &HostNetworkWorker::detectionJsonReceived, this, &HostController::handleDetectionJson);
+    connect(m_networkWorker, &HostNetworkWorker::controlJsonReceived, this, &HostController::handleControlJson);
     connect(m_networkWorker, &HostNetworkWorker::logLineReady, this, &HostController::appendLog);
     m_networkThread->start();
 
@@ -218,11 +219,46 @@ QVariantList HostController::metricHistory() const { return m_metricHistory; }
 QVariantList HostController::frameHistory() const { return m_frameHistory; }
 QVariantList HostController::currentDetections() const { return m_currentDetections; }
 QStringList HostController::logLines() const { return m_logLines; }
-int HostController::brightness() const { return m_brightness; }
-int HostController::motorSpeed() const { return m_motorSpeed; }
 int HostController::dangerThreshold() const { return m_dangerThreshold; }
 bool HostController::detectionEnabled() const { return m_detectionEnabled; }
 bool HostController::previewOverlayEnabled() const { return m_previewOverlayEnabled; }
+int HostController::screenBrightness() const { return m_screenBrightness; }
+int HostController::cameraBrightness() const { return m_cameraBrightness; }
+int HostController::cameraBrightnessMin() const { return m_cameraBrightnessMin; }
+int HostController::cameraBrightnessMax() const { return m_cameraBrightnessMax; }
+int HostController::cameraBrightnessStep() const { return m_cameraBrightnessStep; }
+bool HostController::cameraBrightnessSupported() const { return m_cameraBrightnessSupported; }
+int HostController::cameraContrast() const { return m_cameraContrast; }
+int HostController::cameraContrastMin() const { return m_cameraContrastMin; }
+int HostController::cameraContrastMax() const { return m_cameraContrastMax; }
+int HostController::cameraContrastStep() const { return m_cameraContrastStep; }
+bool HostController::cameraContrastSupported() const { return m_cameraContrastSupported; }
+bool HostController::cameraContrastAuto() const { return m_cameraContrastAuto; }
+int HostController::cameraSaturation() const { return m_cameraSaturation; }
+int HostController::cameraSaturationMin() const { return m_cameraSaturationMin; }
+int HostController::cameraSaturationMax() const { return m_cameraSaturationMax; }
+int HostController::cameraSaturationStep() const { return m_cameraSaturationStep; }
+bool HostController::cameraSaturationSupported() const { return m_cameraSaturationSupported; }
+bool HostController::cameraSaturationAuto() const { return m_cameraSaturationAuto; }
+int HostController::cameraHue() const { return m_cameraHue; }
+int HostController::cameraHueMin() const { return m_cameraHueMin; }
+int HostController::cameraHueMax() const { return m_cameraHueMax; }
+int HostController::cameraHueStep() const { return m_cameraHueStep; }
+bool HostController::cameraHueSupported() const { return m_cameraHueSupported; }
+int HostController::waybillThreshold() const { return m_waybillThreshold; }
+int HostController::logoThreshold() const { return m_logoThreshold; }
+int HostController::motorASpeed() const { return m_motorASpeed; }
+int HostController::motorBSpeed() const { return m_motorBSpeed; }
+int HostController::motorCSpeed() const { return m_motorCSpeed; }
+bool HostController::reportImageEnabled() const { return m_reportImageEnabled; }
+bool HostController::reportMetricsEnabled() const { return m_reportMetricsEnabled; }
+QString HostController::exposureText() const { return m_exposureText; }
+QString HostController::gainText() const { return m_gainText; }
+QString HostController::whiteBalanceText() const { return m_whiteBalanceText; }
+QString HostController::localIp() const { return m_localIp; }
+QString HostController::hostIp() const { return m_hostIp; }
+QString HostController::modelInfo() const { return m_modelInfo; }
+QString HostController::controlStatusText() const { return m_controlStatusText; }
 
 QVariantList HostController::dashboardCards() const
 {
@@ -288,11 +324,36 @@ void HostController::sendTimeSync()
               : QStringLiteral("待连接：已记录时间同步请求"));
 }
 
-void HostController::setBrightness(int value) { updateControl(QStringLiteral("brightness"), qBound(0, value, 100), true); }
-void HostController::setMotorSpeed(int value) { updateControl(QStringLiteral("motor_speed"), qBound(0, value, 100), true); }
-void HostController::setDangerThreshold(int value) { updateControl(QStringLiteral("danger_threshold"), qBound(0, value, 100), true); }
-void HostController::setDetectionEnabled(bool enabled) { updateControl(QStringLiteral("detection_enabled"), enabled, true); }
-void HostController::setPreviewOverlayEnabled(bool enabled) { updateControl(QStringLiteral("preview_overlay"), enabled, true); }
+void HostController::setScreenBrightness(int value) { updateControl(QStringLiteral("display.screen_brightness"), qBound(0, value, 100), true); }
+void HostController::setCameraBrightness(int value) { updateControl(QStringLiteral("camera.brightness"), value, true); }
+void HostController::setCameraContrast(int value) { updateControl(QStringLiteral("camera.contrast"), value, true); }
+void HostController::setCameraContrastAuto(bool enabled) { updateControl(QStringLiteral("camera.contrast_auto"), enabled, true); }
+void HostController::setCameraSaturation(int value) { updateControl(QStringLiteral("camera.saturation"), value, true); }
+void HostController::setCameraSaturationAuto(bool enabled) { updateControl(QStringLiteral("camera.saturation_auto"), enabled, true); }
+void HostController::setCameraHue(int value) { updateControl(QStringLiteral("camera.hue"), value, true); }
+void HostController::setWaybillThreshold(int value) { updateControl(QStringLiteral("vision.waybill_threshold"), qBound(0, value, 100), true); }
+void HostController::setLogoThreshold(int value) { updateControl(QStringLiteral("vision.logo_threshold"), qBound(0, value, 100), true); }
+void HostController::setMotorASpeed(int value) { updateControl(QStringLiteral("sorter.motor_a_speed"), qBound(0, value, 100), true); }
+void HostController::setMotorBSpeed(int value) { updateControl(QStringLiteral("sorter.motor_b_speed"), qBound(0, value, 100), true); }
+void HostController::setMotorCSpeed(int value) { updateControl(QStringLiteral("sorter.motor_c_speed"), qBound(0, value, 100), true); }
+void HostController::setReportImageEnabled(bool enabled) { updateControl(QStringLiteral("report.image_enabled"), enabled, true); }
+void HostController::setReportMetricsEnabled(bool enabled) { updateControl(QStringLiteral("report.metrics_enabled"), enabled, true); }
+void HostController::setDetectionEnabled(bool enabled) { updateControl(QStringLiteral("vision.detection_enabled"), enabled, true); }
+void HostController::setPreviewOverlayEnabled(bool enabled) { updateControl(QStringLiteral("vision.preview_overlay_enabled"), enabled, true); }
+
+void HostController::restartDevice()
+{
+    sendControlAction(QStringLiteral("device.restart"));
+    m_controlStatusText = QStringLiteral("已发送重启命令");
+    emit controlsChanged();
+}
+
+void HostController::requestDeviceState()
+{
+    sendJsonPacket(HostProtocol::kTypeControlJson, HostProtocol::makeControlGetJson());
+    m_controlStatusText = m_connected ? QStringLiteral("正在读取设备状态") : QStringLiteral("等待设备连接");
+    emit controlsChanged();
+}
 
 void HostController::sendControl(const QString &command, const QVariant &value)
 {
@@ -310,11 +371,19 @@ void HostController::clearFrameHistory()
 
 void HostController::onNetworkStateChanged(bool listening, bool connected, const QString &statusText)
 {
+    const bool justConnected = connected && !m_connected;
     m_listening = listening;
     m_connected = connected;
     m_statusText = statusText;
     emit stateChanged();
     appendLog(statusText);
+    if (justConnected) {
+        m_lastSentControls.clear();
+        requestDeviceState();
+    } else if (!connected) {
+        m_controlStatusText = QStringLiteral("设备未连接");
+        emit controlsChanged();
+    }
 }
 
 void HostController::onNetworkBytesReceived(qint64 bytes)
@@ -504,6 +573,28 @@ void HostController::handleDetectionJson(const QByteArray &payload)
     }
 }
 
+void HostController::handleControlJson(const QByteArray &payload)
+{
+    QJsonObject message;
+    QString error;
+    if (!HostProtocol::parseControlJson(payload, &message, &error)) {
+        appendLog(QStringLiteral("控制状态解析失败：%1").arg(error));
+        return;
+    }
+    if (message.value(QStringLiteral("op")).toString() == QStringLiteral("error")) {
+        const QString key = message.value(QStringLiteral("key")).toString();
+        const QString text = message.value(QStringLiteral("message")).toString();
+        m_controlStatusText = key.isEmpty()
+            ? QStringLiteral("设备拒绝控制：%1").arg(text)
+            : QStringLiteral("%1：%2").arg(key, text);
+        appendLog(m_controlStatusText);
+        emit controlsChanged();
+        requestDeviceState();
+        return;
+    }
+    applyControlState(message);
+}
+
 bool HostController::saveLatestPreviewImage(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload)
 {
     QImage decoded;
@@ -671,6 +762,26 @@ void HostController::applyMetrics(const QVariantMap &metrics)
     m_lastImageSendMs = metrics.value(QStringLiteral("last_image_send_ms"), m_lastImageSendMs).toInt();
     m_lastImageBytes = metrics.value(QStringLiteral("last_image_bytes"), m_lastImageBytes).toInt();
 
+    if (metrics.contains(QStringLiteral("isp_exposure_us"))) {
+        const int exposureUs = metrics.value(QStringLiteral("isp_exposure_us")).toInt();
+        m_exposureText = exposureUs >= 0
+            ? QStringLiteral("%1 ms").arg(exposureUs / 1000.0, 0, 'f', 1)
+            : QStringLiteral("--");
+    }
+    if (metrics.contains(QStringLiteral("isp_gain_x1000"))) {
+        const int gain = metrics.value(QStringLiteral("isp_gain_x1000")).toInt();
+        m_gainText = gain >= 0 ? QStringLiteral("%1x").arg(gain / 1000.0, 0, 'f', 2)
+                               : QStringLiteral("--");
+    }
+    if (metrics.contains(QStringLiteral("isp_red_gain_x1000")) &&
+        metrics.contains(QStringLiteral("isp_blue_gain_x1000"))) {
+        const int red = metrics.value(QStringLiteral("isp_red_gain_x1000")).toInt();
+        const int blue = metrics.value(QStringLiteral("isp_blue_gain_x1000")).toInt();
+        m_whiteBalanceText = red >= 0 && blue >= 0
+            ? QStringLiteral("R %1 / B %2").arg(red / 1000.0, 0, 'f', 2).arg(blue / 1000.0, 0, 'f', 2)
+            : QStringLiteral("--");
+    }
+
     if (m_totalPsramMb > 0.0) {
         m_psramUsage = qBound(0.0, ((m_totalPsramMb - m_freePsramMb) * 100.0) / m_totalPsramMb, 100.0);
     }
@@ -691,6 +802,7 @@ void HostController::applyMetrics(const QVariantMap &metrics)
     m_lastTelemetryTime = QDateTime::currentDateTime().toString(QStringLiteral("HH:mm:ss"));
     appendMetricHistory();
     emit dashboardChanged();
+    emit controlsChanged();
 }
 
 void HostController::applyDetectionFrame(const QVariantMap &frame, bool forceUpdate)
@@ -807,23 +919,68 @@ void HostController::sendSimLine(const QString &line)
 void HostController::updateControl(const QString &command, const QVariant &value, bool emitSignal)
 {
     bool changed = false;
-    if (command == QStringLiteral("brightness")) {
-        const int next = value.toInt();
-        changed = m_brightness != next;
-        m_brightness = next;
-    } else if (command == QStringLiteral("motor_speed")) {
-        const int next = value.toInt();
-        changed = m_motorSpeed != next;
-        m_motorSpeed = next;
-    } else if (command == QStringLiteral("danger_threshold")) {
-        const int next = value.toInt();
-        changed = m_dangerThreshold != next;
+    if (command == QStringLiteral("display.screen_brightness")) {
+        const int next = qBound(0, value.toInt(), 100);
+        changed = m_screenBrightness != next;
+        m_screenBrightness = next;
+    } else if (command == QStringLiteral("camera.brightness")) {
+        const int next = qBound(m_cameraBrightnessMin, value.toInt(), m_cameraBrightnessMax);
+        changed = m_cameraBrightness != next;
+        m_cameraBrightness = next;
+    } else if (command == QStringLiteral("camera.contrast")) {
+        const int next = qBound(m_cameraContrastMin, value.toInt(), m_cameraContrastMax);
+        changed = m_cameraContrast != next;
+        m_cameraContrast = next;
+    } else if (command == QStringLiteral("camera.contrast_auto")) {
+        const bool next = value.toBool();
+        changed = m_cameraContrastAuto != next;
+        m_cameraContrastAuto = next;
+    } else if (command == QStringLiteral("camera.saturation")) {
+        const int next = qBound(m_cameraSaturationMin, value.toInt(), m_cameraSaturationMax);
+        changed = m_cameraSaturation != next;
+        m_cameraSaturation = next;
+    } else if (command == QStringLiteral("camera.saturation_auto")) {
+        const bool next = value.toBool();
+        changed = m_cameraSaturationAuto != next;
+        m_cameraSaturationAuto = next;
+    } else if (command == QStringLiteral("camera.hue")) {
+        const int next = qBound(m_cameraHueMin, value.toInt(), m_cameraHueMax);
+        changed = m_cameraHue != next;
+        m_cameraHue = next;
+    } else if (command == QStringLiteral("vision.waybill_threshold")) {
+        const int next = qBound(0, value.toInt(), 100);
+        changed = m_waybillThreshold != next;
+        m_waybillThreshold = next;
         m_dangerThreshold = next;
-    } else if (command == QStringLiteral("detection_enabled")) {
+    } else if (command == QStringLiteral("vision.logo_threshold")) {
+        const int next = qBound(0, value.toInt(), 100);
+        changed = m_logoThreshold != next;
+        m_logoThreshold = next;
+    } else if (command == QStringLiteral("sorter.motor_a_speed")) {
+        const int next = qBound(0, value.toInt(), 100);
+        changed = m_motorASpeed != next;
+        m_motorASpeed = next;
+    } else if (command == QStringLiteral("sorter.motor_b_speed")) {
+        const int next = qBound(0, value.toInt(), 100);
+        changed = m_motorBSpeed != next;
+        m_motorBSpeed = next;
+    } else if (command == QStringLiteral("sorter.motor_c_speed")) {
+        const int next = qBound(0, value.toInt(), 100);
+        changed = m_motorCSpeed != next;
+        m_motorCSpeed = next;
+    } else if (command == QStringLiteral("report.image_enabled")) {
+        const bool next = value.toBool();
+        changed = m_reportImageEnabled != next;
+        m_reportImageEnabled = next;
+    } else if (command == QStringLiteral("report.metrics_enabled")) {
+        const bool next = value.toBool();
+        changed = m_reportMetricsEnabled != next;
+        m_reportMetricsEnabled = next;
+    } else if (command == QStringLiteral("vision.detection_enabled")) {
         const bool next = value.toBool();
         changed = m_detectionEnabled != next;
         m_detectionEnabled = next;
-    } else if (command == QStringLiteral("preview_overlay")) {
+    } else if (command == QStringLiteral("vision.preview_overlay_enabled")) {
         const bool next = value.toBool();
         changed = m_previewOverlayEnabled != next;
         m_previewOverlayEnabled = next;
@@ -831,9 +988,8 @@ void HostController::updateControl(const QString &command, const QVariant &value
         changed = true;
     }
 
-    if (command == QStringLiteral("motor_speed")) {
-        queueControlSend(command, value);
-    }
+    queueControlSend(command, value);
+    m_controlStatusText = m_connected ? QStringLiteral("控制命令已发送") : QStringLiteral("设备未连接");
     if (emitSignal && changed) {
         emit controlsChanged();
         emit dashboardChanged();
@@ -885,19 +1041,89 @@ void HostController::flushPendingControl()
 
 void HostController::sendControlNow(const QString &command, const QVariant &value)
 {
-    QString line;
-    if (command == QStringLiteral("motor_speed")) {
-        const int speed = qBound(0, value.toInt(), 100);
-        line = QStringLiteral("CONFIG a_speed=%1 b_speed=%1 c_speed=%1").arg(speed);
-    } else {
-        appendLog(QStringLiteral("本地控制：%1 = %2").arg(command, value.toString()));
-        return;
-    }
+    sendJsonPacket(HostProtocol::kTypeControlJson,
+                   HostProtocol::makeControlSetJson(command, QJsonValue::fromVariant(value)));
+    appendLog(QStringLiteral("%1：%2 = %3")
+                  .arg(connected() ? QStringLiteral("已发送控制") : QStringLiteral("未连接控制"),
+                       command, value.toString()));
+}
 
-    sendSimLine(line);
-    appendLog(QStringLiteral("%1命令：%2")
-                  .arg(connected() ? QStringLiteral("已发送") : QStringLiteral("待连接记录"))
-                  .arg(line));
+void HostController::sendControlAction(const QString &key)
+{
+    sendJsonPacket(HostProtocol::kTypeControlJson, HostProtocol::makeControlActionJson(key));
+    appendLog(QStringLiteral("%1：%2")
+                  .arg(connected() ? QStringLiteral("已发送动作") : QStringLiteral("未连接动作"), key));
+}
+
+void HostController::applyControlState(const QJsonObject &message)
+{
+    const QJsonObject settings = message.value(QStringLiteral("settings")).toObject();
+    const QJsonObject capabilities = message.value(QStringLiteral("capabilities")).toObject();
+
+    auto setInt = [&settings](const QString &key, int *target) {
+        const QJsonValue value = settings.value(key);
+        if (value.isDouble()) {
+            *target = value.toInt();
+        }
+    };
+    auto setBool = [&settings](const QString &key, bool *target) {
+        const QJsonValue value = settings.value(key);
+        if (value.isBool()) {
+            *target = value.toBool();
+        }
+    };
+    auto setString = [&settings](const QString &key, QString *target) {
+        const QJsonValue value = settings.value(key);
+        if (value.isString()) {
+            *target = value.toString();
+        }
+    };
+    auto setCapability = [&capabilities](const QString &key, bool *supported,
+                                         int *minimum, int *maximum, int *step) {
+        const QJsonObject object = capabilities.value(key).toObject();
+        if (object.isEmpty()) {
+            return;
+        }
+        *supported = object.value(QStringLiteral("supported")).toBool(false);
+        *minimum = object.value(QStringLiteral("min")).toInt(*minimum);
+        *maximum = object.value(QStringLiteral("max")).toInt(*maximum);
+        *step = qMax(1, object.value(QStringLiteral("step")).toInt(*step));
+    };
+
+    setInt(QStringLiteral("display.screen_brightness"), &m_screenBrightness);
+    setInt(QStringLiteral("camera.brightness"), &m_cameraBrightness);
+    setInt(QStringLiteral("camera.contrast"), &m_cameraContrast);
+    setBool(QStringLiteral("camera.contrast_auto"), &m_cameraContrastAuto);
+    setInt(QStringLiteral("camera.saturation"), &m_cameraSaturation);
+    setBool(QStringLiteral("camera.saturation_auto"), &m_cameraSaturationAuto);
+    setInt(QStringLiteral("camera.hue"), &m_cameraHue);
+    setInt(QStringLiteral("vision.waybill_threshold"), &m_waybillThreshold);
+    setInt(QStringLiteral("vision.logo_threshold"), &m_logoThreshold);
+    setBool(QStringLiteral("vision.detection_enabled"), &m_detectionEnabled);
+    setBool(QStringLiteral("vision.preview_overlay_enabled"), &m_previewOverlayEnabled);
+    setInt(QStringLiteral("sorter.motor_a_speed"), &m_motorASpeed);
+    setInt(QStringLiteral("sorter.motor_b_speed"), &m_motorBSpeed);
+    setInt(QStringLiteral("sorter.motor_c_speed"), &m_motorCSpeed);
+    setBool(QStringLiteral("report.image_enabled"), &m_reportImageEnabled);
+    setBool(QStringLiteral("report.metrics_enabled"), &m_reportMetricsEnabled);
+    setString(QStringLiteral("network.local_ip"), &m_localIp);
+    setString(QStringLiteral("network.host_ip"), &m_hostIp);
+    setString(QStringLiteral("model.info"), &m_modelInfo);
+
+    setCapability(QStringLiteral("camera.brightness"), &m_cameraBrightnessSupported,
+                  &m_cameraBrightnessMin, &m_cameraBrightnessMax, &m_cameraBrightnessStep);
+    setCapability(QStringLiteral("camera.contrast"), &m_cameraContrastSupported,
+                  &m_cameraContrastMin, &m_cameraContrastMax, &m_cameraContrastStep);
+    setCapability(QStringLiteral("camera.saturation"), &m_cameraSaturationSupported,
+                  &m_cameraSaturationMin, &m_cameraSaturationMax, &m_cameraSaturationStep);
+    setCapability(QStringLiteral("camera.hue"), &m_cameraHueSupported,
+                  &m_cameraHueMin, &m_cameraHueMax, &m_cameraHueStep);
+
+    m_dangerThreshold = m_waybillThreshold;
+    m_controlStatusText = QStringLiteral("设备状态已同步");
+    m_lastSentControls.clear();
+    emit controlsChanged();
+    emit dashboardChanged();
 }
 
 QVariantMap HostController::makeCard(const QString &title, const QString &value, const QString &note, const QString &accent) const

@@ -30,6 +30,7 @@ signals:
                           const QVariantList &boxes, const QByteArray &jpeg);
     void metricsReceived(const QByteArray &payload);
     void detectionJsonReceived(const QByteArray &payload);
+    void controlJsonReceived(const QByteArray &payload);
     void logLineReady(const QString &line);
 
 private:

@@ -1,6 +1,8 @@
 #include "packetprotocol.h"
 
 #include <QDateTime>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QtEndian>
 
 namespace {
@@ -170,6 +172,64 @@ QByteArray makeJsonPacket(quint16 type, quint32 seq, const QByteArray &json)
     writeLe32(&packet, 0);
     packet.append(json);
     return packet;
+}
+
+QByteArray makeControlGetJson()
+{
+    QJsonObject request;
+    request.insert(QStringLiteral("op"), QStringLiteral("get"));
+    return QJsonDocument(request).toJson(QJsonDocument::Compact);
+}
+
+QByteArray makeControlSetJson(const QString &key, const QJsonValue &value)
+{
+    QJsonObject request;
+    request.insert(QStringLiteral("op"), QStringLiteral("set"));
+    request.insert(QStringLiteral("key"), key);
+    request.insert(QStringLiteral("value"), value);
+    return QJsonDocument(request).toJson(QJsonDocument::Compact);
+}
+
+QByteArray makeControlActionJson(const QString &key)
+{
+    QJsonObject request;
+    request.insert(QStringLiteral("op"), QStringLiteral("action"));
+    request.insert(QStringLiteral("key"), key);
+    return QJsonDocument(request).toJson(QJsonDocument::Compact);
+}
+
+bool parseControlJson(const QByteArray &payload, QJsonObject *message, QString *error)
+{
+    auto fail = [error](const QString &text) {
+        if (error) {
+            *error = text;
+        }
+        return false;
+    };
+    if (!message) {
+        return fail(QStringLiteral("控制消息输出对象为空"));
+    }
+
+    QJsonParseError parseError;
+    const QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
+    if (parseError.error != QJsonParseError::NoError || !document.isObject()) {
+        return fail(QStringLiteral("控制 JSON 无效"));
+    }
+
+    const QJsonObject object = document.object();
+    const QString op = object.value(QStringLiteral("op")).toString();
+    if (op != QStringLiteral("state") && op != QStringLiteral("error")) {
+        return fail(QStringLiteral("控制消息 op 无效"));
+    }
+    if (op == QStringLiteral("state") && !object.value(QStringLiteral("settings")).isObject()) {
+        return fail(QStringLiteral("控制状态缺少 settings"));
+    }
+    if (op == QStringLiteral("error") && !object.value(QStringLiteral("message")).isString()) {
+        return fail(QStringLiteral("控制错误缺少 message"));
+    }
+
+    *message = object;
+    return true;
 }
 
 }

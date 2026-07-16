@@ -181,6 +181,8 @@ void HostNetworkWorker::handlePacket(const HostProtocol::PacketHeader &header, c
         emit metricsReceived(payload);
     } else if (header.type == HostProtocol::kTypeDetectionJson) {
         emit detectionJsonReceived(payload);
+    } else if (header.type == HostProtocol::kTypeControlJson) {
+        emit controlJsonReceived(payload);
     } else if (header.type == HostProtocol::kTypeSimLine) {
         const QString line = QString::fromUtf8(payload).trimmed();
         if (!line.isEmpty()) {

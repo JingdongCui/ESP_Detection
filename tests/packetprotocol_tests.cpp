@@ -1,6 +1,8 @@
 #include "../packetprotocol.h"
 
 #include <QTest>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QtEndian>
 
 namespace {
@@ -79,6 +81,8 @@ private slots:
     void parsesV2ImageResult();
     void rejectsMalformedV2Payloads();
     void normalizesInclusiveCoordinates();
+    void buildsControlRequests();
+    void parsesControlResponses();
 };
 
 void PacketProtocolTests::acceptsV1AndV2ImageHeaders()
@@ -179,6 +183,43 @@ void PacketProtocolTests::normalizesInclusiveCoordinates()
 
     box.x2 = 640;
     QVERIFY(!HostProtocol::normalizeImageBox(640, 375, box, &normalized));
+}
+
+void PacketProtocolTests::buildsControlRequests()
+{
+    QCOMPARE(QJsonDocument::fromJson(HostProtocol::makeControlGetJson()).object()
+                 .value(QStringLiteral("op")).toString(),
+             QStringLiteral("get"));
+
+    const QJsonObject set = QJsonDocument::fromJson(
+        HostProtocol::makeControlSetJson(QStringLiteral("sorter.motor_a_speed"), 60)).object();
+    QCOMPARE(set.value(QStringLiteral("op")).toString(), QStringLiteral("set"));
+    QCOMPARE(set.value(QStringLiteral("key")).toString(), QStringLiteral("sorter.motor_a_speed"));
+    QCOMPARE(set.value(QStringLiteral("value")).toInt(), 60);
+
+    const QJsonObject action = QJsonDocument::fromJson(
+        HostProtocol::makeControlActionJson(QStringLiteral("device.restart"))).object();
+    QCOMPARE(action.value(QStringLiteral("op")).toString(), QStringLiteral("action"));
+    QCOMPARE(action.value(QStringLiteral("key")).toString(), QStringLiteral("device.restart"));
+}
+
+void PacketProtocolTests::parsesControlResponses()
+{
+    QJsonObject message;
+    QString error;
+    QVERIFY2(HostProtocol::parseControlJson(
+                 QByteArrayLiteral("{\"op\":\"state\",\"ok\":true,\"settings\":{\"display.screen_brightness\":80}}"),
+                 &message, &error), qPrintable(error));
+    QCOMPARE(message.value(QStringLiteral("op")).toString(), QStringLiteral("state"));
+
+    QVERIFY(HostProtocol::parseControlJson(
+        QByteArrayLiteral("{\"op\":\"error\",\"key\":\"bad\",\"message\":\"unknown key\"}"),
+        &message, &error));
+    QVERIFY(!HostProtocol::parseControlJson(QByteArrayLiteral("[]"), &message, &error));
+    QVERIFY(!HostProtocol::parseControlJson(
+        QByteArrayLiteral("{\"op\":\"state\"}"), &message, &error));
+    QVERIFY(!HostProtocol::parseControlJson(
+        QByteArrayLiteral("{\"op\":\"ack\"}"), &message, &error));
 }
 
 QTEST_APPLESS_MAIN(PacketProtocolTests)

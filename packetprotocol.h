@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QByteArray>
+#include <QJsonObject>
+#include <QJsonValue>
 #include <QList>
 #include <QString>
 #include <QtGlobal>
@@ -75,5 +77,9 @@ bool parseImageResultV2(const PacketHeader &header, const QByteArray &payload,
 bool normalizeImageBox(quint16 imageWidth, quint16 imageHeight, const ImageBoxV2 &box,
                        NormalizedImageBox *normalized);
 QByteArray makeJsonPacket(quint16 type, quint32 seq, const QByteArray &json);
+QByteArray makeControlGetJson();
+QByteArray makeControlSetJson(const QString &key, const QJsonValue &value);
+QByteArray makeControlActionJson(const QString &key);
+bool parseControlJson(const QByteArray &payload, QJsonObject *message, QString *error = nullptr);
 
 }

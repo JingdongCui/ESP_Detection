@@ -9,6 +9,8 @@ PremiumPanel {
     property int value: 0
     property int from: 0
     property int to: 100
+    property int stepSize: 1
+    property string suffix: "%"
     signal moved(int value)
     radius: 18
     topColor: theme.panelTop
@@ -48,7 +50,7 @@ PremiumPanel {
                 Layout.preferredWidth: 70
                 Layout.preferredHeight: 38
                 theme: root.theme
-                text: root.value + "%"
+                text: root.value + root.suffix
                 fillColor: theme.accentMist
                 strokeColor: slider.pressed ? theme.accent : theme.panelStroke
                 textColor: theme.accent
@@ -61,7 +63,10 @@ PremiumPanel {
             Layout.preferredHeight: 42
             from: root.from
             to: root.to
+            stepSize: root.stepSize
             value: root.value
+            enabled: root.enabled
+            activeFocusOnTab: true
             hoverEnabled: true
             onMoved: root.moved(Math.round(value))
 
@@ -151,7 +156,7 @@ PremiumPanel {
                 Text {
                     id: valueBubbleText
                     anchors.centerIn: parent
-                    text: root.value + "%"
+                    text: root.value + root.suffix
                     color: theme.text
                     font.pixelSize: 11
                     font.weight: Font.Black
