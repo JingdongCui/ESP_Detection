@@ -14,3 +14,9 @@
 - 关闭两个旧 Dolphin 进程后，以 `env -u LC_ALL LANG=en_US.UTF-8 kbuildsycoca6 --noincremental` 全量重建服务缓存。
 - 正确 locale 的缓存已更新，随后重新打开 Dolphin 到交付包目录；新进程和 KIO worker 正常运行，未见启动错误。
 - “打开方式”候选菜单仍需用户右键文件做最终 GUI 目视确认。
+
+## 经验固化
+
+- 已更新 `/home/kazeform/Desktop/系统维护防踩坑.md` 的 Dolphin 章节。
+- 新增本次现象与根因、恢复后的强制验证、`kquitapp6` 未真正退出进程的陷阱，以及 KDE 升级前后预防清单。
+- 明确禁止在 MIME 默认关联正常时盲目改写 `mimeapps.list`，并把“进程退出、正确 locale 缓存更新、默认关联存在、GUI 目视恢复”定义为完整验收条件。

@@ -6,13 +6,12 @@
 
 ## Current State
 
-- Host V2 队友源码包已生成并验证。
-- Dolphin 的 KDE 服务缓存已按正确 locale 全量重建，并已重新打开。
+- 上位机打包、Dolphin 修复及经验库补充均已完成并归档。
 
 ## Next Step
 
-- 等待用户确认 Dolphin 的“打开方式”菜单已恢复。
+- 等待下一项任务。
 
 ## Blockers
 
-- Dolphin 菜单内容需要用户在 GUI 中右键文件做最终目视确认。
+- 无。
