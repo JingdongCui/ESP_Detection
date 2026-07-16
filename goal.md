@@ -6,10 +6,13 @@
 
 核心验收指标：
 
-- 单个模型阶段的 `infer_diag` 延时恢复到约 70 ms。
-- 建议硬门槛：`wb <= 100 ms`、`logo <= 100 ms`，连续至少 30 次无持续回退。
+- 单个模型阶段的 `infer_diag` 延时稳定恢复到约 70 ms；验收看分布和长稳结果，不以少量快样本代替。
+- 预热后 waybill/logo 单阶段分别满足：P50=`60～85 ms`、P95=`<=100 ms`、最大值=`<=150 ms`；至少 300 个有效样本中不得出现 `>=500 ms`。
 - 级联总延时按实际命中路径另行统计；不要把 `wb + crop + logo` 的级联总时间误当成单模型 70 ms 指标。
 - Ethernet 必须能启动、Link Up、取得静态地址 `192.168.10.2`，并能连接队友上位机。
+- 所有必需任务必须创建成功；栈地址、最低剩余水位、内部 SRAM/PSRAM归属和堆连续块必须有实测证据。
+- 上位机控件必须与板端真实函数逐项对应，设置后由板端 state 回读校正，不能只验证 UI 数字变化。
+- 必须完成构建、协议、实机连接、断线重连、长稳、视觉效果和截图/照片证据验收。
 - 不允许以崩溃、看门狗、丢失真实传感器事件或明显卡 UI 为代价换取延时。
 
 ## 执行顺序
@@ -126,6 +129,66 @@ wait=0.90~0.96 s
 
 结论：现在不是“级联总延时 500 ms”，而是 waybill 和 logo **每个阶段各约 500～600 ms**，级联总 wall time 约 1.1～1.25 s。大量时间不计在 `vision_det` 当前任务 CPU 中，可能发生在 ESP-DL 双核 worker、同优先级调度等待或共享总线/缓存等待中。
 
+## 队友提供的任务栈/RTT观测快照
+
+以下内容由队友通过 JTAG 扫描和 `agentic/.esp-agent/rtt.log` 获取，作为后续 goal 的输入证据。**采样所用固件 SHA、启动选项及其与当前工作树的对应关系尚未核对**；因此先记录为观测快照，不能直接用来证明当前未提交的 PSRAM 栈修改已经生效或未生效。
+
+ESP32-P4 当前配置中 `StackType_t` 为 1 byte；下表“最低剩余”是任务运行以来的历史最低剩余栈，并非瞬时空闲量。JTAG 扫描报告的 19 个栈地址均为 `0x4FFxxxxx`（内部 SRAM），没有栈位于外部 PSRAM `0x48000000–0x4BFFFFFF`。合计分配约 87.48 KiB，历史最低剩余合计约 56.73 KiB。
+
+| 任务 | 核 | 分配 | JTAG最低剩余 | 历史最大使用 | JTAG内存归属 |
+|---|---:|---:|---:|---:|---|
+| swdraw | 0 | 8052 B | 6708 B | 1344 B | 内部 SRAM |
+| vision_det | 1 | 12144 B | 10272 B | 1872 B | 内部 SRAM |
+| vision_disp | 0 | 3956 B | 1492 B | 2464 B | 内部 SRAM |
+| lvgl | 1 | 16244 B | 9444 B | 6800 B | 内部 SRAM |
+| isp_task | 0 | 3948 B | 1404 B | 2544 B | 内部 SRAM |
+| vision_fetch | 0 | 4092 B | 3244 B | 848 B | 内部 SRAM |
+| esp_timer | 0 | 3952 B | 3472 B | 480 B | 内部 SRAM |
+| Tmr Svc | 任意 | 2040 B | 1624 B | 416 B | 内部 SRAM |
+| ipc1 | 1 | 1016 B | 616 B | 400 B | 内部 SRAM |
+| ipc0 | 0 | 1008 B | 472 B | 536 B | 内部 SRAM |
+| dl_mc1 | 1 | 2008 B | 1152 B | 856 B | 内部 SRAM |
+| dl_mc0 | 0 | 1784 B | 928 B | 856 B | 内部 SRAM |
+| sort_real_io | 0 | 3948 B | 1984 B | 1964 B | 内部 SRAM |
+| sort_dbg | 0 | 4084 B | 3176 B | 908 B | 内部 SRAM |
+| cam_isp | 1 | 3948 B | 3244 B | 704 B | 内部 SRAM |
+| sysmon | 0 | 3948 B | 1824 B | 2124 B | 内部 SRAM |
+| main | 0 | 10360 B | 4664 B | 5696 B | 内部 SRAM |
+| IDLE1 | 1 | 1520 B | 1184 B | 336 B | 内部 SRAM |
+| IDLE0 | 0 | 1528 B | 1192 B | 336 B | 内部 SRAM |
+
+RTT 的 `system_monitor` 表中 `STK` 同样表示历史最低剩余栈，最近一张完整记录为 `[SYSMON #5020]`、uptime 约 1260 s：
+
+| 任务 | 核 | RTT CPU | RTT STK最低剩余 |
+|---|---:|---:|---:|
+| IDLE0 | c0 | 52% | 1192 B |
+| dl_mc0 | c0 | 38% | 944 B |
+| dl_mc1 | c1 | 37% | 944 B |
+| IDLE1 | c1 | 36% | 1184 B |
+| vision_det | c1 | 22% | 9308 B |
+| swdraw | c0 | 3% | 6500 B |
+| lvgl | c1 | 3% | 9444 B |
+| sysmon | c0 | 1% | 1836 B |
+| isp_task | c0 | 1% | 1144 B |
+| esp_timer | c0 | 1% | 3472 B |
+| sort_dbg | c0 | 0% | 3176 B |
+| cam_isp | c1 | 0% | 3180 B |
+| main | c0 | 0% | 4664 B |
+| sort_real_io | c0 | 0% | 1984 B |
+| ipc0 | c0 | 0% | 472 B |
+| vision_fetch | c0 | 0% | 3244 B |
+| vision_disp | c0 | 0% | 1516 B |
+| Tmr Svc | 任意 | 0% | 1624 B |
+| ipc1 | c1 | 0% | 616 B |
+
+对 goal 的直接意义：
+
+- 栈容量明显过量的首批候选是 `vision_det`、`swdraw`、`vision_fetch`、`sort_dbg`，但正式缩减前仍需覆盖最坏业务路径并留足安全余量。
+- `vision_disp`、`isp_task`、`sort_real_io`、`sysmon` 的已用量约 2.0～2.5 KiB，不能直接从 4 KiB砍到 2 KiB；优先考虑 3～3.5 KiB并重新跑高水位。
+- `ipc0/ipc1` 和 `dl_mc0/dl_mc1` 的绝对剩余较小，暂不缩减。
+- RTT 显示 `dl_mc0`/`dl_mc1` 分别约占 38%/37% CPU，说明必须把 ESP-DL worker 的实际运行时间纳入 500 ms根因分析，不能仅依赖 `vision_det` 的 current-task CPU。
+- “所有栈均在内部 SRAM”与当前代码声称 Ethernet/ISP 栈使用 PSRAM存在冲突。下一次测试必须同时记录固件 ELF SHA、任务句柄栈起始地址及 `heap_caps_check_integrity_all()` 结果，确认是旧固件快照、创建 API未生效，还是监控表遗漏了 Ethernet 任务。
+
 ## 已确认现状
 
 - 固件工程：`ESP32P4_Detection`
@@ -241,9 +304,13 @@ jpeg_new_encoder_engine(93): no memory for jpeg encoder rxlink
 
 优先方案是早期只预留 JPEG engine 的少量内部 DMA 资源，UVC 大缓冲和 USB 初始化仍最后执行；不要简单把整个 UVC 提前，从而再次挤掉 Ethernet DMA。
 
-## 验证与完成标准
+## 验收方案与完成标准
 
-每次正式代码修改后执行：
+只有以下所有项目都有可复核证据时，goal 才能标记完成。单次启动成功、少量日志、纯 offscreen 启动或只看上位机 UI 均不能作为最终验收。
+
+### 1. 固件与上位机静态检查
+
+板端每次正式修改后执行：
 
 ```bash
 cd /home/kazeform/2026esp/ESP32P4_Detection
@@ -252,14 +319,158 @@ idf.py build
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
-完成必须同时满足：
+串口应优先使用实际存在的 `/dev/serial/by-id/...` 稳定路径；若使用 `/dev/ttyUSB0`，验收记录必须同时写入 USB VID/PID/序列号，避免换板后误烧。
 
-- 连续 30 次单阶段模型延时接近 70 ms，且硬门槛不持续超过 100 ms。
-- Ethernet 和队友上位机控制/图像链路正常。
-- 真实分拣 IO 不丢事件，电机和传感器响应满足业务要求。
-- UI 无不可接受的长时间卡顿。
-- 至少运行 30 分钟无 panic、watchdog、POWERON 异常重启或双核死锁。
-- 更新 `docs/agent/PROJECT.md`、`CURRENT.md`、`HISTORY.md`，并记录所有 A/B 数据与最终取舍。
+上位机至少执行：
+
+```bash
+cd /home/kazeform/2026esp/esp32_host_no_inference
+cmake --build build/linux-debug -j
+ctest --test-dir build/linux-debug --output-on-failure
+```
+
+若工程提供 `qmllint`、格式检查或协议测试目标，也必须运行并保存结果。最终还必须在真实图形会话启动一次；`QT_QPA_PLATFORM=offscreen` 只用于冒烟，不能替代视觉验收。
+
+通过条件：
+
+- 板端 `idf.py build` 零错误；警告须逐条说明是否为既有生成代码警告。
+- `flash` 的 bootloader、partition、app、storage全部 hash verified。
+- Host build和全部 CTest通过，无 QML运行时 error、binding loop或资源加载失败。
+- 验收报告记录根仓库、板端、上位机三个 Git SHA以及固件 ELF SHA256。
+
+### 2. 70 ms推理性能验收
+
+统计对象必须分开：
+
+- `wb`：waybill模型阶段。
+- `logo`：logo模型阶段。
+- `crop`：ROI裁剪/复制阶段，单独统计，不混入70 ms模型指标。
+- `wall`：完整级联端到端时间，用于系统体验验收。
+
+采样规则：
+
+1. 每次冷启动完成全部模块初始化后，丢弃前 10 次推理作为预热。
+2. 至少完成 5 次冷启动；每次启动至少收集 60 个包含 waybill 和 logo 的有效级联样本，总样本数不少于 300。
+3. 样本必须覆盖：Host未启动、Host已连接、metrics开启、图像上传、控制页连续操作、真实 IO启用六种负载；不得只在关闭业务模块的实验配置上验收。
+4. 使用脚本从原始 RTT/UART日志生成 CSV，至少包含 `boot_id/sample_id/wb/crop/logo/wall/cpu/wait/host_connected/image_send/real_io`。
+5. 报告每个阶段的 count、min、P50、P90、P95、P99、max、mean和标准差，并保留原始日志。
+
+硬性通过门槛：
+
+- waybill：P50=`60～85 ms`、P95=`<=100 ms`、max=`<=150 ms`。
+- logo：P50=`60～85 ms`、P95=`<=100 ms`、max=`<=150 ms`。
+- 至少 300 个验收样本中，任何单模型阶段出现 `>=500 ms`，本项直接失败并继续定位，不能按异常值删除。
+- 两模型均执行的级联路径建议 P95=`<=220 ms`、max=`<=300 ms`；若模型固有耗时证明无法满足，必须给出拆分数据和用户确认，不能自行放宽。
+- 连接Host、发送图像或操作控制页前后，单阶段P95劣化不得超过10%；不允许从70 ms重新稳定升到500 ms。
+- 日志中不得出现模型任务创建失败、推理超时、framebuffer竞态、panic、watchdog或异常重启。
+
+### 3. 任务启动、栈水位与内存验收
+
+每次冷启动必须枚举所有任务，而不是只枚举当前能被RTT表看到的19个。至少包括：
+
+- 系统：`main`、`ipc0/1`、`IDLE0/1`、`Tmr Svc`、`esp_timer`。
+- UI/视觉：`lvgl`、`swdraw`、`vision_fetch`、`vision_disp`、`vision_det`、`dl_mc0/1`。
+- 相机/ISP：驱动 `isp_task`、应用 `cam_isp`。
+- 分拣：`sort_real_io`、`sort_dbg`，以及测试时临时创建的任务。
+- 网络：`emac_rx`、`tcpip_thread`、`eth_control`、`eth_img_prod`、`eth_img_send`。
+- UVC启用后：USB/UVC/JPEG相关任务和句柄。
+
+每个任务至少记录：任务名、handle、core/affinity、priority、分配栈字节、历史最低剩余字节、最大使用字节、栈起始地址、内部 SRAM/PSRAM归属、创建返回值。
+
+通过条件：
+
+- 所有必需任务和驱动句柄均创建成功，无 `ESP_ERR_NO_MEM`、NULL handle或静默跳过。
+- 连续运行60分钟后，应用自建任务的最低剩余栈必须同时满足 `>=512 B` 且 `>=分配栈的20%`；中断/复杂库调用任务建议保留至少1 KiB。
+- 可调应用任务若长期最低剩余 `>60%`，应缩栈或迁入PSRAM，或者在验收报告中说明保留原因；目标水位区间为剩余约25%～50%，不是把栈压到溢出边缘。
+- `ipc0/1`、`dl_mc0/1` 等IDF/ESP-DL静态任务不为节省少量内存盲目缩减；除非有专门压力测试和上游实现依据。
+- 适合PSRAM的 Ethernet应用任务、低优先级ISP状态任务必须以实际栈地址证明位于PSRAM；不能只以调用了 `WithCaps` API作为证据。
+- `vision_det`、ESP-DL worker、EMAC RX和中断关键路径继续使用内部 SRAM，除非新的实机证据证明迁移安全。
+- 完整初始化后记录 `MALLOC_CAP_INTERNAL`、`MALLOC_CAP_DMA|INTERNAL`、`MALLOC_CAP_SPIRAM` 的 free/min/largest block；前后对比必须证明没有持续泄漏，且能满足 Ethernet/JPEG DMA所需对齐连续块。
+- 运行前后执行堆完整性检查；不得出现heap corruption、stack overflow hook、任务看门狗或双核死锁。
+- “充分利用内存”定义为：安全水位满足、适合外置的栈实际进入PSRAM、内部 DMA连续块足够、无明显超配且无泄漏；不以单纯追求最低剩余字节为目标。
+
+建议压力路径：同时保持相机30 fps、LCD刷新、级联推理、Ethernet metrics、图像JPEG发送、真实 IO轮询和Host控制操作，持续60分钟后再读取最终水位。
+
+### 4. 上位机—板端控制逻辑闭环验收
+
+每个控制项必须验证“Host发包 → 板端严格解析 → 调用真实业务函数 → 板端回传state/error → Host按回传值显示”完整闭环：
+
+| 控制项 | 实机动作/观测 | 回读验收 |
+|---|---|---|
+| 屏幕亮度 | 板端LCD亮度实际改变 | `display.screen_brightness`与板端当前值一致 |
+| 相机亮度/对比度/饱和度/色相 | 板端预览画面产生对应变化 | state返回实际对齐后的值及supported/min/max/step |
+| 对比度/饱和度自动 | 自动与手动状态实际切换；禁用项正确灰化 | 布尔值与板端状态一致 |
+| 检测开关 | 推理日志和检测结果实际停止/恢复 | `vision.detection_enabled`一致 |
+| 叠框开关 | Host/板端约定的框显示实际隐藏/恢复 | `vision.preview_overlay_enabled`一致 |
+| waybill/logo阈值 | 边界样本检出行为或板端阈值实际改变 | 两个threshold回读一致 |
+| A/B/C速度 | 三路PWM/电机命令分别改变，不串路 | 三路设置值分别回读一致 |
+| 图像上报 | image TCP payload停止/恢复 | `report.image_enabled`一致 |
+| 指标上报 | metrics停止后仍可用control重新开启 | `report.metrics_enabled`一致 |
+| 重启 | 板端真实重启并重新连接两个端口 | Host恢复连接并自动重新`get`状态 |
+
+每项至少测试：最小值、典型值、最大值、重复设置同值、快速连续修改。所有范围必须以板端capabilities为准，不得把Host写死范围当真实能力。
+
+负向协议测试必须覆盖：未知op、未知key、缺字段、错误JSON、错误类型、越界值、错误step、超长payload、截断包、重复包和不支持项。通过条件是板端不改变状态、回传明确error、控制连接不断开且后续合法命令仍可执行。
+
+### 5. Ethernet连接、断线与恢复验收
+
+至少执行：
+
+- 5次板端冷启动，Host先启动；两个TCP端口均应自动连接并完成时间/状态同步。
+- 5次板端冷启动，Host后启动；重连不能造成任务泄漏、堆持续下降或推理升到500 ms。
+- 10次Host关闭/重开；control和image都必须恢复，旧socket和旧队列正确清理。
+- 5次网线拔插或接口down/up；Link/IP/两个TCP通道均自动恢复。
+- 5次远程重启；Host必须恢复连接、重新查询状态，UI不得保留错误的“已连接”假状态。
+- 发送至少100个控制请求并穿插图像传输；无协议错位、粘包误解析、死连接或无限重试刷屏。
+
+每轮保存时间戳日志，统计连接耗时、重连次数、失败次数、堆变化和推理P95。任何一次无法自动恢复、异常POWERON重启或稳定推理回退均判失败。
+
+### 6. 分拣真实IO与整机长稳验收
+
+- S1上升沿建包、S2/S4状态转换、三路电机命令、编码器采样和人工分类路径必须逐项实测。
+- 每个有效传感器至少触发50次，记录输入边沿、package id、调度状态和电机输出；不得漏事件、重复建包或串包。
+- 在推理峰值、图像上传和控制操作同时发生时重复测试，真实IO响应不能因追求70 ms而长期饿死。
+- 连续运行至少60分钟；建议最终交付前运行2小时。期间保持Host连接、相机、LCD、推理、metrics、周期图像、真实IO和控制操作。
+- 长稳期间不得出现panic、watchdog、stack overflow、heap corruption、双核死锁、异常重启、连接永久中断或持续内存下降。
+
+### 7. UI视觉与截图/照片验收
+
+最终必须在真实图形环境检查上位机全部页面，不能只看编译和日志。至少保存以下证据：
+
+1. Host连接页：control/image两个通道均连接、IP/状态正确。
+2. 实时图像页：画面比例正确，waybill和三类Logo框位置/颜色正确，无拉伸、错位或旧框残留。
+3. 控制页全景：分组、标签、单位、范围、禁用状态和当前值清晰可见。
+4. 控制操作前/后对比：至少包含LCD亮度、一个ISP参数、检测/叠框开关和一路电机速度。
+5. capabilities/state同步后的页面：Host显示值与板端日志一致。
+6. 非法控制请求的错误反馈，以及错误后连接仍正常。
+7. 断线、重连、板端重启后的页面状态，不能残留假连接或旧状态。
+8. 板端LCD/相机预览实拍：亮度、ISP变化、检测框和页面显示效果；若UVC已恢复，可补充数字截图，但不能用它替代必要的实拍。
+
+截图要求：使用真实窗口尺寸与目标分辨率，包含时间/测试编号；不得裁掉关键状态。逐张人工检查文字截断、重叠、颜色对比、滑块/开关状态、框坐标和高DPI缩放。发现视觉问题须修复并重新截图。
+
+### 8. 验收证据与最终报告
+
+统一保存到 `docs/agent/archive/2026-07-17-goal-acceptance/`（大体积原始日志可放忽略目录，只提交摘要、哈希和路径），至少包含：
+
+- `README.md`：三仓库SHA、硬件/串口、构建与烧录命令、最终结论。
+- `inference.csv`和统计摘要：全部有效样本及P50/P95/P99/max。
+- `tasks.csv`：完整任务、优先级、core、栈地址、水位和内存归属。
+- `memory.csv`：各阶段internal/DMA/PSRAM free/min/largest block。
+- `connection.md`：冷启动、Host重启、网线拔插、远程重启结果。
+- `controls.md`：每个控制键的正向、边界、负向和回读结果。
+- `stability.md`：60分钟/2小时长稳记录、重启计数、最低堆和最低栈。
+- `screenshots/`：上述Host截图与板端实拍，带编号和说明。
+- 原始UART/RTT/Host日志的文件名、SHA256和保存位置。
+
+最终完成清单：
+
+- 推理300+样本满足70 ms分布要求，零个500 ms回退。
+- 所有必需任务/句柄启动，栈水位安全，PSRAM归属真实生效，内部DMA内存充足且无泄漏。
+- Host与板端所有约定控制项逐项闭环，正向/边界/错误测试通过。
+- Ethernet启动、断线、重连、远程重启和图像/指标链路通过。
+- 真实分拣IO和长稳通过，UI与截图人工验收通过。
+- `docs/agent/PROJECT.md`、`CURRENT.md`、`HISTORY.md`及阶段归档已更新。
+- 三个仓库工作树干净，所有最终提交和stable标签均可定位；不存在未解释的实验残留。
 
 ## 强制 Git 备份制度
 
@@ -322,7 +533,7 @@ git -C /home/kazeform/2026esp/ESP32P4_Detection tag backup/goal-start-20260716
 - 推荐用独立 commit/revert 保存 A/B 实验，不要依赖 stash 作为唯一备份。
 - 长日志可以归档到 `docs/agent/archive/`，不要把整个 `build/` 或大体积串口原始文件提交进 Git。
 - 任何“看起来有效”的修复必须先保存前后两份日志和两个可定位提交，再进入下一实验。
-- 只有连续 30 次延时、以太网、真实 IO 和稳定性都通过后，才能给阶段打 stable 标签。
+- 只有完成本文件规定的5次冷启动、300+推理样本、连接/控制/真实IO和长稳验收后，才能给阶段打stable标签。
 
 ## 操作约束
 
