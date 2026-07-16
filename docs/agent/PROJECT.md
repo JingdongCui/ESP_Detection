@@ -238,6 +238,14 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - 本轮按用户要求未运行 TCP 模拟测试。
 - 2026-07-04 two-stage 给队友压缩包：
   - `/home/kazeform/2026esp/new_merge_motor_two_stage_20260704.tar.gz`
+
+## Motor Sorting Algorithm Documentation
+
+- 第 9 包当前电机分拣实现说明：`docs/motor_sorting_algorithm.md`。
+- 主状态机属于包裹对象：`sorter_package_track_t.state`；每个活动包裹独立跟踪状态。
+- B/C 传送带是共享资源，通过 `b_owner`、`c_owner` 仲裁；调度器另有 `estop`/`paused_after_estop` 全局运行状态。
+- 当前默认配置中 S3 和三路编码器 GPIO 均为 `-1`，对应出口依赖状态超时兜底。
+- 当前 `belt_c_timeout_ms=2000` 小于 `c_min_busy_ms=2500`；默认情况下 C 段通用状态超时通常早于编码器距离完成条件。
   - 排除 `build`、`.git`、`.codegraph`、`.cache`；保留源码、`components`、`managed_components`。
 - `motor-roi` 临时开发者硬件调试页：
   - 备份点：`f792882 backup roi before temporary developer debug ui`。
