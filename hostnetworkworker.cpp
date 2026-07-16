@@ -171,8 +171,11 @@ void HostNetworkWorker::processBuffer(StreamState *state, bool imageStream)
 
 void HostNetworkWorker::handlePacket(const HostProtocol::PacketHeader &header, const QByteArray &payload, bool imageStream)
 {
-    if (header.type == HostProtocol::kTypeImageRgb888) {
-        Q_UNUSED(imageStream);
+    if (header.type == HostProtocol::kTypeImageResult) {
+        if (!imageStream) {
+            emit logLineReady(QStringLiteral("图像事务出现在控制通道 seq=%1").arg(header.seq));
+            return;
+        }
         handleImage(header, payload);
     } else if (header.type == HostProtocol::kTypeMetricsJson) {
         emit metricsReceived(payload);
@@ -190,35 +193,43 @@ void HostNetworkWorker::handlePacket(const HostProtocol::PacketHeader &header, c
 
 void HostNetworkWorker::handleImage(const HostProtocol::PacketHeader &header, const QByteArray &payload)
 {
-    if (header.width == 0 || header.height == 0) {
-        emit logLineReady(QStringLiteral("图像包无效 seq=%1").arg(header.seq));
+    if (header.version == HostProtocol::kVersionV1) {
+        if (header.width == 0 || header.height == 0 || header.pixelFormat != HostProtocol::kPixelJpeg ||
+            payload.size() < 2 || !payload.startsWith("\xff\xd8")) {
+            emit logLineReady(QStringLiteral("丢弃 V1 JPEG seq=%1：公共头或 JPEG 无效").arg(header.seq));
+            return;
+        }
+        ++m_imageCount;
+        const quint16 confidenceX1000 = quint16(qMin<quint32>(100, header.reserved2 & 0xff) * 10);
+        emit imageResultReady(header.version, header.seq, header.width, header.height,
+                              header.reserved, confidenceX1000, 0, QVariantList{}, payload);
         return;
     }
 
-    QString formatText;
-    if (header.pixelFormat == HostProtocol::kPixelRgb888) {
-        const qsizetype expected = qsizetype(header.width) * qsizetype(header.height) * 3;
-        if (payload.size() != expected) {
-            emit logLineReady(QStringLiteral("RGB 图像包无效 seq=%1 bytes=%2 expected=%3").arg(header.seq).arg(payload.size()).arg(expected));
-            return;
-        }
-        formatText = QStringLiteral("RGB888");
-    } else if (header.pixelFormat == HostProtocol::kPixelJpeg) {
-        if (payload.isEmpty() || !payload.startsWith("\xff\xd8")) {
-            emit logLineReady(QStringLiteral("JPEG 图像包无效 seq=%1 bytes=%2").arg(header.seq).arg(payload.size()));
-            return;
-        }
-        formatText = QStringLiteral("JPEG");
-    } else {
-        emit logLineReady(QStringLiteral("不支持的图像格式 seq=%1 pixel=%2").arg(header.seq).arg(header.pixelFormat));
+    HostProtocol::ImageResultV2 result;
+    QString error;
+    if (!HostProtocol::parseImageResultV2(header, payload, &result, &error)) {
+        emit logLineReady(QStringLiteral("丢弃 V2 图像 seq=%1：%2").arg(header.seq).arg(error));
         return;
     }
 
+    QVariantList boxes;
+    boxes.reserve(result.boxes.size());
+    for (const HostProtocol::ImageBoxV2 &box : result.boxes) {
+        QVariantMap item;
+        item.insert(QStringLiteral("stage"), box.stage);
+        item.insert(QStringLiteral("category"), box.category);
+        item.insert(QStringLiteral("scoreX1000"), box.scoreX1000);
+        item.insert(QStringLiteral("x1"), box.x1);
+        item.insert(QStringLiteral("y1"), box.y1);
+        item.insert(QStringLiteral("x2"), box.x2);
+        item.insert(QStringLiteral("y2"), box.y2);
+        boxes.append(item);
+    }
     ++m_imageCount;
-    emit imageFrameSeen(header.seq, header.width, header.height, header.pixelFormat,
-                        header.reserved, quint8(header.reserved2 & 0xff), formatText);
-    emit imagePreviewReady(header.seq, header.width, header.height, header.pixelFormat,
-                           header.reserved, quint8(header.reserved2 & 0xff), payload, formatText);
+    emit imageResultReady(header.version, result.frameId, result.width, result.height,
+                          result.primaryClassId, result.primaryConfidenceX1000,
+                          result.inferTimeMs, boxes, result.jpeg);
 }
 
 void HostNetworkWorker::sendJsonPacket(quint16 type, const QByteArray &json)

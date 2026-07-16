@@ -17,17 +17,28 @@ PremiumPanel {
     glassOpacity: 0.18
     clip: true
 
-    Image {
-        id: frameImage
+    Item {
+        id: imageViewport
         anchors.fill: parent
         anchors.margins: 18
-        source: root.imageUrl
-        fillMode: Image.PreserveAspectFit
-        asynchronous: true
-        cache: false
-        smooth: true
-        opacity: source.toString().length > 0 ? 1 : 0
-        Behavior on opacity { NumberAnimation { duration: 260 } }
+
+        readonly property real displayWidth: frameImage.paintedWidth
+        readonly property real displayHeight: frameImage.paintedHeight
+        readonly property real displayX: (width - displayWidth) / 2
+        readonly property real displayY: (height - displayHeight) / 2
+
+        Image {
+            id: frameImage
+            anchors.fill: parent
+            source: root.imageUrl
+            fillMode: Image.PreserveAspectFit
+            asynchronous: true
+            cache: false
+            smooth: true
+            sourceSize.width: 1280
+            opacity: source.toString().length > 0 ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 260 } }
+        }
     }
 
     Canvas {
@@ -110,17 +121,18 @@ PremiumPanel {
     }
 
     Repeater {
-        model: root.overlayEnabled ? root.detections : []
+        model: root.overlayEnabled && frameImage.status === Image.Ready ? root.detections : []
         delegate: Rectangle {
             id: detectionBox
             property real conf: Number(modelData.confidence || 0) * 100
-            x: 18 + Number(modelData.x || 0) * (root.width - 36)
-            y: 18 + Number(modelData.y || 0) * (root.height - 36)
-            width: Number(modelData.w || 0.2) * (root.width - 36)
-            height: Number(modelData.h || 0.2) * (root.height - 36)
-            color: detectionBox.conf < host.dangerThreshold ? theme.dangerWash : theme.accentMist
-            border.width: 1
-            border.color: detectionBox.conf < host.dangerThreshold ? theme.danger : theme.accent
+            property color boxColor: modelData.color || theme.accent
+            x: imageViewport.x + imageViewport.displayX + Number(modelData.x || 0) * imageViewport.displayWidth
+            y: imageViewport.y + imageViewport.displayY + Number(modelData.y || 0) * imageViewport.displayHeight
+            width: Number(modelData.w || 0.2) * imageViewport.displayWidth
+            height: Number(modelData.h || 0.2) * imageViewport.displayHeight
+            color: "transparent"
+            border.width: 2
+            border.color: boxColor
             radius: 4
             opacity: 0.96
             Behavior on x { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
@@ -148,7 +160,7 @@ PremiumPanel {
                     width: modelData.w
                     height: modelData.h
                     radius: 2
-                    color: detectionBox.conf < host.dangerThreshold ? theme.danger : theme.accent
+                    color: detectionBox.boxColor
                 }
             }
             Rectangle {
@@ -156,8 +168,8 @@ PremiumPanel {
                 y: -32
                 height: 28
                 radius: 10
-                color: detectionBox.conf < host.dangerThreshold ? theme.dangerWash : theme.accentWash
-                border.color: detectionBox.conf < host.dangerThreshold ? theme.danger : theme.accent
+                color: Qt.rgba(detectionBox.boxColor.r, detectionBox.boxColor.g, detectionBox.boxColor.b, 0.22)
+                border.color: detectionBox.boxColor
                 width: labelText.width + 18
                 Text {
                     id: labelText

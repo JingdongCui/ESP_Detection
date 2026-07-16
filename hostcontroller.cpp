@@ -166,8 +166,7 @@ HostController::HostController(QObject *parent)
     connect(m_networkThread, &QThread::started, m_networkWorker, &HostNetworkWorker::start);
     connect(m_networkWorker, &HostNetworkWorker::stateChanged, this, &HostController::onNetworkStateChanged);
     connect(m_networkWorker, &HostNetworkWorker::bytesReceived, this, &HostController::onNetworkBytesReceived);
-    connect(m_networkWorker, &HostNetworkWorker::imageFrameSeen, this, &HostController::onNetworkImageFrameSeen);
-    connect(m_networkWorker, &HostNetworkWorker::imagePreviewReady, this, &HostController::onNetworkImagePreviewReady);
+    connect(m_networkWorker, &HostNetworkWorker::imageResultReady, this, &HostController::onNetworkImageResultReady);
     connect(m_networkWorker, &HostNetworkWorker::metricsReceived, this, &HostController::handleTelemetry);
     connect(m_networkWorker, &HostNetworkWorker::detectionJsonReceived, this, &HostController::handleDetectionJson);
     connect(m_networkWorker, &HostNetworkWorker::logLineReady, this, &HostController::appendLog);
@@ -319,32 +318,34 @@ void HostController::onNetworkBytesReceived(qint64 bytes)
     emit statsChanged();
 }
 
-void HostController::onNetworkImageFrameSeen(quint32 frameSeq, quint16 width, quint16 height, quint16,
-                                             quint16 classId, quint8 confidencePct, const QString &formatText)
+void HostController::onNetworkImageResultReady(quint16 protocolVersion, quint32 frameId, quint16 width, quint16 height,
+                                               quint16 classId, quint16 confidenceX1000, quint16 inferTimeMs,
+                                               const QVariantList &boxes, const QByteArray &jpeg)
 {
-    Q_UNUSED(width)
-    Q_UNUSED(height)
-    Q_UNUSED(formatText)
+    const int confidencePct = qBound(0, qRound(double(confidenceX1000) / 10.0), 100);
+    const QVariantList detections = makeImageDetections(width, height, boxes);
+    if (!saveLatestPreviewImage(frameId, width, height, HostProtocol::kPixelJpeg, jpeg)) {
+        appendLog(QStringLiteral("V%1 JPEG 解码失败 frame=%2").arg(protocolVersion).arg(frameId));
+        return;
+    }
+
     ++m_imageCount;
+    m_detectionCount += detections.size();
+    m_currentDetections = detections;
+    if (protocolVersion == HostProtocol::kImageVersionV2) {
+        m_latencyMs = inferTimeMs;
+    }
     updateLatestCategory(classId, confidencePct);
-    m_latestFrameInfo = QStringLiteral("包裹#%1  %2  %3%").arg(frameSeq).arg(m_latestCategoryLabel).arg(m_latestCategoryConfidence);
+    m_latestFrameInfo = protocolVersion == HostProtocol::kImageVersionV2
+        ? QStringLiteral("帧#%1  %2  %3%  %4 ms  %5 个框")
+              .arg(frameId).arg(m_latestCategoryLabel).arg(m_latestCategoryConfidence).arg(inferTimeMs).arg(detections.size())
+        : QStringLiteral("帧#%1  %2  %3%  V1 JPEG").arg(frameId).arg(m_latestCategoryLabel).arg(m_latestCategoryConfidence);
+    addImageHistoryRecord(frameId, width, height, classId, confidencePct, inferTimeMs,
+                          QStringLiteral("V%1 JPEG").arg(protocolVersion), m_latestImageUrl, detections);
+    emit detectionChanged();
     emit statsChanged();
     emit imageChanged();
     emit dashboardChanged();
-}
-
-void HostController::onNetworkImagePreviewReady(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat,
-                                                quint16 classId, quint8 confidencePct, const QByteArray &payload, const QString &formatText)
-{
-    if (saveLatestPreviewImage(frameSeq, width, height, pixelFormat, payload)) {
-        addImageHistoryRecord(frameSeq, width, height, classId, confidencePct, formatText, m_latestImageUrl);
-        updateLatestCategory(classId, confidencePct);
-        m_latestFrameInfo = QStringLiteral("包裹#%1  %2  %3%").arg(frameSeq).arg(m_latestCategoryLabel).arg(m_latestCategoryConfidence);
-        emit detectionChanged();
-        emit statsChanged();
-        emit imageChanged();
-        emit dashboardChanged();
-    }
 }
 
 void HostController::onNewConnection()
@@ -421,7 +422,7 @@ void HostController::processBuffer()
 
 void HostController::handlePacket(const HostProtocol::PacketHeader &header, const QByteArray &payload)
 {
-    if (header.type == HostProtocol::kTypeImageRgb888) {
+    if (header.type == HostProtocol::kTypeImageResult) {
         handleImage(header, payload);
     } else if (header.type == HostProtocol::kTypeMetricsJson) {
         handleTelemetry(payload);
@@ -434,40 +435,39 @@ void HostController::handlePacket(const HostProtocol::PacketHeader &header, cons
 
 void HostController::handleImage(const HostProtocol::PacketHeader &header, const QByteArray &payload)
 {
-    if (header.width == 0 || header.height == 0) {
-        appendLog(QStringLiteral("图像包无效 seq=%1").arg(header.seq));
+    if (header.version == HostProtocol::kVersionV1) {
+        if (header.width == 0 || header.height == 0 || header.pixelFormat != HostProtocol::kPixelJpeg ||
+            payload.size() < 2 || !payload.startsWith("\xff\xd8")) {
+            appendLog(QStringLiteral("丢弃 V1 JPEG seq=%1：公共头或 JPEG 无效").arg(header.seq));
+            return;
+        }
+        onNetworkImageResultReady(header.version, header.seq, header.width, header.height,
+                                  header.reserved, quint16(qMin<quint32>(100, header.reserved2 & 0xff) * 10),
+                                  0, QVariantList{}, payload);
         return;
     }
 
-    QString formatText;
-    if (header.pixelFormat == HostProtocol::kPixelRgb888) {
-        const qsizetype expected = qsizetype(header.width) * qsizetype(header.height) * 3;
-        if (payload.size() != expected) {
-            appendLog(QStringLiteral("RGB 图像包无效 seq=%1 bytes=%2 expected=%3").arg(header.seq).arg(payload.size()).arg(expected));
-            return;
-        }
-        formatText = QStringLiteral("RGB888");
-    } else if (header.pixelFormat == HostProtocol::kPixelJpeg) {
-        if (payload.isEmpty() || !payload.startsWith("\xff\xd8")) {
-            appendLog(QStringLiteral("JPEG 图像包无效 seq=%1 bytes=%2").arg(header.seq).arg(payload.size()));
-            return;
-        }
-        formatText = QStringLiteral("JPEG");
-    } else {
-        appendLog(QStringLiteral("不支持的图像格式 seq=%1 pixel=%2").arg(header.seq).arg(header.pixelFormat));
+    HostProtocol::ImageResultV2 result;
+    QString error;
+    if (!HostProtocol::parseImageResultV2(header, payload, &result, &error)) {
+        appendLog(QStringLiteral("丢弃 V2 图像 seq=%1：%2").arg(header.seq).arg(error));
         return;
     }
-
-    m_imageCount++;
-    if (saveLatestPreviewImage(header.seq, header.width, header.height, header.pixelFormat, payload)) {
-        addImageHistoryRecord(header.seq, header.width, header.height, header.reserved, quint8(header.reserved2 & 0xff), formatText, m_latestImageUrl);
-        updateLatestCategory(header.reserved, int(header.reserved2 & 0xff));
-        m_latestFrameInfo = QStringLiteral("包裹#%1  %2  %3%").arg(header.seq).arg(m_latestCategoryLabel).arg(m_latestCategoryConfidence);
-        emit detectionChanged();
-        emit statsChanged();
-        emit imageChanged();
-        emit dashboardChanged();
+    QVariantList boxes;
+    for (const HostProtocol::ImageBoxV2 &box : result.boxes) {
+        QVariantMap item;
+        item.insert(QStringLiteral("stage"), box.stage);
+        item.insert(QStringLiteral("category"), box.category);
+        item.insert(QStringLiteral("scoreX1000"), box.scoreX1000);
+        item.insert(QStringLiteral("x1"), box.x1);
+        item.insert(QStringLiteral("y1"), box.y1);
+        item.insert(QStringLiteral("x2"), box.x2);
+        item.insert(QStringLiteral("y2"), box.y2);
+        boxes.append(item);
     }
+    onNetworkImageResultReady(header.version, result.frameId, result.width, result.height,
+                              result.primaryClassId, result.primaryConfidenceX1000,
+                              result.inferTimeMs, boxes, result.jpeg);
 }
 
 void HostController::handleTelemetry(const QByteArray &payload)
@@ -494,7 +494,9 @@ void HostController::handleDetectionJson(const QByteArray &payload)
         appendLog(QStringLiteral("检测 JSON 解析失败"));
         return;
     }
-    applyDetectionFrame(doc.object().toVariantMap(), false);
+    if (m_latestImageUrl.isEmpty()) {
+        applyDetectionFrame(doc.object().toVariantMap(), false);
+    }
 }
 
 bool HostController::saveLatestPreviewImage(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload)
@@ -544,8 +546,53 @@ bool HostController::saveLatestPreviewImage(quint32 frameSeq, quint16 width, qui
     return true;
 }
 
+QVariantList HostController::makeImageDetections(quint16 width, quint16 height, const QVariantList &boxes) const
+{
+    QVariantList detections;
+    detections.reserve(boxes.size());
+    for (int drawStage = 0; drawStage <= 1; ++drawStage) {
+        for (const QVariant &value : boxes) {
+            const QVariantMap item = value.toMap();
+            const int stage = item.value(QStringLiteral("stage")).toInt();
+            if (stage != drawStage) {
+                continue;
+            }
+
+            HostProtocol::ImageBoxV2 box;
+            box.stage = quint8(stage);
+            box.category = quint8(item.value(QStringLiteral("category")).toUInt());
+            box.scoreX1000 = quint16(item.value(QStringLiteral("scoreX1000")).toUInt());
+            box.x1 = quint16(item.value(QStringLiteral("x1")).toUInt());
+            box.y1 = quint16(item.value(QStringLiteral("y1")).toUInt());
+            box.x2 = quint16(item.value(QStringLiteral("x2")).toUInt());
+            box.y2 = quint16(item.value(QStringLiteral("y2")).toUInt());
+            HostProtocol::NormalizedImageBox normalized;
+            if (!HostProtocol::normalizeImageBox(width, height, box, &normalized)) {
+                continue;
+            }
+
+            QVariantMap detection;
+            detection.insert(QStringLiteral("stage"), stage);
+            detection.insert(QStringLiteral("category"), box.category);
+            detection.insert(QStringLiteral("confidence"), box.scoreX1000 / 1000.0);
+            detection.insert(QStringLiteral("x"), normalized.x);
+            detection.insert(QStringLiteral("y"), normalized.y);
+            detection.insert(QStringLiteral("w"), normalized.width);
+            detection.insert(QStringLiteral("h"), normalized.height);
+            detection.insert(QStringLiteral("label"), stage == 0 ? QStringLiteral("面单") : categoryLabelFromId(box.category));
+            detection.insert(QStringLiteral("color"), stage == 0 ? QStringLiteral("#00ff00")
+                                                                   : box.category == 1 ? QStringLiteral("#ffff00")
+                                                                   : box.category == 2 ? QStringLiteral("#0066ff")
+                                                                                       : QStringLiteral("#ff3030"));
+            detections.append(detection);
+        }
+    }
+    return detections;
+}
+
 void HostController::addImageHistoryRecord(quint32 frameSeq, quint16 width, quint16 height, quint16 classId,
-                                           quint8 confidencePct, const QString &formatText, const QString &imageUrl)
+                                           int confidencePct, quint16 inferTimeMs, const QString &formatText,
+                                           const QString &imageUrl, const QVariantList &detections)
 {
     if (imageUrl.isEmpty()) {
         return;
@@ -572,11 +619,11 @@ void HostController::addImageHistoryRecord(quint32 frameSeq, quint16 width, quin
     record.insert(QStringLiteral("title"), QStringLiteral("%1  %2").arg(packageLabel, category));
     record.insert(QStringLiteral("model"), QStringLiteral("板端 %1 预览").arg(formatText));
     record.insert(QStringLiteral("resolution"), QStringLiteral("%1 x %2").arg(width).arg(height));
-    record.insert(QStringLiteral("processMs"), m_lastImageEncodeMs);
-    record.insert(QStringLiteral("count"), 0);
-    record.insert(QStringLiteral("confidence"), 0.0);
-    record.insert(QStringLiteral("danger"), false);
-    record.insert(QStringLiteral("detections"), QVariantList{});
+    record.insert(QStringLiteral("processMs"), inferTimeMs);
+    record.insert(QStringLiteral("count"), detections.size());
+    record.insert(QStringLiteral("confidence"), confidence / 100.0);
+    record.insert(QStringLiteral("danger"), confidence < m_dangerThreshold);
+    record.insert(QStringLiteral("detections"), detections);
 
     m_frameHistory.prepend(record);
     while (m_frameHistory.size() > 48) {

@@ -123,10 +123,9 @@ signals:
 private:
     void onNetworkStateChanged(bool listening, bool connected, const QString &statusText);
     void onNetworkBytesReceived(qint64 bytes);
-    void onNetworkImageFrameSeen(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat,
-                                 quint16 classId, quint8 confidencePct, const QString &formatText);
-    void onNetworkImagePreviewReady(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat,
-                                    quint16 classId, quint8 confidencePct, const QByteArray &payload, const QString &formatText);
+    void onNetworkImageResultReady(quint16 protocolVersion, quint32 frameId, quint16 width, quint16 height,
+                                   quint16 classId, quint16 confidenceX1000, quint16 inferTimeMs,
+                                   const QVariantList &boxes, const QByteArray &jpeg);
     void onNewConnection();
     void onReadyRead();
     void onDisconnected();
@@ -136,8 +135,10 @@ private:
     void handleTelemetry(const QByteArray &payload);
     void handleDetectionJson(const QByteArray &payload);
     bool saveLatestPreviewImage(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload);
+    QVariantList makeImageDetections(quint16 width, quint16 height, const QVariantList &boxes) const;
     void addImageHistoryRecord(quint32 frameSeq, quint16 width, quint16 height, quint16 classId,
-                               quint8 confidencePct, const QString &formatText, const QString &imageUrl);
+                               int confidencePct, quint16 inferTimeMs, const QString &formatText,
+                               const QString &imageUrl, const QVariantList &detections);
     void applyMetrics(const QVariantMap &metrics);
     void applyDetectionFrame(const QVariantMap &frame, bool forceUpdate);
     void appendMetricHistory();

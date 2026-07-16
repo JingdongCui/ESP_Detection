@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(esp32_host_no_inference VERSION 0.1 LANGUAGES CXX)
 
 include(GNUInstallDirs)
+include(CTest)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -76,4 +77,15 @@ if(WIN32 OR APPLE)
         NO_UNSUPPORTED_PLATFORM_ERROR
     )
     install(SCRIPT ${deploy_script})
+endif()
+
+if(BUILD_TESTING)
+    find_package(Qt6 REQUIRED COMPONENTS Test)
+    qt_add_executable(packetprotocol_tests
+        tests/packetprotocol_tests.cpp
+        packetprotocol.cpp
+        packetprotocol.h
+    )
+    target_link_libraries(packetprotocol_tests PRIVATE Qt6::Test)
+    add_test(NAME packetprotocol_tests COMMAND packetprotocol_tests)
 endif()

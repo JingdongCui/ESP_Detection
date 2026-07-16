@@ -7,6 +7,7 @@
 #include <QPointer>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QVariantList>
 
 class HostNetworkWorker : public QObject
 {
@@ -24,10 +25,9 @@ public slots:
 signals:
     void stateChanged(bool listening, bool connected, const QString &statusText);
     void bytesReceived(qint64 bytes);
-    void imageFrameSeen(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat,
-                        quint16 classId, quint8 confidencePct, const QString &formatText);
-    void imagePreviewReady(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat,
-                           quint16 classId, quint8 confidencePct, const QByteArray &payload, const QString &formatText);
+    void imageResultReady(quint16 protocolVersion, quint32 frameId, quint16 width, quint16 height,
+                          quint16 classId, quint16 confidenceX1000, quint16 inferTimeMs,
+                          const QVariantList &boxes, const QByteArray &jpeg);
     void metricsReceived(const QByteArray &payload);
     void detectionJsonReceived(const QByteArray &payload);
     void logLineReady(const QString &line);
