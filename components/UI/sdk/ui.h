@@ -68,6 +68,25 @@ typedef struct {
 
 void ui_scr_load_with_anim(ui_scr_load_with_anim_t *params);
 
+/* ----------------------------------------------------------------------------
+ * 触控命中区扩展配置：只扩大触控范围，不改变控件视觉尺寸和布局。
+ * X 表示左右各扩展的像素，Y 表示上下各扩展的像素；可按屏幕触控体验统一调整。
+ * 标准 button/imagebutton、slider、switch 会按 LVGL 控件类型自动分类，无需逐个登记：
+ *   BUTTON 宏：按钮、图片按钮等矩形控件
+ *   SLIDER 宏：亮度、阈值、速度等可拖动滑块
+ *   SWITCH 宏：开关控件
+ * AnyUI 若用普通 lv_obj 容器模拟可点击控件，需将指针加入 ui.c 中的 button_targets。
+ * setupUi() 创建控件后，在 LVGL 锁内调用一次 ui_expand_dashboard_hit_areas() 即可。
+ * --------------------------------------------------------------------------*/
+#define UI_HIT_BUTTON_EXT_X 16
+#define UI_HIT_BUTTON_EXT_Y 16
+#define UI_HIT_SLIDER_EXT_X 12
+#define UI_HIT_SLIDER_EXT_Y 24
+#define UI_HIT_SWITCH_EXT_X 16
+#define UI_HIT_SWITCH_EXT_Y 20
+
+void ui_expand_dashboard_hit_areas(void);
+
 // 开机默认亮度，与 BSP_LCD_BL_DEFAULT_PERCENT 保持同值(UI 不依赖 bsp 头故独立定义)
 #define UI_BRIGHTNESS_DEFAULT_PERCENT 80
 

@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Size: 12 px
  * Bpp: 4
- * Opts: --font C:\Users\16604\Desktop\anyui_test\test12\import\font\MiSansVF.ttf --output C:\Users\16604\Desktop\anyui_test\test12\generated\fonts\lv_font_MiSansVF_12_12.c --size 12 --bpp 4 --format lvgl --no-compress --no-prefilter --range 0x20-0x7F --symbols 面单Logo
+ * Opts: --font C:\Users\16604\Desktop\anyui_test\test13\import\font\MiSansVF.ttf --output C:\Users\16604\Desktop\anyui_test\test13\generated\fonts\lv_font_MiSansVF_12_12.c --size 12 --bpp 4 --format lvgl --no-compress --no-prefilter --range 0x20-0x7F --symbols 面单Logo
  ******************************************************************************/
 
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE

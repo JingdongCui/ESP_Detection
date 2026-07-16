@@ -12,18 +12,42 @@
  */
 #include "ui.h"
 #include "ethernet_app.h"
+#include "esp_system.h"
+#include "lvgl_private.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
 
+extern lv_obj_t *scr_dashboard;
 extern lv_obj_t *scr_dashboard_sw_detect;
 extern lv_obj_t *scr_dashboard_sw_preview_overlay;
 extern lv_obj_t *scr_dashboard_slider_confidence_threshold_mian;
 extern lv_obj_t *scr_dashboard_label_confidence_value_mian;
 extern lv_obj_t *scr_dashboard_slider_confidence_threshold_logo;
 extern lv_obj_t *scr_dashboard_label_confidence_value_logo;
+extern lv_obj_t *scr_dashboard_btn_restart;
 extern lv_obj_t *scr_dashboard_label_runtime_confidence_threshole_mian;
 extern lv_obj_t *scr_dashboard_label_runtime_confidence_threshole_logo;
+extern lv_obj_t *scr_dashboard_cont_log_01;
+extern lv_obj_t *scr_dashboard_cont_log_02;
+extern lv_obj_t *scr_dashboard_cont_log_03;
+extern lv_obj_t *scr_dashboard_cont_log_04;
+extern lv_obj_t *scr_dashboard_cont_log_05;
+extern lv_obj_t *scr_dashboard_cont_log_06;
+extern lv_obj_t *scr_dashboard_cont_log_07;
+extern lv_obj_t *scr_dashboard_cont_log_08;
+extern lv_obj_t *scr_dashboard_cont_log_09;
+extern lv_obj_t *scr_dashboard_cont_log_10;
+extern lv_obj_t *scr_dashboard_cont_log_11;
+extern lv_obj_t *scr_dashboard_cont_log_12;
+extern lv_obj_t *scr_dashboard_cont_log_13;
+extern lv_obj_t *scr_dashboard_cont_log_14;
+extern lv_obj_t *scr_dashboard_cont_log_15;
+extern lv_obj_t *scr_dashboard_cont_log_16;
+extern lv_obj_t *scr_dashboard_cont_log_17;
+extern lv_obj_t *scr_dashboard_cont_log_18;
+extern lv_obj_t *scr_dashboard_cont_log_19;
+extern lv_obj_t *scr_dashboard_cont_log_20;
 
 /* 文本未变则跳过 set_text，避免无谓的 free/realloc/文本重新布局/invalidate 重绘。
  * LVGL label 内部已保存当前文本，直接比对即可，无需维护影子状态。 */
@@ -58,6 +82,103 @@ static void ui_label_set_text_fmt_safe(lv_obj_t *label, const char *fmt, ...)
  * ----------------------------------------------------------------------------
  * flag/state 修改、动画回调、屏幕切换等通用工具，与具体业务无关。
  * ==========================================================================*/
+
+typedef struct {
+    int32_t ext_x;
+    int32_t ext_y;
+} ui_hit_area_profile_t;
+
+static const ui_hit_area_profile_t s_button_hit_area = {
+    .ext_x = UI_HIT_BUTTON_EXT_X,
+    .ext_y = UI_HIT_BUTTON_EXT_Y,
+};
+static const ui_hit_area_profile_t s_slider_hit_area = {
+    .ext_x = UI_HIT_SLIDER_EXT_X,
+    .ext_y = UI_HIT_SLIDER_EXT_Y,
+};
+static const ui_hit_area_profile_t s_switch_hit_area = {
+    .ext_x = UI_HIT_SWITCH_EXT_X,
+    .ext_y = UI_HIT_SWITCH_EXT_Y,
+};
+
+/* LVGL 原生 ext_click_area 只能四边等量扩展。先用 X/Y 较大值通过 LVGL 粗筛，
+ * 再由该高级命中回调裁成左右 ext_x、上下 ext_y 的精确矩形。
+ * 普通事件回调在控件类回调之后执行，因此这里也会覆盖 slider 默认的旋钮命中结果。 */
+static void ui_hit_area_event_cb(lv_event_t *e)
+{
+    lv_hit_test_info_t *info = lv_event_get_hit_test_info(e);
+    const ui_hit_area_profile_t *profile = lv_event_get_user_data(e);
+    lv_obj_t *target = lv_event_get_current_target(e);
+    if (!info || !profile || !target) {
+        return;
+    }
+
+    lv_area_t area;
+    lv_obj_get_coords(target, &area);
+    area.x1 -= profile->ext_x;
+    area.x2 += profile->ext_x;
+    area.y1 -= profile->ext_y;
+    area.y2 += profile->ext_y;
+    info->res = lv_area_is_point_on(&area, info->point, 0);
+}
+
+static void ui_apply_hit_area(lv_obj_t *target, const ui_hit_area_profile_t *profile)
+{
+    if (!target) {
+        return;
+    }
+
+    int32_t coarse_extension = profile->ext_x > profile->ext_y ? profile->ext_x : profile->ext_y;
+    lv_obj_set_ext_click_area(target, coarse_extension);
+    lv_obj_add_flag(target, LV_OBJ_FLAG_ADV_HITTEST);
+    lv_obj_add_event_cb(target, ui_hit_area_event_cb, LV_EVENT_HIT_TEST, (void *)profile);
+}
+
+/* 自动识别标准 LVGL button/imagebutton、slider、switch；新增这些标准控件无需改 SDK。
+ * AnyUI 若用普通 lv_obj 容器模拟可点击控件，无法仅靠类信息识别，应将其指针加入
+ * ui_expand_dashboard_hit_areas() 的 button_targets 补充数组。 */
+static void ui_expand_standard_hit_areas(lv_obj_t *root)
+{
+    if (!root) {
+        return;
+    }
+
+    if (lv_obj_has_class(root, &lv_slider_class)) {
+        ui_apply_hit_area(root, &s_slider_hit_area);
+    } else if (lv_obj_has_class(root, &lv_switch_class)) {
+        ui_apply_hit_area(root, &s_switch_hit_area);
+    } else if (lv_obj_has_class(root, &lv_button_class) ||
+               lv_obj_has_class(root, &lv_imagebutton_class)) {
+        ui_apply_hit_area(root, &s_button_hit_area);
+    }
+
+    uint32_t child_count = lv_obj_get_child_count(root);
+    for (uint32_t i = 0; i < child_count; ++i) {
+        ui_expand_standard_hit_areas(lv_obj_get_child(root, (int32_t)i));
+    }
+}
+
+void ui_expand_dashboard_hit_areas(void)
+{
+    /* 普通容器实现的可点击控件放在此处；新增项只需追加指针，无需修改 system_init.c。 */
+    lv_obj_t *button_targets[] = {
+        scr_dashboard_cont_log_01, scr_dashboard_cont_log_02,
+        scr_dashboard_cont_log_03, scr_dashboard_cont_log_04,
+        scr_dashboard_cont_log_05, scr_dashboard_cont_log_06,
+        scr_dashboard_cont_log_07, scr_dashboard_cont_log_08,
+        scr_dashboard_cont_log_09, scr_dashboard_cont_log_10,
+        scr_dashboard_cont_log_11, scr_dashboard_cont_log_12,
+        scr_dashboard_cont_log_13, scr_dashboard_cont_log_14,
+        scr_dashboard_cont_log_15, scr_dashboard_cont_log_16,
+        scr_dashboard_cont_log_17, scr_dashboard_cont_log_18,
+        scr_dashboard_cont_log_19, scr_dashboard_cont_log_20,
+    };
+
+    ui_expand_standard_hit_areas(scr_dashboard);
+    for (uint32_t i = 0; i < sizeof(button_targets) / sizeof(button_targets[0]); ++i) {
+        ui_apply_hit_area(button_targets[i], &s_button_hit_area);
+    }
+}
 
 void ui_flag_modify(lv_obj_t *target, int32_t flag, int value)
 {
@@ -238,6 +359,13 @@ extern lv_obj_t *scr_dashboard_slider_zt;
 extern lv_obj_t *scr_dashboard_slider_yd;
 extern lv_obj_t *scr_dashboard_imgbtn_logo;
 extern lv_obj_t *scr_dashboard_img_runtime_ethernet_status;
+extern lv_obj_t *scr_dashboard_cont_log_page1;
+extern lv_obj_t *scr_dashboard_cont_log_page2;
+extern lv_obj_t *scr_dashboard_cont_log_page3;
+extern lv_obj_t *scr_dashboard_cont_log_page4;
+extern lv_obj_t *scr_dashboard_label_current_page;
+extern lv_obj_t *scr_dashboard_imgbtn_page_back;
+extern lv_obj_t *scr_dashboard_imgbtn_page_next;
 
 // 设置页 - 网络：本机/主机 IP 显示、上报间隔滑块、图像/指标上报开关
 extern lv_obj_t *scr_dashboard_label_local_ip_value;
@@ -683,6 +811,85 @@ static void ui_attach_about_info(void)
     }
 }
 
+static void system_restart(void)
+{
+    esp_restart();
+}
+
+static void ui_restart_button_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_CLICKED) {
+        return;
+    }
+    system_restart();
+}
+
+static void ui_attach_restart_button(void)
+{
+    if (scr_dashboard_btn_restart) {
+        lv_obj_add_event_cb(scr_dashboard_btn_restart, ui_restart_button_event_cb,
+                            LV_EVENT_CLICKED, NULL);
+    }
+}
+
+#define UI_LOG_PAGE_COUNT 4
+
+static int s_log_page = 1;
+
+static void ui_show_log_page(int page)
+{
+    if (page < 1) {
+        page = 1;
+    } else if (page > UI_LOG_PAGE_COUNT) {
+        page = UI_LOG_PAGE_COUNT;
+    }
+
+    s_log_page = page;
+
+    lv_obj_t *pages[UI_LOG_PAGE_COUNT] = {
+        scr_dashboard_cont_log_page1,
+        scr_dashboard_cont_log_page2,
+        scr_dashboard_cont_log_page3,
+        scr_dashboard_cont_log_page4,
+    };
+
+    for (int i = 0; i < UI_LOG_PAGE_COUNT; i++) {
+        if (pages[i]) {
+            ui_flag_modify(pages[i], LV_OBJ_FLAG_HIDDEN,
+                           (i + 1 == s_log_page) ? UI_FLAG_ACTION_REMOVE : UI_FLAG_ACTION_ADD);
+        }
+    }
+
+    ui_label_set_text_fmt_safe(scr_dashboard_label_current_page, "%d/%d", s_log_page, UI_LOG_PAGE_COUNT);
+}
+
+static void ui_log_page_button_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_CLICKED) {
+        return;
+    }
+
+    lv_obj_t *target = lv_event_get_target(e);
+    if (target == scr_dashboard_imgbtn_page_back) {
+        ui_show_log_page(s_log_page - 1);
+    } else if (target == scr_dashboard_imgbtn_page_next) {
+        ui_show_log_page(s_log_page + 1);
+    }
+}
+
+static void ui_attach_log_page_buttons(void)
+{
+    if (scr_dashboard_imgbtn_page_back) {
+        lv_obj_add_event_cb(scr_dashboard_imgbtn_page_back, ui_log_page_button_event_cb,
+                            LV_EVENT_CLICKED, NULL);
+    }
+    if (scr_dashboard_imgbtn_page_next) {
+        lv_obj_add_event_cb(scr_dashboard_imgbtn_page_next, ui_log_page_button_event_cb,
+                            LV_EVENT_CLICKED, NULL);
+    }
+    ui_show_log_page(1);
+}
+
 // 第二层聚合点：挂载本屏所有控件交互。新增一路 UI 交互→业务时，在此加一行。
 static void ui_attach_all_widgets(void)
 {
@@ -692,6 +899,8 @@ static void ui_attach_all_widgets(void)
     ui_attach_confidence_threshold_sliders();
     ui_attach_network_controls();    // 网络设置页：IP 显示 + 上报间隔/图像/指标控件
     ui_attach_about_info();          // 关于页：模型信息静态填充
+    ui_attach_restart_button();
+    ui_attach_log_page_buttons();
     // ui_attach_xxx();              // ← 新增控件交互挂载放这里
 }
 

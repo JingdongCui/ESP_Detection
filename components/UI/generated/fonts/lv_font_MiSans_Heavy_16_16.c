@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Size: 16 px
  * Bpp: 4
- * Opts: --font C:\Users\16604\Desktop\anyui_test\test12\import\font\MiSans_Heavy.ttf --output C:\Users\16604\Desktop\anyui_test\test12\generated\fonts\lv_font_MiSans_Heavy_16_16.c --size 16 --bpp 4 --format lvgl --no-compress --no-prefilter --range 0x20-0x7F --symbols 基于ESP32-P4的校园快递智能分拣系统与YOLO轻量化部署优化QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890实时监测|极兔%中检测结果/%推理耗时电机转速设备温度℃当前识别类型极兔累计分拣件数成功率%·帧韵达中通小大全部℃事件详情日志记录分类识别置信度成功检测到包裹传送中运行中推理完成极兔较低置信度警告时间类型结果尺寸推理耗时状态备注包裹分类成功。亮于人值在复工新核正流程请过阈，内存使用.识别成功未到目标--等待中亮度检测预览叠加框是否开启控制开环设置亮度本主机上报时间间隔图像指标长可模型信息恢复出厂设置重屏幕监控视整资源空闲总量堆碎片内存历史最小大连续可分配块系统芯片频任务无目标跟踪找到面单画面图像接入有效对象持续锁定偏移轻微丢失重新捕获多并行失败模糊无法完成匹配公司超时模型加载算力占用过高低卡顿就绪动作机构故障复位，归类自适应法开启关闭更新传输中断系统载超限设备连参数保存重置摄像头
+ * Opts: --font C:\Users\16604\Desktop\anyui_test\test13\import\font\MiSans_Heavy.ttf --output C:\Users\16604\Desktop\anyui_test\test13\generated\fonts\lv_font_MiSans_Heavy_16_16.c --size 16 --bpp 4 --format lvgl --no-compress --no-prefilter --range 0x20-0x7F --symbols 基于ESP32-P4的校园快递智能分拣系统与YOLO轻量化部署优化QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890实时监测|极兔%中检测结果/%推理耗时电机转速设备温度℃当前识别类型极兔累计分拣件数成功率%·帧韵达中通小大全部℃事件详情日志记录分类识别置信度成功检测到包裹传送中运行中推理完成极兔较低置信度警告时间类型结果尺寸推理耗时状态备注包裹分类成功。亮于人值在复工新核正流程请过阈，内存使用.识别成功未到目标--等待中亮度检测预览叠加框是否开启控制开环设置亮度本主机上报时间间隔图像指标长可模型信息恢复出厂设置重屏幕监控视整资源空闲总量堆碎片内存历史最小大连续可分配块系统芯片频任务无目标跟踪找到面单画面图像接入有效对象持续锁定偏移轻微丢失重新捕获多并行失败模糊无法完成匹配公司超时模型加载算力占用过高低卡顿就绪动作机构故障复位，归类自适应法开启关闭更新传输中断系统载超限设备连参数保存重置摄像头
 
 
 

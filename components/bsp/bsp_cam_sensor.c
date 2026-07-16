@@ -23,7 +23,7 @@
 // 改大可线性增大防竞态时间窗口，代价为每缓冲多占 w×h×2 字节 PSRAM。详见
 // docs/零拷贝peek竞态风险.md。此宏是缓冲数的唯一来源，vision 经 getter 读取。
 #define CAM_FB_COUNT      5
-#define CAM_FPS_DIV_MODE  1       // 0=30fps，1=15fps（CSI 驱动通过 skip_frames 只支持整除降帧）
+#define CAM_FPS_DIV_MODE  0       // 0=30fps，1=15fps（CSI 驱动通过 skip_frames 只支持整除降帧）
 #define CAM_SCCB_FREQ     100000  // SCCB（摄像头控制总线）时钟频率 100 kHz
 
 #if CAM_FPS_DIV_MODE == 0

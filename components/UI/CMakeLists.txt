@@ -37,11 +37,9 @@ idf_component_register(
         "generated/fonts/lv_font_MiSans_Heavy_16_16.c"
         "generated/fonts/lv_font_MiSans_Heavy_24_24.c"
         "generated/fonts/lv_font_Misans_Heavy_14_14.c"
-        "sdk/cmd.c"
         "sdk/evt.c"
         "sdk/scr_list.c"
         "sdk/ui.c"
-        "simulator/dummy.c"
     INCLUDE_DIRS
         "generated"
         "generated/images"
