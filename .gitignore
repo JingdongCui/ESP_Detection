@@ -1,10 +1,14 @@
-# Active projects keep their own git repositories.
+# Active project keeps its own git repository.
 /ESP32P4_Detection/
-/esp32_host_no_inference/
 
-# Archived/reference projects and datasets.
-/archive_project/
-/MyAlbums/
+# Archived/reference projects, datasets, binaries, and incoming source archives.
+/reference/firmware/
+/reference/host/
+/reference/datasets/
+/reference/legacy_projects/
+/reference/source_archives/
+/reference/notes/
+/reference/package9_extras/
 
 # Incoming handoff archives.
 *.zip

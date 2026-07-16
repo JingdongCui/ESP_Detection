@@ -3,16 +3,20 @@
 ## Workspace
 
 - 根目录：`/home/kazeform/2026esp`
-- 当前主任务工程：`ESP32P4_Detection`
-- 当前上位机工程：`esp32_host_no_inference`
-- 历史工程归档目录：`archive_project/`
-- 根目录 git 仓库已初始化，用于跟踪根目录 agent 文档；`ESP32P4_Detection` 和 `esp32_host_no_inference` 各自有独立 git 仓库。
+- 当前唯一活跃固件工程：`ESP32P4_Detection`，来源为用户提供的 `ESP32P4_Detection(9).zip`。
+- 参考资料总目录：`reference/`。
+- 旧固件：`reference/firmware/ESP32P4_Detection_before_9_20260716/`。
+- 原上位机工程：`reference/host/esp32_host_no_inference/`。
+- 数据集：`reference/datasets/MyAlbums/`。
+- 历史工程：`reference/legacy_projects/archive_project/`。
+- 第 9 版原始包：`reference/source_archives/ESP32P4_Detection_9_original.zip`。
+- 根目录和活跃固件各自有独立 Git 仓库；参考目录中的旧工程可能继续保留各自 `.git`，但只用于追溯。
 
 ## Report Preparation
 
 - 比赛报告资料源：
-  - `hardware.md`：已知硬件信息整理。
-  - `report_requset.docx`：用户提供的报告内容要求。
+  - `reference/report_source/notes/hardware.md`：已知硬件信息整理。
+  - `reference/report_source/documents/report_requset.docx`：用户提供的报告内容要求。
   - `docs/report_system_information.md`：作品、硬件、软件、上位机和性能信息总览。
   - `docs/report_unknown_information.md`：正式报告前待补充、待确认、待实测清单。
 - 当前报告要求包括：作品名称、摘要、作品概述、系统组成及功能说明、完成情况及性能参数、总结、参考文献。
@@ -164,7 +168,18 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
   - `unzip` 无法读取 central directory。
   - `7z` 可恢复大部分源码，但报 `Unexpected end of archive`。
   - 当前工程是 zip 恢复内容加 `.git` 补齐的 `model/`、`sdkconfig`、`partitions.csv`。
-  - 后续如果队友重发完整 zip，优先替换当前恢复包或直接同步 git。
+- 后续如果队友重发完整 zip，优先替换当前恢复包或直接同步 git。
+
+## 2026-07-16 Package 9 Baseline
+
+- 用户指定 `ESP32P4_Detection(9).zip` 为后续开发基础。
+- 原包完整校验通过，保存在 `reference/source_archives/ESP32P4_Detection_9_original.zip`。
+- 当前活跃工程仍使用固定路径 `ESP32P4_Detection/`，独立 Git 分支为 `feat/screen-uvc-stream`。
+- 第 9 包原 Git HEAD 为 `cd9e591`；导入时随包携带的已跟踪改动整理后建立基线提交 `367e0c7`。
+- 第 9 包的基线行为包括：启动电机、启动编码器、启动分拣调试、允许电机输出和真实传感器输入；UI 增加 4 页日志分页按钮逻辑。
+- 当前配置支持 ESP32-P4 revision v0.0 至 v1.99，CPU 360 MHz；相机配置包含 SC2336 MIPI RAW8 1024x600/1280x720 30 FPS。
+- 按用户要求，活跃工程内不保留 Agent/Skills 配套；原始内容仍可从第 9 版 ZIP 恢复。
+- 旧 `ESP32P4_Detection` 已归档为 `reference/firmware/ESP32P4_Detection_before_9_20260716/`，归档前最新提交 `b79edb4`。
 
 ## New Merge Motor Migration
 
