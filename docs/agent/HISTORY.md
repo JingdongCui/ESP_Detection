@@ -16,3 +16,6 @@
 - 三轮完整 CONTROL_JSON 测试通过；另一次 `--restart` 验证 restart state ack、板端完整重启、5000/5001 重连和重启后 get 均通过。测试均恢复原值，异常路径增加 best-effort restore。
 - `88ce66f` 后串口明确记录 `TCP image peer closed while idle`；Host 重启后 5000/5001 均重新 ESTABLISHED。
 - 固件 build、全量 flash 和 app-flash 通过 Hash 校验；Host build 与 packetprotocol_tests 1/1 通过。候选标签 `backup/control-json-isp-reconnect-candidate-20260717` 指向 `b1dfef5`。
+- `2260596` 新增可重复的推理延迟采集器。2026-07-17 使用 CP2102N RTS 硬复位 5 次，每轮丢弃 2 个预热样本后采集 60 个，共 300 个：P50 74.443 ms、P95 101.947 ms、max 168.072 ms、>=150 ms 为 5 个、>=500 ms 为 0 个。
+- 五轮摘要依次为：P50 75.761/73.428/73.898/74.234/75.138 ms，P95 95.413/103.438/111.061/94.829/93.667 ms，max 112.089/153.695/153.593/168.072/102.107 ms。严格 P50 与零 500 ms 门槛通过，P95<=100 ms 与 max<=150 ms 未通过。
+- 本轮证明持续性 500～600 ms 回退已消除，但不能把候选标成 stable。RTS hard reset 也不等于物理断电冷启动；原始增量记录保存在 `docs/agent/run_logs/2026-07-17-inference-hard-reset-5x60.json`。采集结束后 Host PID 3266170 仍运行，192.168.10.1:5000/5001 到板端均为 ESTABLISHED。
