@@ -633,3 +633,14 @@ RGB565 必须确认整条显示路径都变成 16 bpp：
 - 原蓝屏长文档已归档到 `docs/agent/archive/2026-06-27-blue-screen-debug-plan.md`
 - 2026-06-28 蓝屏/相机链路诊断阶段已归档到 `docs/agent/archive/2026-06-29-blue-screen-camera-diagnostics.md`
 - 2026-06-29 至 2026-07-02 `merge_project` 分拣传感器、失败分类和运行态 debug 显示阶段已归档到 `docs/agent/archive/2026-07-02-merge-runtime-debug-stage.md`
+
+## 2026-07-17 Goal Candidate Findings
+
+- 当前活跃固件工程为 `ESP32P4_Detection`；goal 分支 `goal/inference-and-device-control`。
+- `sort_dbg` USB Serial/JTAG 调试监视任务会让 ESP-DL 双核推理阶段约回退 5 倍。生产运行应保持 `SORTER_HARDWARE_DEBUG_MONITOR=0`；这不关闭 `sort_real_io`、传感器或电机。
+- 推理候选标签：`backup/inference-70ms-candidate-20260717`。控制/ISP/重连候选标签：`backup/control-json-isp-reconnect-candidate-20260717`。
+- CONTROL_JSON 使用 40 字节 little-endian header，magic `0x32505345`、version 1、type `0x11`；实板测试工具为 `ESP32P4_Detection/tools/control_protocol_integration.py`。
+- 图像 sender 在无待发 slot 时必须检查 socket FIN；否则 Host 关闭后控制端能重连、5001 会永久滞留旧连接。当前用 `MSG_PEEK | MSG_DONTWAIT` 修复。
+- SC2336 UI ISP 控制依赖 `components/bsp/sc2336_ui_p4_eco4.json` 与 customized IPA Kconfig。该 JSON 保留官方 ECO4 全部画质参数，仅追加 `esp_ipa_ui_override`。
+- 当前硬件串口稳定路径：`/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0`；板为 ESP32-P4 revision v1.0。
+- UVC 当前失败点：硬件 JPEG engine `rxlink` 内部 DMA 内存不足；不应在推理和控制验收完成前混入修复。
