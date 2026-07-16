@@ -1,4 +1,4 @@
-#include "hostcontroller.h"
+﻿#include "hostcontroller.h"
 
 #include "hostnetworkworker.h"
 
@@ -193,8 +193,8 @@ bool HostController::listening() const { return m_listening; }
 bool HostController::connected() const { return m_connected; }
 QString HostController::statusText() const { return m_statusText; }
 QString HostController::latestImageUrl() const { return m_latestImageUrl; }
-QString HostController::latestFrameInfo() const { return m_latestFrameInfo; }
-QString HostController::latestCategoryLabel() const { return m_latestCategoryLabel; }
+QString HostController::latestFrameInfo() const { return m_imageCount > 0 ? m_latestFrameInfo : QStringLiteral("无"); }
+QString HostController::latestCategoryLabel() const { return m_imageCount > 0 ? m_latestCategoryLabel : QStringLiteral("无"); }
 int HostController::latestCategoryConfidence() const { return m_latestCategoryConfidence; }
 QString HostController::saveDir() const { return m_saveDir; }
 QString HostController::telemetryText() const { return m_telemetryText; }
@@ -230,7 +230,12 @@ QVariantList HostController::dashboardCards() const
     cards.append(makeCard(QStringLiteral("连接状态"), connected() ? QStringLiteral("在线") : QStringLiteral("待连接"), m_statusText, connected() ? QStringLiteral("#49d39b") : QStringLiteral("#f2b84b")));
     cards.append(makeCard(QStringLiteral("接收吞吐"), QStringLiteral("%1 MB").arg(m_bytesReceived / 1048576.0, 0, 'f', 2), QStringLiteral("累计流量"), QStringLiteral("#54b8ff")));
     cards.append(makeCard(QStringLiteral("总包裹数"), QString::number(m_imageCount), QStringLiteral("按接收图像计数"), QStringLiteral("#8da2ff")));
-    cards.append(makeCard(QStringLiteral("最新类别"), m_latestCategoryLabel, QStringLiteral("%1% 置信度").arg(m_latestCategoryConfidence), QStringLiteral("#ff7a90")));
+    const bool hasImage = m_imageCount > 0;
+    cards.append(makeCard(QStringLiteral("最新类别"),
+                          hasImage ? m_latestCategoryLabel : QStringLiteral("无"),
+                          hasImage ? QStringLiteral("%1% 置信度").arg(m_latestCategoryConfidence)
+                                   : QStringLiteral("暂无图像"),
+                          QStringLiteral("#ff7a90")));
     cards.append(makeCard(QStringLiteral("CPU0 / CPU1"), QStringLiteral("%1% / %2%").arg(m_cpu0Usage).arg(m_cpu1Usage), QStringLiteral("板端双核负载"), QStringLiteral("#49d39b")));
     cards.append(makeCard(QStringLiteral("图片耗时"), QStringLiteral("%1 / %2 ms").arg(m_lastImageEncodeMs).arg(m_lastImageSendMs), QStringLiteral("编码/发送"), QStringLiteral("#f2b84b")));
     cards.append(makeCard(QStringLiteral("运行时长"), m_uptimeText, QStringLiteral("下位机"), QStringLiteral("#54b8ff")));

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "packetprotocol.h"
 
@@ -161,8 +161,8 @@ private:
     QByteArray m_buffer;
     QString m_statusText;
     QString m_latestImageUrl;
-    QString m_latestFrameInfo = QStringLiteral("--");
-    QString m_latestCategoryLabel = QStringLiteral("极兔");
+    QString m_latestFrameInfo = QStringLiteral("无");
+    QString m_latestCategoryLabel = QStringLiteral("无");
     int m_latestCategoryConfidence = 0;
     QString m_saveDir;
     QString m_imageDir;

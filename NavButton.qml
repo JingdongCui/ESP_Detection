@@ -1,14 +1,17 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
 Button {
     id: control
+
     property bool selected: false
     property var theme
-    property string shortText: ""
+    property string badgeText: "01"
+    property string description: ""
+
     Layout.fillWidth: true
-    implicitHeight: 52
+    implicitHeight: 66
     hoverEnabled: true
     padding: 0
     leftInset: 0
@@ -16,110 +19,79 @@ Button {
     topInset: 0
     bottomInset: 0
 
-    contentItem: Item {
-        implicitWidth: 128
-        implicitHeight: 52
+    contentItem: RowLayout {
+        spacing: 12
 
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: 14
-            anchors.rightMargin: 12
-            spacing: 10
+        Rectangle {
+            Layout.preferredWidth: 36
+            Layout.preferredHeight: 36
+            Layout.leftMargin: 12
+            Layout.alignment: Qt.AlignVCenter
+            radius: 11
+            color: control.selected ? control.theme.accent : control.theme.highlightSoft
+            border.width: 1
+            border.color: control.selected ? control.theme.accent : control.theme.line
 
-            Rectangle {
-                Layout.preferredWidth: 22
-                Layout.preferredHeight: 22
-                Layout.alignment: Qt.AlignVCenter
-                radius: 11
-                color: control.selected ? control.theme.accentWash : control.theme.highlightSoft
-                border.color: control.selected ? control.theme.accent : control.theme.lineSoft
-                opacity: control.selected ? 1 : (control.hovered ? 0.85 : 0.5)
-                Rectangle {
-                    anchors.centerIn: parent
-                    width: control.selected ? 8 : 6
-                    height: width
-                    radius: width / 2
-                    color: control.selected ? control.theme.accent : control.theme.faint
-                    Behavior on width { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-                    Behavior on color { ColorAnimation { duration: 180 } }
-                }
-                Behavior on opacity { NumberAnimation { duration: 160 } }
-                Behavior on color { ColorAnimation { duration: 180 } }
+            Text {
+                anchors.centerIn: parent
+                text: control.badgeText
+                color: control.selected ? control.theme.onAccent : control.theme.muted
+                font.pixelSize: 11
+                font.weight: Font.Black
             }
+        }
 
-            ColumnLayout {
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 2
+
+            Text {
                 Layout.fillWidth: true
-                Layout.alignment: Qt.AlignVCenter
-                spacing: 0
-
-                Text {
-                    Layout.fillWidth: true
-                    text: control.text
-                    color: control.selected ? control.theme.text : control.theme.navText
-                    font.pixelSize: 14
-                    font.weight: Font.Black
-                    elide: Text.ElideRight
-                }
-                Text {
-                    Layout.fillWidth: true
-                    text: control.shortText
-                    color: control.selected ? control.theme.accent : control.theme.muted
-                    font.pixelSize: 10
-                    font.weight: Font.DemiBold
-                    elide: Text.ElideRight
-                    opacity: 0.9
-                }
+                text: control.text
+                color: control.selected ? control.theme.text : control.theme.navText
+                font.pixelSize: 14
+                font.weight: control.selected ? Font.Bold : Font.DemiBold
+                elide: Text.ElideRight
             }
+
+            Text {
+                Layout.fillWidth: true
+                text: control.description
+                color: control.selected ? control.theme.muted : control.theme.faint
+                font.pixelSize: 10
+                elide: Text.ElideRight
+            }
+        }
+
+        Rectangle {
+            Layout.preferredWidth: 3
+            Layout.preferredHeight: 28
+            Layout.rightMargin: 1
+            radius: 2
+            color: control.theme.accent
+            opacity: control.selected ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 150 } }
         }
     }
 
     background: Rectangle {
-        radius: 18
-        anchors.fill: parent
-        border.color: control.selected ? control.theme.panelStroke : (control.hovered ? control.theme.lineSoft : "transparent")
+        radius: 16
         border.width: 1
-        gradient: Gradient {
-            GradientStop {
-                position: 0.0
-                color: control.selected ? control.theme.navActive : (control.hovered ? control.theme.panelTop : "#00000000")
-            }
-            GradientStop {
-                position: 1.0
-                color: control.selected ? control.theme.panelBottom : (control.hovered ? control.theme.panelBottom : "#00000000")
-            }
-        }
+        border.color: control.selected ? control.theme.panelStroke
+                                       : (control.hovered ? control.theme.lineSoft : "transparent")
+        color: control.selected ? control.theme.navActive
+                                : (control.hovered ? control.theme.highlightSoft : "transparent")
 
         Rectangle {
             anchors.fill: parent
             anchors.margins: 1
             radius: parent.radius - 1
             color: control.theme.accentMist
-            opacity: control.selected ? 0.75 : (control.hovered ? 0.35 : 0)
-            Behavior on opacity { NumberAnimation { duration: 170 } }
+            opacity: control.selected ? 0.72 : 0
         }
 
-        Rectangle {
-            width: control.selected ? 44 : 0
-            height: 2
-            radius: 1
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            color: control.theme.accent
-            opacity: control.selected ? 0.86 : 0
-            Behavior on width { NumberAnimation { duration: 170; easing.type: Easing.OutCubic } }
-            Behavior on opacity { NumberAnimation { duration: 170 } }
-        }
-
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.leftMargin: 20
-            anchors.rightMargin: 20
-            height: 1
-            color: control.theme.highlight
-            opacity: control.selected || control.hovered ? 0.45 : 0
-            Behavior on opacity { NumberAnimation { duration: 170 } }
-        }
+        Behavior on color { ColorAnimation { duration: 150 } }
+        Behavior on border.color { ColorAnimation { duration: 150 } }
     }
 }

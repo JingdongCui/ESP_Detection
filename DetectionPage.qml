@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Layouts
 
 Item {
@@ -54,7 +54,7 @@ Item {
                     anchors.margins: 14
                     spacing: 14
                     MetricCard { Layout.fillWidth: true; Layout.fillHeight: true; theme: root.theme; title: "总包裹数"; value: host.imageCount; note: "已接收包裹"; accent: theme.accent }
-                    MetricCard { Layout.fillWidth: true; Layout.fillHeight: true; theme: root.theme; title: "最新类别"; value: host.latestCategoryLabel; note: host.latestCategoryConfidence + "% 置信度"; accent: theme.accent2 }
+                    MetricCard { Layout.fillWidth: true; Layout.fillHeight: true; theme: root.theme; title: qsTr("最新类别"); value: host.imageCount > 0 ? host.latestCategoryLabel : qsTr("无"); note: host.imageCount > 0 ? qsTr("%1% 置信度").arg(host.latestCategoryConfidence) : qsTr("暂无图像"); accent: theme.accent2 }
                     MetricCard { Layout.fillWidth: true; Layout.fillHeight: true; theme: root.theme; title: "置信度阈值"; value: host.dangerThreshold + "%"; note: "低置信度重点突出"; accent: theme.danger }
                 }
             }

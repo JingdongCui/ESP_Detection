@@ -1,85 +1,129 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
 PremiumPanel {
     id: root
+
     property var host
-    radius: 18
+    property string pageTitle: ""
+    property string pageDescription: ""
+    property string pageNumber: "01"
+
+    radius: 20
     topColor: theme.panelTop
     bottomColor: theme.panelBottom
     overlayColor: theme.glassOverlay
     borderColor: theme.panelStroke
-    glassOpacity: 0.32
+    glassOpacity: 0.28
+    elevated: false
 
     RowLayout {
         anchors.fill: parent
-        anchors.leftMargin: 22
+        anchors.leftMargin: 24
         anchors.rightMargin: 18
         spacing: 18
 
-        ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 4
+        Rectangle {
+            Layout.preferredWidth: 44
+            Layout.preferredHeight: 44
+            Layout.alignment: Qt.AlignVCenter
+            radius: 14
+            color: theme.accentWash
+            border.width: 1
+            border.color: theme.accent
+
             Text {
-                text: "ESP32 板端视觉分拣控制台"
-                color: theme.text
-                font.pixelSize: 26
-                font.weight: Font.Black
-            }
-            Text {
-                text: host.statusText + "    保存目录  " + host.saveDir
-                color: theme.muted
+                anchors.centerIn: parent
+                text: root.pageNumber
+                color: theme.accent
                 font.pixelSize: 12
-                elide: Text.ElideRight
-                Layout.fillWidth: true
+                font.weight: Font.Black
             }
         }
 
-        StatusPill {
-            Layout.preferredWidth: 122
-            Layout.preferredHeight: 38
-            theme: root.theme
-            text: host.connected ? "设备在线" : "待连接"
-            fillColor: host.connected ? theme.statusBg : theme.warnWash
-            strokeColor: host.connected ? theme.accent : theme.warn
-            textColor: host.connected ? theme.statusText : theme.warnText
-            textSize: 13
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 3
+
+            Text {
+                Layout.fillWidth: true
+                text: root.pageTitle
+                color: theme.text
+                font.pixelSize: 22
+                font.weight: Font.Black
+                elide: Text.ElideRight
+            }
+
+            Text {
+                Layout.fillWidth: true
+                text: root.pageDescription
+                color: theme.muted
+                font.pixelSize: 12
+                elide: Text.ElideRight
+            }
+        }
+
+        Rectangle {
+            Layout.preferredWidth: 1
+            Layout.preferredHeight: 36
+            color: theme.lineSoft
+        }
+
+        ColumnLayout {
+            Layout.preferredWidth: 154
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 3
+
+            Text {
+                text: qsTr("设备状态")
+                color: theme.faint
+                font.pixelSize: 10
+                font.weight: Font.DemiBold
+            }
+
+            RowLayout {
+                spacing: 7
+                Rectangle {
+                    Layout.preferredWidth: 8
+                    Layout.preferredHeight: 8
+                    radius: 4
+                    color: host.connected ? theme.accent : theme.warn
+                }
+                Text {
+                    text: host.connected ? qsTr("在线运行") : qsTr("等待连接")
+                    color: theme.text
+                    font.pixelSize: 13
+                    font.weight: Font.Bold
+                }
+            }
         }
 
         Button {
             id: syncButton
-            Layout.preferredWidth: 116
+            Layout.preferredWidth: 112
             Layout.preferredHeight: 42
-            text: "同步时间"
+            text: qsTr("同步时间")
             hoverEnabled: true
             onClicked: host.sendTimeSync()
+
             contentItem: Text {
                 text: syncButton.text
-                color: theme.text
+                color: syncButton.hovered ? theme.onAccent : theme.text
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 font.pixelSize: 13
-                font.weight: Font.DemiBold
+                font.weight: Font.Bold
             }
+
             background: Rectangle {
-                radius: 14
+                radius: 13
+                color: syncButton.hovered ? theme.accent : theme.surfaceRaised
+                border.width: 1
                 border.color: syncButton.hovered ? theme.accent : theme.panelStroke
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: syncButton.hovered ? theme.navActive : theme.panelTop }
-                    GradientStop { position: 1.0; color: theme.panelBottom }
-                }
-                Rectangle {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-                    anchors.leftMargin: 16
-                    anchors.rightMargin: 16
-                    height: 1
-                    color: theme.highlight
-                    opacity: 0.6
-                }
-                Behavior on border.color { ColorAnimation { duration: 160 } }
+                Behavior on color { ColorAnimation { duration: 150 } }
+                Behavior on border.color { ColorAnimation { duration: 150 } }
             }
         }
     }

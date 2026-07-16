@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 
 PremiumPanel {
     id: root
@@ -6,7 +6,7 @@ PremiumPanel {
     property string imageUrl: ""
     property var detections: []
     property string frameInfo: ""
-    property string categoryLabel: "极兔"
+    property string categoryLabel: "无"
     property int categoryConfidence: 0
     property bool overlayEnabled: true
     radius: 18
@@ -195,7 +195,7 @@ PremiumPanel {
         Text {
             id: categoryText
             anchors.centerIn: parent
-            text: root.categoryLabel + "  " + Math.round(Number(root.categoryConfidence || 0)) + "%"
+            text: root.imageUrl.length === 0 ? qsTr("无") : root.categoryLabel + "  " + Math.round(Number(root.categoryConfidence || 0)) + "%"
             color: theme.text
             font.pixelSize: 16
             font.weight: Font.Black

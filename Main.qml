@@ -1,4 +1,4 @@
-import QtQuick
+﻿import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
@@ -14,186 +14,266 @@ Window {
 
     property int pageIndex: 0
     property bool darkMode: true
+    readonly property var pageTitles: [qsTr("性能总览"), qsTr("视觉检测"), qsTr("设备控制"), qsTr("系统维护")]
+    readonly property var pageDescriptions: [
+        qsTr("板端负载、内存、链路与业务吞吐一屏掌握"),
+        qsTr("查看实时画面、检测阶段与识别结果"),
+        qsTr("集中调整电机、灯光和检测运行参数"),
+        qsTr("管理服务、数据目录、日志与系统状态")
+    ]
     readonly property var theme: darkMode ? darkTheme : lightTheme
     readonly property var darkTheme: ({
-        bg: "#07090d", bgTop: "#111825", bgBottom: "#05070b",
+        bg: "#080b10", bgTop: "#101722", bgBottom: "#06080c",
         panel: "#151a22", panel2: "#202734", surfaceGlass: "#b017202a",
-        surfaceRaised: "#242c3a", navBg: "#111720", navActive: "#263548",
-        panelTop: "#222b39", panelBottom: "#111720", navTop: "#17212d", navBottom: "#0d131c",
-        panelStroke: "#3a4656", glassOverlay: "#18ffffff", highlight: "#32ffffff",
-        highlightSoft: "#16ffffff", shadowStrong: "#aa000000",
-        line: "#334050", lineSoft: "#26313e", track: "#293240", thumb: "#edf7ff",
-        text: "#f3f8ff", muted: "#a1afbf", faint: "#6f7d8c", accent: "#20e0c2",
-        accent2: "#62b9ff", warn: "#e7b75d", danger: "#ff5d77", purple: "#9b8cff",
-        softAccent: "#2dffe044", accentWash: "#2420e0c2", accentMist: "#1020e0c2",
+        surfaceRaised: "#222a36", navBg: "#10161f", navActive: "#1c2b3d",
+        panelTop: "#1b222d", panelBottom: "#111720", navTop: "#141c26", navBottom: "#0d131b",
+        panelStroke: "#34485f", glassOverlay: "#12ffffff", highlight: "#2cffffff",
+        highlightSoft: "#12ffffff", shadowStrong: "#aa000000",
+        line: "#34465a", lineSoft: "#27384a", track: "#293747", thumb: "#edf7ff",
+        text: "#f3f8ff", muted: "#9eacbb", faint: "#687787", accent: "#4c9dff",
+        accent2: "#79b8ff", warn: "#e7b75d", danger: "#ff657d", purple: "#9b8cff",
+        softAccent: "#304c9dff", accentWash: "#2c4c9dff", accentMist: "#184c9dff",
         dangerWash: "#26ff5d77", warnWash: "#24e7b75d",
-        glow: "#6620e0c2", shadow: "#88000000",
-        navText: "#dbe9f4", statusBg: "#14392f", statusText: "#b8ffea", warnText: "#ffe1a3",
-        imageBg: "#090d13", onAccent: "#04110f"
+        glow: "#665aa8ff", shadow: "#88000000",
+        navText: "#dbe9f4", statusBg: "#172d46", statusText: "#c9e3ff", warnText: "#ffe1a3",
+        imageBg: "#090d13", onAccent: "#06111f"
     })
     readonly property var lightTheme: ({
-        bg: "#f8f3ec", bgTop: "#fffaf3", bgBottom: "#efe7dc",
-        panel: "#fffdf8", panel2: "#f3ece1", surfaceGlass: "#ccfffaf1",
-        surfaceRaised: "#ffffff", navBg: "#f7efe5", navActive: "#fff5e7",
-        panelTop: "#ffffff", panelBottom: "#f3ece1", navTop: "#fffaf3", navBottom: "#efe7dc",
-        panelStroke: "#e6d7c5", glassOverlay: "#66ffffff", highlight: "#b8ffffff",
-        highlightSoft: "#70ffffff", shadowStrong: "#260f0903",
-        line: "#e4d7c7", lineSoft: "#eee4d8", track: "#e5d8c8", thumb: "#fffdf8",
-        text: "#211d1b", muted: "#746b62", faint: "#a09386", accent: "#b9874d",
-        accent2: "#6e9278", warn: "#c79539", danger: "#d85568", purple: "#8a76c8",
-        softAccent: "#d9b06b44", accentWash: "#24b9874d", accentMist: "#12b9874d",
-        dangerWash: "#24d85568", warnWash: "#28c79539",
-        glow: "#55d7a85d", shadow: "#240f0903",
-        navText: "#3c352f", statusBg: "#f6ead2", statusText: "#594018", warnText: "#5f4107",
-        imageBg: "#17130f", onAccent: "#1b1208"
+        bg: "#d8d9dd", bgTop: "#e2e3e6", bgBottom: "#cfd1d5",
+        panel: "#f1f1f3", panel2: "#e3e4e7", surfaceGlass: "#b8f7f7f8",
+        surfaceRaised: "#fafafa", navBg: "#dddfe3", navActive: "#cbd9e8",
+        panelTop: "#f7f7f8", panelBottom: "#e8e9ec", navTop: "#e9eaed", navBottom: "#d8dade",
+        panelStroke: "#8f949e", glassOverlay: "#12ffffff", highlight: "#78ffffff",
+        highlightSoft: "#29262b35", shadowStrong: "#4a121720",
+        line: "#a5a9b1", lineSoft: "#c0c3c9", track: "#b7bac1", thumb: "#ffffff",
+        text: "#191b20", muted: "#484b53", faint: "#60646d", accent: "#356d9b",
+        accent2: "#547da6", warn: "#825313", danger: "#9d394d", purple: "#625196",
+        softAccent: "#40356d9b", accentWash: "#44356d9b", accentMist: "#30356d9b",
+        dangerWash: "#409d394d", warnWash: "#40825313",
+        glow: "#50356d9b", shadow: "#42121720",
+        navText: "#282b31", statusBg: "#c9dbea", statusText: "#1f4b70", warnText: "#503204",
+        imageBg: "#101218", onAccent: "#ffffff"
     })
 
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
             GradientStop { position: 0.0; color: theme.bgTop }
-            GradientStop { position: 0.58; color: theme.bg }
+            GradientStop { position: 0.64; color: theme.bg }
             GradientStop { position: 1.0; color: theme.bgBottom }
         }
-        Behavior on color { ColorAnimation { duration: 260 } }
     }
 
     RowLayout {
         anchors.fill: parent
-        anchors.margins: 18
-        spacing: 16
+        anchors.margins: 16
+        spacing: 14
 
         PremiumPanel {
-            Layout.preferredWidth: 164
+            Layout.preferredWidth: 226
             Layout.fillHeight: true
-            radius: 26
+            radius: 22
             theme: root.theme
             topColor: theme.navTop
             bottomColor: theme.navBottom
             overlayColor: theme.glassOverlay
             borderColor: theme.panelStroke
-            glassOpacity: root.darkMode ? 0.28 : 0.5
+            glassOpacity: root.darkMode ? 0.22 : 0.18
+            elevated: false
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 15
-                spacing: 14
+                anchors.margins: 14
+                spacing: 10
 
-                Rectangle {
+                RowLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 76
-                    radius: 21
-                    border.color: theme.panelStroke
-                    border.width: 1
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: theme.panelTop }
-                        GradientStop { position: 1.0; color: theme.panelBottom }
-                    }
+                    Layout.preferredHeight: 62
+                    spacing: 11
+
                     Rectangle {
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                        anchors.leftMargin: 18
-                        anchors.rightMargin: 18
-                        height: 1
-                        color: theme.highlight
-                        opacity: 0.7
-                    }
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 12
-                        spacing: 10
-                        Rectangle {
-                            Layout.preferredWidth: 38
-                            Layout.preferredHeight: 38
-                            radius: 14
-                            gradient: Gradient {
-                                GradientStop { position: 0.0; color: theme.accent2 }
-                                GradientStop { position: 1.0; color: theme.accent }
-                            }
-                            Rectangle {
-                                anchors.centerIn: parent
-                                width: parent.width - 10
-                                height: width
-                                radius: 10
-                                color: theme.highlightSoft
-                            }
-                            Text {
-                                anchors.centerIn: parent
-                                text: "E"
-                                color: theme.onAccent
-                                font.pixelSize: 18
-                                font.weight: Font.Black
-                            }
+                        Layout.preferredWidth: 42
+                        Layout.preferredHeight: 42
+                        radius: 13
+                        gradient: Gradient {
+                            GradientStop { position: 0.0; color: theme.accent2 }
+                            GradientStop { position: 1.0; color: theme.accent }
                         }
-                        ColumnLayout {
+                        Text {
+                            anchors.centerIn: parent
+                            text: "E32"
+                            color: theme.onAccent
+                            font.pixelSize: 11
+                            font.weight: Font.Black
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 1
+                        Text {
                             Layout.fillWidth: true
-                            spacing: 1
-                            Text {
-                                text: "ESP32"
-                                color: theme.text
-                                font.pixelSize: 16
-                                font.weight: Font.Black
-                            }
-                            Text {
-                                text: "Board Vision"
-                                color: theme.muted
-                                font.pixelSize: 10
-                                elide: Text.ElideRight
-                                Layout.fillWidth: true
-                            }
+                            text: qsTr("Vision Host")
+                            color: theme.text
+                            font.pixelSize: 16
+                            font.weight: Font.Black
+                            elide: Text.ElideRight
+                        }
+                        Text {
+                            Layout.fillWidth: true
+                            text: qsTr("ESP32 CONTROL DESK")
+                            color: theme.faint
+                            font.pixelSize: 9
+                            font.letterSpacing: 0.8
+                            elide: Text.ElideRight
                         }
                     }
                 }
 
-                NavButton { text: "性能总览"; shortText: "性能"; selected: root.pageIndex === 0; theme: root.theme; onClicked: root.pageIndex = 0 }
-                NavButton { text: "视觉检测"; shortText: "检测"; selected: root.pageIndex === 1; theme: root.theme; onClicked: root.pageIndex = 1 }
-                NavButton { text: "设备控制"; shortText: "控制"; selected: root.pageIndex === 2; theme: root.theme; onClicked: root.pageIndex = 2 }
-                NavButton { text: "系统维护"; shortText: "维护"; selected: root.pageIndex === 3; theme: root.theme; onClicked: root.pageIndex = 3 }
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 1
+                    color: theme.lineSoft
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 6
+                    Layout.leftMargin: 10
+                    text: qsTr("工作台")
+                    color: theme.faint
+                    font.pixelSize: 10
+                    font.weight: Font.Bold
+                    font.letterSpacing: 1.2
+                }
+
+                NavButton {
+                    text: qsTr("性能总览")
+                    description: qsTr("状态与遥测")
+                    badgeText: "01"
+                    selected: root.pageIndex === 0
+                    theme: root.theme
+                    onClicked: root.pageIndex = 0
+                }
+                NavButton {
+                    text: qsTr("视觉检测")
+                    description: qsTr("画面与结果")
+                    badgeText: "02"
+                    selected: root.pageIndex === 1
+                    theme: root.theme
+                    onClicked: root.pageIndex = 1
+                }
+                NavButton {
+                    text: qsTr("设备控制")
+                    description: qsTr("执行器参数")
+                    badgeText: "03"
+                    selected: root.pageIndex === 2
+                    theme: root.theme
+                    onClicked: root.pageIndex = 2
+                }
+                NavButton {
+                    text: qsTr("系统维护")
+                    description: qsTr("服务与日志")
+                    badgeText: "04"
+                    selected: root.pageIndex === 3
+                    theme: root.theme
+                    onClicked: root.pageIndex = 3
+                }
 
                 Item { Layout.fillHeight: true }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 92
+                    radius: 16
+                    color: theme.highlightSoft
+                    border.width: 1
+                    border.color: theme.lineSoft
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 13
+                        spacing: 6
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 7
+                            Rectangle {
+                                Layout.preferredWidth: 8
+                                Layout.preferredHeight: 8
+                                radius: 4
+                                color: hostController.connected ? theme.accent : theme.warn
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                text: hostController.connected ? qsTr("设备已连接") : qsTr("等待设备连接")
+                                color: theme.text
+                                font.pixelSize: 12
+                                font.weight: Font.Bold
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: hostController.statusText
+                            color: theme.muted
+                            font.pixelSize: 10
+                            elide: Text.ElideRight
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: qsTr("接收 %1").arg(hostController.bytesReceived)
+                            color: theme.faint
+                            font.pixelSize: 10
+                            elide: Text.ElideRight
+                        }
+                    }
+                }
 
                 Button {
                     id: themeButton
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 50
+                    Layout.preferredHeight: 44
                     hoverEnabled: true
                     onClicked: root.darkMode = !root.darkMode
-                    contentItem: Text {
-                        text: root.darkMode ? "暗色科技" : "浅色雅致"
-                        color: theme.text
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        leftPadding: root.darkMode ? 28 : 0
-                        rightPadding: root.darkMode ? 0 : 28
-                        font.pixelSize: 12
-                        font.weight: Font.Black
+
+                    contentItem: RowLayout {
+                        spacing: 8
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.leftMargin: 12
+                            text: root.darkMode ? qsTr("深色模式") : qsTr("浅色模式")
+                            color: theme.text
+                            font.pixelSize: 12
+                            font.weight: Font.Bold
+                        }
+                        Rectangle {
+                            Layout.preferredWidth: 30
+                            Layout.preferredHeight: 18
+                            Layout.rightMargin: 10
+                            radius: 9
+                            color: root.darkMode ? theme.accentWash : theme.warnWash
+                            border.width: 1
+                            border.color: root.darkMode ? theme.accent : theme.warn
+                            Rectangle {
+                                width: 12
+                                height: 12
+                                radius: 6
+                                anchors.verticalCenter: parent.verticalCenter
+                                x: root.darkMode ? parent.width - width - 3 : 3
+                                color: root.darkMode ? theme.accent : theme.warn
+                                Behavior on x { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+                            }
+                        }
                     }
+
                     background: Rectangle {
-                        radius: 19
-                        border.color: theme.panelStroke
-                        gradient: Gradient {
-                            GradientStop { position: 0.0; color: theme.panelTop }
-                            GradientStop { position: 1.0; color: theme.panelBottom }
-                        }
-                        Rectangle {
-                            anchors.fill: parent
-                            anchors.margins: 1
-                            radius: parent.radius - 1
-                            color: theme.accentMist
-                            opacity: themeButton.hovered ? 1 : 0.45
-                            Behavior on opacity { NumberAnimation { duration: 160 } }
-                        }
-                        Rectangle {
-                            width: 28
-                            height: 28
-                            radius: 14
-                            x: root.darkMode ? parent.width - width - 10 : 10
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: root.darkMode ? theme.accent2 : theme.warn
-                            border.color: theme.highlight
-                            Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
-                        }
+                        radius: 14
+                        color: themeButton.hovered ? theme.highlightSoft : "transparent"
+                        border.width: 1
+                        border.color: themeButton.hovered ? theme.line : theme.lineSoft
                     }
                 }
             }
@@ -206,9 +286,12 @@ Window {
 
             HeaderBar {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 82
+                Layout.preferredHeight: 78
                 theme: root.theme
                 host: hostController
+                pageTitle: root.pageTitles[root.pageIndex]
+                pageDescription: root.pageDescriptions[root.pageIndex]
+                pageNumber: "0" + (root.pageIndex + 1)
             }
 
             StackLayout {
