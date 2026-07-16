@@ -39,3 +39,4 @@
 - 本轮 825 样本 P50/P95/max=77.625/99.809/162.326 ms，17 个 >=150 ms、0 个 >=500 ms；wait P50/P95/max=51.906/74.210/137.507 ms，`corr(wb,wait)=0.9960`、`corr(wb,cpu)=0.1872`。总体 P95 恰好通过而 max 失败，仍不可标 stable。
 - 60 分钟末 heap integrity=ok，heap free/min=6836467/6809687 B，未见持续泄漏；应用任务最低为 `dl_mc0/1=880/1785 B (49.3%)`，均满足 >=512 B、>=20%。DMA largest=72 B，UVC JPEG rxlink 问题不变。
 - 完整证据为 `2026-07-17-stability-guard-61min.json/.log/.md`；固件标签 `backup/dl-guard-61min-pass-candidate-20260717` 指向 `56a53fd`。
+- 新增 `docs/goal-delivery-2026-07-17.md`，明确推荐 guard 候选、保守控制候选、最小推理候选、禁止用于交付的失败/A-B 标签、已完成测试和剩余现场清单。

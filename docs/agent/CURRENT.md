@@ -4,6 +4,8 @@
 
 按根目录 `goal.md` 完成 ESP32-P4 推理恢复、上位机设备控制闭环、重连、UVC 与长稳验收，并保留可回退版本。
 
+交付版本选择与完整测试矩阵见 `docs/goal-delivery-2026-07-17.md`。
+
 ## Current State
 
 - 固件工作分支：`goal/inference-and-device-control`，当前提交 `56a53fd`。
