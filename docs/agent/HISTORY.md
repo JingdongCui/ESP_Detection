@@ -34,3 +34,8 @@
 - elapsed 2412.116 s 发生 Core0 Instruction access fault：MEPC=RA=MTVAL=0x10，SP=0x4ff20158 落在 `dl_mc0` 栈，随后 SW_CPU_RESET。panic 栈地址解析到 ESP-DL `DualCoreWorkerTask`、`Module::forward_args`、`std::function` 和 depthwise-conv 汇编；启动 free_min=928/1785 B 且 dump 有大量 A5，不像普通栈耗尽。
 - 重启后固件约 11 秒重新完成初始化，5000/5001 创建新连接、时间同步并恢复推理；Host PID 3266170 未退出。证明自动恢复有效，但长稳明确失败，且因重启未取得连续 60 分钟末水位。
 - 结构化结果、完整 panic/register/stack raw log 和结论分别为 `2026-07-17-stability-61min.json/.log/.md`。该失败不得删除或按异常值处理。
+- `537cb8e` 在 ESP-DL `Module::forward_args()` 派发时保存 op/args、各自补码和预期 vtable，`DualCoreWorkerTask` 执行前校验；异常时记录 `dl_guard worker guard rejected` 并完成同步，避免直接跳入已识别的坏虚调用。`56a53fd` 将 rejection 纳入长稳采集统计。该防线是诊断/止损，不是已证实根因修复。
+- Guard 版本 2026-07-17 03:05～04:06 完成 3660.192 s 连续长稳：启动标记 1、5000/5001 共 715 次检查零失败、fatal 0、guard rejection 0；越过上次 2412.116 s 故障窗口并在 3602 s 完整导出第二份 heap 与 24/24 任务快照。
+- 本轮 825 样本 P50/P95/max=77.625/99.809/162.326 ms，17 个 >=150 ms、0 个 >=500 ms；wait P50/P95/max=51.906/74.210/137.507 ms，`corr(wb,wait)=0.9960`、`corr(wb,cpu)=0.1872`。总体 P95 恰好通过而 max 失败，仍不可标 stable。
+- 60 分钟末 heap integrity=ok，heap free/min=6836467/6809687 B，未见持续泄漏；应用任务最低为 `dl_mc0/1=880/1785 B (49.3%)`，均满足 >=512 B、>=20%。DMA largest=72 B，UVC JPEG rxlink 问题不变。
+- 完整证据为 `2026-07-17-stability-guard-61min.json/.log/.md`；固件标签 `backup/dl-guard-61min-pass-candidate-20260717` 指向 `56a53fd`。

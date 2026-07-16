@@ -6,7 +6,7 @@
 
 ## Current State
 
-- 固件工作分支：`goal/inference-and-device-control`，当前提交 `0150722`。
+- 固件工作分支：`goal/inference-and-device-control`，当前提交 `56a53fd`。
 - 推理回退根因已定位：`sort_dbg` USB Serial/JTAG 调试监视任务会使 ESP-DL 双核阶段约慢 5 倍；真实分拣 IO 不是根因。
 - 生产配置关闭 `SORTER_HARDWARE_DEBUG_MONITOR` 后，真实 S1/S2/S4 与电机保持启用。5 次 RTS 硬复位、每次预热后 60 个样本的预验收结果为：300 样本 P50 74.443 ms、P95 101.947 ms、max 168.072 ms，5 个样本 >=150 ms、0 个样本 >=500 ms。系统性 500～600 ms 回退已消除，但严格 P95/max 门槛未通过，且 RTS 硬复位不等于物理断电冷启动，因此仍是 candidate。
 - 已实现板端 `CONTROL_JSON` 类型 `0x11`：get/state、set、restart、完整 capability、严格类型/范围/step 校验和错误响应。
@@ -21,6 +21,9 @@
 - 堆完整性为 ok；free/min/largest=6836391/6810219/6684660 B，internal free/largest=26923/21492 B，PSRAM free/largest=6809820/6684660 B。DMA free 仅 1791 B、largest 仅 76 B，直接解释 UVC JPEG `rxlink` 连续 DMA 分配失败。
 - 61 分钟长稳已执行但失败：3660.059 s 内采 826 个 wb_only 样本，P50 75.533 ms、P95 101.564 ms、max 161.204 ms、15 个 >=150 ms、0 个 >=500 ms；约 40 分钟时 Core0 `Instruction access fault`，MEPC/RA=0x10，SP 位于 `dl_mc0` 栈。板端 SW reset 后 Host 自动恢复双通道和推理。
 - panic 栈中地址解析到 `DualCoreWorkerTask`、`Module::forward_args`、`std::function` 与 depthwise-conv 汇编；`dl_mc0` 启动最低剩余 928/1785 B 且 panic dump 仍有大量 A5，普通栈耗尽不是首要解释。精确的无效函数/虚调用目标来源尚未定位。
+- 候选诊断防线 `537cb8e` 为 ESP-DL worker dispatch 保存 op/args 补码与预期 vtable，worker 执行前校验；`56a53fd` 让长稳采集器统计 rejection。它用于阻止已检测到的坏派发和保留证据，不宣称已定位根因。
+- Guard 版本第二轮 61 分钟长稳完整通过连续运行检查：3660.192 s、启动 1 次、715 次双端口检查零失败、fatal 0、guard rejection 0，且在 3602 s 取得第二份 24/24 任务及 heap 快照。825 样本 P50/P95/max=77.625/99.809/162.326 ms，17 个 >=150 ms、0 个 >=500 ms；总体 P95 通过但 max 仍失败，不能标 stable。
+- 60 分钟末 heap integrity=ok，free/min=6836467/6809687 B；所有应用任务仍 >=512 B 且 >=20%，最低是 `dl_mc0/1=880/1785 B (49.3%)`。DMA largest 仍仅 72 B，UVC 阻塞不变。
 - 固件 `idf.py build`、全量 flash、后续 app-flash 均通过 Hash 校验；ESP32-P4 revision v1.0。
 - Host 未改代码，`cmake --build build -j` 与 CTest 1/1 通过；GUI PID 3266170 已恢复，5000/5001 与 192.168.10.2 均为 ESTABLISHED。
 - Host 原生 Qt 四页已截图。第三页上下区所有控制项和板端状态可见；通过 UI 短暂关闭并恢复 detection，第四页运行日志明确记录 false→true，最终双 TCP 通道仍 ESTABLISHED。第二页因现场未触发包裹识别边沿而无图，不能计为相机/检测框视觉通过。
@@ -35,18 +38,19 @@
 - 单轮严格通过诊断候选：`backup/inference-strict-pass-1x100-candidate-20260717`（`8f034e0`，仍非 stable）。
 - 任务/内存证据候选：`backup/task-heap-snapshot-candidate-20260717`（`27c8b83`）。
 - 长稳失败证据点：`backup/61min-failed-evidence-20260717`（`0150722`，不可作为 stable）。
+- Guard 单轮长稳候选：`backup/dl-guard-61min-pass-candidate-20260717`（`56a53fd`，单轮通过但尾延迟/根因/物理验收未完成）。
 - A/B 仅供诊断：`backup/ab-sorter-off-20260717`，不可作为生产版本。
 
 ## Next Step
 
-1. 定位 40 分钟处 `dl_mc0` 无效函数/虚调用目标 0x10；优先检查 ESP-DL dual-core runtime 的 op/args 生命周期、模型对象/vtable 与内存破坏，不把自动重启当成长稳通过。
+1. 继续复现并定位 `dl_mc0` 无效函数/虚调用目标 0x10；guard 单轮 61 分钟未复现也未拒绝，仍需多轮/真实 IO 路径验证 op/args 生命周期、模型对象/vtable 与内存破坏。
 2. 使用物理断电完成 5 次真正冷启动；启动任务/内存证据已补齐，后续需在 60 分钟长稳结束再次导出历史最低水位与最低 heap。
 3. Host 软件 UI/状态回显与截图已完成；继续做屏幕亮度、ISP 画面、检测框/包裹图和三路真实电机的现场实拍观察。
-4. 断网/Host 杀进程恢复已做协议级测试；修复 panic 后重跑 60～120 分钟真实 IO 长稳与结束任务/heap 快照。
+4. 断网/Host 杀进程恢复已做协议级测试；继续跑真实 IO/包裹路径 60～120 分钟并观察 guard rejection，不能用本次单轮通过替代多场景长稳。
 5. 控制面稳定后处理 UVC JPEG DMA 内存不足，再做 USB 枚举和视频稳定性验收。
 
 ## Blockers
 
 - UVC JPEG DMA internal-memory allocation remains unresolved；启动时 DMA 最大连续块实测仅 76 B。
 - 300 样本硬复位预验收已完成，但 P95/max 未通过；物理断电冷启动、长稳、视觉证据仍需要继续占用实板与现场观察，当前不能把 candidate 标为 stable。
-- 61 分钟长稳在约 40 分钟发生一次 `dl_mc0` Instruction access fault，当前版本明确不能标 stable；重启使计划中的“连续运行 60 分钟后”水位快照未触发。
+- 原版 61 分钟长稳在约 40 分钟发生一次 `dl_mc0` Instruction access fault；guard 候选虽单轮跑满且取得 60 分钟快照，但未触发 guard、未证明根因消除，且 max=162.326 ms 仍超严格门槛。
