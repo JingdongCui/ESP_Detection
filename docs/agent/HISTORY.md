@@ -21,3 +21,8 @@
 - 本轮证明持续性 500～600 ms 回退已消除，但不能把候选标成 stable。RTS hard reset 也不等于物理断电冷启动；原始增量记录保存在 `docs/agent/run_logs/2026-07-17-inference-hard-reset-5x60.json`。采集结束后 Host PID 3266170 仍运行，192.168.10.1:5000/5001 到板端均为 ESTABLISHED。
 - `8f034e0` 扩展采集器，逐样本保存 nwb/wb/wall/cpu/wait，同时保留 `samples_us` 兼容字段；语法检查和合成日志解析断言通过。
 - 随后一轮 1x100 hard-reset 诊断全部通过：P50 75.680 ms、P95 94.113 ms、max 110.665 ms、零 >=150/500 ms，wait P50/P95/max 49.891/69.700/87.139 ms。`corr(wb,wait)=0.9907`，`corr(wb,cpu)=0.1058`；说明本轮波动几乎全部随等待变化，但没有复现前一轮 150～168 ms 尾部，仍需多轮捕获异常后才能下最终结论。原始证据为 `docs/agent/run_logs/2026-07-17-inference-cpu-wait-hard-reset-1x100.json`。
+- `27c8b83` 增加启动时一次性 UART 验收快照和 `tools/system_acceptance_snapshot.py` 导出器。首次构建因当前 IDF 的公开 `TaskStatus_t` 没有 `pxEndOfStack` 失败；改用 IDF `esp_private/freertos_debug.h` 的 `vTaskGetSnapshot()` 后构建通过，并在实板完整枚举栈边界。
+- `idf.py build`、全量 `idf.py flash monitor`、最新 app-flash 均通过，所有镜像 Hash verified。全量 monitor 无 panic/watchdog/heap assert；导出器再次 RTS hard reset 后校验 heap integrity=ok、任务 begin/end/CSV 均为 24 条。
+- 启动快照：20 个任务栈在 internal、4 个在 PSRAM、0 个 other。Ethernet 三任务和 `cam_isp` 真实位于 PSRAM；关键内部任务中 `vision_det` free_min=9308/11901 B、`sort_real_io`=1984/3949 B、`dl_mc0/1`=928/1785 B。应用任务启动水位均满足 >=512 B 和 >=20%，但仍需 60 分钟后复测。
+- 内存快照：free/min/largest=6836391/6810219/6684660 B，internal free/largest=26923/21492 B，PSRAM free/largest=6809820/6684660 B，DMA free/largest=1791/76 B。DMA 最大连续块 76 B 是 UVC JPEG rxlink `ESP_ERR_NO_MEM` 的直接量化证据。
+- `idf.py flash monitor` 后继续观察到一次 wb=149454 us、cpu=24770 us、wait=124686 us；计算任务 CPU 未抬升，额外耗时集中在 wait。快照硬复位后 Host PID 3266170 的 5000/5001 双通道再次自动 ESTABLISHED。

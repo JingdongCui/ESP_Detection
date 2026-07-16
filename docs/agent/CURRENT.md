@@ -6,7 +6,7 @@
 
 ## Current State
 
-- 固件工作分支：`goal/inference-and-device-control`，当前提交 `8f034e0`（固件二进制与 `2260596` 相同，仅增强主机侧采集工具）。
+- 固件工作分支：`goal/inference-and-device-control`，当前提交 `27c8b83`。
 - 推理回退根因已定位：`sort_dbg` USB Serial/JTAG 调试监视任务会使 ESP-DL 双核阶段约慢 5 倍；真实分拣 IO 不是根因。
 - 生产配置关闭 `SORTER_HARDWARE_DEBUG_MONITOR` 后，真实 S1/S2/S4 与电机保持启用。5 次 RTS 硬复位、每次预热后 60 个样本的预验收结果为：300 样本 P50 74.443 ms、P95 101.947 ms、max 168.072 ms，5 个样本 >=150 ms、0 个样本 >=500 ms。系统性 500～600 ms 回退已消除，但严格 P95/max 门槛未通过，且 RTS 硬复位不等于物理断电冷启动，因此仍是 candidate。
 - 已实现板端 `CONTROL_JSON` 类型 `0x11`：get/state、set、restart、完整 capability、严格类型/范围/step 校验和错误响应。
@@ -16,6 +16,9 @@
 - 集成测试器：`ESP32P4_Detection/tools/control_protocol_integration.py`；正向/负向/畸形 JSON/恢复/ISP/restart/reconnect 均已在实板通过。
 - 推理采集器：`ESP32P4_Detection/tools/inference_latency_acceptance.py`；原始 5x60 证据为 `docs/agent/run_logs/2026-07-17-inference-hard-reset-5x60.json`。
 - 增强采集器后的 1x100 诊断轮全部通过：P50 75.680 ms、P95 94.113 ms、max 110.665 ms、零 >=150 ms；wait P50/P95/max 为 49.891/69.700/87.139 ms。`wb_us` 与 wait 的 Pearson 相关系数 0.9907，与调用任务 CPU 的相关系数仅 0.1058，支持尾延迟来自调度/worker 等待而非调用任务计算变慢；但本轮未复现之前 5/300 的异常，不能据此宣告稳定。
+- 已增加一次性 UART 任务/堆验收快照与导出器 `tools/system_acceptance_snapshot.py`。实板导出 24/24 个任务：20 个内部栈、4 个 PSRAM 栈、0 个未知；`eth_control`、`eth_img_send`、`eth_img_prod`、`cam_isp` 的实际栈地址均在 PSRAM，`vision_det`、`dl_mc0/1`、`sort_real_io` 均在内部 SRAM。
+- 启动阶段所有应用任务最低剩余均 >=512 B 且 >=20%；但该快照不是 60 分钟历史水位，不能完成长稳验收。当前多项任务剩余 >60%，应在覆盖最坏路径与长稳后再缩栈或说明保留原因。
+- 堆完整性为 ok；free/min/largest=6836391/6810219/6684660 B，internal free/largest=26923/21492 B，PSRAM free/largest=6809820/6684660 B。DMA free 仅 1791 B、largest 仅 76 B，直接解释 UVC JPEG `rxlink` 连续 DMA 分配失败。
 - 固件 `idf.py build`、全量 flash、后续 app-flash 均通过 Hash 校验；ESP32-P4 revision v1.0。
 - Host 未改代码，`cmake --build build -j` 与 CTest 1/1 通过；GUI PID 3266170 已恢复，5000/5001 与 192.168.10.2 均为 ESTABLISHED。
 - UVC 仍在 `jpeg_new_encoder_engine(): no memory for jpeg encoder rxlink` 失败，按 goal 顺序留到控制稳定后处理。
@@ -27,17 +30,18 @@
 - 控制/ISP/重连候选：`backup/control-json-isp-reconnect-candidate-20260717`（`b1dfef5`）。
 - 300 样本预验收候选：`backup/goal-300-sample-tested-candidate-20260717`（`2260596`）。
 - 单轮严格通过诊断候选：`backup/inference-strict-pass-1x100-candidate-20260717`（`8f034e0`，仍非 stable）。
+- 任务/内存证据候选：`backup/task-heap-snapshot-candidate-20260717`（`27c8b83`）。
 - A/B 仅供诊断：`backup/ab-sorter-off-20260717`，不可作为生产版本。
 
 ## Next Step
 
 1. 使用增强采集器重跑多轮，捕获并定位 150～168 ms 尾延迟；1x100 已通过但尚未复现异常，需继续验证可重复性。
-2. 使用物理断电完成 5 次真正冷启动；补任务栈地址/水位、内外 RAM、CPU 与最低 heap 证据。
+2. 使用物理断电完成 5 次真正冷启动；启动任务/内存证据已补齐，后续需在 60 分钟长稳结束再次导出历史最低水位与最低 heap。
 3. 用 Host 第三页逐项做 UI 可见闭环和截图/实拍，尤其是屏幕、相机画面、检测框和三路真实电机。
 4. 完成断网/Host 杀进程/恢复与 60～120 分钟真实 IO 长稳。
 5. 控制面稳定后处理 UVC JPEG DMA 内存不足，再做 USB 枚举和视频稳定性验收。
 
 ## Blockers
 
-- UVC JPEG DMA internal-memory allocation remains unresolved.
+- UVC JPEG DMA internal-memory allocation remains unresolved；启动时 DMA 最大连续块实测仅 76 B。
 - 300 样本硬复位预验收已完成，但 P95/max 未通过；物理断电冷启动、长稳、视觉证据仍需要继续占用实板与现场观察，当前不能把 candidate 标为 stable。
