@@ -29,3 +29,8 @@
 - 使用 Hyprland/grim 对原生 Qt Host 四页进行可见验收。性能总览、设备控制上下区、视觉检测、系统维护页均已保存 PNG；设备控制页同步显示 brightness=80、ISP 当前值、detection/overlay、85/60 阈值、A/B/C 电机 60/100/100、上报状态和模型信息。
 - 通过第三页 UI 将 detection 短暂 OFF 再恢复 ON；两个状态分别截图，系统维护页日志明确显示“已发送控制: vision.detection_enabled = false/true”，最终 5000/5001 仍 ESTABLISHED。证明 Host UI→板端协议→Host 日志/状态回显的软件闭环。
 - 视觉检测页当前显示“无”，因为没有现场包裹触发识别/图像上报边沿；该截图只证明页面正常渲染，不能替代相机画面、检测框和 LCD/电机实拍。限制与截图清单记录在 `docs/agent/run_logs/2026-07-17-visual.md`。
+- `0150722` 新增 61 分钟增量长稳采集器，并让 sysmon 在连续 uptime 达到 60 分钟时再打印同口径任务/heap 快照。Python 语法与双端口解析断言、`idf.py build`、app-flash Hash verified 均通过。
+- 61 分钟采集完成 3660.059 s、826 样本：P50 75.533 ms、P95 101.564 ms、max 161.204 ms、15 个 >=150 ms、0 个 >=500 ms；`corr(wb,wait)=0.9961`、`corr(wb,cpu)=0.2250`。持续 5 倍回退消失，但严格 P95/max 仍失败。
+- elapsed 2412.116 s 发生 Core0 Instruction access fault：MEPC=RA=MTVAL=0x10，SP=0x4ff20158 落在 `dl_mc0` 栈，随后 SW_CPU_RESET。panic 栈地址解析到 ESP-DL `DualCoreWorkerTask`、`Module::forward_args`、`std::function` 和 depthwise-conv 汇编；启动 free_min=928/1785 B 且 dump 有大量 A5，不像普通栈耗尽。
+- 重启后固件约 11 秒重新完成初始化，5000/5001 创建新连接、时间同步并恢复推理；Host PID 3266170 未退出。证明自动恢复有效，但长稳明确失败，且因重启未取得连续 60 分钟末水位。
+- 结构化结果、完整 panic/register/stack raw log 和结论分别为 `2026-07-17-stability-61min.json/.log/.md`。该失败不得删除或按异常值处理。

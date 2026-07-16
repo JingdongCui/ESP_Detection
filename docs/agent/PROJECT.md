@@ -649,4 +649,5 @@ RGB565 必须确认整条显示路径都变成 16 bpp：
 - 启动任务/堆证据可用 `ESP32P4_Detection/tools/system_acceptance_snapshot.py` 采集；产物为 CSV、memory JSON 与原始 UART log。栈归属必须依据实际 `pxStackBase` 地址，而不是创建 API 的预期 caps。
 - 2026-07-17 实板确认 24 个任务中 4 个栈在 PSRAM：`eth_control`、`eth_img_send`、`eth_img_prod`、`cam_isp`；其余 20 个在内部 SRAM。`sort_dbg` 生产配置关闭，因此不会出现在任务表。
 - UVC 失败时实测 `MALLOC_CAP_DMA` free=1791 B、largest=76 B；即使 internal 8-bit largest 仍有 21492 B，也不能满足 JPEG engine 的 DMA-capable 连续块。后续 UVC 修复必须针对 DMA-capable 内存的早期预留/碎片，而不是只看普通 internal free。
+- 2026-07-17 长稳发现 ESP-DL dual-core worker 稀有崩溃：约 40 分钟时 Core0 Instruction access fault，MEPC/RA/MTVAL=0x10，SP 位于 `dl_mc0`；栈中可符号化地址经过 `DualCoreWorkerTask`→`Module::forward_args`→depthwise-conv/std::function。后续应围绕 `DualCoreWorkerRuntime.op/args`、Module/vtable/std::function 生命周期或内存破坏调查，不能归因于普通栈耗尽，也不能用自动重启掩盖。
 - UVC 当前失败点：硬件 JPEG engine `rxlink` 内部 DMA 内存不足；不应在推理和控制验收完成前混入修复。
