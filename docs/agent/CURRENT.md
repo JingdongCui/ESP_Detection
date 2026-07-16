@@ -8,7 +8,7 @@
 
 ## Current State
 
-- 固件工作分支：`goal/inference-and-device-control`，当前提交 `56a53fd`。
+- 固件工作分支：`goal/inference-and-device-control`，当前提交 `60c9f8a`；标签 `backup/ui-inference-isolation-candidate-20260717`。
 - 推理回退根因已定位：`sort_dbg` USB Serial/JTAG 调试监视任务会使 ESP-DL 双核阶段约慢 5 倍；真实分拣 IO 不是根因。
 - 生产配置关闭 `SORTER_HARDWARE_DEBUG_MONITOR` 后，真实 S1/S2/S4 与电机保持启用。5 次 RTS 硬复位、每次预热后 60 个样本的预验收结果为：300 样本 P50 74.443 ms、P95 101.947 ms、max 168.072 ms，5 个样本 >=150 ms、0 个样本 >=500 ms。系统性 500～600 ms 回退已消除，但严格 P95/max 门槛未通过，且 RTS 硬复位不等于物理断电冷启动，因此仍是 candidate。
 - 已实现板端 `CONTROL_JSON` 类型 `0x11`：get/state、set、restart、完整 capability、严格类型/范围/step 校验和错误响应。
@@ -25,6 +25,12 @@
 - panic 栈中地址解析到 `DualCoreWorkerTask`、`Module::forward_args`、`std::function` 与 depthwise-conv 汇编；`dl_mc0` 启动最低剩余 928/1785 B 且 panic dump 仍有大量 A5，普通栈耗尽不是首要解释。精确的无效函数/虚调用目标来源尚未定位。
 - 候选诊断防线 `537cb8e` 为 ESP-DL worker dispatch 保存 op/args 补码与预期 vtable，worker 执行前校验；`56a53fd` 让长稳采集器统计 rejection。它用于阻止已检测到的坏派发和保留证据，不宣称已定位根因。
 - Guard 版本第二轮 61 分钟长稳完整通过连续运行检查：3660.192 s、启动 1 次、715 次双端口检查零失败、fatal 0、guard rejection 0，且在 3602 s 取得第二份 24/24 任务及 heap 快照。825 样本 P50/P95/max=77.625/99.809/162.326 ms，17 个 >=150 ms、0 个 >=500 ms；总体 P95 通过但 max 仍失败，不能标 stable。
+- `b08a1a3` 将 ESP-DL guard 增强为从虚函数成员表示推导 `forward_args` vtable offset，校验实际 target 可执行地址及补码，并让 worker 重解析后直接调用已验证 target；覆盖既往跳转 0x10 的直接失效路径，但不宣称找到对象损坏的上游根因。
+- 尾延迟直接机制已定位：`vision_disp` 在 LVGL mutex 内做阻塞 PPA blit，priority-5 LVGL 等锁时通过优先级继承把显示任务提升到 5，高于 priority-4 ESP-DL workers；实机快照曾捕获 `vision_disp` 动态 priority=5。
+- A/B 仅把 preview 基础优先级降到 3 后，300 样本 P50/P95/max=76.465/98.429/155.593 ms，`>=150 ms` 从 5 降到 2，但 max 仍失败。
+- 最终 `60c9f8a` 将 UI render group 设为 lvgl/swdraw/vision_disp=3/3/2，fetch/detect/dl_mc0/1 保持 4；持锁继承后显示最多为 3。任务快照已确认实际配置。
+- 最终候选 5×60 共 300 样本严格通过：P50/P95/max=67.312/71.393/132.003 ms，`>=150 ms`=0、`>=500 ms`=0；五轮 max=81.755/122.134/72.111/80.151/132.003 ms。
+- 最终候选 61 分钟长稳正在执行，证据增量写入 `2026-07-17-stability-ui-isolated-61min.json/.log`；完成前不把此前 guard 版的长稳结论外推到新调度配置。
 - 60 分钟末 heap integrity=ok，free/min=6836467/6809687 B；所有应用任务仍 >=512 B 且 >=20%，最低是 `dl_mc0/1=880/1785 B (49.3%)`。DMA largest 仍仅 72 B，UVC 阻塞不变。
 - 固件 `idf.py build`、全量 flash、后续 app-flash 均通过 Hash 校验；ESP32-P4 revision v1.0。
 - Host 未改代码，`cmake --build build -j` 与 CTest 1/1 通过；GUI PID 3266170 已恢复，5000/5001 与 192.168.10.2 均为 ESTABLISHED。
@@ -41,18 +47,22 @@
 - 任务/内存证据候选：`backup/task-heap-snapshot-candidate-20260717`（`27c8b83`）。
 - 长稳失败证据点：`backup/61min-failed-evidence-20260717`（`0150722`，不可作为 stable）。
 - Guard 单轮长稳候选：`backup/dl-guard-61min-pass-candidate-20260717`（`56a53fd`，单轮通过但尾延迟/根因/物理验收未完成）。
+- 强化虚调用 guard：`backup/dl-target-guard-candidate-20260717`（`b08a1a3`）。
+- 预览基础优先级 A/B：`backup/preview-priority-tail-ab-20260717`（`a928dde`，max 仍失败）。
+- UI worker 优先级诊断：`backup/ui-worker-priority-tail-ab-20260717`（`f29525d`）。
+- 当前推荐：`backup/ui-inference-isolation-candidate-20260717`（`60c9f8a`，5×60 严格通过，长稳进行中）。
 - A/B 仅供诊断：`backup/ab-sorter-off-20260717`，不可作为生产版本。
 
 ## Next Step
 
-1. 继续复现并定位 `dl_mc0` 无效函数/虚调用目标 0x10；guard 单轮 61 分钟未复现也未拒绝，仍需多轮/真实 IO 路径验证 op/args 生命周期、模型对象/vtable 与内存破坏。
-2. 使用物理断电完成 5 次真正冷启动；启动任务/内存证据已补齐，后续需在 60 分钟长稳结束再次导出历史最低水位与最低 heap。
-3. Host 软件 UI/状态回显与截图已完成；继续做屏幕亮度、ISP 画面、检测框/包裹图和三路真实电机的现场实拍观察。
-4. 断网/Host 杀进程恢复已做协议级测试；继续跑真实 IO/包裹路径 60～120 分钟并观察 guard rejection，不能用本次单轮通过替代多场景长稳。
-5. 控制面稳定后处理 UVC JPEG DMA 内存不足，再做 USB 枚举和视频稳定性验收。
+1. 完成最终候选的 61 分钟长稳，统计 fatal/reboot/guard/双端口、推理分布、60 分钟 task/heap 水位。
+2. 长稳通过后对最终提交执行一次精确的全量 `idf.py flash monitor`，保留 Hash verified 与启动证据。
+3. 使用物理断电完成 5 次真正冷启动，并在 LCD 实操触摸/页面切换，验证 UI priority 3 无明显手感回退。
+4. 做屏幕亮度、ISP 画面、检测框/包裹图、S1/S2/S4 和三路真实电机现场实拍。
+5. 前述稳定后再处理 UVC JPEG DMA 内存不足与 USB 枚举/视频稳定性。
 
 ## Blockers
 
 - UVC JPEG DMA internal-memory allocation remains unresolved；启动时 DMA 最大连续块实测仅 76 B。
-- 300 样本硬复位预验收已完成，但 P95/max 未通过；物理断电冷启动、长稳、视觉证据仍需要继续占用实板与现场观察，当前不能把 candidate 标为 stable。
-- 原版 61 分钟长稳在约 40 分钟发生一次 `dl_mc0` Instruction access fault；guard 候选虽单轮跑满且取得 60 分钟快照，但未触发 guard、未证明根因消除，且 max=162.326 ms 仍超严格门槛。
+- 最终候选 300 样本严格指标已经通过，但 61 分钟长稳、物理断电冷启动、LCD 触摸和真实包裹/电机视觉证据仍未完成，当前不能标 stable。
+- 原版 61 分钟长稳在约 40 分钟发生一次 `dl_mc0` Instruction access fault；强化 guard 覆盖了无效 target 的直接路径，但没有证明上游根因消除。

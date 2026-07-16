@@ -40,3 +40,8 @@
 - 60 分钟末 heap integrity=ok，heap free/min=6836467/6809687 B，未见持续泄漏；应用任务最低为 `dl_mc0/1=880/1785 B (49.3%)`，均满足 >=512 B、>=20%。DMA largest=72 B，UVC JPEG rxlink 问题不变。
 - 完整证据为 `2026-07-17-stability-guard-61min.json/.log/.md`；固件标签 `backup/dl-guard-61min-pass-candidate-20260717` 指向 `56a53fd`。
 - 新增 `docs/goal-delivery-2026-07-17.md`，明确推荐 guard 候选、保守控制候选、最小推理候选、禁止用于交付的失败/A-B 标签、已完成测试和剩余现场清单。
+- 对 ESP-DL 3.3.7 官方/本地实现和旧 ELF 反汇编复核：旧 guard 只验证 vtable 指针，实际虚调用从 vtable entry 间接 `jalr`；既往 MEPC/RA/MTVAL=0x10 表明真实 target 可成为 0x10。`b08a1a3` 改为校验并直接调用 worker 重新解析的可执行 target，build、完整 flash monitor 和反汇编验证通过。
+- `a928dde` 将 lossy preview 从 priority 4 降到 3；5×60 结果 P50/P95/max=76.465/98.429/155.593 ms，`>=150 ms`=2，较原始 5 次改善但 max 仍失败。
+- `f29525d` 将漂移的 `CONFIG_LV_DRAW_THREAD_PRIO=4` 恢复为 defaults 的 3。实机任务快照捕获 `vision_disp` 虽基础 priority 3 却动态变为 5，结合其在 LVGL mutex 内执行两个阻塞 PPA blit，定位到 LVGL priority 5 等锁导致的 FreeRTOS 优先级继承。
+- `60c9f8a` 设置 LVGL=3、swdraw=3、vision_disp=2，使显示任务持锁继承后仍低于 priority-4 fetch/detect/ESP-DL workers。build、app-flash Hash verified、启动和任务快照通过。
+- 最终候选 5×60 RTS reset 共 300 样本：P50/P95/max=67.312/71.393/132.003 ms，wait P50/P95/max=43.102/45.923/105.904 ms，零 `>=150 ms`、零 `>=500 ms`，四项严格验收全部通过。原始 JSON 和 A/B 报告已归档。

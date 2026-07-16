@@ -170,6 +170,8 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - `sort_real_io` 任务在 Vision 建立后、Ethernet 前以 dormant 方式创建并预留 4KB 内部 RAM 栈；Sorter 启动时只启用硬件链路。编码器每 100ms 采样，传感器仍每 10ms 轮询。
 - 2026-07-16 推理回退实测：第 9 包导入基线 `367e0c7` 在同一块 ESP32-P4 v1.0 上连续为约 70–90ms；当前正式提交 `0efa82a` 配合原版 ESP-DL 3.3.7 也稳定约 72–75ms。曾尝试把 ESP-DL 双核 worker 从调用者优先级 4 临时提高到 5，该未提交实验会稳定复现约 459–476ms，必须保持原版“worker 与调用者同优先级”的行为。父任务 runtime 计数不包含两个 ESP-DL worker，不能把 `wall-parent_cpu` 直接解释为抢占等待。
 - 2026-07-17 长稳结论：未加 guard 的 `0150722` 在连续约 2412 s 时由 `dl_mc0` 触发 Instruction access fault（无效跳转 0x10）；dispatch 完整性 guard 候选 `56a53fd` 随后单轮连续 3660.192 s 无 fatal/reboot/rejection，5000/5001 零连接检查失败，并取得 60 分钟末任务/heap 快照。该结果只支持候选继续验证；因没有触发 guard、单阶段 max 162.326 ms、物理冷启动/真实包裹/UVC 未完成，不得标 stable。
+- 2026-07-17 尾延迟根因补充：`vision_disp` 在 LVGL mutex 内执行阻塞 PPA framebuffer blit，priority-5 LVGL 等锁时会通过 FreeRTOS mutex priority inheritance 把显示任务提升到 5，高于 priority-4 ESP-DL worker。最终候选 `60c9f8a` 设 lvgl/swdraw/vision_disp=3/3/2，fetch/detect/dl_mc0/1=4；5×60 共 300 样本 P50/P95/max=67.312/71.393/132.003 ms，零 >=150/500 ms，严格分布指标首次全部通过。
+- ESP-DL worker 防线从 `b08a1a3` 起校验实际 `forward_args` 虚调用 target 是可执行地址，并在 worker 中重新解析后直接调用；它覆盖无效跳转 0x10 的直接路径，但不能作为上游对象损坏根因已消除的证据。
 - 60 分钟末实测 24/24 任务，所有应用任务最低剩余 >=512 B 且 >=20%；`dl_mc0/1` 最低剩余 880/1785 B。heap integrity=ok，无持续泄漏证据；DMA largest 仅 72 B，仍直接阻塞 UVC JPEG rxlink 分配。
 - 人工分类 UI 的模型类别顺序固定为 `0=极兔、1=韵达、2=中通`，控制层对应 `CLASS1、CLASS3、CLASS2`。弹窗期间只暂停摄像头 framebuffer 预览直刷，采集与推理保持运行；选择成功后恢复预览和 S2 后续分拣。
 - 真实 S1 建包入口为 `update_vision_s1_locked()`，只在去抖后的 `active && !previous_active` 上升沿调用 `sorter_scheduler_package_new()`。
