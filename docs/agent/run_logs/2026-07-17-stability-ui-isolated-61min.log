@@ -1,0 +1,1279 @@
+I (372) esp_image: segment 1: paddr=001caeb8 vaddr=30100000 size=00088h (   136) load
+I (374) esp_image: segment 2: paddr=001caf48 vaddr=4ff00000 size=050d0h ( 20688) load
+I (381) esp_image: segment 3: paddr=001d0020 vaddr=48000020 size=359860h (3512416) map
+I (907) esp_image: segment 4: paddr=00529888 vaddr=4ff050d0 size=12ffch ( 77820) load
+I (923) esp_image: segment 5: paddr=0053c88c vaddr=4ff18100 size=0446ch ( 17516) load
+I (928) esp_image: segment 6: paddr=00540d00 vaddr=50108080 size=00020h (    32) load
+I (934) boot: Loaded app from partition at offset 0x10000
+I (935) boot: Disabling RNG early entropy source...
+I (949) hex_psram: vendor id    : 0x0d (AP)
+I (950) hex_psram: Latency      : 0x01 (Fixed)
+I (950) hex_psram: DriveStr.    : 0x00 (25 Ohm)
+I (950) hex_psram: dev id       : 0x03 (generation 4)
+I (955) hex_psram: density      : 0x07 (256 Mbit)
+I (960) hex_psram: good-die     : 0x06 (Pass)
+I (964) hex_psram: SRF          : 0x02 (Slow Refresh)
+I (969) hex_psram: BurstType    : 0x00 ( Wrap)
+I (973) hex_psram: BurstLen     : 0x03 (2048 Byte)
+I (977) hex_psram: BitMode      : 0x01 (X16 Mode)
+I (982) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
+I (987) hex_psram: DriveStrength: 0x00 (1/1)
+I (991) MSPI Timing: Enter psram timing tuning
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+I (1299) mmu_psram: .rodata xip on psram
+I (1561) mmu_psram: .text xip on psram
+I (1561) hex_psram: psram CS IO is dedicated
+I (1562) cpu_start: Multicore app
+I (1962) esp_psram: SPI SRAM memory test OK
+I (1971) cpu_start: GPIO 38 and 37 are used as console UART I/O pins
+I (1971) cpu_start: Pro cpu start user code
+I (1971) cpu_start: cpu freq: 360000000 Hz
+I (1974) app_init: Application information:
+I (1977) app_init: Project name:     sample_project
+I (1982) app_init: App version:      backup/ui-inference-isolation-c
+I (1988) app_init: Compile time:     Jul 17 2026 04:56:27
+I (1993) app_init: ELF file SHA256:  37fa05b4e...
+I (1998) app_init: ESP-IDF:          v5.5.4
+I (2002) efuse_init: Min chip rev:     v0.0
+I (2005) efuse_init: Max chip rev:     v1.99 
+I (2010) efuse_init: Chip rev:         v1.0
+I (2013) heap_init: Initializing. RAM available for dynamic allocation:
+I (2020) heap_init: At 4FF24160 len 00016E60 (91 KiB): RETENT_RAM
+I (2026) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
+I (2031) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
+I (2040) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
+I (2042) heap_init: At 30100088 len 00001F78 (7 KiB): TCM
+I (2184) esp_psram: Adding pool of 27520K of PSRAM memory to heap allocator
+I (2185) esp_psram: Adding pool of 25K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
+I (2191) esp_psram: Adding pool of 20K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
+I (2202) spi_flash: detected chip: gd
+I (2206) spi_flash: flash io: qio
+I (2209) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+I (2215) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+I (2222) main_task: Started on CPU0
+I (2225) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (2233) main_task: Calling app_main()
+I (2236) system: System initialization start
+I (2246) bsp_lcd: Backlight LEDC PWM on, default 80%
+I (2246) bsp_lcd: MIPI DSI PHY powered on
+I (2250) ek79007: version: 1.0.4
+I (2453) bsp_lcd: [QoS] AXI ICM tuned: DW_GDMA rd=15 > Cache=4 > CPU=2
+I (2453) bsp_lcd: LCD init done
+I (2453) bsp_touch: I2C bus initialized
+I (2526) GT911: TouchPad_ID:0x39,0x31,0x31
+I (2526) GT911: TouchPad_Config_Version:89
+I (2526) bsp_touch: GT911 detected at I2C address 0x5D
+I (2527) bsp_touch: Touch init done
+I (2532) sc2336: Detected Camera sensor PID=0xcb3a
+I (2660) bsp_cam: camera init: 1024x600 RGB888, 3 buffers, 30fps, streaming
+I (2660) bsp_motor: motor 1 PWM GPIO A=2 B=3
+I (2660) bsp_motor: motor 2 PWM GPIO A=32 B=36
+I (2664) bsp_motor: motor 3 PWM GPIO A=4 B=5
+I (2668) bsp_motor: motor BSP initialized
+I (2671) bsp_motor: motor output enabled
+I (2675) bsp_encoder: encoder BSP initialized
+I (2679) esp_lvgl:adapter: LVGL adapter initialized successfully
+I (2688) esp_lvgl:bridge_v9: Initializing hardware resources
+I (2690) esp_lvgl:bridge_v9: Hardware resources initialized successfully
+I (2697) bsp_lvgl: Display registered (1024x600)
+W (2701) esp_lvgl:touch: LV_USE_GESTURE_RECOGNITION is disabled; only single-point pointer events are available
+I (2711) esp_lvgl:touch: Touch input device registered successfully (IRQ mode: enabled)
+I (2718) bsp_lvgl: Touch registered
+I (2722) esp_lvgl:adapter: LVGL task started successfully
+I (2727) bsp_lvgl: LVGL adapter started
+I (3615) eth_example: metrics interval set to 1000 ms
+I (3615) eth_example: image report enabled
+I (3616) eth_example: metrics report enabled
+I (3626) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C
+I (3877) vision_stable: PPA copy client registered
+I (3931) vision_stable: allocated 3 stable RGB slots (1843200 bytes each)
+
+I (5133) dl::Model: Testing output box0.
+I (5135) dl::Model: Testing output score0.
+I (5141) dl::Model: Testing output box1.
+I (5142) dl::Model: Testing output score1.
+I (5145) dl::Model: Testing output box2.
+I (5146) dl::Model: Testing output score2.
+I (5171) dl::Model: Test Pass!
+W (5172) dl::Model: minimize() will delete unused inference variables, breaking model testing/debugging.
+I (5175) vision_model: loaded model /spiffs/waybill.espdl (score_thr=0.85 nms_thr=0.70)
+
+I (6066) dl::Model: Testing output box0.
+I (6068) dl::Model: Testing output score0.
+I (6074) dl::Model: Testing output box1.
+I (6075) dl::Model: Testing output score1.
+I (6078) dl::Model: Testing output box2.
+I (6079) dl::Model: Testing output score2.
+I (6102) dl::Model: Test Pass!
+W (6102) dl::Model: minimize() will delete unused inference variables, breaking model testing/debugging.
+I (6105) vision_model: loaded model /spiffs/logo.espdl (score_thr=0.60 nms_thr=0.70)
+I (6110) vision_model: active models: waybill=0x00010001 logo=0x00020001
+I (6116) vision_model: 
+I (6118) vision_model: [fixed-test] ===== begin fixed image tests =====
+I (6840) vision_model: [tensor-dump][waybill] live score0 dtype=3 exp=-1 shape=[1,28,28,1] raw_min=-87 raw_max=-3 thr_q=3 sigmoid_max=0.1824
+I (6842) vision_model: [tensor-dump][waybill] live score1 dtype=3 exp=0 shape=[1,14,14,1] raw_min=-46 raw_max=2 thr_q=2 sigmoid_max=0.8808
+I (6854) vision_model: [tensor-dump][waybill] live score2 dtype=3 exp=-1 shape=[1,7,7,1] raw_min=-50 raw_max=-25 thr_q=3 sigmoid_max=0.0000
+I (6867) vision_model: [fixed-test][waybill] image=waybill102460001.bin w=1024 h=600 bytes=1843200 n=1
+I (6875) vision_model: [fixed-test][waybill] i=0 box=[493,128,809,421] cat=0 score=0.881
+I (6883) vision_model: [fixed-test][waybill] best_cat=0 best_score=0.881
+I (7059) vision_model: [tensor-dump][logo1] live score0 dtype=3 exp=-1 shape=[1,28,28,3] raw_min=-83 raw_max=-4 thr_q=1 sigmoid_max=0.1192
+I (7060) vision_model: [tensor-dump][logo1] live score1 dtype=3 exp=-1 shape=[1,14,14,3] raw_min=-84 raw_max=3 thr_q=1 sigmoid_max=0.8176
+I (7072) vision_model: [tensor-dump][logo1] live score2 dtype=3 exp=-2 shape=[1,7,7,3] raw_min=-85 raw_max=-45 thr_q=2 sigmoid_max=0.0000
+I (7085) vision_model: [fixed-test][logo1] image=jt30829206.bin w=308 h=292 bytes=269808 n=1
+I (7093) vision_model: [fixed-test][logo1] i=0 box=[27,165,71,283] cat=0 score=0.818
+I (7100) vision_model: [fixed-test][logo1] best_cat=0 best_score=0.818
+I (7408) vision_model: [tensor-dump][logo2] live score0 dtype=3 exp=-1 shape=[1,28,28,3] raw_min=-62 raw_max=2 thr_q=1 sigmoid_max=0.7311
+I (7409) vision_model: [tensor-dump][logo2] live score1 dtype=3 exp=-1 shape=[1,14,14,3] raw_min=-60 raw_max=2 thr_q=1 sigmoid_max=0.7311
+I (7421) vision_model: [tensor-dump][logo2] live score2 dtype=3 exp=-2 shape=[1,7,7,3] raw_min=-80 raw_max=-41 thr_q=2 sigmoid_max=0.0000
+I (7434) vision_model: [fixed-test][logo2] image=zt31241902.bin w=312 h=419 bytes=392184 n=1
+I (7441) vision_model: [fixed-test][logo2] i=0 box=[125,370,245,418] cat=2 score=0.731
+I (7449) vision_model: [fixed-test][logo2] best_cat=2 best_score=0.731
+I (7639) vision_model: [tensor-dump][logo3] live score0 dtype=3 exp=-1 shape=[1,28,28,3] raw_min=-51 raw_max=1 thr_q=1 sigmoid_max=0.6225
+I (7640) vision_model: [tensor-dump][logo3] live score1 dtype=3 exp=-1 shape=[1,14,14,3] raw_min=-45 raw_max=-15 thr_q=1 sigmoid_max=0.0006
+I (7652) vision_model: [tensor-dump][logo3] live score2 dtype=3 exp=-2 shape=[1,7,7,3] raw_min=-80 raw_max=-42 thr_q=2 sigmoid_max=0.0000
+I (7664) vision_model: [fixed-test][logo3] image=yd29041906.bin w=290 h=419 bytes=364530 n=1
+I (7672) vision_model: [fixed-test][logo3] i=0 box=[56,372,122,409] cat=1 score=0.622
+I (7680) vision_model: [fixed-test][logo3] best_cat=1 best_score=0.622
+I (7688) vision_model: [fixed-test] ===== end fixed image tests =====
+I (7692) vision_model: 
+I (7696) vision: vision started: preview 640x375 at 19,118, ring depth 1
+I (7701) sorting_sim: real IO task prepared in internal RAM, free_internal=55663 largest=18420
+I (7751) esp_eth.netif.netif_glue: 30:ed:a0:e0:f3:b2
+I (7751) esp_eth.netif.netif_glue: ethernet attached to netif
+I (10482) eth_example: Ethernet Started
+I (10483) eth_example: Ethernet Link Up
+I (10483) eth_example: Ethernet HW Addr 30:ed:a0:e0:f3:b2
+I (10483) esp_netif_handlers: eth ip: 192.168.10.2, mask: 255.255.255.0, gw: 192.168.10.1
+I (10491) eth_example: Ethernet Got IP Address
+I (10495) eth_example: ~~~~~~~~~~~
+I (10498) eth_example: ETHIP:192.168.10.2
+I (10502) eth_example: ETHMASK:255.255.255.0
+I (10506) eth_example: ETHGW:192.168.10.1
+I (10510) eth_example: ~~~~~~~~~~~
+I (10525) eth_example: connecting control to host 192.168.10.1:5000
+I (10532) eth_example: control connected to host
+I (10532) eth_example: time synced unix_ms=1784236710902 tz_offset_min=480
+I (10532) sorting_sim: SORT 电机M1: 正转 60%
+I (10536) bsp_motor: motor 1 compare A=0 B=60
+I (10551) eth_example: connecting image to host 192.168.10.1:5001
+I (10557) eth_example: image connected to host
+I (10557) sorting_sim: 硬件分拣调试监视已关闭
+I (10558) bsp_sort_sensor: sort sensor S1 configured on GPIO 53, active level 1
+I (10563) bsp_sort_sensor: sort sensor S2 configured on GPIO 23, active level 1
+W (10570) bsp_sort_sensor: sort sensor S3 GPIO is not configured
+I (10576) bsp_sort_sensor: sort sensor S4 configured on GPIO 22, active level 1
+I (10583) sorting_sim: SORT 真实硬件链路已启用
+I (10588) sorting_sim: SORT 真实硬件链路已启用
+I (10614) sorting_sim: SORT 传感器S1 初始化: raw=0 active=0 valid=1
+I (10614) sorting_sim: SORT 传感器S2 初始化: raw=0 active=0 valid=1
+I (10616) sorting_sim: SORT 传感器S3 初始化: raw=0 active=0 valid=0
+I (10622) sorting_sim: SORT 传感器S4 初始化: raw=0 active=0 valid=1
+E (10686) jpeg.encoder: jpeg_new_encoder_engine(93): no memory for jpeg encoder rxlink
+E (10686) screen_uvc: screen_uvc_start(217): jpeg engine
+W (10687) system: screen UVC stream start failed: ESP_ERR_NO_MEM
+I (10805) system: [ACCEPT_HEAP] integrity=ok free=6834599 min=6809627 largest=6684660 internal_free=26267 internal_largest=14836 dma_free=1699 dma_largest=48 psram_free=6809124 psram_largest=6684660
+I (10823) system: [ACCEPT_TASKS_BEGIN] requested=24 actual=24 stack_unit=1 total_runtime=8775757
+I (10829) system: [ACCEPT_TASK] name,handle,core,priority,state,stack_base,stack_end,allocated_bytes,free_min_bytes,used_max_bytes,region,runtime
+I (10841) system: [ACCEPT_TASK] vision_det,0x4ff7d8ac,1,4,1,0x4ff2ba64,0x4ff2e8e0,11901,9308,2593,internal,754021
+I (10851) system: [ACCEPT_TASK] lvgl,0x4ff38690,1,3,1,0x4ff4043c,0x4ff443b0,16245,9444,6801,internal,226766
+I (10861) system: [ACCEPT_TASK] main,0x4ff29884,0,1,0,0x4ff26df8,0x4ff29670,10361,4664,5697,internal,4743118
+I (10885) system: [ACCEPT_TASK] IDLE1,0x4ff2a814,1,0,1,0x4ff2a1d0,0x4ff2a7c0,1521,1184,337,internal,6356188
+I (10890) system: [ACCEPT_TASK] IDLE0,0x4ff2a04c,0,0,1,0x4ff29a08,0x4ff2a000,1529,1192,337,internal,1898405
+I (10899) system: [ACCEPT_TASK] eth_control,0x30100ab4,0,4,2,0x49646090,0x49648080,8177,5604,2573,psram,9728
+I (10908) system: [ACCEPT_TASK] sort_real_io,0x4ff7eb34,0,4,2,0x4ff7dab4,0x4ff7ea20,3949,1984,1965,internal,15097
+I (10918) system: [ACCEPT_TASK] sysmon,0x4ff79c74,0,3,2,0x4ff78bf4,0x4ff79b60,3949,1824,2125,internal,99785
+I (10928) system: [ACCEPT_TASK] tiT,0x4ff324f4,-1,18,2,0x4ff31670,0x4ff32460,3569,2768,801,internal,3438
+I (10937) system: [ACCEPT_TASK] cam_isp,0x4ff3f11c,0,2,2,0x4851c2e0,0x4851d250,3953,3304,649,psram,2241
+I (10946) system: [ACCEPT_TASK] eth_img_send,0x301019ec,0,2,2,0x4964a298,0x4964ba90,6137,4092,2045,psram,1650
+I (10956) system: [ACCEPT_TASK] ipc0,0x4ff25044,0,1,3,0x4ff24c00,0x4ff24ff0,1009,472,537,internal,175337
+I (10973) system: [ACCEPT_TASK] sys_evt,0x30100284,0,20,2,0x4ff329d4,0x4ff334d0,2813,848,1965,internal,30380
+I (10976) system: [ACCEPT_TASK] eth_img_prod,0x30101868,0,3,2,0x49648194,0x4964a190,8189,7676,513,psram,12
+I (10984) system: [ACCEPT_TASK] emac_rx,0x4ff312c0,-1,15,3,0x4ff301bc,0x4ff311b0,4085,3556,529,internal,1300
+I (10993) system: [ACCEPT_TASK] vision_fetch,0x4ff7c4a0,0,4,2,0x4ff7ad78,0x4ff7bd70,4089,3304,785,internal,4718
+I (11003) system: [ACCEPT_TASK] isp_task,0x4ff3ed54,0,11,2,0x4ff3dcd4,0x4ff3ec40,3949,1484,2465,internal,97137
+I (11013) system: [ACCEPT_TASK] vision_disp,0x4ff7d728,0,2,2,0x4ff7c6a8,0x4ff7d620,3961,1624,2337,internal,20104
+I (11023) system: [ACCEPT_TASK] esp_timer,0x4ff26a20,0,22,3,0x4ff259a0,0x4ff26910,3953,3448,505,internal,132154
+I (11033) system: [ACCEPT_TASK] swdraw,0x4ff3f9ec,0,3,3,0x4ff33dd8,0x4ff35d50,8057,6712,1345,internal,277678
+I (11042) system: [ACCEPT_TASK] dl_mc1,0x4ff1fa98,1,4,3,0x4ff204f8,0x4ff20bf0,1785,896,889,internal,1241003
+I (11052) system: [ACCEPT_TASK] dl_mc0,0x4ff1f930,0,4,3,0x4ff1fcf8,0x4ff203f0,1785,880,905,internal,1283398
+I (11061) system: [ACCEPT_TASK] Tmr Svc,0x4ff2b21c,-1,1,2,0x4ff2a998,0x4ff2b190,2041,1624,417,internal,10
+I (11070) system: [ACCEPT_TASK] ipc1,0x4ff2560c,1,24,3,0x4ff251c8,0x4ff255c0,1017,616,401,internal,175425
+I (11080) system: [ACCEPT_TASKS_END] actual=24
+I (11099) system: System initialization done
+I (11236) vision_model: [infer_diag] path=wb_only nwb=0 wb=58664us wall=58666us cpu=20991us wait=37675us
+I (14655) vision_model: [infer_diag] path=wb_only nwb=0 wb=69978us wall=69980us cpu=27004us wait=42976us
+I (18137) vision_model: [infer_diag] path=wb_only nwb=0 wb=71025us wall=71027us cpu=26706us wait=44321us
+I (21516) vision_model: [infer_diag] path=wb_only nwb=0 wb=67398us wall=67400us cpu=24391us wait=43009us
+I (24932) vision_model: [infer_diag] path=wb_only nwb=0 wb=68695us wall=68696us cpu=26513us wait=42183us
+I (28417) vision_model: [infer_diag] path=wb_only nwb=0 wb=71045us wall=71047us cpu=28143us wait=42904us
+I (32084) vision_model: [infer_diag] path=wb_only nwb=0 wb=66720us wall=66723us cpu=24589us wait=42134us
+I (35537) vision_model: [infer_diag] path=wb_only nwb=0 wb=66443us wall=66444us cpu=22664us wait=43780us
+I (38977) vision_model: [infer_diag] path=wb_only nwb=0 wb=63352us wall=63353us cpu=23302us wait=40051us
+I (42582) vision_model: [infer_diag] path=wb_only nwb=0 wb=65694us wall=65695us cpu=23924us wait=41771us
+I (46002) vision_model: [infer_diag] path=wb_only nwb=0 wb=65177us wall=65178us cpu=22657us wait=42521us
+I (49421) vision_model: [infer_diag] path=wb_only nwb=0 wb=70916us wall=70917us cpu=24689us wait=46228us
+I (52789) vision_model: [infer_diag] path=wb_only nwb=0 wb=65920us wall=65922us cpu=24209us wait=41713us
+I (56374) vision_model: [infer_diag] path=wb_only nwb=0 wb=67623us wall=67625us cpu=23569us wait=44056us
+I (59812) vision_model: [infer_diag] path=wb_only nwb=0 wb=67783us wall=67784us cpu=23694us wait=44090us
+I (63381) vision_model: [infer_diag] path=wb_only nwb=0 wb=69781us wall=69783us cpu=26908us wait=42875us
+I (66721) vision_model: [infer_diag] path=wb_only nwb=0 wb=66149us wall=66150us cpu=24234us wait=41916us
+I (70192) vision_model: [infer_diag] path=wb_only nwb=0 wb=68475us wall=68478us cpu=25683us wait=42795us
+I (73731) vision_model: [infer_diag] path=wb_only nwb=0 wb=64647us wall=64649us cpu=23574us wait=41075us
+I (77257) vision_model: [infer_diag] path=wb_only nwb=0 wb=64304us wall=64306us cpu=22942us wait=41364us
+I (80687) vision_model: [infer_diag] path=wb_only nwb=0 wb=65089us wall=65091us cpu=25476us wait=39615us
+I (84229) vision_model: [infer_diag] path=wb_only nwb=0 wb=120621us wall=120622us cpu=24687us wait=95935us
+I (87600) vision_model: [infer_diag] path=wb_only nwb=0 wb=66384us wall=66386us cpu=23781us wait=42605us
+I (91019) vision_model: [infer_diag] path=wb_only nwb=0 wb=59025us wall=59026us cpu=21574us wait=37452us
+I (94374) vision_model: [infer_diag] path=wb_only nwb=0 wb=67025us wall=67027us cpu=23449us wait=43578us
+I (97833) vision_model: [infer_diag] path=wb_only nwb=0 wb=65449us wall=65450us cpu=22980us wait=42470us
+I (101246) vision_model: [infer_diag] path=wb_only nwb=0 wb=67388us wall=67390us cpu=24052us wait=43338us
+I (104626) vision_model: [infer_diag] path=wb_only nwb=0 wb=67114us wall=67116us cpu=24324us wait=42792us
+I (108111) vision_model: [infer_diag] path=wb_only nwb=0 wb=67240us wall=67241us cpu=23654us wait=43587us
+I (111622) vision_model: [infer_diag] path=wb_only nwb=0 wb=62456us wall=62457us cpu=23111us wait=39346us
+I (115120) vision_model: [infer_diag] path=wb_only nwb=0 wb=66619us wall=66621us cpu=24181us wait=42440us
+I (118542) vision_model: [infer_diag] path=wb_only nwb=0 wb=66271us wall=66272us cpu=23243us wait=43029us
+I (122387) vision_model: [infer_diag] path=wb_only nwb=0 wb=68903us wall=68904us cpu=26153us wait=42751us
+I (125811) vision_model: [infer_diag] path=wb_only nwb=0 wb=67290us wall=67292us cpu=23491us wait=43801us
+I (129233) vision_model: [infer_diag] path=wb_only nwb=0 wb=64102us wall=64103us cpu=22098us wait=42005us
+I (132684) vision_model: [infer_diag] path=wb_only nwb=0 wb=70137us wall=70138us cpu=27362us wait=42776us
+I (136130) vision_model: [infer_diag] path=wb_only nwb=0 wb=70246us wall=70248us cpu=27076us wait=43172us
+I (139582) vision_model: [infer_diag] path=wb_only nwb=0 wb=67504us wall=67507us cpu=24764us wait=42743us
+I (142975) vision_model: [infer_diag] path=wb_only nwb=0 wb=66190us wall=66191us cpu=23352us wait=42839us
+I (146453) vision_model: [infer_diag] path=wb_only nwb=0 wb=64258us wall=64260us cpu=23083us wait=41177us
+I (150025) vision_model: [infer_diag] path=wb_only nwb=0 wb=67386us wall=67387us cpu=24235us wait=43152us
+I (153431) vision_model: [infer_diag] path=wb_only nwb=0 wb=71784us wall=71786us cpu=28124us wait=43662us
+I (156915) vision_model: [infer_diag] path=wb_only nwb=0 wb=69773us wall=69774us cpu=26104us wait=43670us
+I (160458) vision_model: [infer_diag] path=wb_only nwb=0 wb=58092us wall=58093us cpu=21210us wait=36883us
+I (163879) vision_model: [infer_diag] path=wb_only nwb=0 wb=65372us wall=65373us cpu=25351us wait=40022us
+I (167489) vision_model: [infer_diag] path=wb_only nwb=0 wb=69485us wall=69488us cpu=24652us wait=44836us
+I (171028) vision_model: [infer_diag] path=wb_only nwb=0 wb=58084us wall=58085us cpu=20800us wait=37285us
+I (174396) vision_model: [infer_diag] path=wb_only nwb=0 wb=69533us wall=69534us cpu=26515us wait=43019us
+I (177754) vision_model: [infer_diag] path=wb_only nwb=0 wb=67423us wall=67424us cpu=24507us wait=42917us
+I (181191) vision_model: [infer_diag] path=wb_only nwb=0 wb=67331us wall=67332us cpu=25448us wait=41884us
+I (184683) vision_model: [infer_diag] path=wb_only nwb=0 wb=68831us wall=68833us cpu=24357us wait=44476us
+I (188383) vision_model: [infer_diag] path=wb_only nwb=0 wb=214280us wall=214282us cpu=28014us wait=186268us
+I (192049) vision_model: [infer_diag] path=wb_only nwb=0 wb=68009us wall=68011us cpu=24649us wait=43362us
+I (195465) vision_model: [infer_diag] path=wb_only nwb=0 wb=61080us wall=61082us cpu=22900us wait=38182us
+I (198957) vision_model: [infer_diag] path=wb_only nwb=0 wb=67384us wall=67385us cpu=24535us wait=42850us
+I (202477) vision_model: [infer_diag] path=wb_only nwb=0 wb=65762us wall=65764us cpu=23688us wait=42076us
+I (205875) vision_model: [infer_diag] path=wb_only nwb=0 wb=68008us wall=68009us cpu=23601us wait=44408us
+I (209371) vision_model: [infer_diag] path=wb_only nwb=0 wb=67324us wall=67328us cpu=23673us wait=43655us
+I (212772) vision_model: [infer_diag] path=wb_only nwb=0 wb=67694us wall=67695us cpu=23581us wait=44114us
+I (216433) vision_model: [infer_diag] path=wb_only nwb=0 wb=67246us wall=67247us cpu=26110us wait=41137us
+I (219914) vision_model: [infer_diag] path=wb_only nwb=0 wb=70227us wall=70229us cpu=25823us wait=44406us
+I (223444) vision_model: [infer_diag] path=wb_only nwb=0 wb=65477us wall=65479us cpu=23719us wait=41760us
+I (226879) vision_model: [infer_diag] path=wb_only nwb=0 wb=66278us wall=66280us cpu=25147us wait=41133us
+I (230294) vision_model: [infer_diag] path=wb_only nwb=0 wb=67672us wall=67674us cpu=24434us wait=43240us
+I (233699) vision_model: [infer_diag] path=wb_only nwb=0 wb=67326us wall=67327us cpu=24488us wait=42839us
+I (237075) vision_model: [infer_diag] path=wb_only nwb=0 wb=62903us wall=62904us cpu=22896us wait=40008us
+I (240523) vision_model: [infer_diag] path=wb_only nwb=0 wb=71405us wall=71406us cpu=24412us wait=46994us
+I (244023) vision_model: [infer_diag] path=wb_only nwb=0 wb=59514us wall=59516us cpu=22372us wait=37144us
+I (247564) vision_model: [infer_diag] path=wb_only nwb=0 wb=65234us wall=65235us cpu=24037us wait=41198us
+I (251230) vision_model: [infer_diag] path=wb_only nwb=0 wb=58221us wall=58223us cpu=20830us wait=37393us
+I (254750) vision_model: [infer_diag] path=wb_only nwb=0 wb=66329us wall=66330us cpu=24367us wait=41963us
+I (258218) vision_model: [infer_diag] path=wb_only nwb=0 wb=65493us wall=65494us cpu=24316us wait=41178us
+I (261693) vision_model: [infer_diag] path=wb_only nwb=0 wb=69367us wall=69368us cpu=26216us wait=43152us
+I (265337) vision_model: [infer_diag] path=wb_only nwb=0 wb=67970us wall=67971us cpu=23790us wait=44181us
+I (268781) vision_model: [infer_diag] path=wb_only nwb=0 wb=66876us wall=66877us cpu=24044us wait=42833us
+I (272412) vision_model: [infer_diag] path=wb_only nwb=0 wb=96688us wall=96689us cpu=27703us wait=68986us
+I (275884) vision_model: [infer_diag] path=wb_only nwb=0 wb=68843us wall=68844us cpu=26117us wait=42727us
+I (279307) vision_model: [infer_diag] path=wb_only nwb=0 wb=67681us wall=67683us cpu=24002us wait=43681us
+I (282800) vision_model: [infer_diag] path=wb_only nwb=0 wb=77319us wall=77320us cpu=24025us wait=53295us
+I (286379) vision_model: [infer_diag] path=wb_only nwb=0 wb=69689us wall=69691us cpu=25800us wait=43891us
+I (289914) vision_model: [infer_diag] path=wb_only nwb=0 wb=71554us wall=71555us cpu=26438us wait=45117us
+I (293643) vision_model: [infer_diag] path=wb_only nwb=0 wb=68127us wall=68128us cpu=24788us wait=43340us
+I (297182) vision_model: [infer_diag] path=wb_only nwb=0 wb=69560us wall=69561us cpu=26037us wait=43524us
+I (300586) vision_model: [infer_diag] path=wb_only nwb=0 wb=67389us wall=67391us cpu=24664us wait=42727us
+I (304328) vision_model: [infer_diag] path=wb_only nwb=0 wb=67704us wall=67705us cpu=24207us wait=43498us
+I (307840) vision_model: [infer_diag] path=wb_only nwb=0 wb=62644us wall=62645us cpu=22572us wait=40073us
+I (311425) vision_model: [infer_diag] path=wb_only nwb=0 wb=67396us wall=67398us cpu=25980us wait=41418us
+I (314834) vision_model: [infer_diag] path=wb_only nwb=0 wb=67370us wall=67371us cpu=24612us wait=42759us
+I (318454) vision_model: [infer_diag] path=wb_only nwb=0 wb=72184us wall=72186us cpu=25974us wait=46212us
+I (322072) vision_model: [infer_diag] path=wb_only nwb=0 wb=67969us wall=67971us cpu=23675us wait=44296us
+I (325573) vision_model: [infer_diag] path=wb_only nwb=0 wb=67561us wall=67563us cpu=23759us wait=43804us
+I (329092) vision_model: [infer_diag] path=wb_only nwb=0 wb=65394us wall=65396us cpu=24004us wait=41392us
+I (332554) vision_model: [infer_diag] path=wb_only nwb=0 wb=67445us wall=67448us cpu=24306us wait=43142us
+I (336049) vision_model: [infer_diag] path=wb_only nwb=0 wb=67647us wall=67649us cpu=24104us wait=43545us
+I (339423) vision_model: [infer_diag] path=wb_only nwb=0 wb=64760us wall=64761us cpu=24923us wait=39838us
+I (342857) vision_model: [infer_diag] path=wb_only nwb=0 wb=66799us wall=66803us cpu=24045us wait=42758us
+I (346242) vision_model: [infer_diag] path=wb_only nwb=0 wb=67654us wall=67656us cpu=23678us wait=43978us
+I (349688) vision_model: [infer_diag] path=wb_only nwb=0 wb=64308us wall=64310us cpu=24827us wait=39483us
+I (353142) vision_model: [infer_diag] path=wb_only nwb=0 wb=67333us wall=67336us cpu=23581us wait=43755us
+I (356570) vision_model: [infer_diag] path=wb_only nwb=0 wb=67353us wall=67354us cpu=23378us wait=43976us
+I (360043) vision_model: [infer_diag] path=wb_only nwb=0 wb=67854us wall=67855us cpu=23259us wait=44596us
+I (363727) vision_model: [infer_diag] path=wb_only nwb=0 wb=65260us wall=65261us cpu=23399us wait=41862us
+I (367223) vision_model: [infer_diag] path=wb_only nwb=0 wb=60059us wall=60061us cpu=22646us wait=37415us
+I (370729) vision_model: [infer_diag] path=wb_only nwb=0 wb=65779us wall=65780us cpu=23261us wait=42519us
+I (374392) vision_model: [infer_diag] path=wb_only nwb=0 wb=69234us wall=69236us cpu=25032us wait=44204us
+I (377941) vision_model: [infer_diag] path=wb_only nwb=0 wb=71614us wall=71615us cpu=25863us wait=45752us
+I (381310) vision_model: [infer_diag] path=wb_only nwb=0 wb=62146us wall=62148us cpu=23269us wait=38879us
+I (384787) vision_model: [infer_diag] path=wb_only nwb=0 wb=58270us wall=58271us cpu=21724us wait=36547us
+I (388273) vision_model: [infer_diag] path=wb_only nwb=0 wb=66116us wall=66118us cpu=23161us wait=42957us
+I (391584) vision_model: [infer_diag] path=wb_only nwb=0 wb=67350us wall=67352us cpu=24426us wait=42926us
+I (395177) vision_model: [infer_diag] path=wb_only nwb=0 wb=70037us wall=70038us cpu=26351us wait=43687us
+I (398606) vision_model: [infer_diag] path=wb_only nwb=0 wb=67232us wall=67234us cpu=23595us wait=43639us
+I (402184) vision_model: [infer_diag] path=wb_only nwb=0 wb=81876us wall=81878us cpu=27508us wait=54370us
+I (405694) vision_model: [infer_diag] path=wb_only nwb=0 wb=58001us wall=58002us cpu=20995us wait=37007us
+I (409084) vision_model: [infer_diag] path=wb_only nwb=0 wb=67271us wall=67273us cpu=24774us wait=42499us
+I (412580) vision_model: [infer_diag] path=wb_only nwb=0 wb=67524us wall=67525us cpu=23954us wait=43571us
+I (416126) vision_model: [infer_diag] path=wb_only nwb=0 wb=65564us wall=65566us cpu=24098us wait=41468us
+I (419662) vision_model: [infer_diag] path=wb_only nwb=0 wb=69724us wall=69726us cpu=26750us wait=42976us
+I (423090) vision_model: [infer_diag] path=wb_only nwb=0 wb=65301us wall=65303us cpu=24047us wait=41256us
+I (426547) vision_model: [infer_diag] path=wb_only nwb=0 wb=64522us wall=64523us cpu=23146us wait=41377us
+I (430001) vision_model: [infer_diag] path=wb_only nwb=0 wb=67499us wall=67501us cpu=24306us wait=43195us
+I (433432) vision_model: [infer_diag] path=wb_only nwb=0 wb=71881us wall=71882us cpu=26792us wait=45090us
+I (436864) vision_model: [infer_diag] path=wb_only nwb=0 wb=65769us wall=65771us cpu=23830us wait=41941us
+I (440349) vision_model: [infer_diag] path=wb_only nwb=0 wb=67476us wall=67478us cpu=24374us wait=43104us
+I (443759) vision_model: [infer_diag] path=wb_only nwb=0 wb=67655us wall=67657us cpu=24444us wait=43213us
+I (447612) vision_model: [infer_diag] path=wb_only nwb=0 wb=66231us wall=66233us cpu=22482us wait=43751us
+I (451272) vision_model: [infer_diag] path=wb_only nwb=0 wb=64756us wall=64758us cpu=21942us wait=42816us
+I (454711) vision_model: [infer_diag] path=wb_only nwb=0 wb=66777us wall=66778us cpu=23190us wait=43588us
+I (458169) vision_model: [infer_diag] path=wb_only nwb=0 wb=71289us wall=71291us cpu=28359us wait=42932us
+I (461634) vision_model: [infer_diag] path=wb_only nwb=0 wb=70107us wall=70108us cpu=26732us wait=43376us
+I (465004) vision_model: [infer_diag] path=wb_only nwb=0 wb=67468us wall=67470us cpu=23725us wait=43745us
+I (468418) vision_model: [infer_diag] path=wb_only nwb=0 wb=75359us wall=75361us cpu=26665us wait=48696us
+I (471872) vision_model: [infer_diag] path=wb_only nwb=0 wb=66955us wall=66957us cpu=23373us wait=43584us
+I (475384) vision_model: [infer_diag] path=wb_only nwb=0 wb=68839us wall=68841us cpu=25876us wait=42965us
+I (478827) vision_model: [infer_diag] path=wb_only nwb=0 wb=66446us wall=66450us cpu=23999us wait=42451us
+I (482397) vision_model: [infer_diag] path=wb_only nwb=0 wb=70163us wall=70164us cpu=26823us wait=43341us
+I (485842) vision_model: [infer_diag] path=wb_only nwb=0 wb=67662us wall=67663us cpu=23644us wait=44019us
+I (489219) vision_model: [infer_diag] path=wb_only nwb=0 wb=62523us wall=62525us cpu=22788us wait=39737us
+I (492754) vision_model: [infer_diag] path=wb_only nwb=0 wb=63896us wall=63897us cpu=22907us wait=40990us
+I (496156) vision_model: [infer_diag] path=wb_only nwb=0 wb=76454us wall=76459us cpu=27211us wait=49248us
+I (499689) vision_model: [infer_diag] path=wb_only nwb=0 wb=65770us wall=65771us cpu=24946us wait=40825us
+I (503222) vision_model: [infer_diag] path=wb_only nwb=0 wb=67261us wall=67262us cpu=24453us wait=42809us
+I (506765) vision_model: [infer_diag] path=wb_only nwb=0 wb=67620us wall=67621us cpu=24503us wait=43118us
+I (510223) vision_model: [infer_diag] path=wb_only nwb=0 wb=65954us wall=65955us cpu=24208us wait=41747us
+I (513720) vision_model: [infer_diag] path=wb_only nwb=0 wb=65576us wall=65577us cpu=24300us wait=41277us
+I (517194) vision_model: [infer_diag] path=wb_only nwb=0 wb=79007us wall=79008us cpu=27907us wait=51101us
+I (520635) vision_model: [infer_diag] path=wb_only nwb=0 wb=71027us wall=71028us cpu=26289us wait=44739us
+I (524330) vision_model: [infer_diag] path=wb_only nwb=0 wb=67705us wall=67707us cpu=24407us wait=43300us
+I (527778) vision_model: [infer_diag] path=wb_only nwb=0 wb=63648us wall=63650us cpu=23180us wait=40470us
+I (531156) vision_model: [infer_diag] path=wb_only nwb=0 wb=61607us wall=61608us cpu=23180us wait=38428us
+I (534503) vision_model: [infer_diag] path=wb_only nwb=0 wb=66621us wall=66622us cpu=23800us wait=42822us
+I (537929) vision_model: [infer_diag] path=wb_only nwb=0 wb=71412us wall=71414us cpu=25150us wait=46264us
+I (541268) vision_model: [infer_diag] path=wb_only nwb=0 wb=64879us wall=64880us cpu=22595us wait=42285us
+I (544784) vision_model: [infer_diag] path=wb_only nwb=0 wb=62247us wall=62248us cpu=22210us wait=40038us
+I (548171) vision_model: [infer_diag] path=wb_only nwb=0 wb=71597us wall=71599us cpu=28047us wait=43552us
+I (551568) vision_model: [infer_diag] path=wb_only nwb=0 wb=67099us wall=67101us cpu=24159us wait=42942us
+I (554995) vision_model: [infer_diag] path=wb_only nwb=0 wb=60939us wall=60941us cpu=23012us wait=37929us
+I (558630) vision_model: [infer_diag] path=wb_only nwb=0 wb=70024us wall=70025us cpu=26792us wait=43233us
+I (562307) vision_model: [infer_diag] path=wb_only nwb=0 wb=195903us wall=195904us cpu=29231us wait=166673us
+I (565746) vision_model: [infer_diag] path=wb_only nwb=0 wb=67096us wall=67097us cpu=23621us wait=43476us
+I (569054) vision_model: [infer_diag] path=wb_only nwb=0 wb=63216us wall=63218us cpu=23264us wait=39954us
+I (572467) vision_model: [infer_diag] path=wb_only nwb=0 wb=65188us wall=65190us cpu=23690us wait=41500us
+I (575908) vision_model: [infer_diag] path=wb_only nwb=0 wb=70577us wall=70579us cpu=26046us wait=44533us
+I (579396) vision_model: [infer_diag] path=wb_only nwb=0 wb=68892us wall=68894us cpu=26615us wait=42279us
+I (582842) vision_model: [infer_diag] path=wb_only nwb=0 wb=63866us wall=63867us cpu=22938us wait=40929us
+I (586277) vision_model: [infer_diag] path=wb_only nwb=0 wb=59032us wall=59033us cpu=21711us wait=37322us
+I (589692) vision_model: [infer_diag] path=wb_only nwb=0 wb=70433us wall=70434us cpu=26761us wait=43673us
+I (593155) vision_model: [infer_diag] path=wb_only nwb=0 wb=68738us wall=68739us cpu=26528us wait=42211us
+I (596549) vision_model: [infer_diag] path=wb_only nwb=0 wb=66054us wall=66055us cpu=24074us wait=41981us
+I (600065) vision_model: [infer_diag] path=wb_only nwb=0 wb=68318us wall=68319us cpu=24374us wait=43945us
+I (603612) vision_model: [infer_diag] path=wb_only nwb=0 wb=66302us wall=66304us cpu=22558us wait=43746us
+I (607152) vision_model: [infer_diag] path=wb_only nwb=0 wb=69426us wall=69427us cpu=27005us wait=42422us
+I (610572) vision_model: [infer_diag] path=wb_only nwb=0 wb=59725us wall=59727us cpu=20748us wait=38979us
+I (613991) vision_model: [infer_diag] path=wb_only nwb=0 wb=66665us wall=66667us cpu=24522us wait=42145us
+I (617657) vision_model: [infer_diag] path=wb_only nwb=0 wb=68990us wall=68991us cpu=25006us wait=43985us
+I (621031) vision_model: [infer_diag] path=wb_only nwb=0 wb=58274us wall=58275us cpu=21277us wait=36998us
+I (624510) vision_model: [infer_diag] path=wb_only nwb=0 wb=67837us wall=67838us cpu=23571us wait=44267us
+I (628019) vision_model: [infer_diag] path=wb_only nwb=0 wb=60464us wall=60465us cpu=21980us wait=38485us
+I (631599) vision_model: [infer_diag] path=wb_only nwb=0 wb=65805us wall=65806us cpu=24194us wait=41612us
+I (635087) vision_model: [infer_diag] path=wb_only nwb=0 wb=62796us wall=62798us cpu=23029us wait=39769us
+I (638615) vision_model: [infer_diag] path=wb_only nwb=0 wb=67369us wall=67370us cpu=24234us wait=43136us
+I (641966) vision_model: [infer_diag] path=wb_only nwb=0 wb=67382us wall=67383us cpu=24513us wait=42870us
+I (645503) vision_model: [infer_diag] path=wb_only nwb=0 wb=67071us wall=67075us cpu=23953us wait=43122us
+I (648992) vision_model: [infer_diag] path=wb_only nwb=0 wb=66040us wall=66041us cpu=24136us wait=41905us
+I (652486) vision_model: [infer_diag] path=wb_only nwb=0 wb=67843us wall=67845us cpu=24769us wait=43076us
+I (656011) vision_model: [infer_diag] path=wb_only nwb=0 wb=66947us wall=66948us cpu=23278us wait=43670us
+I (659395) vision_model: [infer_diag] path=wb_only nwb=0 wb=68671us wall=68672us cpu=26139us wait=42533us
+I (662872) vision_model: [infer_diag] path=wb_only nwb=0 wb=67162us wall=67164us cpu=23455us wait=43709us
+I (666440) vision_model: [infer_diag] path=wb_only nwb=0 wb=65411us wall=65412us cpu=23246us wait=42166us
+I (669996) vision_model: [infer_diag] path=wb_only nwb=0 wb=67446us wall=67448us cpu=24507us wait=42941us
+I (673460) vision_model: [infer_diag] path=wb_only nwb=0 wb=67662us wall=67664us cpu=24560us wait=43104us
+I (676949) vision_model: [infer_diag] path=wb_only nwb=0 wb=66284us wall=66285us cpu=24153us wait=42132us
+I (680595) vision_model: [infer_diag] path=wb_only nwb=0 wb=66700us wall=66702us cpu=24256us wait=42446us
+I (683901) vision_model: [infer_diag] path=wb_only nwb=0 wb=70601us wall=70602us cpu=27112us wait=43490us
+I (687348) vision_model: [infer_diag] path=wb_only nwb=0 wb=67173us wall=67174us cpu=24048us wait=43126us
+I (690800) vision_model: [infer_diag] path=wb_only nwb=0 wb=67369us wall=67371us cpu=24769us wait=42602us
+I (694246) vision_model: [infer_diag] path=wb_only nwb=0 wb=59110us wall=59111us cpu=21451us wait=37660us
+I (697757) vision_model: [infer_diag] path=wb_only nwb=0 wb=67736us wall=67737us cpu=24463us wait=43274us
+I (701142) vision_model: [infer_diag] path=wb_only nwb=0 wb=70697us wall=70698us cpu=26351us wait=44347us
+I (704517) vision_model: [infer_diag] path=wb_only nwb=0 wb=61353us wall=61354us cpu=22577us wait=38777us
+I (707952) vision_model: [infer_diag] path=wb_only nwb=0 wb=67735us wall=67736us cpu=24908us wait=42828us
+I (711425) vision_model: [infer_diag] path=wb_only nwb=0 wb=70625us wall=70626us cpu=26950us wait=43676us
+I (714843) vision_model: [infer_diag] path=wb_only nwb=0 wb=66834us wall=66836us cpu=23376us wait=43460us
+I (718193) vision_model: [infer_diag] path=wb_only nwb=0 wb=68005us wall=68007us cpu=25494us wait=42513us
+I (721604) vision_model: [infer_diag] path=wb_only nwb=0 wb=65750us wall=65751us cpu=23445us wait=42306us
+I (725014) vision_model: [infer_diag] path=wb_only nwb=0 wb=66795us wall=66796us cpu=22418us wait=44378us
+I (728524) vision_model: [infer_diag] path=wb_only nwb=0 wb=66619us wall=66621us cpu=24244us wait=42377us
+I (732101) vision_model: [infer_diag] path=wb_only nwb=0 wb=98104us wall=98105us cpu=34184us wait=63921us
+I (735547) vision_model: [infer_diag] path=wb_only nwb=0 wb=65858us wall=65860us cpu=23940us wait=41920us
+I (738932) vision_model: [infer_diag] path=wb_only nwb=0 wb=69975us wall=69976us cpu=26419us wait=43557us
+I (742282) vision_model: [infer_diag] path=wb_only nwb=0 wb=59196us wall=59198us cpu=21426us wait=37772us
+I (745839) vision_model: [infer_diag] path=wb_only nwb=0 wb=65893us wall=65894us cpu=23142us wait=42752us
+I (749436) vision_model: [infer_diag] path=wb_only nwb=0 wb=67560us wall=67561us cpu=25835us wait=41726us
+I (752918) vision_model: [infer_diag] path=wb_only nwb=0 wb=67661us wall=67662us cpu=26064us wait=41598us
+I (756369) vision_model: [infer_diag] path=wb_only nwb=0 wb=67302us wall=67304us cpu=22992us wait=44312us
+I (759873) vision_model: [infer_diag] path=wb_only nwb=0 wb=66091us wall=66093us cpu=22561us wait=43532us
+I (763386) vision_model: [infer_diag] path=wb_only nwb=0 wb=69014us wall=69016us cpu=26848us wait=42168us
+I (766881) vision_model: [infer_diag] path=wb_only nwb=0 wb=69905us wall=69906us cpu=25693us wait=44213us
+I (770319) vision_model: [infer_diag] path=wb_only nwb=0 wb=67202us wall=67204us cpu=24449us wait=42755us
+I (773823) vision_model: [infer_diag] path=wb_only nwb=0 wb=66031us wall=66032us cpu=24399us wait=41633us
+I (777186) vision_model: [infer_diag] path=wb_only nwb=0 wb=69578us wall=69580us cpu=27483us wait=42097us
+I (780605) vision_model: [infer_diag] path=wb_only nwb=0 wb=67202us wall=67204us cpu=23180us wait=44024us
+I (784052) vision_model: [infer_diag] path=wb_only nwb=0 wb=67063us wall=67065us cpu=24891us wait=42174us
+I (787495) vision_model: [infer_diag] path=wb_only nwb=0 wb=66763us wall=66764us cpu=24125us wait=42639us
+I (790879) vision_model: [infer_diag] path=wb_only nwb=0 wb=72063us wall=72064us cpu=25790us wait=46274us
+I (794414) vision_model: [infer_diag] path=wb_only nwb=0 wb=69197us wall=69198us cpu=25464us wait=43734us
+I (798065) vision_model: [infer_diag] path=wb_only nwb=0 wb=67122us wall=67124us cpu=24460us wait=42664us
+I (801587) vision_model: [infer_diag] path=wb_only nwb=0 wb=66135us wall=66137us cpu=23549us wait=42588us
+I (805089) vision_model: [infer_diag] path=wb_only nwb=0 wb=67137us wall=67140us cpu=24449us wait=42691us
+I (808589) vision_model: [infer_diag] path=wb_only nwb=0 wb=68118us wall=68119us cpu=24553us wait=43566us
+I (812122) vision_model: [infer_diag] path=wb_only nwb=0 wb=78106us wall=78107us cpu=24087us wait=54020us
+I (815500) vision_model: [infer_diag] path=wb_only nwb=0 wb=66454us wall=66457us cpu=24257us wait=42200us
+I (818953) vision_model: [infer_diag] path=wb_only nwb=0 wb=67538us wall=67540us cpu=24601us wait=42939us
+I (822456) vision_model: [infer_diag] path=wb_only nwb=0 wb=69547us wall=69551us cpu=25054us wait=44497us
+I (825937) vision_model: [infer_diag] path=wb_only nwb=0 wb=67651us wall=67653us cpu=25595us wait=42058us
+I (829448) vision_model: [infer_diag] path=wb_only nwb=0 wb=66091us wall=66093us cpu=23623us wait=42470us
+I (832918) vision_model: [infer_diag] path=wb_only nwb=0 wb=70756us wall=70758us cpu=26511us wait=44247us
+I (836357) vision_model: [infer_diag] path=wb_only nwb=0 wb=66723us wall=66724us cpu=24445us wait=42279us
+I (839809) vision_model: [infer_diag] path=wb_only nwb=0 wb=66773us wall=66775us cpu=23468us wait=43307us
+I (843216) vision_model: [infer_diag] path=wb_only nwb=0 wb=67469us wall=67472us cpu=24273us wait=43199us
+I (846665) vision_model: [infer_diag] path=wb_only nwb=0 wb=64507us wall=64508us cpu=23577us wait=40931us
+I (850009) vision_model: [infer_diag] path=wb_only nwb=0 wb=67601us wall=67602us cpu=23713us wait=43889us
+I (853491) vision_model: [infer_diag] path=wb_only nwb=0 wb=62525us wall=62526us cpu=23506us wait=39020us
+I (856938) vision_model: [infer_diag] path=wb_only nwb=0 wb=71687us wall=71688us cpu=27410us wait=44278us
+I (860429) vision_model: [infer_diag] path=wb_only nwb=0 wb=69870us wall=69872us cpu=25759us wait=44113us
+I (863852) vision_model: [infer_diag] path=wb_only nwb=0 wb=67936us wall=67937us cpu=24664us wait=43273us
+I (867274) vision_model: [infer_diag] path=wb_only nwb=0 wb=67715us wall=67716us cpu=23615us wait=44101us
+I (870849) vision_model: [infer_diag] path=wb_only nwb=0 wb=64161us wall=64162us cpu=23243us wait=40919us
+I (874260) vision_model: [infer_diag] path=wb_only nwb=0 wb=63591us wall=63592us cpu=23417us wait=40175us
+I (877638) vision_model: [infer_diag] path=wb_only nwb=0 wb=66692us wall=66693us cpu=25600us wait=41093us
+I (881068) vision_model: [infer_diag] path=wb_only nwb=0 wb=68864us wall=68865us cpu=24579us wait=44286us
+I (884550) vision_model: [infer_diag] path=wb_only nwb=0 wb=67225us wall=67227us cpu=24350us wait=42877us
+I (888019) vision_model: [infer_diag] path=wb_only nwb=0 wb=75816us wall=75818us cpu=24443us wait=51375us
+I (891656) vision_model: [infer_diag] path=wb_only nwb=0 wb=65451us wall=65454us cpu=26323us wait=39131us
+I (895146) vision_model: [infer_diag] path=wb_only nwb=0 wb=69265us wall=69267us cpu=26267us wait=43000us
+I (898803) vision_model: [infer_diag] path=wb_only nwb=0 wb=66881us wall=66883us cpu=24170us wait=42713us
+I (902388) vision_model: [infer_diag] path=wb_only nwb=0 wb=70155us wall=70157us cpu=26596us wait=43561us
+I (905828) vision_model: [infer_diag] path=wb_only nwb=0 wb=67733us wall=67735us cpu=24358us wait=43377us
+I (909245) vision_model: [infer_diag] path=wb_only nwb=0 wb=70527us wall=70528us cpu=24001us wait=46527us
+I (912690) vision_model: [infer_diag] path=wb_only nwb=0 wb=68405us wall=68407us cpu=26338us wait=42069us
+I (916240) vision_model: [infer_diag] path=wb_only nwb=0 wb=62725us wall=62727us cpu=22661us wait=40066us
+I (919740) vision_model: [infer_diag] path=wb_only nwb=0 wb=66800us wall=66801us cpu=23489us wait=43312us
+I (923243) vision_model: [infer_diag] path=wb_only nwb=0 wb=131478us wall=131479us cpu=29279us wait=102200us
+I (926632) vision_model: [infer_diag] path=wb_only nwb=0 wb=70059us wall=70060us cpu=27015us wait=43045us
+I (930018) vision_model: [infer_diag] path=wb_only nwb=0 wb=67799us wall=67800us cpu=24246us wait=43554us
+I (933506) vision_model: [infer_diag] path=wb_only nwb=0 wb=79513us wall=79514us cpu=30142us wait=49372us
+I (936987) vision_model: [infer_diag] path=wb_only nwb=0 wb=67463us wall=67464us cpu=24617us wait=42847us
+I (940626) vision_model: [infer_diag] path=wb_only nwb=0 wb=66260us wall=66262us cpu=22848us wait=43414us
+I (944089) vision_model: [infer_diag] path=wb_only nwb=0 wb=67701us wall=67703us cpu=24661us wait=43042us
+I (947676) vision_model: [infer_diag] path=wb_only nwb=0 wb=70917us wall=70918us cpu=26805us wait=44113us
+I (951024) vision_model: [infer_diag] path=wb_only nwb=0 wb=67127us wall=67129us cpu=24515us wait=42614us
+I (954672) vision_model: [infer_diag] path=wb_only nwb=0 wb=70119us wall=70121us cpu=26885us wait=43236us
+I (958279) vision_model: [infer_diag] path=wb_only nwb=0 wb=67535us wall=67537us cpu=23704us wait=43833us
+I (961718) vision_model: [infer_diag] path=wb_only nwb=0 wb=67888us wall=67889us cpu=24164us wait=43725us
+I (965083) vision_model: [infer_diag] path=wb_only nwb=0 wb=68024us wall=68025us cpu=23993us wait=44032us
+I (968445) vision_model: [infer_diag] path=wb_only nwb=0 wb=63362us wall=63364us cpu=22833us wait=40531us
+I (971926) vision_model: [infer_diag] path=wb_only nwb=0 wb=69726us wall=69727us cpu=26533us wait=43194us
+I (975496) vision_model: [infer_diag] path=wb_only nwb=0 wb=66140us wall=66141us cpu=24092us wait=42049us
+I (978952) vision_model: [infer_diag] path=wb_only nwb=0 wb=66715us wall=66718us cpu=24129us wait=42589us
+I (982567) vision_model: [infer_diag] path=wb_only nwb=0 wb=65608us wall=65609us cpu=23750us wait=41859us
+I (986072) vision_model: [infer_diag] path=wb_only nwb=0 wb=64877us wall=64879us cpu=23073us wait=41806us
+I (989652) vision_model: [infer_diag] path=wb_only nwb=0 wb=66397us wall=66398us cpu=26007us wait=40391us
+I (993285) vision_model: [infer_diag] path=wb_only nwb=0 wb=67650us wall=67652us cpu=24267us wait=43385us
+I (996794) vision_model: [infer_diag] path=wb_only nwb=0 wb=59456us wall=59458us cpu=21523us wait=37935us
+I (1000235) vision_model: [infer_diag] path=wb_only nwb=0 wb=66616us wall=66620us cpu=24585us wait=42035us
+I (1003678) vision_model: [infer_diag] path=wb_only nwb=0 wb=67925us wall=67926us cpu=23941us wait=43985us
+I (1007125) vision_model: [infer_diag] path=wb_only nwb=0 wb=67884us wall=67886us cpu=24578us wait=43308us
+I (1010697) vision_model: [infer_diag] path=wb_only nwb=0 wb=92777us wall=92778us cpu=26044us wait=66734us
+I (1014132) vision_model: [infer_diag] path=wb_only nwb=0 wb=67105us wall=67106us cpu=25782us wait=41324us
+I (1017909) vision_model: [infer_diag] path=wb_only nwb=0 wb=69928us wall=69929us cpu=25735us wait=44194us
+I (1021418) vision_model: [infer_diag] path=wb_only nwb=0 wb=70273us wall=70275us cpu=25985us wait=44290us
+I (1024834) vision_model: [infer_diag] path=wb_only nwb=0 wb=64598us wall=64599us cpu=22778us wait=41821us
+I (1028258) vision_model: [infer_diag] path=wb_only nwb=0 wb=61747us wall=61749us cpu=23193us wait=38556us
+I (1031737) vision_model: [infer_diag] path=wb_only nwb=0 wb=125076us wall=125077us cpu=33021us wait=92056us
+I (1035175) vision_model: [infer_diag] path=wb_only nwb=0 wb=71576us wall=71577us cpu=26892us wait=44685us
+I (1038567) vision_model: [infer_diag] path=wb_only nwb=0 wb=67485us wall=67486us cpu=24325us wait=43161us
+I (1042004) vision_model: [infer_diag] path=wb_only nwb=0 wb=61137us wall=61139us cpu=22508us wait=38631us
+I (1045778) vision_model: [infer_diag] path=wb_only nwb=0 wb=67676us wall=67678us cpu=23466us wait=44212us
+I (1049292) vision_model: [infer_diag] path=wb_only nwb=0 wb=66999us wall=67001us cpu=24523us wait=42478us
+I (1052939) vision_model: [infer_diag] path=wb_only nwb=0 wb=85274us wall=85275us cpu=36949us wait=48326us
+I (1056571) vision_model: [infer_diag] path=wb_only nwb=0 wb=64703us wall=64705us cpu=22215us wait=42490us
+I (1060029) vision_model: [infer_diag] path=wb_only nwb=0 wb=70353us wall=70354us cpu=24800us wait=45554us
+I (1063738) vision_model: [infer_diag] path=wb_only nwb=0 wb=74199us wall=74201us cpu=23861us wait=50340us
+I (1067181) vision_model: [infer_diag] path=wb_only nwb=0 wb=78552us wall=78553us cpu=27498us wait=51055us
+I (1070674) vision_model: [infer_diag] path=wb_only nwb=0 wb=70358us wall=70359us cpu=26254us wait=44105us
+I (1074155) vision_model: [infer_diag] path=wb_only nwb=0 wb=70682us wall=70684us cpu=27464us wait=43220us
+I (1077645) vision_model: [infer_diag] path=wb_only nwb=0 wb=69862us wall=69863us cpu=24579us wait=45284us
+I (1081175) vision_model: [infer_diag] path=wb_only nwb=0 wb=72254us wall=72256us cpu=28018us wait=44238us
+I (1084616) vision_model: [infer_diag] path=wb_only nwb=0 wb=65982us wall=65983us cpu=23693us wait=42290us
+I (1088054) vision_model: [infer_diag] path=wb_only nwb=0 wb=66444us wall=66446us cpu=24652us wait=41794us
+I (1091608) vision_model: [infer_diag] path=wb_only nwb=0 wb=181370us wall=181372us cpu=27212us wait=154160us
+I (1095196) vision_model: [infer_diag] path=wb_only nwb=0 wb=67728us wall=67729us cpu=24507us wait=43222us
+I (1098732) vision_model: [infer_diag] path=wb_only nwb=0 wb=60927us wall=60929us cpu=22479us wait=38450us
+I (1102204) vision_model: [infer_diag] path=wb_only nwb=0 wb=58938us wall=58939us cpu=21095us wait=37844us
+I (1105609) vision_model: [infer_diag] path=wb_only nwb=0 wb=73975us wall=73976us cpu=26640us wait=47336us
+I (1109243) vision_model: [infer_diag] path=wb_only nwb=0 wb=65608us wall=65610us cpu=22775us wait=42835us
+I (1112770) vision_model: [infer_diag] path=wb_only nwb=0 wb=64341us wall=64343us cpu=22600us wait=41743us
+I (1116271) vision_model: [infer_diag] path=wb_only nwb=0 wb=66577us wall=66578us cpu=24227us wait=42351us
+I (1119666) vision_model: [infer_diag] path=wb_only nwb=0 wb=70082us wall=70083us cpu=27380us wait=42703us
+I (1123186) vision_model: [infer_diag] path=wb_only nwb=0 wb=65993us wall=65995us cpu=25770us wait=40225us
+I (1126826) vision_model: [infer_diag] path=wb_only nwb=0 wb=67031us wall=67033us cpu=24350us wait=42683us
+I (1130347) vision_model: [infer_diag] path=wb_only nwb=0 wb=65841us wall=65842us cpu=22968us wait=42874us
+I (1133710) vision_model: [infer_diag] path=wb_only nwb=0 wb=61358us wall=61359us cpu=22080us wait=39279us
+I (1137155) vision_model: [infer_diag] path=wb_only nwb=0 wb=69061us wall=69062us cpu=27279us wait=41783us
+I (1140675) vision_model: [infer_diag] path=wb_only nwb=0 wb=69313us wall=69315us cpu=26037us wait=43278us
+I (1144259) vision_model: [infer_diag] path=wb_only nwb=0 wb=67424us wall=67427us cpu=24349us wait=43078us
+I (1147869) vision_model: [infer_diag] path=wb_only nwb=0 wb=66703us wall=66705us cpu=24461us wait=42244us
+I (1151273) vision_model: [infer_diag] path=wb_only nwb=0 wb=66463us wall=66464us cpu=23632us wait=42832us
+I (1154746) vision_model: [infer_diag] path=wb_only nwb=0 wb=67931us wall=67932us cpu=23612us wait=44320us
+I (1158355) vision_model: [infer_diag] path=wb_only nwb=0 wb=66233us wall=66235us cpu=23962us wait=42273us
+I (1161820) vision_model: [infer_diag] path=wb_only nwb=0 wb=67078us wall=67080us cpu=23948us wait=43132us
+I (1165318) vision_model: [infer_diag] path=wb_only nwb=0 wb=67248us wall=67250us cpu=24267us wait=42983us
+I (1168711) vision_model: [infer_diag] path=wb_only nwb=0 wb=66151us wall=66153us cpu=23023us wait=43130us
+I (1172112) vision_model: [infer_diag] path=wb_only nwb=0 wb=67362us wall=67363us cpu=23718us wait=43645us
+I (1175433) vision_model: [infer_diag] path=wb_only nwb=0 wb=65706us wall=65708us cpu=24801us wait=40907us
+I (1178940) vision_model: [infer_diag] path=wb_only nwb=0 wb=69275us wall=69277us cpu=26492us wait=42785us
+I (1182364) vision_model: [infer_diag] path=wb_only nwb=0 wb=67360us wall=67362us cpu=24185us wait=43177us
+I (1185889) vision_model: [infer_diag] path=wb_only nwb=0 wb=68678us wall=68681us cpu=26609us wait=42072us
+I (1189346) vision_model: [infer_diag] path=wb_only nwb=0 wb=67217us wall=67219us cpu=23501us wait=43718us
+I (1192846) vision_model: [infer_diag] path=wb_only nwb=0 wb=68978us wall=68980us cpu=24129us wait=44851us
+I (1196258) vision_model: [infer_diag] path=wb_only nwb=0 wb=58356us wall=58358us cpu=21393us wait=36965us
+I (1199651) vision_model: [infer_diag] path=wb_only nwb=0 wb=73595us wall=73597us cpu=26322us wait=47275us
+I (1203170) vision_model: [infer_diag] path=wb_only nwb=0 wb=70282us wall=70283us cpu=26831us wait=43452us
+I (1206664) vision_model: [infer_diag] path=wb_only nwb=0 wb=68929us wall=68931us cpu=26710us wait=42221us
+I (1210255) vision_model: [infer_diag] path=wb_only nwb=0 wb=67001us wall=67003us cpu=24434us wait=42569us
+I (1213707) vision_model: [infer_diag] path=wb_only nwb=0 wb=61397us wall=61414us cpu=23065us wait=38349us
+I (1217132) vision_model: [infer_diag] path=wb_only nwb=0 wb=68583us wall=68584us cpu=26360us wait=42224us
+I (1221034) vision_model: [infer_diag] path=wb_only nwb=0 wb=64382us wall=64383us cpu=23018us wait=41365us
+I (1224467) vision_model: [infer_diag] path=wb_only nwb=0 wb=65870us wall=65872us cpu=23937us wait=41935us
+I (1227992) vision_model: [infer_diag] path=wb_only nwb=0 wb=72452us wall=72454us cpu=25365us wait=47089us
+I (1231440) vision_model: [infer_diag] path=wb_only nwb=0 wb=62180us wall=62181us cpu=22520us wait=39661us
+I (1234871) vision_model: [infer_diag] path=wb_only nwb=0 wb=63787us wall=63788us cpu=21947us wait=41841us
+I (1238271) vision_model: [infer_diag] path=wb_only nwb=0 wb=60763us wall=60764us cpu=22019us wait=38745us
+I (1241773) vision_model: [infer_diag] path=wb_only nwb=0 wb=60985us wall=60987us cpu=22578us wait=38409us
+I (1245293) vision_model: [infer_diag] path=wb_only nwb=0 wb=58585us wall=58586us cpu=21118us wait=37468us
+I (1248716) vision_model: [infer_diag] path=wb_only nwb=0 wb=67307us wall=67308us cpu=23455us wait=43853us
+I (1252111) vision_model: [infer_diag] path=wb_only nwb=0 wb=67525us wall=67526us cpu=24018us wait=43508us
+I (1255595) vision_model: [infer_diag] path=wb_only nwb=0 wb=66946us wall=66947us cpu=24409us wait=42538us
+I (1259116) vision_model: [infer_diag] path=wb_only nwb=0 wb=67628us wall=67629us cpu=23661us wait=43968us
+I (1262595) vision_model: [infer_diag] path=wb_only nwb=0 wb=66934us wall=66935us cpu=23897us wait=43038us
+I (1266031) vision_model: [infer_diag] path=wb_only nwb=0 wb=61525us wall=61526us cpu=22739us wait=38787us
+I (1269649) vision_model: [infer_diag] path=wb_only nwb=0 wb=70299us wall=70301us cpu=25917us wait=44384us
+I (1273115) vision_model: [infer_diag] path=wb_only nwb=0 wb=67429us wall=67431us cpu=23533us wait=43898us
+I (1276494) vision_model: [infer_diag] path=wb_only nwb=0 wb=65518us wall=65520us cpu=24237us wait=41283us
+I (1279955) vision_model: [infer_diag] path=wb_only nwb=0 wb=67112us wall=67113us cpu=24592us wait=42521us
+I (1283382) vision_model: [infer_diag] path=wb_only nwb=0 wb=71127us wall=71129us cpu=26494us wait=44635us
+I (1286773) vision_model: [infer_diag] path=wb_only nwb=0 wb=68588us wall=68589us cpu=24090us wait=44499us
+I (1290296) vision_model: [infer_diag] path=wb_only nwb=0 wb=60551us wall=60553us cpu=22856us wait=37697us
+I (1293831) vision_model: [infer_diag] path=wb_only nwb=0 wb=61570us wall=61572us cpu=21596us wait=39976us
+I (1297402) vision_model: [infer_diag] path=wb_only nwb=0 wb=67661us wall=67662us cpu=26358us wait=41304us
+I (1300760) vision_model: [infer_diag] path=wb_only nwb=0 wb=67006us wall=67007us cpu=24545us wait=42462us
+I (1304215) vision_model: [infer_diag] path=wb_only nwb=0 wb=58921us wall=58923us cpu=21494us wait=37429us
+I (1307573) vision_model: [infer_diag] path=wb_only nwb=0 wb=66310us wall=66312us cpu=23932us wait=42380us
+I (1311015) vision_model: [infer_diag] path=wb_only nwb=0 wb=72066us wall=72067us cpu=24976us wait=47091us
+I (1314595) vision_model: [infer_diag] path=wb_only nwb=0 wb=67716us wall=67718us cpu=24256us wait=43462us
+I (1317971) vision_model: [infer_diag] path=wb_only nwb=0 wb=65683us wall=65684us cpu=23758us wait=41926us
+I (1321414) vision_model: [infer_diag] path=wb_only nwb=0 wb=70270us wall=70273us cpu=26026us wait=44247us
+I (1324963) vision_model: [infer_diag] path=wb_only nwb=0 wb=67000us wall=67001us cpu=24553us wait=42448us
+I (1328440) vision_model: [infer_diag] path=wb_only nwb=0 wb=67709us wall=67711us cpu=26276us wait=41435us
+I (1331915) vision_model: [infer_diag] path=wb_only nwb=0 wb=70965us wall=70967us cpu=26092us wait=44875us
+I (1335328) vision_model: [infer_diag] path=wb_only nwb=0 wb=70247us wall=70248us cpu=25005us wait=45243us
+I (1339150) vision_model: [infer_diag] path=wb_only nwb=0 wb=66645us wall=66646us cpu=25469us wait=41177us
+I (1342593) vision_model: [infer_diag] path=wb_only nwb=0 wb=58739us wall=58741us cpu=21557us wait=37184us
+I (1345974) vision_model: [infer_diag] path=wb_only nwb=0 wb=65121us wall=65122us cpu=22736us wait=42386us
+I (1349495) vision_model: [infer_diag] path=wb_only nwb=0 wb=67612us wall=67614us cpu=24298us wait=43316us
+I (1352900) vision_model: [infer_diag] path=wb_only nwb=0 wb=67996us wall=67998us cpu=25864us wait=42134us
+I (1356390) vision_model: [infer_diag] path=wb_only nwb=0 wb=70711us wall=70712us cpu=26666us wait=44046us
+I (1359861) vision_model: [infer_diag] path=wb_only nwb=0 wb=67373us wall=67375us cpu=24429us wait=42946us
+I (1363285) vision_model: [infer_diag] path=wb_only nwb=0 wb=58512us wall=58513us cpu=21249us wait=37264us
+I (1366656) vision_model: [infer_diag] path=wb_only nwb=0 wb=70889us wall=70891us cpu=26952us wait=43939us
+I (1370476) vision_model: [infer_diag] path=wb_only nwb=0 wb=65552us wall=65553us cpu=23283us wait=42270us
+I (1373955) vision_model: [infer_diag] path=wb_only nwb=0 wb=102321us wall=102322us cpu=25289us wait=77033us
+I (1377433) vision_model: [infer_diag] path=wb_only nwb=0 wb=67971us wall=67973us cpu=25941us wait=42032us
+I (1380788) vision_model: [infer_diag] path=wb_only nwb=0 wb=63922us wall=63924us cpu=23324us wait=40600us
+I (1384297) vision_model: [infer_diag] path=wb_only nwb=0 wb=58508us wall=58509us cpu=21337us wait=37172us
+I (1387707) vision_model: [infer_diag] path=wb_only nwb=0 wb=65547us wall=65548us cpu=23583us wait=41965us
+I (1391120) vision_model: [infer_diag] path=wb_only nwb=0 wb=67875us wall=67877us cpu=24162us wait=43715us
+I (1394700) vision_model: [infer_diag] path=wb_only nwb=0 wb=67759us wall=67761us cpu=24449us wait=43312us
+I (1398106) vision_model: [infer_diag] path=wb_only nwb=0 wb=61840us wall=61841us cpu=22721us wait=39120us
+I (1401645) vision_model: [infer_diag] path=wb_only nwb=0 wb=70078us wall=70079us cpu=25675us wait=44404us
+I (1405033) vision_model: [infer_diag] path=wb_only nwb=0 wb=60855us wall=60856us cpu=22490us wait=38366us
+I (1408509) vision_model: [infer_diag] path=wb_only nwb=0 wb=67191us wall=67193us cpu=23646us wait=43547us
+I (1411924) vision_model: [infer_diag] path=wb_only nwb=0 wb=75291us wall=75293us cpu=26258us wait=49035us
+I (1415569) vision_model: [infer_diag] path=wb_only nwb=0 wb=181137us wall=181138us cpu=29050us wait=152088us
+I (1419019) vision_model: [infer_diag] path=wb_only nwb=0 wb=128766us wall=128767us cpu=30576us wait=98191us
+I (1422470) vision_model: [infer_diag] path=wb_only nwb=0 wb=67538us wall=67539us cpu=24598us wait=42941us
+I (1425871) vision_model: [infer_diag] path=wb_only nwb=0 wb=63177us wall=63178us cpu=22897us wait=40281us
+I (1429331) vision_model: [infer_diag] path=wb_only nwb=0 wb=65315us wall=65317us cpu=23478us wait=41839us
+I (1432819) vision_model: [infer_diag] path=wb_only nwb=0 wb=59304us wall=59305us cpu=21445us wait=37860us
+I (1436325) vision_model: [infer_diag] path=wb_only nwb=0 wb=67545us wall=67551us cpu=24372us wait=43179us
+I (1439955) vision_model: [infer_diag] path=wb_only nwb=0 wb=59563us wall=59564us cpu=21768us wait=37796us
+I (1443351) vision_model: [infer_diag] path=wb_only nwb=0 wb=63723us wall=63725us cpu=23191us wait=40534us
+I (1446739) vision_model: [infer_diag] path=wb_only nwb=0 wb=63185us wall=63187us cpu=22923us wait=40264us
+I (1450246) vision_model: [infer_diag] path=wb_only nwb=0 wb=65861us wall=65863us cpu=23029us wait=42834us
+I (1453832) vision_model: [infer_diag] path=wb_only nwb=0 wb=60872us wall=60874us cpu=22319us wait=38555us
+I (1457268) vision_model: [infer_diag] path=wb_only nwb=0 wb=64772us wall=64774us cpu=22926us wait=41848us
+I (1460671) vision_model: [infer_diag] path=wb_only nwb=0 wb=71391us wall=71392us cpu=27979us wait=43413us
+I (1464163) vision_model: [infer_diag] path=wb_only nwb=0 wb=69602us wall=69604us cpu=27182us wait=42422us
+I (1467656) vision_model: [infer_diag] path=wb_only nwb=0 wb=69739us wall=69740us cpu=26538us wait=43202us
+I (1471106) vision_model: [infer_diag] path=wb_only nwb=0 wb=70189us wall=70190us cpu=23424us wait=46766us
+I (1474479) vision_model: [infer_diag] path=wb_only nwb=0 wb=66357us wall=66358us cpu=23059us wait=43299us
+I (1477954) vision_model: [infer_diag] path=wb_only nwb=0 wb=66010us wall=66012us cpu=23334us wait=42678us
+I (1481398) vision_model: [infer_diag] path=wb_only nwb=0 wb=81264us wall=81267us cpu=25712us wait=55555us
+I (1484762) vision_model: [infer_diag] path=wb_only nwb=0 wb=67668us wall=67669us cpu=24496us wait=43173us
+I (1488174) vision_model: [infer_diag] path=wb_only nwb=0 wb=70883us wall=70884us cpu=27712us wait=43172us
+I (1491691) vision_model: [infer_diag] path=wb_only nwb=0 wb=68556us wall=68558us cpu=26639us wait=41919us
+I (1495277) vision_model: [infer_diag] path=wb_only nwb=0 wb=61685us wall=61687us cpu=22217us wait=39470us
+I (1498764) vision_model: [infer_diag] path=wb_only nwb=0 wb=64260us wall=64261us cpu=22765us wait=41496us
+I (1502208) vision_model: [infer_diag] path=wb_only nwb=0 wb=66574us wall=66576us cpu=23987us wait=42589us
+I (1505652) vision_model: [infer_diag] path=wb_only nwb=0 wb=71178us wall=71179us cpu=26457us wait=44722us
+I (1509060) vision_model: [infer_diag] path=wb_only nwb=0 wb=65684us wall=65685us cpu=23747us wait=41938us
+I (1512596) vision_model: [infer_diag] path=wb_only nwb=0 wb=65264us wall=65266us cpu=23242us wait=42024us
+I (1516014) vision_model: [infer_diag] path=wb_only nwb=0 wb=64043us wall=64045us cpu=22696us wait=41349us
+I (1519684) vision_model: [infer_diag] path=wb_only nwb=0 wb=67369us wall=67370us cpu=24009us wait=43361us
+I (1523103) vision_model: [infer_diag] path=wb_only nwb=0 wb=66093us wall=66095us cpu=24170us wait=41925us
+I (1526734) vision_model: [infer_diag] path=wb_only nwb=0 wb=118513us wall=118515us cpu=25971us wait=92544us
+I (1530393) vision_model: [infer_diag] path=wb_only nwb=0 wb=68509us wall=68510us cpu=26427us wait=42083us
+I (1533812) vision_model: [infer_diag] path=wb_only nwb=0 wb=66528us wall=66529us cpu=23026us wait=43503us
+I (1537237) vision_model: [infer_diag] path=wb_only nwb=0 wb=65496us wall=65497us cpu=24060us wait=41437us
+I (1540720) vision_model: [infer_diag] path=wb_only nwb=0 wb=68315us wall=68316us cpu=23965us wait=44351us
+I (1544329) vision_model: [infer_diag] path=wb_only nwb=0 wb=65114us wall=65115us cpu=23956us wait=41159us
+I (1547752) vision_model: [infer_diag] path=wb_only nwb=0 wb=63966us wall=63968us cpu=22851us wait=41117us
+I (1551203) vision_model: [infer_diag] path=wb_only nwb=0 wb=65877us wall=65879us cpu=23777us wait=42102us
+I (1554720) vision_model: [infer_diag] path=wb_only nwb=0 wb=60791us wall=60793us cpu=22934us wait=37859us
+I (1558354) vision_model: [infer_diag] path=wb_only nwb=0 wb=70368us wall=70369us cpu=24701us wait=45668us
+I (1561734) vision_model: [infer_diag] path=wb_only nwb=0 wb=64428us wall=64432us cpu=22617us wait=41815us
+I (1565106) vision_model: [infer_diag] path=wb_only nwb=0 wb=64658us wall=64659us cpu=23248us wait=41411us
+I (1568560) vision_model: [infer_diag] path=wb_only nwb=0 wb=66111us wall=66113us cpu=23915us wait=42198us
+I (1572205) vision_model: [infer_diag] path=wb_only nwb=0 wb=66089us wall=66090us cpu=24088us wait=42002us
+I (1575662) vision_model: [infer_diag] path=wb_only nwb=0 wb=69809us wall=69812us cpu=27068us wait=42744us
+I (1579195) vision_model: [infer_diag] path=wb_only nwb=0 wb=65603us wall=65605us cpu=23721us wait=41884us
+I (1582663) vision_model: [infer_diag] path=wb_only nwb=0 wb=71260us wall=71261us cpu=27676us wait=43585us
+I (1586184) vision_model: [infer_diag] path=wb_only nwb=0 wb=69058us wall=69059us cpu=26056us wait=43003us
+I (1589686) vision_model: [infer_diag] path=wb_only nwb=0 wb=74273us wall=74275us cpu=26562us wait=47713us
+I (1593139) vision_model: [infer_diag] path=wb_only nwb=0 wb=70771us wall=70772us cpu=26638us wait=44134us
+I (1596575) vision_model: [infer_diag] path=wb_only nwb=0 wb=65948us wall=65949us cpu=23314us wait=42635us
+I (1599997) vision_model: [infer_diag] path=wb_only nwb=0 wb=66865us wall=66866us cpu=23996us wait=42870us
+I (1603449) vision_model: [infer_diag] path=wb_only nwb=0 wb=67186us wall=67190us cpu=23662us wait=43528us
+I (1606920) vision_model: [infer_diag] path=wb_only nwb=0 wb=71003us wall=71005us cpu=26598us wait=44407us
+I (1610480) vision_model: [infer_diag] path=wb_only nwb=0 wb=67889us wall=67890us cpu=23673us wait=44217us
+I (1614189) vision_model: [infer_diag] path=wb_only nwb=0 wb=77966us wall=77967us cpu=25832us wait=52135us
+I (1617575) vision_model: [infer_diag] path=wb_only nwb=0 wb=66717us wall=66719us cpu=23497us wait=43222us
+I (1621090) vision_model: [infer_diag] path=wb_only nwb=0 wb=67234us wall=67235us cpu=25110us wait=42125us
+I (1624550) vision_model: [infer_diag] path=wb_only nwb=0 wb=66322us wall=66324us cpu=23426us wait=42898us
+I (1628051) vision_model: [infer_diag] path=wb_only nwb=0 wb=58835us wall=58836us cpu=21200us wait=37636us
+I (1631489) vision_model: [infer_diag] path=wb_only nwb=0 wb=67141us wall=67143us cpu=24229us wait=42914us
+I (1634909) vision_model: [infer_diag] path=wb_only nwb=0 wb=72057us wall=72059us cpu=26880us wait=45179us
+I (1638387) vision_model: [infer_diag] path=wb_only nwb=0 wb=70212us wall=70213us cpu=26462us wait=43751us
+I (1641856) vision_model: [infer_diag] path=wb_only nwb=0 wb=67317us wall=67319us cpu=24092us wait=43227us
+I (1645353) vision_model: [infer_diag] path=wb_only nwb=0 wb=67018us wall=67020us cpu=23780us wait=43240us
+I (1648798) vision_model: [infer_diag] path=wb_only nwb=0 wb=66058us wall=66059us cpu=24057us wait=42002us
+I (1652129) vision_model: [infer_diag] path=wb_only nwb=0 wb=71859us wall=71860us cpu=26609us wait=45251us
+I (1655572) vision_model: [infer_diag] path=wb_only nwb=0 wb=67750us wall=67753us cpu=24643us wait=43110us
+I (1658988) vision_model: [infer_diag] path=wb_only nwb=0 wb=67407us wall=67409us cpu=24203us wait=43206us
+I (1662626) vision_model: [infer_diag] path=wb_only nwb=0 wb=65676us wall=65678us cpu=23803us wait=41875us
+I (1666313) vision_model: [infer_diag] path=wb_only nwb=0 wb=65794us wall=65795us cpu=22541us wait=43254us
+I (1669836) vision_model: [infer_diag] path=wb_only nwb=0 wb=65976us wall=65977us cpu=23433us wait=42544us
+I (1673261) vision_model: [infer_diag] path=wb_only nwb=0 wb=59186us wall=59188us cpu=21321us wait=37867us
+I (1676784) vision_model: [infer_diag] path=wb_only nwb=0 wb=66360us wall=66362us cpu=22674us wait=43688us
+I (1680255) vision_model: [infer_diag] path=wb_only nwb=0 wb=66337us wall=66338us cpu=24400us wait=41938us
+I (1683864) vision_model: [infer_diag] path=wb_only nwb=0 wb=66387us wall=66389us cpu=24548us wait=41841us
+I (1687274) vision_model: [infer_diag] path=wb_only nwb=0 wb=65132us wall=65134us cpu=23340us wait=41794us
+I (1690653) vision_model: [infer_diag] path=wb_only nwb=0 wb=70019us wall=70020us cpu=25977us wait=44043us
+I (1694083) vision_model: [infer_diag] path=wb_only nwb=0 wb=66210us wall=66212us cpu=22966us wait=43246us
+I (1697586) vision_model: [infer_diag] path=wb_only nwb=0 wb=67639us wall=67641us cpu=23396us wait=44245us
+I (1700996) vision_model: [infer_diag] path=wb_only nwb=0 wb=66621us wall=66622us cpu=24332us wait=42290us
+I (1704471) vision_model: [infer_diag] path=wb_only nwb=0 wb=67446us wall=67447us cpu=24251us wait=43196us
+I (1707963) vision_model: [infer_diag] path=wb_only nwb=0 wb=65690us wall=65691us cpu=23837us wait=41854us
+I (1711520) vision_model: [infer_diag] path=wb_only nwb=0 wb=67176us wall=67177us cpu=23785us wait=43392us
+I (1714909) vision_model: [infer_diag] path=wb_only nwb=0 wb=111931us wall=111932us cpu=34637us wait=77295us
+I (1718332) vision_model: [infer_diag] path=wb_only nwb=0 wb=64011us wall=64013us cpu=23413us wait=40600us
+I (1721782) vision_model: [infer_diag] path=wb_only nwb=0 wb=67437us wall=67439us cpu=23592us wait=43847us
+I (1725269) vision_model: [infer_diag] path=wb_only nwb=0 wb=69142us wall=69144us cpu=24224us wait=44920us
+I (1728757) vision_model: [infer_diag] path=wb_only nwb=0 wb=63900us wall=63901us cpu=23354us wait=40547us
+I (1732251) vision_model: [infer_diag] path=wb_only nwb=0 wb=64843us wall=64845us cpu=22186us wait=42659us
+I (1735816) vision_model: [infer_diag] path=wb_only nwb=0 wb=66771us wall=66773us cpu=23116us wait=43657us
+I (1739293) vision_model: [infer_diag] path=wb_only nwb=0 wb=65829us wall=65830us cpu=23069us wait=42761us
+I (1742834) vision_model: [infer_diag] path=wb_only nwb=0 wb=72603us wall=72605us cpu=25326us wait=47279us
+I (1746272) vision_model: [infer_diag] path=wb_only nwb=0 wb=58835us wall=58837us cpu=20866us wait=37971us
+I (1749757) vision_model: [infer_diag] path=wb_only nwb=0 wb=58764us wall=58766us cpu=21717us wait=37049us
+I (1753124) vision_model: [infer_diag] path=wb_only nwb=0 wb=67895us wall=67897us cpu=24519us wait=43378us
+I (1756542) vision_model: [infer_diag] path=wb_only nwb=0 wb=58933us wall=58935us cpu=20935us wait=38000us
+I (1760063) vision_model: [infer_diag] path=wb_only nwb=0 wb=67607us wall=67608us cpu=24437us wait=43171us
+I (1763763) vision_model: [infer_diag] path=wb_only nwb=0 wb=59242us wall=59243us cpu=21343us wait=37900us
+I (1767288) vision_model: [infer_diag] path=wb_only nwb=0 wb=66151us wall=66153us cpu=24114us wait=42039us
+I (1770987) vision_model: [infer_diag] path=wb_only nwb=0 wb=66607us wall=66609us cpu=23567us wait=43042us
+I (1774369) vision_model: [infer_diag] path=wb_only nwb=0 wb=67181us wall=67185us cpu=24215us wait=42970us
+I (1777885) vision_model: [infer_diag] path=wb_only nwb=0 wb=70404us wall=70406us cpu=26221us wait=44185us
+I (1781287) vision_model: [infer_diag] path=wb_only nwb=0 wb=58717us wall=58719us cpu=21489us wait=37230us
+I (1784773) vision_model: [infer_diag] path=wb_only nwb=0 wb=65122us wall=65123us cpu=23915us wait=41208us
+I (1788312) vision_model: [infer_diag] path=wb_only nwb=0 wb=67761us wall=67763us cpu=23366us wait=44397us
+I (1791795) vision_model: [infer_diag] path=wb_only nwb=0 wb=70920us wall=70922us cpu=24780us wait=46142us
+I (1795246) vision_model: [infer_diag] path=wb_only nwb=0 wb=59027us wall=59028us cpu=20798us wait=38230us
+I (1799085) vision_model: [infer_diag] path=wb_only nwb=0 wb=66404us wall=66406us cpu=23093us wait=43313us
+I (1802462) vision_model: [infer_diag] path=wb_only nwb=0 wb=65628us wall=65630us cpu=24183us wait=41447us
+I (1805868) vision_model: [infer_diag] path=wb_only nwb=0 wb=67971us wall=67973us cpu=24621us wait=43352us
+I (1809319) vision_model: [infer_diag] path=wb_only nwb=0 wb=68177us wall=68179us cpu=23640us wait=44539us
+I (1812757) vision_model: [infer_diag] path=wb_only nwb=0 wb=67192us wall=67194us cpu=24478us wait=42716us
+I (1816195) vision_model: [infer_diag] path=wb_only nwb=0 wb=60988us wall=60990us cpu=22891us wait=38099us
+I (1819758) vision_model: [infer_diag] path=wb_only nwb=0 wb=68007us wall=68009us cpu=24309us wait=43700us
+I (1823266) vision_model: [infer_diag] path=wb_only nwb=0 wb=57700us wall=57702us cpu=21048us wait=36654us
+I (1826754) vision_model: [infer_diag] path=wb_only nwb=0 wb=64274us wall=64275us cpu=22534us wait=41741us
+I (1830294) vision_model: [infer_diag] path=wb_only nwb=0 wb=107474us wall=107476us cpu=30078us wait=77398us
+I (1833833) vision_model: [infer_diag] path=wb_only nwb=0 wb=62401us wall=62407us cpu=23219us wait=39188us
+I (1837274) vision_model: [infer_diag] path=wb_only nwb=0 wb=64597us wall=64599us cpu=23236us wait=41363us
+I (1840733) vision_model: [infer_diag] path=wb_only nwb=0 wb=65888us wall=65889us cpu=23938us wait=41951us
+I (1844183) vision_model: [infer_diag] path=wb_only nwb=0 wb=70699us wall=70701us cpu=26365us wait=44336us
+I (1847743) vision_model: [infer_diag] path=wb_only nwb=0 wb=65144us wall=65145us cpu=23178us wait=41967us
+I (1851241) vision_model: [infer_diag] path=wb_only nwb=0 wb=66751us wall=66753us cpu=24275us wait=42478us
+I (1854624) vision_model: [infer_diag] path=wb_only nwb=0 wb=67202us wall=67204us cpu=24505us wait=42699us
+I (1858076) vision_model: [infer_diag] path=wb_only nwb=0 wb=67846us wall=67847us cpu=24403us wait=43444us
+I (1861513) vision_model: [infer_diag] path=wb_only nwb=0 wb=67127us wall=67128us cpu=23648us wait=43480us
+I (1864933) vision_model: [infer_diag] path=wb_only nwb=0 wb=59323us wall=59324us cpu=22872us wait=36452us
+I (1868324) vision_model: [infer_diag] path=wb_only nwb=0 wb=67174us wall=67175us cpu=24311us wait=42864us
+I (1871938) vision_model: [infer_diag] path=wb_only nwb=0 wb=63791us wall=63795us cpu=24350us wait=39445us
+I (1875559) vision_model: [infer_diag] path=wb_only nwb=0 wb=68523us wall=68526us cpu=24896us wait=43630us
+I (1879189) vision_model: [infer_diag] path=wb_only nwb=0 wb=58747us wall=58749us cpu=21605us wait=37144us
+I (1882693) vision_model: [infer_diag] path=wb_only nwb=0 wb=65719us wall=65721us cpu=23780us wait=41941us
+I (1886029) vision_model: [infer_diag] path=wb_only nwb=0 wb=70037us wall=70039us cpu=24412us wait=45627us
+I (1889396) vision_model: [infer_diag] path=wb_only nwb=0 wb=61805us wall=61806us cpu=23433us wait=38373us
+I (1892880) vision_model: [infer_diag] path=wb_only nwb=0 wb=68738us wall=68739us cpu=25349us wait=43390us
+I (1896387) vision_model: [infer_diag] path=wb_only nwb=0 wb=119027us wall=119028us cpu=32949us wait=86079us
+I (1899814) vision_model: [infer_diag] path=wb_only nwb=0 wb=67625us wall=67628us cpu=23674us wait=43954us
+I (1903527) vision_model: [infer_diag] path=wb_only nwb=0 wb=61776us wall=61778us cpu=23373us wait=38405us
+I (1906942) vision_model: [infer_diag] path=wb_only nwb=0 wb=70080us wall=70082us cpu=26284us wait=43798us
+I (1910399) vision_model: [infer_diag] path=wb_only nwb=0 wb=70520us wall=70522us cpu=27177us wait=43345us
+I (1913919) vision_model: [infer_diag] path=wb_only nwb=0 wb=71899us wall=71901us cpu=27133us wait=44768us
+I (1917423) vision_model: [infer_diag] path=wb_only nwb=0 wb=100146us wall=100148us cpu=26239us wait=73909us
+I (1920793) vision_model: [infer_diag] path=wb_only nwb=0 wb=68148us wall=68149us cpu=24796us wait=43353us
+I (1924199) vision_model: [infer_diag] path=wb_only nwb=0 wb=58678us wall=58680us cpu=21499us wait=37181us
+I (1927834) vision_model: [infer_diag] path=wb_only nwb=0 wb=57951us wall=57952us cpu=21059us wait=36893us
+I (1931364) vision_model: [infer_diag] path=wb_only nwb=0 wb=65066us wall=65067us cpu=24056us wait=41011us
+I (1934805) vision_model: [infer_diag] path=wb_only nwb=0 wb=67825us wall=67826us cpu=24185us wait=43641us
+I (1938253) vision_model: [infer_diag] path=wb_only nwb=0 wb=66066us wall=66067us cpu=23354us wait=42713us
+I (1941725) vision_model: [infer_diag] path=wb_only nwb=0 wb=65530us wall=65532us cpu=24157us wait=41375us
+I (1945172) vision_model: [infer_diag] path=wb_only nwb=0 wb=69962us wall=69964us cpu=26635us wait=43329us
+I (1948700) vision_model: [infer_diag] path=wb_only nwb=0 wb=58581us wall=58582us cpu=21735us wait=36847us
+I (1952135) vision_model: [infer_diag] path=wb_only nwb=0 wb=70810us wall=70812us cpu=27003us wait=43809us
+I (1955643) vision_model: [infer_diag] path=wb_only nwb=0 wb=66240us wall=66242us cpu=25553us wait=40689us
+I (1959092) vision_model: [infer_diag] path=wb_only nwb=0 wb=68741us wall=68743us cpu=25137us wait=43606us
+I (1962553) vision_model: [infer_diag] path=wb_only nwb=0 wb=66784us wall=66785us cpu=23655us wait=43130us
+I (1966021) vision_model: [infer_diag] path=wb_only nwb=0 wb=61926us wall=61928us cpu=22979us wait=38949us
+I (1969489) vision_model: [infer_diag] path=wb_only nwb=0 wb=67604us wall=67606us cpu=23876us wait=43730us
+I (1972941) vision_model: [infer_diag] path=wb_only nwb=0 wb=70108us wall=70110us cpu=27212us wait=42898us
+I (1976542) vision_model: [infer_diag] path=wb_only nwb=0 wb=67414us wall=67416us cpu=24460us wait=42956us
+I (1980062) vision_model: [infer_diag] path=wb_only nwb=0 wb=67834us wall=67834us cpu=24601us wait=43233us
+I (1983707) vision_model: [infer_diag] path=wb_only nwb=0 wb=67494us wall=67496us cpu=24876us wait=42620us
+I (1987315) vision_model: [infer_diag] path=wb_only nwb=0 wb=67222us wall=67224us cpu=23327us wait=43897us
+I (1990869) vision_model: [infer_diag] path=wb_only nwb=0 wb=64444us wall=64446us cpu=22706us wait=41740us
+I (1994234) vision_model: [infer_diag] path=wb_only nwb=0 wb=58350us wall=58352us cpu=21388us wait=36964us
+I (1997748) vision_model: [infer_diag] path=wb_only nwb=0 wb=67531us wall=67533us cpu=23491us wait=44042us
+I (2001123) vision_model: [infer_diag] path=wb_only nwb=0 wb=67168us wall=67170us cpu=24026us wait=43144us
+I (2004486) vision_model: [infer_diag] path=wb_only nwb=0 wb=64729us wall=64730us cpu=22590us wait=42140us
+I (2007972) vision_model: [infer_diag] path=wb_only nwb=0 wb=57606us wall=57607us cpu=20748us wait=36859us
+I (2011324) vision_model: [infer_diag] path=wb_only nwb=0 wb=63994us wall=63996us cpu=23352us wait=40644us
+I (2014720) vision_model: [infer_diag] path=wb_only nwb=0 wb=63159us wall=63160us cpu=23015us wait=40145us
+I (2018118) vision_model: [infer_diag] path=wb_only nwb=0 wb=63897us wall=63899us cpu=22796us wait=41103us
+I (2021680) vision_model: [infer_diag] path=wb_only nwb=0 wb=71738us wall=71739us cpu=24829us wait=46910us
+I (2025198) vision_model: [infer_diag] path=wb_only nwb=0 wb=67417us wall=67419us cpu=23591us wait=43828us
+I (2028626) vision_model: [infer_diag] path=wb_only nwb=0 wb=68148us wall=68150us cpu=24740us wait=43410us
+I (2032011) vision_model: [infer_diag] path=wb_only nwb=0 wb=65864us wall=65866us cpu=23683us wait=42183us
+I (2035622) vision_model: [infer_diag] path=wb_only nwb=0 wb=63613us wall=63615us cpu=23373us wait=40242us
+I (2039005) vision_model: [infer_diag] path=wb_only nwb=0 wb=65557us wall=65559us cpu=22782us wait=42777us
+I (2042478) vision_model: [infer_diag] path=wb_only nwb=0 wb=65381us wall=65383us cpu=23042us wait=42341us
+I (2045947) vision_model: [infer_diag] path=wb_only nwb=0 wb=65825us wall=65827us cpu=22710us wait=43117us
+I (2049321) vision_model: [infer_diag] path=wb_only nwb=0 wb=67366us wall=67368us cpu=23578us wait=43790us
+I (2053052) vision_model: [infer_diag] path=wb_only nwb=0 wb=191544us wall=191545us cpu=37595us wait=153950us
+I (2056426) vision_model: [infer_diag] path=wb_only nwb=0 wb=66399us wall=66400us cpu=25778us wait=40622us
+I (2059926) vision_model: [infer_diag] path=wb_only nwb=0 wb=70156us wall=70158us cpu=27101us wait=43057us
+I (2063343) vision_model: [infer_diag] path=wb_only nwb=0 wb=67261us wall=67262us cpu=24594us wait=42668us
+I (2066791) vision_model: [infer_diag] path=wb_only nwb=0 wb=74170us wall=74171us cpu=23253us wait=50918us
+I (2070271) vision_model: [infer_diag] path=wb_only nwb=0 wb=67450us wall=67451us cpu=24442us wait=43009us
+I (2073659) vision_model: [infer_diag] path=wb_only nwb=0 wb=69951us wall=69952us cpu=25793us wait=44159us
+I (2077130) vision_model: [infer_diag] path=wb_only nwb=0 wb=71360us wall=71361us cpu=27395us wait=43966us
+I (2080716) vision_model: [infer_diag] path=wb_only nwb=0 wb=65185us wall=65186us cpu=21285us wait=43901us
+I (2084183) vision_model: [infer_diag] path=wb_only nwb=0 wb=72779us wall=72781us cpu=26545us wait=46236us
+I (2087723) vision_model: [infer_diag] path=wb_only nwb=0 wb=67448us wall=67450us cpu=24070us wait=43380us
+I (2091178) vision_model: [infer_diag] path=wb_only nwb=0 wb=69304us wall=69306us cpu=26627us wait=42679us
+I (2094621) vision_model: [infer_diag] path=wb_only nwb=0 wb=62554us wall=62556us cpu=23373us wait=39183us
+I (2098060) vision_model: [infer_diag] path=wb_only nwb=0 wb=67487us wall=67489us cpu=24607us wait=42882us
+I (2101607) vision_model: [infer_diag] path=wb_only nwb=0 wb=64935us wall=64936us cpu=23745us wait=41191us
+I (2105185) vision_model: [infer_diag] path=wb_only nwb=0 wb=60891us wall=60893us cpu=22815us wait=38078us
+I (2108777) vision_model: [infer_diag] path=wb_only nwb=0 wb=67724us wall=67726us cpu=24535us wait=43191us
+I (2112233) vision_model: [infer_diag] path=wb_only nwb=0 wb=58612us wall=58614us cpu=21467us wait=37147us
+I (2115658) vision_model: [infer_diag] path=wb_only nwb=0 wb=70151us wall=70153us cpu=26066us wait=44087us
+I (2119192) vision_model: [infer_diag] path=wb_only nwb=0 wb=82322us wall=82324us cpu=29125us wait=53199us
+I (2122851) vision_model: [infer_diag] path=wb_only nwb=0 wb=66505us wall=66506us cpu=23337us wait=43169us
+I (2126290) vision_model: [infer_diag] path=wb_only nwb=0 wb=68542us wall=68544us cpu=23908us wait=44636us
+I (2129820) vision_model: [infer_diag] path=wb_only nwb=0 wb=66738us wall=66740us cpu=23338us wait=43402us
+I (2133227) vision_model: [infer_diag] path=wb_only nwb=0 wb=67165us wall=67167us cpu=24748us wait=42419us
+I (2136659) vision_model: [infer_diag] path=wb_only nwb=0 wb=71119us wall=71120us cpu=26376us wait=44744us
+I (2140155) vision_model: [infer_diag] path=wb_only nwb=0 wb=73889us wall=73891us cpu=28696us wait=45195us
+I (2143695) vision_model: [infer_diag] path=wb_only nwb=0 wb=74152us wall=74153us cpu=27127us wait=47026us
+I (2147070) vision_model: [infer_diag] path=wb_only nwb=0 wb=68332us wall=68334us cpu=23486us wait=44848us
+I (2150492) vision_model: [infer_diag] path=wb_only nwb=0 wb=68852us wall=68855us cpu=24254us wait=44601us
+I (2153920) vision_model: [infer_diag] path=wb_only nwb=0 wb=71018us wall=71019us cpu=26270us wait=44749us
+I (2157390) vision_model: [infer_diag] path=wb_only nwb=0 wb=71327us wall=71328us cpu=26662us wait=44666us
+I (2160897) vision_model: [infer_diag] path=wb_only nwb=0 wb=69787us wall=69789us cpu=27114us wait=42675us
+I (2164587) vision_model: [infer_diag] path=wb_only nwb=0 wb=67131us wall=67132us cpu=23530us wait=43602us
+I (2168009) vision_model: [infer_diag] path=wb_only nwb=0 wb=67448us wall=67449us cpu=24529us wait=42920us
+I (2171564) vision_model: [infer_diag] path=wb_only nwb=0 wb=67518us wall=67519us cpu=24674us wait=42845us
+I (2175017) vision_model: [infer_diag] path=wb_only nwb=0 wb=59393us wall=59395us cpu=21093us wait=38302us
+I (2178425) vision_model: [infer_diag] path=wb_only nwb=0 wb=73704us wall=73706us cpu=27556us wait=46150us
+I (2182006) vision_model: [infer_diag] path=wb_only nwb=0 wb=61733us wall=61734us cpu=22943us wait=38791us
+I (2185630) vision_model: [infer_diag] path=wb_only nwb=0 wb=67378us wall=67380us cpu=25303us wait=42077us
+I (2189165) vision_model: [infer_diag] path=wb_only nwb=0 wb=70674us wall=70676us cpu=26784us wait=43892us
+I (2192624) vision_model: [infer_diag] path=wb_only nwb=0 wb=69544us wall=69545us cpu=23533us wait=46012us
+I (2196049) vision_model: [infer_diag] path=wb_only nwb=0 wb=61630us wall=61632us cpu=22532us wait=39100us
+I (2199534) vision_model: [infer_diag] path=wb_only nwb=0 wb=58967us wall=58968us cpu=21425us wait=37543us
+I (2202983) vision_model: [infer_diag] path=wb_only nwb=0 wb=66453us wall=66454us cpu=23582us wait=42872us
+I (2206373) vision_model: [infer_diag] path=wb_only nwb=0 wb=67184us wall=67186us cpu=24570us wait=42616us
+I (2209846) vision_model: [infer_diag] path=wb_only nwb=0 wb=67419us wall=67420us cpu=23316us wait=44104us
+I (2213288) vision_model: [infer_diag] path=wb_only nwb=0 wb=67098us wall=67099us cpu=23559us wait=43540us
+I (2216757) vision_model: [infer_diag] path=wb_only nwb=0 wb=59041us wall=59043us cpu=21705us wait=37338us
+I (2220482) vision_model: [infer_diag] path=wb_only nwb=0 wb=66991us wall=66992us cpu=23264us wait=43728us
+I (2224050) vision_model: [infer_diag] path=wb_only nwb=0 wb=78244us wall=78246us cpu=25864us wait=52382us
+I (2227678) vision_model: [infer_diag] path=wb_only nwb=0 wb=87855us wall=87856us cpu=28672us wait=59184us
+I (2231526) vision_model: [infer_diag] path=wb_only nwb=0 wb=67975us wall=67977us cpu=24413us wait=43564us
+I (2235168) vision_model: [infer_diag] path=wb_only nwb=0 wb=94177us wall=94178us cpu=32431us wait=61747us
+I (2238629) vision_model: [infer_diag] path=wb_only nwb=0 wb=68512us wall=68513us cpu=26389us wait=42124us
+I (2242103) vision_model: [infer_diag] path=wb_only nwb=0 wb=67014us wall=67016us cpu=23919us wait=43097us
+I (2245662) vision_model: [infer_diag] path=wb_only nwb=0 wb=70108us wall=70109us cpu=27054us wait=43055us
+I (2249346) vision_model: [infer_diag] path=wb_only nwb=0 wb=67228us wall=67229us cpu=23259us wait=43970us
+I (2252794) vision_model: [infer_diag] path=wb_only nwb=0 wb=68083us wall=68084us cpu=24589us wait=43495us
+I (2256275) vision_model: [infer_diag] path=wb_only nwb=0 wb=64797us wall=64799us cpu=23846us wait=40953us
+I (2259662) vision_model: [infer_diag] path=wb_only nwb=0 wb=64132us wall=64133us cpu=25933us wait=38200us
+I (2263171) vision_model: [infer_diag] path=wb_only nwb=0 wb=84503us wall=84504us cpu=28176us wait=56328us
+I (2266695) vision_model: [infer_diag] path=wb_only nwb=0 wb=74529us wall=74531us cpu=24977us wait=49554us
+I (2270232) vision_model: [infer_diag] path=wb_only nwb=0 wb=64715us wall=64717us cpu=23555us wait=41162us
+I (2273709) vision_model: [infer_diag] path=wb_only nwb=0 wb=67261us wall=67265us cpu=24493us wait=42772us
+I (2277245) vision_model: [infer_diag] path=wb_only nwb=0 wb=59561us wall=59563us cpu=21262us wait=38301us
+I (2280697) vision_model: [infer_diag] path=wb_only nwb=0 wb=62470us wall=62472us cpu=22091us wait=40381us
+I (2284229) vision_model: [infer_diag] path=wb_only nwb=0 wb=58732us wall=58733us cpu=21488us wait=37245us
+I (2287640) vision_model: [infer_diag] path=wb_only nwb=0 wb=69482us wall=69484us cpu=26953us wait=42531us
+I (2291129) vision_model: [infer_diag] path=wb_only nwb=0 wb=70465us wall=70467us cpu=26551us wait=43916us
+I (2294585) vision_model: [infer_diag] path=wb_only nwb=0 wb=66626us wall=66627us cpu=22859us wait=43768us
+I (2298161) vision_model: [infer_diag] path=wb_only nwb=0 wb=68889us wall=68891us cpu=26965us wait=41926us
+I (2301679) vision_model: [infer_diag] path=wb_only nwb=0 wb=67554us wall=67555us cpu=25634us wait=41921us
+I (2305322) vision_model: [infer_diag] path=wb_only nwb=0 wb=67325us wall=67326us cpu=23465us wait=43861us
+I (2308709) vision_model: [infer_diag] path=wb_only nwb=0 wb=67640us wall=67642us cpu=24890us wait=42752us
+I (2312433) vision_model: [infer_diag] path=wb_only nwb=0 wb=64685us wall=64687us cpu=25095us wait=39592us
+I (2316013) vision_model: [infer_diag] path=wb_only nwb=0 wb=66342us wall=66348us cpu=23591us wait=42757us
+I (2319711) vision_model: [infer_diag] path=wb_only nwb=0 wb=67087us wall=67088us cpu=24405us wait=42683us
+I (2323428) vision_model: [infer_diag] path=wb_only nwb=0 wb=106566us wall=106568us cpu=31177us wait=75391us
+I (2326841) vision_model: [infer_diag] path=wb_only nwb=0 wb=67474us wall=67476us cpu=24139us wait=43337us
+I (2330340) vision_model: [infer_diag] path=wb_only nwb=0 wb=68988us wall=68990us cpu=24335us wait=44655us
+I (2333765) vision_model: [infer_diag] path=wb_only nwb=0 wb=67516us wall=67518us cpu=24805us wait=42713us
+I (2337177) vision_model: [infer_diag] path=wb_only nwb=0 wb=61832us wall=61833us cpu=23138us wait=38695us
+I (2340640) vision_model: [infer_diag] path=wb_only nwb=0 wb=69607us wall=69609us cpu=26750us wait=42859us
+I (2344038) vision_model: [infer_diag] path=wb_only nwb=0 wb=63575us wall=63576us cpu=23107us wait=40469us
+I (2347437) vision_model: [infer_diag] path=wb_only nwb=0 wb=70058us wall=70059us cpu=26576us wait=43483us
+I (2350888) vision_model: [infer_diag] path=wb_only nwb=0 wb=68765us wall=68766us cpu=24664us wait=44102us
+I (2354296) vision_model: [infer_diag] path=wb_only nwb=0 wb=67515us wall=67516us cpu=24802us wait=42714us
+I (2357727) vision_model: [infer_diag] path=wb_only nwb=0 wb=85071us wall=85074us cpu=25603us wait=59471us
+I (2361168) vision_model: [infer_diag] path=wb_only nwb=0 wb=70914us wall=70917us cpu=25400us wait=45517us
+I (2364534) vision_model: [infer_diag] path=wb_only nwb=0 wb=62201us wall=62203us cpu=23217us wait=38986us
+I (2368091) vision_model: [infer_diag] path=wb_only nwb=0 wb=66649us wall=66650us cpu=24245us wait=42405us
+I (2371598) vision_model: [infer_diag] path=wb_only nwb=0 wb=66915us wall=66917us cpu=24506us wait=42411us
+I (2375039) vision_model: [infer_diag] path=wb_only nwb=0 wb=67380us wall=67381us cpu=24296us wait=43085us
+I (2378486) vision_model: [infer_diag] path=wb_only nwb=0 wb=66845us wall=66847us cpu=23316us wait=43531us
+I (2382026) vision_model: [infer_diag] path=wb_only nwb=0 wb=71287us wall=71288us cpu=23939us wait=47349us
+I (2385443) vision_model: [infer_diag] path=wb_only nwb=0 wb=68124us wall=68125us cpu=26052us wait=42073us
+I (2388911) vision_model: [infer_diag] path=wb_only nwb=0 wb=70636us wall=70637us cpu=27022us wait=43615us
+I (2392350) vision_model: [infer_diag] path=wb_only nwb=0 wb=66855us wall=66857us cpu=23727us wait=43130us
+I (2395827) vision_model: [infer_diag] path=wb_only nwb=0 wb=67675us wall=67677us cpu=24420us wait=43257us
+I (2399213) vision_model: [infer_diag] path=wb_only nwb=0 wb=71022us wall=71023us cpu=25323us wait=45700us
+I (2402773) vision_model: [infer_diag] path=wb_only nwb=0 wb=67521us wall=67525us cpu=24504us wait=43021us
+I (2406285) vision_model: [infer_diag] path=wb_only nwb=0 wb=69232us wall=69233us cpu=23694us wait=45539us
+I (2409895) vision_model: [infer_diag] path=wb_only nwb=0 wb=69706us wall=69707us cpu=26015us wait=43692us
+I (2413351) vision_model: [infer_diag] path=wb_only nwb=0 wb=67583us wall=67585us cpu=23091us wait=44494us
+I (2416875) vision_model: [infer_diag] path=wb_only nwb=0 wb=68027us wall=68028us cpu=24394us wait=43634us
+I (2420340) vision_model: [infer_diag] path=wb_only nwb=0 wb=65974us wall=65976us cpu=23632us wait=42344us
+I (2423812) vision_model: [infer_diag] path=wb_only nwb=0 wb=62321us wall=62323us cpu=22665us wait=39658us
+I (2427310) vision_model: [infer_diag] path=wb_only nwb=0 wb=67288us wall=67291us cpu=24793us wait=42498us
+I (2430722) vision_model: [infer_diag] path=wb_only nwb=0 wb=67708us wall=67710us cpu=23605us wait=44105us
+I (2434223) vision_model: [infer_diag] path=wb_only nwb=0 wb=68322us wall=68323us cpu=23426us wait=44897us
+I (2437817) vision_model: [infer_diag] path=wb_only nwb=0 wb=64416us wall=64417us cpu=21994us wait=42423us
+I (2441305) vision_model: [infer_diag] path=wb_only nwb=0 wb=66986us wall=66987us cpu=24340us wait=42647us
+I (2444745) vision_model: [infer_diag] path=wb_only nwb=0 wb=66918us wall=66920us cpu=24239us wait=42681us
+I (2448141) vision_model: [infer_diag] path=wb_only nwb=0 wb=69152us wall=69157us cpu=26753us wait=42404us
+I (2451548) vision_model: [infer_diag] path=wb_only nwb=0 wb=66782us wall=66784us cpu=23543us wait=43241us
+I (2454962) vision_model: [infer_diag] path=wb_only nwb=0 wb=66980us wall=66982us cpu=24690us wait=42292us
+I (2458392) vision_model: [infer_diag] path=wb_only nwb=0 wb=72499us wall=72501us cpu=27544us wait=44957us
+I (2462110) vision_model: [infer_diag] path=wb_only nwb=0 wb=64964us wall=64969us cpu=23534us wait=41435us
+I (2465376) vision_model: [infer_diag] path=wb_only nwb=0 wb=67453us wall=67460us cpu=24344us wait=43116us
+I (2468785) vision_model: [infer_diag] path=wb_only nwb=0 wb=67420us wall=67422us cpu=23515us wait=43907us
+I (2472173) vision_model: [infer_diag] path=wb_only nwb=0 wb=69780us wall=69781us cpu=26884us wait=42897us
+I (2475654) vision_model: [infer_diag] path=wb_only nwb=0 wb=68055us wall=68056us cpu=25284us wait=42772us
+I (2479086) vision_model: [infer_diag] path=wb_only nwb=0 wb=67513us wall=67515us cpu=23581us wait=43934us
+I (2482488) vision_model: [infer_diag] path=wb_only nwb=0 wb=66464us wall=66466us cpu=23281us wait=43185us
+I (2485859) vision_model: [infer_diag] path=wb_only nwb=0 wb=66605us wall=66606us cpu=24227us wait=42379us
+I (2489423) vision_model: [infer_diag] path=wb_only nwb=0 wb=67444us wall=67446us cpu=24887us wait=42559us
+I (2493068) vision_model: [infer_diag] path=wb_only nwb=0 wb=58783us wall=58785us cpu=21259us wait=37526us
+I (2496487) vision_model: [infer_diag] path=wb_only nwb=0 wb=67707us wall=67709us cpu=23609us wait=44100us
+I (2499929) vision_model: [infer_diag] path=wb_only nwb=0 wb=69529us wall=69530us cpu=26924us wait=42606us
+I (2503635) vision_model: [infer_diag] path=wb_only nwb=0 wb=173675us wall=173678us cpu=26409us wait=147269us
+I (2507074) vision_model: [infer_diag] path=wb_only nwb=0 wb=60064us wall=60066us cpu=22309us wait=37757us
+I (2510546) vision_model: [infer_diag] path=wb_only nwb=0 wb=67703us wall=67705us cpu=23655us wait=44050us
+I (2513945) vision_model: [infer_diag] path=wb_only nwb=0 wb=66103us wall=66105us cpu=24389us wait=41716us
+I (2517418) vision_model: [infer_diag] path=wb_only nwb=0 wb=69030us wall=69031us cpu=25033us wait=43998us
+I (2520875) vision_model: [infer_diag] path=wb_only nwb=0 wb=66496us wall=66498us cpu=24291us wait=42207us
+I (2524414) vision_model: [infer_diag] path=wb_only nwb=0 wb=70081us wall=70083us cpu=26913us wait=43170us
+I (2527830) vision_model: [infer_diag] path=wb_only nwb=0 wb=69600us wall=69602us cpu=24656us wait=44946us
+I (2531333) vision_model: [infer_diag] path=wb_only nwb=0 wb=67593us wall=67594us cpu=24397us wait=43197us
+I (2535035) vision_model: [infer_diag] path=wb_only nwb=0 wb=60271us wall=60276us cpu=22475us wait=37801us
+I (2538754) vision_model: [infer_diag] path=wb_only nwb=0 wb=65899us wall=65901us cpu=22867us wait=43034us
+I (2542243) vision_model: [infer_diag] path=wb_only nwb=0 wb=58539us wall=58540us cpu=20920us wait=37620us
+I (2545688) vision_model: [infer_diag] path=wb_only nwb=0 wb=69400us wall=69402us cpu=24851us wait=44551us
+I (2549154) vision_model: [infer_diag] path=wb_only nwb=0 wb=65512us wall=65513us cpu=25149us wait=40364us
+I (2552611) vision_model: [infer_diag] path=wb_only nwb=0 wb=68188us wall=68189us cpu=24792us wait=43397us
+I (2556103) vision_model: [infer_diag] path=wb_only nwb=0 wb=67165us wall=67167us cpu=24367us wait=42800us
+I (2559588) vision_model: [infer_diag] path=wb_only nwb=0 wb=66167us wall=66168us cpu=23305us wait=42863us
+I (2563038) vision_model: [infer_diag] path=wb_only nwb=0 wb=62402us wall=62404us cpu=23264us wait=39140us
+I (2566462) vision_model: [infer_diag] path=wb_only nwb=0 wb=67074us wall=67076us cpu=24367us wait=42709us
+I (2569791) vision_model: [infer_diag] path=wb_only nwb=0 wb=63300us wall=63302us cpu=23218us wait=40084us
+I (2573400) vision_model: [infer_diag] path=wb_only nwb=0 wb=72800us wall=72802us cpu=27689us wait=45113us
+I (2576884) vision_model: [infer_diag] path=wb_only nwb=0 wb=69312us wall=69314us cpu=25896us wait=43418us
+I (2580315) vision_model: [infer_diag] path=wb_only nwb=0 wb=65803us wall=65804us cpu=23233us wait=42571us
+I (2583719) vision_model: [infer_diag] path=wb_only nwb=0 wb=61753us wall=61755us cpu=21947us wait=39808us
+I (2587184) vision_model: [infer_diag] path=wb_only nwb=0 wb=68366us wall=68367us cpu=25891us wait=42476us
+I (2590894) vision_model: [infer_diag] path=wb_only nwb=0 wb=70824us wall=70826us cpu=26119us wait=44707us
+I (2594367) vision_model: [infer_diag] path=wb_only nwb=0 wb=67898us wall=67900us cpu=24430us wait=43470us
+I (2597972) vision_model: [infer_diag] path=wb_only nwb=0 wb=217760us wall=217762us cpu=25136us wait=192626us
+I (2601404) vision_model: [infer_diag] path=wb_only nwb=0 wb=74674us wall=74675us cpu=27215us wait=47460us
+I (2604958) vision_model: [infer_diag] path=wb_only nwb=0 wb=64433us wall=64435us cpu=22610us wait=41825us
+I (2608381) vision_model: [infer_diag] path=wb_only nwb=0 wb=71485us wall=71486us cpu=27933us wait=43553us
+I (2611866) vision_model: [infer_diag] path=wb_only nwb=0 wb=69415us wall=69417us cpu=24613us wait=44804us
+I (2615324) vision_model: [infer_diag] path=wb_only nwb=0 wb=67551us wall=67552us cpu=23400us wait=44152us
+I (2618727) vision_model: [infer_diag] path=wb_only nwb=0 wb=67054us wall=67056us cpu=24145us wait=42911us
+I (2622180) vision_model: [infer_diag] path=wb_only nwb=0 wb=64743us wall=64744us cpu=25096us wait=39648us
+I (2625712) vision_model: [infer_diag] path=wb_only nwb=0 wb=67382us wall=67383us cpu=24607us wait=42776us
+I (2629463) vision_model: [infer_diag] path=wb_only nwb=0 wb=67330us wall=67333us cpu=24453us wait=42880us
+I (2632953) vision_model: [infer_diag] path=wb_only nwb=0 wb=99920us wall=99922us cpu=23982us wait=75940us
+I (2636394) vision_model: [infer_diag] path=wb_only nwb=0 wb=69521us wall=69522us cpu=25652us wait=43870us
+I (2639885) vision_model: [infer_diag] path=wb_only nwb=0 wb=70173us wall=70174us cpu=26270us wait=43904us
+I (2643376) vision_model: [infer_diag] path=wb_only nwb=0 wb=62000us wall=62004us cpu=22967us wait=39037us
+I (2647029) vision_model: [infer_diag] path=wb_only nwb=0 wb=67572us wall=67573us cpu=24480us wait=43093us
+I (2650687) vision_model: [infer_diag] path=wb_only nwb=0 wb=69611us wall=69612us cpu=25814us wait=43798us
+I (2654177) vision_model: [infer_diag] path=wb_only nwb=0 wb=71633us wall=71635us cpu=27216us wait=44419us
+I (2657558) vision_model: [infer_diag] path=wb_only nwb=0 wb=63546us wall=63547us cpu=23273us wait=40274us
+I (2661105) vision_model: [infer_diag] path=wb_only nwb=0 wb=65290us wall=65292us cpu=23224us wait=42068us
+I (2664544) vision_model: [infer_diag] path=wb_only nwb=0 wb=65501us wall=65502us cpu=23131us wait=42371us
+I (2668184) vision_model: [infer_diag] path=wb_only nwb=0 wb=67345us wall=67347us cpu=23753us wait=43594us
+I (2671797) vision_model: [infer_diag] path=wb_only nwb=0 wb=68298us wall=68300us cpu=24736us wait=43564us
+I (2675311) vision_model: [infer_diag] path=wb_only nwb=0 wb=67280us wall=67281us cpu=24617us wait=42664us
+I (2678780) vision_model: [infer_diag] path=wb_only nwb=0 wb=64065us wall=64066us cpu=22018us wait=42048us
+I (2682175) vision_model: [infer_diag] path=wb_only nwb=0 wb=71184us wall=71186us cpu=27089us wait=44097us
+I (2685668) vision_model: [infer_diag] path=wb_only nwb=0 wb=70859us wall=70861us cpu=27490us wait=43371us
+I (2689027) vision_model: [infer_diag] path=wb_only nwb=0 wb=68120us wall=68122us cpu=24082us wait=44040us
+I (2692523) vision_model: [infer_diag] path=wb_only nwb=0 wb=65014us wall=65015us cpu=22127us wait=42888us
+I (2696302) vision_model: [infer_diag] path=wb_only nwb=0 wb=59873us wall=59875us cpu=22448us wait=37427us
+I (2699872) vision_model: [infer_diag] path=wb_only nwb=0 wb=67122us wall=67124us cpu=23892us wait=43232us
+I (2703268) vision_model: [infer_diag] path=wb_only nwb=0 wb=58270us wall=58272us cpu=21342us wait=36930us
+I (2706677) vision_model: [infer_diag] path=wb_only nwb=0 wb=69209us wall=69212us cpu=26339us wait=42873us
+I (2710293) vision_model: [infer_diag] path=wb_only nwb=0 wb=66453us wall=66454us cpu=23844us wait=42610us
+I (2713663) vision_model: [infer_diag] path=wb_only nwb=0 wb=69383us wall=69385us cpu=25162us wait=44223us
+I (2717129) vision_model: [infer_diag] path=wb_only nwb=0 wb=72723us wall=72724us cpu=25659us wait=47065us
+I (2720598) vision_model: [infer_diag] path=wb_only nwb=0 wb=66541us wall=66543us cpu=24547us wait=41996us
+I (2724071) vision_model: [infer_diag] path=wb_only nwb=0 wb=67089us wall=67091us cpu=24227us wait=42864us
+I (2727511) vision_model: [infer_diag] path=wb_only nwb=0 wb=58340us wall=58341us cpu=20993us wait=37348us
+I (2731162) vision_model: [infer_diag] path=wb_only nwb=0 wb=69824us wall=69825us cpu=26398us wait=43427us
+I (2734713) vision_model: [infer_diag] path=wb_only nwb=0 wb=65984us wall=65985us cpu=24105us wait=41880us
+I (2738590) vision_model: [infer_diag] path=wb_only nwb=0 wb=67980us wall=67981us cpu=23383us wait=44598us
+I (2741963) vision_model: [infer_diag] path=wb_only nwb=0 wb=58826us wall=58827us cpu=21643us wait=37184us
+I (2745572) vision_model: [infer_diag] path=wb_only nwb=0 wb=67871us wall=67873us cpu=24561us wait=43312us
+I (2748948) vision_model: [infer_diag] path=wb_only nwb=0 wb=64985us wall=64987us cpu=23026us wait=41961us
+I (2752430) vision_model: [infer_diag] path=wb_only nwb=0 wb=70342us wall=70344us cpu=26304us wait=44040us
+I (2755942) vision_model: [infer_diag] path=wb_only nwb=0 wb=69069us wall=69071us cpu=26145us wait=42926us
+I (2759403) vision_model: [infer_diag] path=wb_only nwb=0 wb=68866us wall=68867us cpu=25685us wait=43182us
+I (2762916) vision_model: [infer_diag] path=wb_only nwb=0 wb=76914us wall=76915us cpu=26727us wait=50188us
+I (2766451) vision_model: [infer_diag] path=wb_only nwb=0 wb=66236us wall=66237us cpu=23375us wait=42862us
+I (2769990) vision_model: [infer_diag] path=wb_only nwb=0 wb=70107us wall=70109us cpu=24431us wait=45678us
+I (2773368) vision_model: [infer_diag] path=wb_only nwb=0 wb=63354us wall=63356us cpu=23443us wait=39913us
+I (2776859) vision_model: [infer_diag] path=wb_only nwb=0 wb=70632us wall=70634us cpu=23557us wait=47077us
+I (2780334) vision_model: [infer_diag] path=wb_only nwb=0 wb=66461us wall=66462us cpu=23411us wait=43051us
+I (2783870) vision_model: [infer_diag] path=wb_only nwb=0 wb=67965us wall=67967us cpu=24424us wait=43543us
+I (2787360) vision_model: [infer_diag] path=wb_only nwb=0 wb=66250us wall=66252us cpu=23855us wait=42397us
+I (2790853) vision_model: [infer_diag] path=wb_only nwb=0 wb=67353us wall=67355us cpu=23610us wait=43745us
+I (2794222) vision_model: [infer_diag] path=wb_only nwb=0 wb=66778us wall=66779us cpu=23022us wait=43757us
+I (2797629) vision_model: [infer_diag] path=wb_only nwb=0 wb=69111us wall=69112us cpu=25131us wait=43981us
+I (2801029) vision_model: [infer_diag] path=wb_only nwb=0 wb=68880us wall=68882us cpu=24581us wait=44301us
+I (2804469) vision_model: [infer_diag] path=wb_only nwb=0 wb=61181us wall=61182us cpu=23171us wait=38011us
+I (2807984) vision_model: [infer_diag] path=wb_only nwb=0 wb=66049us wall=66050us cpu=23090us wait=42960us
+I (2811414) vision_model: [infer_diag] path=wb_only nwb=0 wb=67342us wall=67344us cpu=23539us wait=43805us
+I (2814881) vision_model: [infer_diag] path=wb_only nwb=0 wb=69396us wall=69398us cpu=27088us wait=42310us
+I (2818272) vision_model: [infer_diag] path=wb_only nwb=0 wb=67603us wall=67604us cpu=24468us wait=43136us
+I (2821790) vision_model: [infer_diag] path=wb_only nwb=0 wb=68017us wall=68020us cpu=23448us wait=44572us
+I (2825154) vision_model: [infer_diag] path=wb_only nwb=0 wb=68243us wall=68245us cpu=25054us wait=43191us
+I (2828672) vision_model: [infer_diag] path=wb_only nwb=0 wb=69822us wall=69823us cpu=23603us wait=46220us
+I (2832180) vision_model: [infer_diag] path=wb_only nwb=0 wb=68018us wall=68020us cpu=25482us wait=42538us
+I (2835602) vision_model: [infer_diag] path=wb_only nwb=0 wb=70154us wall=70156us cpu=24852us wait=45304us
+I (2839029) vision_model: [infer_diag] path=wb_only nwb=0 wb=63829us wall=63831us cpu=23348us wait=40483us
+I (2842404) vision_model: [infer_diag] path=wb_only nwb=0 wb=69729us wall=69730us cpu=27218us wait=42512us
+I (2846063) vision_model: [infer_diag] path=wb_only nwb=0 wb=72976us wall=72978us cpu=24688us wait=48290us
+I (2849479) vision_model: [infer_diag] path=wb_only nwb=0 wb=68128us wall=68129us cpu=24658us wait=43471us
+I (2852930) vision_model: [infer_diag] path=wb_only nwb=0 wb=71658us wall=71660us cpu=26914us wait=44746us
+I (2856319) vision_model: [infer_diag] path=wb_only nwb=0 wb=67696us wall=67697us cpu=23712us wait=43985us
+I (2859811) vision_model: [infer_diag] path=wb_only nwb=0 wb=68177us wall=68178us cpu=24044us wait=44134us
+I (2863314) vision_model: [infer_diag] path=wb_only nwb=0 wb=67560us wall=67561us cpu=24240us wait=43321us
+I (2866802) vision_model: [infer_diag] path=wb_only nwb=0 wb=66091us wall=66092us cpu=23829us wait=42263us
+I (2870502) vision_model: [infer_diag] path=wb_only nwb=0 wb=67194us wall=67195us cpu=24343us wait=42852us
+I (2873979) vision_model: [infer_diag] path=wb_only nwb=0 wb=61447us wall=61450us cpu=22349us wait=39101us
+I (2877433) vision_model: [infer_diag] path=wb_only nwb=0 wb=70197us wall=70199us cpu=27489us wait=42710us
+I (2880810) vision_model: [infer_diag] path=wb_only nwb=0 wb=67860us wall=67861us cpu=24313us wait=43548us
+I (2884374) vision_model: [infer_diag] path=wb_only nwb=0 wb=65826us wall=65827us cpu=23723us wait=42104us
+I (2887852) vision_model: [infer_diag] path=wb_only nwb=0 wb=66321us wall=66322us cpu=23496us wait=42826us
+I (2891336) vision_model: [infer_diag] path=wb_only nwb=0 wb=69079us wall=69081us cpu=23224us wait=45857us
+I (2894783) vision_model: [infer_diag] path=wb_only nwb=0 wb=65754us wall=65755us cpu=22508us wait=43247us
+I (2898259) vision_model: [infer_diag] path=wb_only nwb=0 wb=67757us wall=67759us cpu=23623us wait=44136us
+I (2901639) vision_model: [infer_diag] path=wb_only nwb=0 wb=71304us wall=71305us cpu=26429us wait=44876us
+I (2905120) vision_model: [infer_diag] path=wb_only nwb=0 wb=63746us wall=63747us cpu=22635us wait=41112us
+I (2908602) vision_model: [infer_diag] path=wb_only nwb=0 wb=100570us wall=100571us cpu=24610us wait=75961us
+I (2912076) vision_model: [infer_diag] path=wb_only nwb=0 wb=61553us wall=61554us cpu=22984us wait=38570us
+I (2915616) vision_model: [infer_diag] path=wb_only nwb=0 wb=68995us wall=68996us cpu=23971us wait=45025us
+I (2918990) vision_model: [infer_diag] path=wb_only nwb=0 wb=67630us wall=67632us cpu=23647us wait=43985us
+I (2922473) vision_model: [infer_diag] path=wb_only nwb=0 wb=65829us wall=65830us cpu=23887us wait=41943us
+I (2925873) vision_model: [infer_diag] path=wb_only nwb=0 wb=67066us wall=67068us cpu=24326us wait=42742us
+I (2929290) vision_model: [infer_diag] path=wb_only nwb=0 wb=67255us wall=67257us cpu=23570us wait=43687us
+I (2932659) vision_model: [infer_diag] path=wb_only nwb=0 wb=69164us wall=69166us cpu=25049us wait=44117us
+I (2936048) vision_model: [infer_diag] path=wb_only nwb=0 wb=67066us wall=67068us cpu=24272us wait=42796us
+I (2939598) vision_model: [infer_diag] path=wb_only nwb=0 wb=67015us wall=67017us cpu=24522us wait=42495us
+I (2943022) vision_model: [infer_diag] path=wb_only nwb=0 wb=62785us wall=62786us cpu=22604us wait=40182us
+I (2946407) vision_model: [infer_diag] path=wb_only nwb=0 wb=68637us wall=68639us cpu=25893us wait=42746us
+I (2949898) vision_model: [infer_diag] path=wb_only nwb=0 wb=69569us wall=69571us cpu=26988us wait=42583us
+I (2953471) vision_model: [infer_diag] path=wb_only nwb=0 wb=66797us wall=66799us cpu=24431us wait=42368us
+I (2956900) vision_model: [infer_diag] path=wb_only nwb=0 wb=70721us wall=70725us cpu=27193us wait=43532us
+I (2960315) vision_model: [infer_diag] path=wb_only nwb=0 wb=65467us wall=65471us cpu=23175us wait=42296us
+I (2963778) vision_model: [infer_diag] path=wb_only nwb=0 wb=67566us wall=67567us cpu=24135us wait=43432us
+I (2967204) vision_model: [infer_diag] path=wb_only nwb=0 wb=65579us wall=65580us cpu=24355us wait=41225us
+I (2970696) vision_model: [infer_diag] path=wb_only nwb=0 wb=67534us wall=67536us cpu=24456us wait=43080us
+I (2974183) vision_model: [infer_diag] path=wb_only nwb=0 wb=70320us wall=70322us cpu=26282us wait=44040us
+I (2977696) vision_model: [infer_diag] path=wb_only nwb=0 wb=67146us wall=67148us cpu=23983us wait=43165us
+I (2981040) vision_model: [infer_diag] path=wb_only nwb=0 wb=67070us wall=67072us cpu=24446us wait=42626us
+I (2984687) vision_model: [infer_diag] path=wb_only nwb=0 wb=67431us wall=67433us cpu=24400us wait=43033us
+I (2988144) vision_model: [infer_diag] path=wb_only nwb=0 wb=64193us wall=64194us cpu=25046us wait=39148us
+I (2991668) vision_model: [infer_diag] path=wb_only nwb=0 wb=71331us wall=71333us cpu=27071us wait=44262us
+I (2995161) vision_model: [infer_diag] path=wb_only nwb=0 wb=65519us wall=65520us cpu=25492us wait=40028us
+I (2998670) vision_model: [infer_diag] path=wb_only nwb=0 wb=72922us wall=72924us cpu=26935us wait=45989us
+I (3002104) vision_model: [infer_diag] path=wb_only nwb=0 wb=70293us wall=70295us cpu=23929us wait=46366us
+I (3005765) vision_model: [infer_diag] path=wb_only nwb=0 wb=68791us wall=68792us cpu=24577us wait=44215us
+I (3009292) vision_model: [infer_diag] path=wb_only nwb=0 wb=61688us wall=61690us cpu=23390us wait=38300us
+I (3012814) vision_model: [infer_diag] path=wb_only nwb=0 wb=64353us wall=64356us cpu=22745us wait=41611us
+I (3016307) vision_model: [infer_diag] path=wb_only nwb=0 wb=87598us wall=87600us cpu=21687us wait=65913us
+I (3019698) vision_model: [infer_diag] path=wb_only nwb=0 wb=61825us wall=61827us cpu=23548us wait=38279us
+I (3023162) vision_model: [infer_diag] path=wb_only nwb=0 wb=66511us wall=66512us cpu=25254us wait=41258us
+I (3026578) vision_model: [infer_diag] path=wb_only nwb=0 wb=66534us wall=66536us cpu=23980us wait=42556us
+I (3030000) vision_model: [infer_diag] path=wb_only nwb=0 wb=58886us wall=58888us cpu=21463us wait=37425us
+I (3033401) vision_model: [infer_diag] path=wb_only nwb=0 wb=68785us wall=68787us cpu=26027us wait=42760us
+I (3036797) vision_model: [infer_diag] path=wb_only nwb=0 wb=66538us wall=66540us cpu=24221us wait=42319us
+I (3040192) vision_model: [infer_diag] path=wb_only nwb=0 wb=67347us wall=67348us cpu=24255us wait=43093us
+I (3043734) vision_model: [infer_diag] path=wb_only nwb=0 wb=64525us wall=64526us cpu=23144us wait=41382us
+I (3047267) vision_model: [infer_diag] path=wb_only nwb=0 wb=121766us wall=121768us cpu=29320us wait=92448us
+I (3050643) vision_model: [infer_diag] path=wb_only nwb=0 wb=67544us wall=67545us cpu=26124us wait=41421us
+I (3054093) vision_model: [infer_diag] path=wb_only nwb=0 wb=62781us wall=62783us cpu=23350us wait=39433us
+I (3057601) vision_model: [infer_diag] path=wb_only nwb=0 wb=67448us wall=67451us cpu=24453us wait=42998us
+I (3061098) vision_model: [infer_diag] path=wb_only nwb=0 wb=67813us wall=67814us cpu=24380us wait=43434us
+I (3064609) vision_model: [infer_diag] path=wb_only nwb=0 wb=66894us wall=66895us cpu=24288us wait=42607us
+I (3068081) vision_model: [infer_diag] path=wb_only nwb=0 wb=64414us wall=64415us cpu=22863us wait=41552us
+I (3071589) vision_model: [infer_diag] path=wb_only nwb=0 wb=65987us wall=65988us cpu=22728us wait=43260us
+I (3074999) vision_model: [infer_diag] path=wb_only nwb=0 wb=67203us wall=67205us cpu=24875us wait=42330us
+I (3078444) vision_model: [infer_diag] path=wb_only nwb=0 wb=61281us wall=61282us cpu=22648us wait=38634us
+I (3081944) vision_model: [infer_diag] path=wb_only nwb=0 wb=65857us wall=65862us cpu=24082us wait=41780us
+I (3085295) vision_model: [infer_diag] path=wb_only nwb=0 wb=59230us wall=59232us cpu=21539us wait=37693us
+I (3088838) vision_model: [infer_diag] path=wb_only nwb=0 wb=66643us wall=66644us cpu=24564us wait=42080us
+I (3092322) vision_model: [infer_diag] path=wb_only nwb=0 wb=67296us wall=67297us cpu=23519us wait=43778us
+I (3095861) vision_model: [infer_diag] path=wb_only nwb=0 wb=68372us wall=68374us cpu=23469us wait=44905us
+I (3099467) vision_model: [infer_diag] path=wb_only nwb=0 wb=67582us wall=67585us cpu=24537us wait=43048us
+I (3102904) vision_model: [infer_diag] path=wb_only nwb=0 wb=77222us wall=77223us cpu=27222us wait=50001us
+I (3106460) vision_model: [infer_diag] path=wb_only nwb=0 wb=66204us wall=66205us cpu=23380us wait=42825us
+I (3109844) vision_model: [infer_diag] path=wb_only nwb=0 wb=64632us wall=64634us cpu=23731us wait=40903us
+I (3113224) vision_model: [infer_diag] path=wb_only nwb=0 wb=66752us wall=66753us cpu=23435us wait=43318us
+I (3116734) vision_model: [infer_diag] path=wb_only nwb=0 wb=66992us wall=66994us cpu=24452us wait=42542us
+I (3120163) vision_model: [infer_diag] path=wb_only nwb=0 wb=68660us wall=68661us cpu=25439us wait=43222us
+I (3123663) vision_model: [infer_diag] path=wb_only nwb=0 wb=71593us wall=71595us cpu=26019us wait=45576us
+I (3127075) vision_model: [infer_diag] path=wb_only nwb=0 wb=67143us wall=67146us cpu=24399us wait=42747us
+I (3130502) vision_model: [infer_diag] path=wb_only nwb=0 wb=67493us wall=67496us cpu=24611us wait=42885us
+I (3133994) vision_model: [infer_diag] path=wb_only nwb=0 wb=68035us wall=68039us cpu=23818us wait=44221us
+I (3137375) vision_model: [infer_diag] path=wb_only nwb=0 wb=67243us wall=67244us cpu=24369us wait=42875us
+I (3140895) vision_model: [infer_diag] path=wb_only nwb=0 wb=69871us wall=69873us cpu=25999us wait=43874us
+I (3144442) vision_model: [infer_diag] path=wb_only nwb=0 wb=69554us wall=69556us cpu=26086us wait=43470us
+I (3147982) vision_model: [infer_diag] path=wb_only nwb=0 wb=67780us wall=67782us cpu=24792us wait=42990us
+I (3151450) vision_model: [infer_diag] path=wb_only nwb=0 wb=69797us wall=69798us cpu=24969us wait=44829us
+I (3155138) vision_model: [infer_diag] path=wb_only nwb=0 wb=70764us wall=70765us cpu=27020us wait=43745us
+I (3158581) vision_model: [infer_diag] path=wb_only nwb=0 wb=66604us wall=66606us cpu=23585us wait=43021us
+I (3162082) vision_model: [infer_diag] path=wb_only nwb=0 wb=66676us wall=66678us cpu=23983us wait=42695us
+I (3165498) vision_model: [infer_diag] path=wb_only nwb=0 wb=59939us wall=59940us cpu=21794us wait=38146us
+I (3169098) vision_model: [infer_diag] path=wb_only nwb=0 wb=67522us wall=67525us cpu=24798us wait=42727us
+I (3172565) vision_model: [infer_diag] path=wb_only nwb=0 wb=67231us wall=67233us cpu=24404us wait=42829us
+I (3176102) vision_model: [infer_diag] path=wb_only nwb=0 wb=67175us wall=67176us cpu=24455us wait=42721us
+I (3179515) vision_model: [infer_diag] path=wb_only nwb=0 wb=58362us wall=58364us cpu=20865us wait=37499us
+I (3183118) vision_model: [infer_diag] path=wb_only nwb=0 wb=65120us wall=65122us cpu=23414us wait=41708us
+I (3186534) vision_model: [infer_diag] path=wb_only nwb=0 wb=59380us wall=59381us cpu=21706us wait=37675us
+I (3189927) vision_model: [infer_diag] path=wb_only nwb=0 wb=70054us wall=70055us cpu=23731us wait=46324us
+I (3193288) vision_model: [infer_diag] path=wb_only nwb=0 wb=66945us wall=66946us cpu=23602us wait=43344us
+I (3196772) vision_model: [infer_diag] path=wb_only nwb=0 wb=59075us wall=59077us cpu=21680us wait=37397us
+I (3200284) vision_model: [infer_diag] path=wb_only nwb=0 wb=58812us wall=58813us cpu=21225us wait=37588us
+I (3203670) vision_model: [infer_diag] path=wb_only nwb=0 wb=68964us wall=68965us cpu=26344us wait=42621us
+I (3207125) vision_model: [infer_diag] path=wb_only nwb=0 wb=67579us wall=67580us cpu=23626us wait=43954us
+I (3210585) vision_model: [infer_diag] path=wb_only nwb=0 wb=66847us wall=66849us cpu=23507us wait=43342us
+I (3214053) vision_model: [infer_diag] path=wb_only nwb=0 wb=67387us wall=67389us cpu=23650us wait=43739us
+I (3217606) vision_model: [infer_diag] path=wb_only nwb=0 wb=66819us wall=66822us cpu=24134us wait=42688us
+I (3221049) vision_model: [infer_diag] path=wb_only nwb=0 wb=64354us wall=64355us cpu=23127us wait=41228us
+I (3224669) vision_model: [infer_diag] path=wb_only nwb=0 wb=70995us wall=70996us cpu=26944us wait=44052us
+I (3228208) vision_model: [infer_diag] path=wb_only nwb=0 wb=65785us wall=65787us cpu=24239us wait=41548us
+I (3231739) vision_model: [infer_diag] path=wb_only nwb=0 wb=66634us wall=66635us cpu=24218us wait=42417us
+I (3235169) vision_model: [infer_diag] path=wb_only nwb=0 wb=75818us wall=75819us cpu=26721us wait=49098us
+I (3238568) vision_model: [infer_diag] path=wb_only nwb=0 wb=70317us wall=70318us cpu=24245us wait=46073us
+I (3241935) vision_model: [infer_diag] path=wb_only nwb=0 wb=64892us wall=64894us cpu=25377us wait=39517us
+I (3245408) vision_model: [infer_diag] path=wb_only nwb=0 wb=68736us wall=68737us cpu=26179us wait=42558us
+I (3248869) vision_model: [infer_diag] path=wb_only nwb=0 wb=67302us wall=67303us cpu=24570us wait=42733us
+I (3252400) vision_model: [infer_diag] path=wb_only nwb=0 wb=69556us wall=69557us cpu=27033us wait=42524us
+I (3255885) vision_model: [infer_diag] path=wb_only nwb=0 wb=67704us wall=67706us cpu=25324us wait=42382us
+I (3259428) vision_model: [infer_diag] path=wb_only nwb=0 wb=70452us wall=70453us cpu=26016us wait=44437us
+I (3262866) vision_model: [infer_diag] path=wb_only nwb=0 wb=66937us wall=66938us cpu=24701us wait=42237us
+I (3266269) vision_model: [infer_diag] path=wb_only nwb=0 wb=67589us wall=67590us cpu=24610us wait=42980us
+I (3269787) vision_model: [infer_diag] path=wb_only nwb=0 wb=62876us wall=62878us cpu=22734us wait=40144us
+I (3273207) vision_model: [infer_diag] path=wb_only nwb=0 wb=66818us wall=66820us cpu=24164us wait=42656us
+I (3276750) vision_model: [infer_diag] path=wb_only nwb=0 wb=66988us wall=66990us cpu=24217us wait=42773us
+I (3280226) vision_model: [infer_diag] path=wb_only nwb=0 wb=66909us wall=66911us cpu=23664us wait=43247us
+I (3283796) vision_model: [infer_diag] path=wb_only nwb=0 wb=67209us wall=67211us cpu=23770us wait=43441us
+I (3287415) vision_model: [infer_diag] path=wb_only nwb=0 wb=70754us wall=70756us cpu=27047us wait=43709us
+I (3290975) vision_model: [infer_diag] path=wb_only nwb=0 wb=62035us wall=62038us cpu=22891us wait=39147us
+I (3294362) vision_model: [infer_diag] path=wb_only nwb=0 wb=67809us wall=67810us cpu=24016us wait=43794us
+I (3297881) vision_model: [infer_diag] path=wb_only nwb=0 wb=70818us wall=70820us cpu=27010us wait=43810us
+I (3301405) vision_model: [infer_diag] path=wb_only nwb=0 wb=68347us wall=68348us cpu=25938us wait=42410us
+I (3304766) vision_model: [infer_diag] path=wb_only nwb=0 wb=60085us wall=60087us cpu=21776us wait=38311us
+I (3308237) vision_model: [infer_diag] path=wb_only nwb=0 wb=67441us wall=67442us cpu=24442us wait=43000us
+I (3311696) vision_model: [infer_diag] path=wb_only nwb=0 wb=67308us wall=67311us cpu=23831us wait=43480us
+I (3315105) vision_model: [infer_diag] path=wb_only nwb=0 wb=67612us wall=67613us cpu=24445us wait=43168us
+I (3318513) vision_model: [infer_diag] path=wb_only nwb=0 wb=67572us wall=67573us cpu=24435us wait=43138us
+I (3321981) vision_model: [infer_diag] path=wb_only nwb=0 wb=63721us wall=63723us cpu=22398us wait=41325us
+I (3325465) vision_model: [infer_diag] path=wb_only nwb=0 wb=67308us wall=67309us cpu=24333us wait=42976us
+I (3328863) vision_model: [infer_diag] path=wb_only nwb=0 wb=64584us wall=64585us cpu=22636us wait=41949us
+I (3332264) vision_model: [infer_diag] path=wb_only nwb=0 wb=66236us wall=66238us cpu=24335us wait=41903us
+I (3335763) vision_model: [infer_diag] path=wb_only nwb=0 wb=67017us wall=67018us cpu=22744us wait=44274us
+I (3339140) vision_model: [infer_diag] path=wb_only nwb=0 wb=70132us wall=70134us cpu=26236us wait=43898us
+I (3342723) vision_model: [infer_diag] path=wb_only nwb=0 wb=67717us wall=67718us cpu=23812us wait=43906us
+I (3346199) vision_model: [infer_diag] path=wb_only nwb=0 wb=67746us wall=67747us cpu=24433us wait=43314us
+I (3349714) vision_model: [infer_diag] path=wb_only nwb=0 wb=58590us wall=58592us cpu=21353us wait=37239us
+I (3353306) vision_model: [infer_diag] path=wb_only nwb=0 wb=65749us wall=65751us cpu=23978us wait=41773us
+I (3356779) vision_model: [infer_diag] path=wb_only nwb=0 wb=61147us wall=61150us cpu=22487us wait=38663us
+I (3360321) vision_model: [infer_diag] path=wb_only nwb=0 wb=67503us wall=67504us cpu=23634us wait=43870us
+I (3363869) vision_model: [infer_diag] path=wb_only nwb=0 wb=67154us wall=67156us cpu=24663us wait=42493us
+I (3367313) vision_model: [infer_diag] path=wb_only nwb=0 wb=67440us wall=67441us cpu=24570us wait=42871us
+I (3370833) vision_model: [infer_diag] path=wb_only nwb=0 wb=58912us wall=58913us cpu=21631us wait=37282us
+I (3374533) vision_model: [infer_diag] path=wb_only nwb=0 wb=58793us wall=58795us cpu=21494us wait=37301us
+I (3378245) vision_model: [infer_diag] path=wb_only nwb=0 wb=68578us wall=68580us cpu=23966us wait=44614us
+I (3381655) vision_model: [infer_diag] path=wb_only nwb=0 wb=68604us wall=68605us cpu=26024us wait=42581us
+I (3385039) vision_model: [infer_diag] path=wb_only nwb=0 wb=67348us wall=67349us cpu=24291us wait=43058us
+I (3388560) vision_model: [infer_diag] path=wb_only nwb=0 wb=66147us wall=66149us cpu=23057us wait=43092us
+I (3391994) vision_model: [infer_diag] path=wb_only nwb=0 wb=66386us wall=66387us cpu=23431us wait=42956us
+I (3395454) vision_model: [infer_diag] path=wb_only nwb=0 wb=89278us wall=89280us cpu=26239us wait=63041us
+I (3398917) vision_model: [infer_diag] path=wb_only nwb=0 wb=69040us wall=69042us cpu=26179us wait=42863us
+I (3402393) vision_model: [infer_diag] path=wb_only nwb=0 wb=70026us wall=70028us cpu=24505us wait=45523us
+I (3405800) vision_model: [infer_diag] path=wb_only nwb=0 wb=68062us wall=68063us cpu=24340us wait=43723us
+I (3409098) vision_model: [infer_diag] path=wb_only nwb=0 wb=68387us wall=68389us cpu=24569us wait=43820us
+I (3412533) vision_model: [infer_diag] path=wb_only nwb=0 wb=67353us wall=67355us cpu=24532us wait=42823us
+I (3415972) vision_model: [infer_diag] path=wb_only nwb=0 wb=66204us wall=66205us cpu=24159us wait=42046us
+I (3419463) vision_model: [infer_diag] path=wb_only nwb=0 wb=66058us wall=66059us cpu=23948us wait=42111us
+I (3422873) vision_model: [infer_diag] path=wb_only nwb=0 wb=94775us wall=94777us cpu=23063us wait=71714us
+I (3426437) vision_model: [infer_diag] path=wb_only nwb=0 wb=70554us wall=70555us cpu=25275us wait=45280us
+I (3429854) vision_model: [infer_diag] path=wb_only nwb=0 wb=65759us wall=65760us cpu=23099us wait=42661us
+I (3433270) vision_model: [infer_diag] path=wb_only nwb=0 wb=67444us wall=67446us cpu=24388us wait=43058us
+I (3436815) vision_model: [infer_diag] path=wb_only nwb=0 wb=67574us wall=67576us cpu=24576us wait=43000us
+I (3440292) vision_model: [infer_diag] path=wb_only nwb=0 wb=67183us wall=67184us cpu=23178us wait=44006us
+I (3443701) vision_model: [infer_diag] path=wb_only nwb=0 wb=69092us wall=69093us cpu=25447us wait=43646us
+I (3447163) vision_model: [infer_diag] path=wb_only nwb=0 wb=70187us wall=70188us cpu=25759us wait=44429us
+I (3450626) vision_model: [infer_diag] path=wb_only nwb=0 wb=68389us wall=68391us cpu=23228us wait=45163us
+I (3454289) vision_model: [infer_diag] path=wb_only nwb=0 wb=67368us wall=67370us cpu=23587us wait=43783us
+I (3457888) vision_model: [infer_diag] path=wb_only nwb=0 wb=68908us wall=68909us cpu=25645us wait=43264us
+I (3461297) vision_model: [infer_diag] path=wb_only nwb=0 wb=58694us wall=58695us cpu=21504us wait=37191us
+I (3464760) vision_model: [infer_diag] path=wb_only nwb=0 wb=65899us wall=65900us cpu=22390us wait=43510us
+I (3468185) vision_model: [infer_diag] path=wb_only nwb=0 wb=71351us wall=71352us cpu=26976us wait=44376us
+I (3471567) vision_model: [infer_diag] path=wb_only nwb=0 wb=66761us wall=66763us cpu=24327us wait=42436us
+I (3474971) vision_model: [infer_diag] path=wb_only nwb=0 wb=67114us wall=67116us cpu=24550us wait=42566us
+I (3478392) vision_model: [infer_diag] path=wb_only nwb=0 wb=71534us wall=71536us cpu=27405us wait=44131us
+I (3481973) vision_model: [infer_diag] path=wb_only nwb=0 wb=58262us wall=58263us cpu=21003us wait=37260us
+I (3485689) vision_model: [infer_diag] path=wb_only nwb=0 wb=69344us wall=69345us cpu=26079us wait=43266us
+I (3489199) vision_model: [infer_diag] path=wb_only nwb=0 wb=62221us wall=62225us cpu=23146us wait=39079us
+I (3492729) vision_model: [infer_diag] path=wb_only nwb=0 wb=67762us wall=67763us cpu=23630us wait=44133us
+I (3496158) vision_model: [infer_diag] path=wb_only nwb=0 wb=69209us wall=69210us cpu=23664us wait=45546us
+I (3499698) vision_model: [infer_diag] path=wb_only nwb=0 wb=62161us wall=62162us cpu=21809us wait=40353us
+I (3503108) vision_model: [infer_diag] path=wb_only nwb=0 wb=67100us wall=67104us cpu=24724us wait=42380us
+I (3506557) vision_model: [infer_diag] path=wb_only nwb=0 wb=59511us wall=59513us cpu=21149us wait=38364us
+I (3510066) vision_model: [infer_diag] path=wb_only nwb=0 wb=58676us wall=58678us cpu=21445us wait=37233us
+I (3513528) vision_model: [infer_diag] path=wb_only nwb=0 wb=65841us wall=65844us cpu=23252us wait=42592us
+I (3517025) vision_model: [infer_diag] path=wb_only nwb=0 wb=64384us wall=64385us cpu=21922us wait=42463us
+I (3520474) vision_model: [infer_diag] path=wb_only nwb=0 wb=65176us wall=65177us cpu=23937us wait=41240us
+I (3523886) vision_model: [infer_diag] path=wb_only nwb=0 wb=67411us wall=67417us cpu=25804us wait=41613us
+I (3527361) vision_model: [infer_diag] path=wb_only nwb=0 wb=67480us wall=67481us cpu=23535us wait=43946us
+I (3530765) vision_model: [infer_diag] path=wb_only nwb=0 wb=66967us wall=66969us cpu=24072us wait=42897us
+I (3534216) vision_model: [infer_diag] path=wb_only nwb=0 wb=68660us wall=68661us cpu=24552us wait=44109us
+I (3537722) vision_model: [infer_diag] path=wb_only nwb=0 wb=60579us wall=60581us cpu=21033us wait=39548us
+I (3541180) vision_model: [infer_diag] path=wb_only nwb=0 wb=69529us wall=69533us cpu=26417us wait=43116us
+I (3544785) vision_model: [infer_diag] path=wb_only nwb=0 wb=62133us wall=62135us cpu=22368us wait=39767us
+I (3548374) vision_model: [infer_diag] path=wb_only nwb=0 wb=66780us wall=66782us cpu=24805us wait=41977us
+I (3551775) vision_model: [infer_diag] path=wb_only nwb=0 wb=66787us wall=66789us cpu=24479us wait=42310us
+I (3555195) vision_model: [infer_diag] path=wb_only nwb=0 wb=67734us wall=67735us cpu=23258us wait=44477us
+I (3558672) vision_model: [infer_diag] path=wb_only nwb=0 wb=70697us wall=70698us cpu=26950us wait=43748us
+I (3562163) vision_model: [infer_diag] path=wb_only nwb=0 wb=69333us wall=69334us cpu=25287us wait=44047us
+I (3565586) vision_model: [infer_diag] path=wb_only nwb=0 wb=70768us wall=70770us cpu=24802us wait=45968us
+I (3569156) vision_model: [infer_diag] path=wb_only nwb=0 wb=200015us wall=200017us cpu=24833us wait=175184us
+I (3572564) vision_model: [infer_diag] path=wb_only nwb=0 wb=65777us wall=65778us cpu=23872us wait=41906us
+I (3576001) vision_model: [infer_diag] path=wb_only nwb=0 wb=67292us wall=67293us cpu=24506us wait=42787us
+I (3579534) vision_model: [infer_diag] path=wb_only nwb=0 wb=67035us wall=67038us cpu=24447us wait=42591us
+I (3582919) vision_model: [infer_diag] path=wb_only nwb=0 wb=68547us wall=68548us cpu=25799us wait=42749us
+I (3586584) vision_model: [infer_diag] path=wb_only nwb=0 wb=66637us wall=66639us cpu=24258us wait=42381us
+I (3590006) vision_model: [infer_diag] path=wb_only nwb=0 wb=66874us wall=66875us cpu=24372us wait=42503us
+I (3593440) vision_model: [infer_diag] path=wb_only nwb=0 wb=72680us wall=72682us cpu=28652us wait=44030us
+I (3596898) vision_model: [infer_diag] path=wb_only nwb=0 wb=69438us wall=69441us cpu=25930us wait=43511us
+I (3600339) vision_model: [infer_diag] path=wb_only nwb=0 wb=64348us wall=64350us cpu=23451us wait=40899us
+I (3602207) system: [ACCEPT_HEAP] integrity=ok free=6835531 min=6809627 largest=6684660 internal_free=27279 internal_largest=14836 dma_free=1715 dma_largest=48 psram_free=6809124 psram_largest=6684660
+I (3602224) system: [ACCEPT_TASKS_BEGIN] requested=24 actual=24 stack_unit=1 total_runtime=3600177227
+I (3602231) system: [ACCEPT_TASK] name,handle,core,priority,state,stack_base,stack_end,allocated_bytes,free_min_bytes,used_max_bytes,region,runtime
+I (3602244) system: [ACCEPT_TASK] vision_det,0x4ff7d8ac,1,4,1,0x4ff2ba64,0x4ff2e8e0,11901,8524,3377,internal,820706398
+I (3602254) system: [ACCEPT_TASK] sysmon,0x4ff79c74,0,3,0,0x4ff78bf4,0x4ff79b60,3949,1712,2237,internal,58678304
+I (3602264) system: [ACCEPT_TASK] vision_disp,0x4ff7d728,0,2,1,0x4ff7c6a8,0x4ff7d620,3961,1496,2465,internal,21428178
+I (3602275) system: [ACCEPT_TASK] cam_isp,0x4ff3f11c,0,2,1,0x4851c2e0,0x4851d250,3953,3184,769,psram,1253442
+I (3602285) system: [ACCEPT_TASK] eth_img_send,0x301019ec,0,2,1,0x4964a298,0x4964ba90,6137,4092,2045,psram,5443050
+I (3602295) system: [ACCEPT_TASK] IDLE1,0x4ff2a814,1,0,1,0x4ff2a1d0,0x4ff2a7c0,1521,1184,337,internal,1317516601
+I (3602305) system: [ACCEPT_TASK] IDLE0,0x4ff2a04c,0,0,1,0x4ff29a08,0x4ff2a000,1529,1192,337,internal,1758936365
+I (3602314) system: [ACCEPT_TASK] sort_real_io,0x4ff7eb34,0,4,2,0x4ff7db98,0x4ff7ea20,3721,1756,1965,internal,17871881
+I (3602325) system: [ACCEPT_TASK] eth_control,0x30100ab4,0,4,2,0x49646090,0x49648080,8177,4800,3377,psram,29102684
+I (3602334) system: [ACCEPT_TASK] tiT,0x4ff324f4,-1,18,2,0x4ff31670,0x4ff32460,3569,2768,801,internal,10354186
+I (3602344) system: [ACCEPT_TASK] main,0x4ff29884,0,1,2,0x4ff26df8,0x4ff29670,10361,4664,5697,internal,4899646
+I (3602354) system: [ACCEPT_TASK] lvgl,0x4ff38690,1,3,2,0x4ff4043c,0x4ff443b0,16245,9444,6801,internal,106947816
+I (3602364) system: [ACCEPT_TASK] ipc1,0x4ff2560c,1,24,3,0x4ff251c8,0x4ff255c0,1017,616,401,internal,175425
+I (3602375) system: [ACCEPT_TASK] ipc0,0x4ff25044,0,1,3,0x4ff24c00,0x4ff24ff0,1009,472,537,internal,175337
+I (3602385) system: [ACCEPT_TASK] sys_evt,0x30100284,0,20,2,0x4ff329d4,0x4ff334d0,2813,848,1965,internal,30380
+I (3602392) system: [ACCEPT_TASK] emac_rx,0x4ff312c0,-1,15,3,0x4ff301bc,0x4ff311b0,4085,3540,545,internal,692480
+I (3602402) system: [ACCEPT_TASK] swdraw,0x4ff3f9ec,0,3,3,0x4ff33dd8,0x4ff35d50,8057,6712,1345,internal,164954734
+I (3602412) system: [ACCEPT_TASK] vision_fetch,0x4ff7c4a0,0,4,2,0x4ff7ad78,0x4ff7bd70,4089,3224,865,internal,5680959
+I (3602422) system: [ACCEPT_TASK] isp_task,0x4ff3ed54,0,11,2,0x4ff3ddb8,0x4ff3ec40,3721,1256,2465,internal,52819323
+I (3602433) system: [ACCEPT_TASK] esp_timer,0x4ff26a20,0,22,3,0x4ff25a78,0x4ff26910,3737,3232,505,internal,68050012
+I (3602443) system: [ACCEPT_TASK] dl_mc1,0x4ff1fa98,1,4,3,0x4ff204f8,0x4ff20bf0,1785,880,905,internal,1353990797
+I (3602453) system: [ACCEPT_TASK] dl_mc0,0x4ff1f930,0,4,3,0x4ff1fcf8,0x4ff203f0,1785,872,913,internal,1400643873
+I (3602465) system: [ACCEPT_TASK] eth_img_prod,0x30101868,0,3,2,0x49648194,0x4964a190,8189,7676,513,psram,12
+I (3602473) system: [ACCEPT_TASK] Tmr Svc,0x4ff2b21c,-1,1,2,0x4ff2a998,0x4ff2b190,2041,1624,417,internal,10
+I (3602482) system: [ACCEPT_TASKS_END] actual=24
+I (3603802) vision_model: [infer_diag] path=wb_only nwb=0 wb=66995us wall=66996us cpu=24772us wait=42224us
+I (3607339) vision_model: [infer_diag] path=wb_only nwb=0 wb=66979us wall=66982us cpu=24292us wait=42690us
+I (3610826) vision_model: [infer_diag] path=wb_only nwb=0 wb=66973us wall=66975us cpu=23591us wait=43384us
+I (3614270) vision_model: [infer_diag] path=wb_only nwb=0 wb=66022us wall=66024us cpu=24235us wait=41789us
+I (3617696) vision_model: [infer_diag] path=wb_only nwb=0 wb=68152us wall=68154us cpu=23977us wait=44177us
+I (3621176) vision_model: [infer_diag] path=wb_only nwb=0 wb=71138us wall=71139us cpu=25534us wait=45605us
+I (3624605) vision_model: [infer_diag] path=wb_only nwb=0 wb=66757us wall=66759us cpu=24346us wait=42413us
+I (3628147) vision_model: [infer_diag] path=wb_only nwb=0 wb=73345us wall=73347us cpu=25399us wait=47948us
+I (3631673) vision_model: [infer_diag] path=wb_only nwb=0 wb=71634us wall=71636us cpu=27542us wait=44094us
+I (3635091) vision_model: [infer_diag] path=wb_only nwb=0 wb=66096us wall=66097us cpu=23285us wait=42812us
+I (3638578) vision_model: [infer_diag] path=wb_only nwb=0 wb=66891us wall=66893us cpu=24109us wait=42784us
+I (3641976) vision_model: [infer_diag] path=wb_only nwb=0 wb=63125us wall=63126us cpu=23452us wait=39674us
+I (3645390) vision_model: [infer_diag] path=wb_only nwb=0 wb=67439us wall=67441us cpu=25386us wait=42055us
+I (3648776) vision_model: [infer_diag] path=wb_only nwb=0 wb=64336us wall=64337us cpu=22997us wait=41340us
+I (3652371) vision_model: [infer_diag] path=wb_only nwb=0 wb=65993us wall=65995us cpu=24199us wait=41796us
+I (3655871) vision_model: [infer_diag] path=wb_only nwb=0 wb=67558us wall=67560us cpu=24309us wait=43251us
+I (3659265) vision_model: [infer_diag] path=wb_only nwb=0 wb=67374us wall=67375us cpu=23755us wait=43620us
