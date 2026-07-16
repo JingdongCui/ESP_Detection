@@ -174,6 +174,9 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - 2026-07-16 人工分类弹窗与预览暂停提交为 `32dc471`；已 build、plain flash、monitor 验证启动完成。完整记录见 `docs/agent/archive/2026-07-16-manual-dialog-preview-pause.md`。
 - `sdkconfig` 中 `CONFIG_LV_USE_SYSMON=y` 保留；2026-07-07 用户要求恢复旧版性能显示，当前 `CONFIG_LV_USE_PERF_MONITOR=y` 且 `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
 - 串口优先使用 `/dev/serial/by-id/` 稳定路径；当前现场可能是 CP2102N 或 Espressif USB Serial/JTAG，按实际枚举选择。monitor 使用默认 `115200`。
+- 2026-07-16 Host 第三页设备控制已完成主机侧实现：checkpoint `c85829d`，功能提交 `6bcee3b`。
+- Host 已使用 V1 公共头的 `type=0x11 CONTROL_JSON`，支持 get/set/action、状态/错误解析和连接后自动状态查询；板端处理仍待实现。
+- Host 控制范围为屏幕/ISP、检测与叠框、面单/Logo 阈值、A/B/C 三路开环速度、图像/指标上报和重启；明确不含 PID、发送频率、模型热切换和恢复出厂。
 
 ## 2026-07-06 Workspace Cleanup
 
