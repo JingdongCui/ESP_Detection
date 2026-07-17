@@ -3,9 +3,10 @@
 ## Workspace
 
 - 根目录：`/home/kazeform/2026esp`
-- 当前唯一活跃固件工程：`ESP32P4_Detection`，来源为用户提供的 `ESP32P4_Detection(9).zip`。
+- 当前主固件工程：`ESP32P4_Detection`，来源为用户提供的 `ESP32P4_Detection(12).zip`。
+- 分拣限速对照 worktree：`ESP32P4_Detection_b_busy_60`，分支 `feat/sorter-b-busy-speed-cap`。
 - 参考资料总目录：`reference/`。
-- 旧固件：`reference/firmware/ESP32P4_Detection_before_9_20260716/`。
+- 第 12 包替换前固件：`reference/firmware/ESP32P4_Detection_before_12_20260717/`；更早历史见 `reference/firmware/ESP32P4_Detection_before_9_20260716/`。
 - 当前活跃上位机工程：`esp32_host_no_inference/`（独立 Git）。
 - 队友上位机参考工程：`New Folder/`，只读参考，不作为活跃工程。
 - 数据集：`reference/datasets/MyAlbums/`。
@@ -131,12 +132,15 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
   - 芯片 revision：ESP32-P4 `v3.1`
 - `ESP32P4_Detection` 当前 app version 由最新提交决定；2026-07-08 最新已烧录版本为 `e361f65`，端口为 USB Serial/JTAG 板子。
 - `ESP32P4_Detection` 当前默认分拣调度配置集中在 `components/bsp/include/sorter_debug_config.h`：
-  - 最新提交基线默认速度：A=`60%`、B=`100%`、C=`100%`。
+  - 默认速度：A=`65%`、B=`100%`、C=`100%`。
   - 默认交接延时：`SORTER_DEFAULT_HANDOFF_DELAY_MS=100`。
   - 默认皮带超时：A=`4500ms`、B=`900ms`、C=`1300ms`。
   - 默认 lost timeout：min=`3000ms`、max=`6000ms`。
+  - 真实传感器：S1=`GPIO22`、S2=`GPIO23`、S3/S4=`-1` 禁用。
+  - `feat/sorter-b-busy-speed-cap` 在 B 空闲时保持 A 的运行时设定速度；B 被预留/占用时使用 `min(设定值, 60%)`。
   - 引脚、传感器 active level、编码器参数也在同一个文件。
   - `components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `sorter_config_default()` 从这些宏读取默认值。
+- 真实 S1 视觉窗口恢复 5 次置信度加权投票：满 5 票立即定案；新 S1 窗口或 S2 到达导致窗口关闭时，以已有票优胜类别定案；无有效票才提交视觉失败。
 - 2026-07-16 已将第 9 包的分拣速度/延时默认值同步到归档旧工程基线，提交为 `470a704`；在 `/dev/ttyUSB0` 的 ESP32-P4 v1.0 上执行 plain `idf.py flash` 成功，四个镜像均通过 Hash 校验。
 - `ESP32P4_Detection` 当前启动路径为：LCD → Touch → Camera → Motor → Encoder → LVGL/UI → System Monitor → Vision → dormant real-IO task → Ethernet → Sorter → UVC。Touch 必须先建立 Camera 复用的 I2C 总线。UVC 末尾初始化存在 JPEG 内部 DMA 内存不足风险，按用户要求暂不继续处理。
 - 启动配置按模块归属维护：日志过滤宏在 `components/system_monitor/system_monitor.c`，TCP 链路宏在 `components/Ethernet_app/ethernet_app.c`，分拣调试及电机/传感器上电默认宏在 `components/Sorter_app/sorting_sim_control.c`；`main/system_init.c` 只负责编排。
