@@ -11,8 +11,8 @@
 #include "sdk.h"
 
 // 采集周期：
-#define MONITOR_PERIOD_MS    250
-#define MONITOR_TASK_STACK   4096
+#define MONITOR_PERIOD_MS    500
+#define MONITOR_TASK_STACK   2848
 #define MONITOR_TASK_PRIO    3   /* 低于业务任务，避免抢占 */
 #define MONITOR_TASK_TABLE_PERIOD_MS 5000
 #define MONITOR_TASK_TABLE_INTERVAL \

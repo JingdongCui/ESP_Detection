@@ -3,7 +3,8 @@ idf_component_register(
         "generated/animations.c"
         "generated/setup_scr_dashboard.c"
         "generated/setup_ui.c"
-        "generated/images/LOGO_bordered_260x60.c"
+        "generated/images/LOGO_normal_260x50.c"
+        "generated/images/LOGO_pressed_260x50.c"
         "generated/images/about_188x54.c"
         "generated/images/about_b_188x54.c"
         "generated/images/back_22x22.c"
@@ -48,4 +49,5 @@ idf_component_register(
     REQUIRES
         lvgl
         Ethernet_app
+        bsp
 )

@@ -471,7 +471,7 @@ static void real_io_task(void *arg)
 static void start_real_io_task_locked(void)
 {
     if (s_real_io_task_started) return;
-    BaseType_t ok = xTaskCreatePinnedToCore(real_io_task, "sort_real_io", 4096, NULL, 4, &s_real_io_task, 0);
+    BaseType_t ok = xTaskCreatePinnedToCore(real_io_task, "sort_real_io", 2640, NULL, 4, &s_real_io_task, 0);
     if (ok == pdPASS) s_real_io_task_started = true;
     else ESP_LOGE(TAG, "create real IO task failed");
 }
@@ -1180,7 +1180,7 @@ void sorting_sim_debug_start(void)
     esp_err_t ret = usb_serial_jtag_driver_install(&config);
     if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE)
         ESP_LOGW(TAG, "USB Serial/JTAG debug driver install failed: %s", esp_err_to_name(ret));
-    xTaskCreatePinnedToCore(debug_task, "sort_dbg", 4096, NULL, 3, &s_debug_task, 0);
+    xTaskCreatePinnedToCore(debug_task, "sort_dbg", 1152, NULL, 3, &s_debug_task, 0);
 #else
     ESP_LOGI(TAG, "USB Serial/JTAG sorter debug disabled");
 #endif

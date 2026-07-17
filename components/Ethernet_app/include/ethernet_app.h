@@ -21,6 +21,8 @@ void ethernet_app_set_metrics_interval_ms(uint32_t ms);
 // 图像 / 指标上报总开关。
 void ethernet_app_set_report_image_enabled(bool en);
 void ethernet_app_set_report_metrics_enabled(bool en);
+bool ethernet_app_get_report_image_enabled(void);
+bool ethernet_app_get_report_metrics_enabled(void);
 
 #ifdef __cplusplus
 }

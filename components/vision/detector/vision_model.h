@@ -1,14 +1,9 @@
 /*
- * vision_model —— 推理模型 C 封装层接口（两级级联，模型留桩阶段）。
+ * vision_model —— 两级级联推理与模型热切换的 C 接口。
  *
- * 两层设计（可扩展性核心，对齐 esp-dl）：
- *   第一层 原子模型接口（单图 → 结果）：复刻 dl::detect::Detect::run(img_t)。
- *     每个模型是一个 vision_detector_t 句柄，输入单张 RGB888 图、输出该图坐标系的框。
- *     后续真实模型只替换 vision_detector_load / vision_detector_run 的桩体
- *     （C++ 薄封装 extern "C"：组装 img_t → model->run → 拷 result_t），编排层不动。
- *   第二层 级联编排（vision_model_run）：复刻 esp-dl HumanFaceDetect 的内部级联——
- *     模型1(waybill) 跑整图 → 取最高分面单 → 从原图裁剪 ROI → 模型2(logo) 跑 ROI →
- *     logo 框加面单左上角偏移映射回原图。对外仍是签名不变的一次调用。
+ * vision_model_run 依次执行面单整图检测、最高分面单 ROI 裁剪、Logo 检测，
+ * 并将 Logo 框映射回原图坐标系。模型通过分阶段只读注册表和稳定 ID 选择；
+ * 调用方只投递切换请求，视觉推理任务在两次完整级联之间执行句柄替换。
  *
  * box 坐标系约定：vision_model_run 输出为【原图坐标系】，rescale 由 vision_detect.c 负责。
  */
@@ -16,6 +11,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include "esp_err.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,8 +24,46 @@ typedef enum {
     VISION_STAGE_LOGO    = 1,   // 模型2：logo 框（三分类，category 0=极兔 1=韵达 2=中通）
 } vision_stage_t;
 
-// 单个检测框。box = [left_up_x, left_up_y, right_down_x, right_down_y]。
-// 原子接口输出时为【输入图坐标系】；经 vision_model_run 映射后为【原图坐标系】。
+#define VISION_MODEL_ID_INVALID UINT32_MAX
+
+typedef uint32_t vision_model_id_t;
+
+enum {
+    VISION_MODEL_ID_WAYBILL_1 = 0x00010001u,
+    VISION_MODEL_ID_WAYBILL_2 = 0x00010002u,
+    VISION_MODEL_ID_WAYBILL_3 = 0x00010003u,
+    VISION_MODEL_ID_LOGO_1 = 0x00020001u,
+    VISION_MODEL_ID_LOGO_2 = 0x00020002u,
+    VISION_MODEL_ID_LOGO_3 = 0x00020003u,
+};
+
+#define VISION_MODEL_ID_WAYBILL_DEFAULT VISION_MODEL_ID_WAYBILL_1
+#define VISION_MODEL_ID_LOGO_DEFAULT VISION_MODEL_ID_LOGO_1
+
+typedef struct {
+    vision_model_id_t id;
+    vision_stage_t stage;
+    const char *display_name;
+} vision_model_entry_t;
+
+typedef enum {
+    VISION_MODEL_SWITCH_IDLE = 0,
+    VISION_MODEL_SWITCH_QUEUED,
+    VISION_MODEL_SWITCH_SWITCHING,
+    VISION_MODEL_SWITCH_SUCCEEDED,
+    VISION_MODEL_SWITCH_FAILED_RESTORED,
+    VISION_MODEL_SWITCH_FAILED_UNAVAILABLE,
+} vision_model_switch_state_t;
+
+typedef struct {
+    vision_model_switch_state_t state;
+    vision_stage_t stage;
+    vision_model_id_t requested_id;
+    vision_model_id_t active_id;
+    esp_err_t error;
+} vision_model_switch_status_t;
+
+// 单个检测框。box = [left_up_x, left_up_y, right_down_x, right_down_y]，使用原图坐标系。
 typedef struct {
     int box[4];            // 边界框：左上 x,y 右下 x,y
     int category;          // 类别索引
@@ -36,32 +71,7 @@ typedef struct {
     vision_stage_t stage;  // 所属级联阶段（画框据此分色）
 } vision_model_det_t;
 
-// ===== 第一层：原子模型接口（单图 → 结果，对齐 dl::detect::Detect::run(img_t)）=====
-
-// 不透明模型句柄。桩阶段为占位（携带模型标识 + 桩状态）；
-// 真实阶段内部持 dl::detect::Detect* 及其前后处理器。
-typedef struct vision_detector vision_detector_t;
-
-// 加载一个检测模型。model_name 为 SPIFFS 文件名（须 ASCII，如 "pico_416_p4.espdl"）；
-// score_thr/nms_thr 为该模型的检测/NMS 阈值。输入尺寸不需传——ImagePreprocessor
-// 从模型自身读取输入张量形状。内部 new PicoDetect(装配 dl::Model+前后处理器)。
-// 返回 NULL 表示失败。
-vision_detector_t *vision_detector_load(const char *model_name, float score_thr, float nms_thr);
-
-// 释放模型句柄。
-void vision_detector_free(vision_detector_t *det);
-
-// 对单张 RGB888 图片跑推理，框写入 out（最多 max 个），返回框数；<0 表示失败。
-// img 为 width×height×3 RGB888 裸指针，输出 box 为【输入图坐标系】。
-// 真实阶段桩体替换为：组装 img_t{img,width,height,RGB888} → model->run(img)
-//                    → 遍历 std::list<result_t> 拷进 out[]。
-int vision_detector_run(vision_detector_t *det,
-                        const uint8_t *img, int width, int height,
-                        vision_model_det_t *out, int max);
-
-// ===== 第二层：级联编排 =====
-
-// 加载模型（挂 SPIFFS + 建两级模型句柄）。桩恒返回 true。
+// 挂载模型 SPIFFS，恢复 NVS 选择并建立两级模型句柄。
 // 须在 vision_start 单线程阶段、detect 任务创建前调用。
 bool vision_model_init(void);
 
@@ -73,7 +83,7 @@ int vision_model_run(const uint8_t *buf, int width, int height,
 // 最近一次 vision_model_run 的两级合计推理耗时（毫秒）。
 int vision_model_last_infer_ms(void);
 
-// 取三类（极兔/韵达/中通）概率 ×100（来自模型2 logo 分类）。桩填占位值。
+// 取三类（极兔/韵达/中通）概率 ×100（来自模型2 Logo 分类）。
 void vision_model_get_class_probs(int *jt, int *zt, int *yd);
 
 int vision_model_get_waybill_score_threshold_percent(void);
@@ -81,9 +91,20 @@ int vision_model_get_logo_score_threshold_percent(void);
 void vision_model_set_waybill_score_threshold_percent(int percent);
 void vision_model_set_logo_score_threshold_percent(int percent);
 
-// 返回已挂载的两个模型名，中间用 " / " 分隔的常驻只读字符串
-// (如 "waybill.espdl / logo.espdl")，供 UI 关于页“模型信息”标签显示。
+// 返回两个阶段的活动模型显示名，中间用 " / " 分隔；返回值为当前任务的只读快照。
+// 阶段句柄不可用时显示 "Unavailable"，供 UI 关于页“模型信息”标签显示。
 const char *vision_model_get_model_info_string(void);
+
+const vision_model_entry_t *vision_model_registry_get(
+    vision_stage_t stage, size_t *count);
+esp_err_t vision_model_request_switch(
+    vision_stage_t stage, vision_model_id_t model_id);
+esp_err_t vision_model_get_switch_status(
+    vision_model_switch_status_t *out_status);
+vision_model_id_t vision_model_get_active_id(vision_stage_t stage);
+
+// 仅由视觉推理任务在完整两级级联之间调用。
+void vision_model_process_pending_switch(void);
 
 #ifdef __cplusplus
 }

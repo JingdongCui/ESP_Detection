@@ -20,7 +20,8 @@
 #include "freertos/idf_additions.h" // xTaskCreatePinnedToCoreWithCaps（栈落 PSRAM）
 #include "freertos/event_groups.h"  // 事件组：订阅者等 NEW_FRAME
 #include "freertos/semphr.h"        // 互斥量：保护 ringbuf
-#include "driver/ppa.h"             // PPA SRM 硬件缩放/色彩转换
+#include "driver/ppa.h"
+#include "esp_check.h"             // PPA SRM 硬件缩放/色彩转换
 #include "esp_cache.h"              // esp_cache_msync：blit 前对 fb 视频横带 C2M writeback
 #include "esp_heap_caps.h"          // heap_caps_malloc/calloc + 内部 RAM 诊断
 #include "esp_log.h"                // ESP_LOGx
@@ -39,19 +40,14 @@
 
 // 采集任务参数：栈深度（字节）与优先级。优先级 4 高于普通后台任务，
 // 保证取帧及时，但低于系统关键任务。
-#define VISION_FETCH_STACK_SIZE 4096
+#define VISION_FETCH_STACK_SIZE 1072
 #define VISION_FETCH_PRIORITY   4
 // 显示任务参数：同栈深/优先级，与采集同钉 core0。
-#define VISION_DISP_STACK_SIZE  4096
+#define VISION_DISP_STACK_SIZE  3264
 #define VISION_DISP_PRIORITY    4
 
-// 推理任务参数：钉 core1 与采集并行。esp-dl 推理 + ROI 连通域 BFS + std::vector。
-// 栈落 SRAM（普通 xTaskCreatePinnedToCore，usStackDepth 单位字节）：关掉未使用的 ThorVG
-// 把 swdraw 栈 32KB→8KB、LVGL adapter 栈 32KB→16KB，腾出内部 SRAM 连续块容纳本栈。
-// SRAM 栈无 PSRAM 栈的中断上下文死锁风险（2026-06-29 实测双核死锁根因正是 PSRAM 栈：
-// CPU1 中断保存现场写 PSRAM 栈，遇总线被 DMA/另一核占则永久阻塞致双核死锁）。
-// 12KB：实测推理高水位峰值约 4.6KB，留 2.6× 余量。
-#define VISION_DET_STACK_SIZE (12 * 1024)
+// 推理栈必须位于 SRAM；PSRAM 栈曾在中断保存现场时引发双核死锁。
+#define VISION_DET_STACK_SIZE 3728
 #define VISION_DET_PRIORITY   4
 
 // 最多订阅者数（显示 + 推理 = 2，留点余量）。
@@ -64,12 +60,15 @@ extern lv_obj_t *scr_dashboard_cont_live_vedio;  // 视频预览子容器（提�
 
 static const char *TAG = "vision";
 
-static atomic_bool s_detection_enabled = ATOMIC_VAR_INIT(true);
-static atomic_bool s_preview_overlay_enabled = ATOMIC_VAR_INIT(true);
+static atomic_bool s_detection_enabled = ATOMIC_VAR_INIT(false);
+static atomic_bool s_preview_overlay_enabled = ATOMIC_VAR_INIT(false);
 
 void vision_set_detection_enabled(bool enabled)
 {
     atomic_store(&s_detection_enabled, enabled);
+    if (!enabled) {
+        atomic_store(&s_preview_overlay_enabled, false);
+    }
 }
 
 bool vision_is_detection_enabled(void)
@@ -89,18 +88,7 @@ bool vision_is_preview_overlay_enabled(void)
 
 // ---- 预览（PPA 缩放 + 硬件搬运到 fb）资源，仅显示任务使用 ----
 static ppa_client_handle_t s_ppa;       // PPA SRM 客户端句柄（缩放 + scale=1.0 搬运共用）
-static ppa_client_handle_t s_snapshot_ppa;
 
-// ---- 边沿触发带框快照（识别成功新包裹时生成，供以太网 burn-in 发送）----
-// 尺寸必须与 Ethernet_app 的 SNAPSHOT_WIDTH/HEIGHT 一致（当前 640×375）。
-#define BOXED_SNAPSHOT_W 640
-#define BOXED_SNAPSHOT_H 375
-#define BOXED_SNAPSHOT_BYTES ((size_t)BOXED_SNAPSHOT_W * BOXED_SNAPSHOT_H * 3)
-static uint8_t         *s_boxed_buf;        // 640×375×3 RGB888，PSRAM，cache 对齐
-static SemaphoreHandle_t s_boxed_ready;     // 二值：capture give，take 取
-static SemaphoreHandle_t s_boxed_mutex;     // 保护 buffer 填充与拷出不重叠
-static uint16_t         s_boxed_class_id;   // 随快照的类别 0~2（0=极兔 1=韵达 2=中通）
-static uint8_t          s_boxed_conf;       // 随快照的 logo 置信度 0~100
 static int s_preview_x;                 // 预览区域左上角 X（屏幕坐标）
 static int s_preview_y;                 // 预览区域左上角 Y（屏幕坐标）
 static int s_preview_w;                 // 预览区域宽度
@@ -121,7 +109,54 @@ static int s_ring_cap;                  // 环形数组容量
 static int s_ring_head;                 // 最旧帧位置（pop 端）
 static int s_ring_count;                // 当前持有帧数
 
+typedef struct {
+    const uint8_t *buf;
+    uint32_t frame_id;
+    uint16_t pin_count;
+    bool pending_return;
+} vision_frame_pin_t;
+
+static vision_frame_pin_t s_pins[CAM_SENSOR_FB_COUNT];
+static uint32_t s_next_frame_id;
+static atomic_uint_least32_t s_frame_acquire_count;
+static atomic_uint_least32_t s_frame_release_count;
+static atomic_uint_least32_t s_frame_deferred_return_count;
+
 // ---- 订阅者事件组表（vision_start 单线程内建好，fetch 满时逐个置位）----
+static vision_frame_pin_t *find_pin_locked(const uint8_t *buf, uint32_t frame_id)
+{
+    for (int i = 0; i < CAM_SENSOR_FB_COUNT; i++) {
+        if (s_pins[i].buf == buf && s_pins[i].frame_id == frame_id) {
+            return &s_pins[i];
+        }
+    }
+    return NULL;
+}
+
+static void clear_pin_locked(vision_frame_pin_t *pin)
+{
+    if (pin) {
+        memset(pin, 0, sizeof(*pin));
+    }
+}
+
+static vision_frame_pin_t *find_or_create_pin_locked(const uint8_t *buf, uint32_t frame_id)
+{
+    vision_frame_pin_t *pin = find_pin_locked(buf, frame_id);
+    if (pin) {
+        return pin;
+    }
+    for (int i = 0; i < CAM_SENSOR_FB_COUNT; i++) {
+        if (s_pins[i].pin_count == 0 && !s_pins[i].pending_return) {
+            s_pins[i].buf = buf;
+            s_pins[i].frame_id = frame_id;
+            return &s_pins[i];
+        }
+    }
+    return NULL;
+}
+
+// ---- Subscriber event groups (created before fetch task starts) ----
 static EventGroupHandle_t s_subs[VISION_MAX_SUBSCRIBERS];  // 订阅者事件组数组
 static int s_sub_count;                                    // 已注册订阅者数
 
@@ -161,6 +196,64 @@ bool vision_frame_peek_latest(vision_frame_t *out)
     return ok;
 }
 
+bool vision_frame_acquire_latest(vision_frame_ref_t *out)
+{
+    if (!out || !s_ring_mutex) {
+        return false;
+    }
+    memset(out, 0, sizeof(*out));
+
+    xSemaphoreTake(s_ring_mutex, portMAX_DELAY);
+    if (s_ring_count == 0) {
+        xSemaphoreGive(s_ring_mutex);
+        return false;
+    }
+
+    int idx = (s_ring_head + s_ring_count - 1) % s_ring_cap;
+    vision_frame_t frame = s_ring[idx];
+    vision_frame_pin_t *pin = find_or_create_pin_locked(frame.buf, frame.frame_id);
+    if (!pin || pin->pin_count == UINT16_MAX) {
+        xSemaphoreGive(s_ring_mutex);
+        return false;
+    }
+    pin->pin_count++;
+    out->frame = frame;
+    out->acquired = true;
+    xSemaphoreGive(s_ring_mutex);
+    atomic_fetch_add(&s_frame_acquire_count, 1);
+    return true;
+}
+
+void vision_frame_release(vision_frame_ref_t *ref)
+{
+    if (!ref || !ref->acquired || !s_ring_mutex) {
+        return;
+    }
+    uint8_t *to_return = NULL;
+    bool released = false;
+
+    xSemaphoreTake(s_ring_mutex, portMAX_DELAY);
+    vision_frame_pin_t *pin = find_pin_locked(ref->frame.buf, ref->frame.frame_id);
+    if (pin && pin->pin_count > 0) {
+        pin->pin_count--;
+        released = true;
+        if (pin->pin_count == 0 && pin->pending_return) {
+            to_return = (uint8_t *)pin->buf;
+            clear_pin_locked(pin);
+        } else if (pin->pin_count == 0) {
+            clear_pin_locked(pin);
+        }
+    }
+    ref->acquired = false;
+    xSemaphoreGive(s_ring_mutex);
+    if (released) {
+        atomic_fetch_add(&s_frame_release_count, 1);
+    }
+
+    if (to_return) {
+        cam_sensor_return_frame(to_return);
+    }
+}
 // 取预览区域尺寸（检测侧据此把框从原图坐标系 rescale 到预览坐标系）。
 // vision_start 设好 s_preview_w/h 后才有效；之前为 0。
 void vision_get_preview_size(int *w, int *h)
@@ -173,194 +266,20 @@ void vision_get_preview_size(int *w, int *h)
     }
 }
 
-esp_err_t vision_copy_latest_frame_scaled_rgb888(uint8_t *dst,
-                                                 int dst_w,
-                                                 int dst_h,
-                                                 size_t dst_capacity,
-                                                 int *src_w,
-                                                 int *src_h,
-                                                 size_t *out_len,
-                                                 int64_t *timestamp_us)
-{
-    if (!dst || dst_w <= 0 || dst_h <= 0 || !s_ring_mutex || !s_snapshot_ppa) {
-        return ESP_ERR_INVALID_ARG;
-    }
-
-    size_t need = (size_t)dst_w * (size_t)dst_h * RGB888_BYTES_PER_PIXEL;
-    if (dst_capacity < need) {
-        return ESP_ERR_INVALID_SIZE;
-    }
-
-    esp_err_t ret = ESP_ERR_NOT_FOUND;
-    xSemaphoreTake(s_ring_mutex, portMAX_DELAY);
-    if (s_ring_count > 0) {
-        int idx = (s_ring_head + s_ring_count - 1) % s_ring_cap;
-        const vision_frame_t fb = s_ring[idx];
-
-        if (src_w) {
-            *src_w = fb.width;
-        }
-        if (src_h) {
-            *src_h = fb.height;
-        }
-        if (out_len) {
-            *out_len = need;
-        }
-        if (timestamp_us) {
-            *timestamp_us = fb.timestamp;
-        }
-
-        ppa_srm_oper_config_t srm = {
-            .in = {
-                .buffer = (void *)fb.buf,
-                .pic_w = fb.width,
-                .pic_h = fb.height,
-                .block_w = fb.width,
-                .block_h = fb.height,
-                .block_offset_x = 0,
-                .block_offset_y = 0,
-                .srm_cm = PPA_SRM_COLOR_MODE_RGB888,
-            },
-            .out = {
-                .buffer = dst,
-                .buffer_size = need,
-                .pic_w = dst_w,
-                .pic_h = dst_h,
-                .block_offset_x = 0,
-                .block_offset_y = 0,
-                .srm_cm = PPA_SRM_COLOR_MODE_RGB888,
-            },
-            .rotation_angle = PPA_SRM_ROTATION_ANGLE_0,
-            .scale_x = (float)dst_w / fb.width,
-            .scale_y = (float)dst_h / fb.height,
-            .mode = PPA_TRANS_MODE_BLOCKING,
-        };
-        ret = ppa_do_scale_rotate_mirror(s_snapshot_ppa, &srm);
-        if (ret == ESP_OK) {
-            ret = esp_cache_msync(dst, need, ESP_CACHE_MSYNC_FLAG_DIR_M2C);
-        }
-    }
-    xSemaphoreGive(s_ring_mutex);
-    return ret;
-}
-
-void vision_boxed_snapshot_capture(const uint8_t *src, int src_w, int src_h,
-                                   const vision_model_det_t *dets, int det_count,
-                                   uint16_t class_id, uint8_t confidence_pct)
-{
-    if (!s_boxed_buf || !s_boxed_mutex || !s_boxed_ready ||
-        !src || src_w <= 0 || src_h <= 0 || !s_snapshot_ppa) {
-        return;
-    }
-    // 忙于上一张消费（take 持锁 memcpy 中）则本次跳过，绝不阻塞检测任务。
-    if (xSemaphoreTake(s_boxed_mutex, 0) != pdTRUE) {
-        return;
-    }
-
-    // 1) PPA 硬件缩放 src(src_w×src_h) → s_boxed_buf(640×375)，RGB888。
-    ppa_srm_oper_config_t srm = {
-        .in = {
-            .buffer = (void *)src,
-            .pic_w = src_w,
-            .pic_h = src_h,
-            .block_w = src_w,
-            .block_h = src_h,
-            .block_offset_x = 0,
-            .block_offset_y = 0,
-            .srm_cm = PPA_SRM_COLOR_MODE_RGB888,
-        },
-        .out = {
-            .buffer = s_boxed_buf,
-            .buffer_size = BOXED_SNAPSHOT_BYTES,
-            .pic_w = BOXED_SNAPSHOT_W,
-            .pic_h = BOXED_SNAPSHOT_H,
-            .block_offset_x = 0,
-            .block_offset_y = 0,
-            .srm_cm = PPA_SRM_COLOR_MODE_RGB888,
-        },
-        .rotation_angle = PPA_SRM_ROTATION_ANGLE_0,
-        .scale_x = (float)BOXED_SNAPSHOT_W / src_w,
-        .scale_y = (float)BOXED_SNAPSHOT_H / src_h,
-        .mode = PPA_TRANS_MODE_BLOCKING,
-    };
-    if (ppa_do_scale_rotate_mirror(s_snapshot_ppa, &srm) != ESP_OK) {
-        xSemaphoreGive(s_boxed_mutex);
-        return;
-    }
-    // PPA 输出对 CPU 画框可见：M2C 使 CPU 读到 PPA 写入的像素。
-    esp_cache_msync(s_boxed_buf, BOXED_SNAPSHOT_BYTES, ESP_CACHE_MSYNC_FLAG_DIR_M2C);
-
-    // 2) 原图坐标框 → 640×375 坐标，clip，stage/category 透传，构造临时帧。
-    vision_det_frame_t tmp = {0};
-    float sx = (float)BOXED_SNAPSHOT_W / src_w;
-    float sy = (float)BOXED_SNAPSHOT_H / src_h;
-    int kept = 0;
-    for (int i = 0; i < det_count && kept < VISION_MAX_BOXES; i++) {
-        int x1 = (int)(dets[i].box[0] * sx);
-        int y1 = (int)(dets[i].box[1] * sy);
-        int x2 = (int)(dets[i].box[2] * sx);
-        int y2 = (int)(dets[i].box[3] * sy);
-        if (x1 < 0) x1 = 0;
-        if (x1 > BOXED_SNAPSHOT_W - 1) x1 = BOXED_SNAPSHOT_W - 1;
-        if (y1 < 0) y1 = 0;
-        if (y1 > BOXED_SNAPSHOT_H - 1) y1 = BOXED_SNAPSHOT_H - 1;
-        if (x2 < 0) x2 = 0;
-        if (x2 > BOXED_SNAPSHOT_W - 1) x2 = BOXED_SNAPSHOT_W - 1;
-        if (y2 < 0) y2 = 0;
-        if (y2 > BOXED_SNAPSHOT_H - 1) y2 = BOXED_SNAPSHOT_H - 1;
-        tmp.items[kept].category = dets[i].category;
-        tmp.items[kept].score    = dets[i].score;
-        tmp.items[kept].box[0]   = x1;
-        tmp.items[kept].box[1]   = y1;
-        tmp.items[kept].box[2]   = x2;
-        tmp.items[kept].box[3]   = y2;
-        tmp.items[kept].stage    = dets[i].stage;
-        kept++;
-    }
-    tmp.count = kept;
-
-    // 3) burn-in 画框（面单绿框打底、logo 分类色框覆盖）。
-    vision_draw_boxes_rgb888(s_boxed_buf, BOXED_SNAPSHOT_W, BOXED_SNAPSHOT_H, &tmp);
-    // 画框是 CPU 写：C2M writeback，保证后续 JPEG 编码器（DMA）读到最新像素。
-    esp_cache_msync(s_boxed_buf, BOXED_SNAPSHOT_BYTES,
-                    ESP_CACHE_MSYNC_FLAG_DIR_C2M | ESP_CACHE_MSYNC_FLAG_UNALIGNED);
-
-    s_boxed_class_id = class_id;
-    s_boxed_conf = confidence_pct;
-    xSemaphoreGive(s_boxed_mutex);
-    // 二值信号量：未被消费时再次 give 保持 signaled（只留最新一张，符合边沿语义）。
-    xSemaphoreGive(s_boxed_ready);
-}
-
-bool vision_boxed_snapshot_take(uint8_t *dst, size_t dst_capacity,
-                                uint16_t *class_id_out, uint8_t *conf_out,
-                                uint32_t timeout_ms)
-{
-    if (!s_boxed_ready || !s_boxed_mutex || !s_boxed_buf ||
-        !dst || dst_capacity < BOXED_SNAPSHOT_BYTES) {
-        return false;
-    }
-    if (xSemaphoreTake(s_boxed_ready, pdMS_TO_TICKS(timeout_ms)) != pdTRUE) {
-        return false;  // 超时内无新包裹
-    }
-    // 持锁只做一次 memcpy 拷出，尽快释放，缩短与 capture 的竞争窗口。
-    xSemaphoreTake(s_boxed_mutex, portMAX_DELAY);
-    memcpy(dst, s_boxed_buf, BOXED_SNAPSHOT_BYTES);
-    if (class_id_out) *class_id_out = s_boxed_class_id;
-    if (conf_out)     *conf_out = s_boxed_conf;
-    xSemaphoreGive(s_boxed_mutex);
-    return true;
-}
-
-// fetch 任务把新帧并入 ringbuf：满则先 pop 最旧帧 QBUF 还驱动，再 push 新帧。
-// 复刻 WhoFetchNode::update_ringbuf——被 ringbuf 持有的帧驱动不会重填。
 static void ring_update(const vision_frame_t *fb)
 {
     uint8_t *to_return = NULL;  // 待归还驱动的最旧帧指针（出锁后再 QBUF）
     xSemaphoreTake(s_ring_mutex, portMAX_DELAY);
     if (s_ring_count == s_ring_cap) {
-        // 满：弹出最旧帧（head 处），记下指针待出锁后归还驱动，head 前移。
-        to_return = (uint8_t *)s_ring[s_ring_head].buf;
+        vision_frame_t old = s_ring[s_ring_head];
+        vision_frame_pin_t *pin = find_pin_locked(old.buf, old.frame_id);
+        if (pin && pin->pin_count > 0) {
+            pin->pending_return = true;
+            atomic_fetch_add(&s_frame_deferred_return_count, 1);
+        } else {
+            to_return = (uint8_t *)old.buf;
+            clear_pin_locked(pin);
+        }
         s_ring_head = (s_ring_head + 1) % s_ring_cap;
         s_ring_count--;
     }
@@ -405,12 +324,17 @@ static void vision_fetch_task(void *arg)
         }
 
         // 组装帧引用并入 ringbuf（满则内部 pop 最旧帧并 QBUF 还驱动）。
+        s_next_frame_id++;
+        if (s_next_frame_id == 0) {
+            s_next_frame_id++;
+        }
         vision_frame_t fb = {
             .buf = frame,
             .width = w,
             .height = h,
             .len = len,
             .timestamp = esp_timer_get_time(),  // 采集时刻，结果时序对齐备用
+            .frame_id = s_next_frame_id,
         };
         ring_update(&fb);
 
@@ -554,6 +478,12 @@ static void vision_display_task(void *arg)
 static bool ring_init(void)
 {
     int fb_count = cam_sensor_get_fb_count();
+    if (fb_count != CAM_SENSOR_FB_COUNT) {
+        ESP_LOGE(TAG, "fb_count mismatch: runtime=%d compile=%d", fb_count, CAM_SENSOR_FB_COUNT);
+        return false;
+    }
+    memset(s_pins, 0, sizeof(s_pins));
+    s_next_frame_id = 0;
     s_ring_cap = fb_count - 2;  // 深度：1 个给驱动 DMA 写、1 个排队，其余可被持有
     if (s_ring_cap < 1) {
         ESP_LOGE(TAG, "fb_count %d too small for zero-copy ringbuf", fb_count);
@@ -608,25 +538,10 @@ esp_err_t vision_start(void)
         ESP_LOGE(TAG, "ppa_register_client failed: %s", esp_err_to_name(ret));
         return ret;
     }
-    ret = ppa_register_client(&ppa_cfg, &s_snapshot_ppa);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "snapshot ppa_register_client failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
+    ESP_RETURN_ON_ERROR(vision_stable_frame_init(), TAG, "stable frame init failed");
 
     // PPA 输出经 2D-DMA 写入，缓冲必须带 DMA 能力，否则 ppa_do_scale_rotate_mirror
-    // 校验失败返回错误（现象：capture PPA-FAIL）。与 ethernet 侧 s_snapshot_rgb 一致。
-    s_boxed_buf = heap_caps_aligned_alloc(64, BOXED_SNAPSHOT_BYTES,
-                                          MALLOC_CAP_SPIRAM | MALLOC_CAP_DMA | MALLOC_CAP_8BIT);
-    s_boxed_ready = xSemaphoreCreateBinary();
-    s_boxed_mutex = xSemaphoreCreateMutex();
-    if (!s_boxed_buf || !s_boxed_ready || !s_boxed_mutex) {
-        ESP_LOGE(TAG, "boxed snapshot init failed (buf=%p ready=%p mtx=%p)",
-                 s_boxed_buf, s_boxed_ready, s_boxed_mutex);
-        // 快照失败不阻断视觉主链路：capture/take 内部有 NULL 保护，直接放行继续。
-    }
-
-    // A2：中转缓冲（需 DMA 能力供 PPA 搬运），放 PSRAM。
+    // 校验失败返回错误（现象：capture PPA-FAIL）。与 ethernet 侧 legacy Ethernet snapshot buffer 一致。
     s_preview_buf = heap_caps_malloc(s_preview_buf_size, MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
     if (!s_preview_buf) {
         ESP_LOGE(TAG, "no memory for preview buffer");

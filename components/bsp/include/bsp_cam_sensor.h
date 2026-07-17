@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 #include "esp_err.h"
@@ -15,11 +16,53 @@
 extern "C" {
 #endif
 
+#define CAM_SENSOR_FB_COUNT 5
+
+typedef struct {
+    bool supported;
+    int32_t minimum;
+    int32_t maximum;
+    int32_t step;
+    int32_t default_value;
+} cam_sensor_isp_control_info_t;
+
+typedef struct {
+    cam_sensor_isp_control_info_t brightness_info;
+    cam_sensor_isp_control_info_t contrast_info;
+    cam_sensor_isp_control_info_t saturation_info;
+    cam_sensor_isp_control_info_t hue_info;
+    bool contrast_auto;
+    bool saturation_auto;
+    bool brightness_valid;
+    bool contrast_valid;
+    bool saturation_valid;
+    bool hue_valid;
+    int32_t brightness;
+    int32_t contrast;
+    int32_t saturation;
+    int32_t hue;
+    bool exposure_valid;
+    bool gain_valid;
+    bool white_balance_valid;
+    uint32_t exposure_us;
+    uint32_t gain_x1000;
+    uint32_t red_gain_x1000;
+    uint32_t blue_gain_x1000;
+} cam_sensor_isp_state_t;
+
 /** 初始化摄像头并启动推流（含 SCCB 总线复用、CSI/ISP 配置、V4L2 缓冲）。 */
 esp_err_t cam_sensor_init(void);
 
 /** 停止推流并释放所有资源。 */
 esp_err_t cam_sensor_deinit(void);
+
+esp_err_t cam_sensor_isp_get_state(cam_sensor_isp_state_t *state);
+esp_err_t cam_sensor_isp_set_brightness(int32_t value);
+esp_err_t cam_sensor_isp_set_contrast_auto(bool enabled);
+esp_err_t cam_sensor_isp_set_contrast(int32_t value);
+esp_err_t cam_sensor_isp_set_saturation_auto(bool enabled);
+esp_err_t cam_sensor_isp_set_saturation(int32_t value);
+esp_err_t cam_sensor_isp_set_hue(int32_t value);
 
 /**
  * 阻塞等待下一帧 RGB565 图像就绪。

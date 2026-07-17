@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdatomic.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
@@ -33,6 +34,7 @@
 
 static const char *TAG = "bsp_lcd";
 static esp_lcd_panel_handle_t s_panel_handle = NULL;
+static atomic_int s_brightness_percent = BSP_LCD_BL_DEFAULT_PERCENT;
 
 // PSRAM 带宽 QoS 调优 —— 解决摄像头 CSI + MIPI DSI 并发时 DSI FIFO underrun 蓝闪。
 // ESP32-P4 内部 AXI ICM(多主控互连矩阵)下挂 PSRAM,各主控默认 arqos/awqos=0 平权轮询,
@@ -154,7 +156,14 @@ void BSP_LCD_SetBrightness(int percent)
     }
     if (err != ESP_OK) {
         ESP_LOGW(TAG, "set brightness failed: %s", esp_err_to_name(err));
+        return;
     }
+    atomic_store(&s_brightness_percent, percent);
+}
+
+int BSP_LCD_GetBrightness(void)
+{
+    return atomic_load(&s_brightness_percent);
 }
 
 esp_lcd_panel_handle_t BSP_LCD_GetPanelHandle(void)

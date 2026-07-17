@@ -98,8 +98,7 @@ void ui_expand_dashboard_hit_areas(void);
 // 亮度回调：亮度滑块值变化时被调用，percent 为 0~100。main 注入 BSP 背光函数。
 typedef void (*ui_brightness_handler_t)(int percent);
 
-// 校准回调：点击 dashboard 左上角 LOGO 按键时被调用，无参。main 注入
-// vision 的 roi_tuning_request_calibration，请求下一帧执行 ROI 自适应调参。
+// LOGO 按键回调：点击 dashboard 左上角 LOGO 按键时被调用，无参，由 main 注入业务实现。
 typedef void (*ui_calibration_handler_t)(void);
 
 // 识别设置开关回调：enabled 为 true 表示启用对应功能。
@@ -118,7 +117,7 @@ typedef const char *(*ui_model_info_getter_t)(void);
  * main 端也只多填一行。未填(NULL)的 handler 对应交互被安全忽略。 */
 typedef struct {
     ui_brightness_handler_t brightness;              // 亮度滑块 → 背光
-    ui_calibration_handler_t calibration;            // LOGO 按键 → ROI 校准
+    ui_calibration_handler_t calibration;            // LOGO 按键 → 注入的业务回调
     ui_bool_switch_handler_t detection_enabled;      // 检测开关 → vision 推理门控
     ui_bool_switch_handler_t preview_overlay_enabled;// 预览叠加框开关 → vision 画框门控
     ui_percent_getter_t waybill_score_threshold_get; // 面单阈值滑块默认值读取
@@ -137,6 +136,11 @@ typedef struct {
  * 必须在 setupUi() 之后、LVGL 锁内调用(内部要读控件指针、挂控件事件)。
  * handlers 可为 NULL(则所有业务交互被忽略)；单个字段为 NULL 时对应交互被忽略。 */
 void ui_bind_dashboard(const ui_dashboard_handlers_t *handlers);
+void ui_sync_remote_control_state(int brightness, bool detection_enabled,
+                                  bool preview_overlay_enabled,
+                                  int waybill_threshold, int logo_threshold,
+                                  bool report_image_enabled,
+                                  bool report_metrics_enabled);
 
 /* Check LVGL version, LVGL 9.x has `LVGL_VERSION_MAJOR` defined */
 #if defined(LVGL_VERSION_MAJOR) && LVGL_VERSION_MAJOR >= 9

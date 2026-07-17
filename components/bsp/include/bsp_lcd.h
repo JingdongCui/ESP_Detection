@@ -19,3 +19,4 @@ esp_err_t BSP_LCD_GetFrameBuffers(void **fb0, void **fb1);
 // percent 越界自动 clamp 到 [0,100]。
 // 非线程安全：须从单一任务（LVGL）调用，勿与其它任务并发调用。
 void BSP_LCD_SetBrightness(int percent);
+int BSP_LCD_GetBrightness(void);

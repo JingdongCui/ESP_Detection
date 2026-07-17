@@ -75,7 +75,9 @@ extern lv_img_dsc_t const disconnect_126x36;
 
 extern lv_img_dsc_t const connect_126x36;
 
-extern lv_img_dsc_t const LOGO_bordered_260x60;
+extern lv_img_dsc_t const LOGO_pressed_260x50;
+
+extern lv_img_dsc_t const LOGO_normal_260x50;
 
 
 LV_FONT_DECLARE(lv_font_MiSansVF_14_14);

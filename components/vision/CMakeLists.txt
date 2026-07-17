@@ -3,9 +3,9 @@ idf_component_register(
         "framework/vision_app.c"
         "framework/vision_detect.c"
         "framework/vision_draw.c"
-        # detector 层：真实 esp-dl 两级级联推理（vision_model.cpp）+ ROI 调优。
+        "framework/vision_stable_frame.c"
+        # detector 层：真实 esp-dl 两级级联推理（vision_model.cpp）。
         "detector/vision_model.cpp"
-        "detector/roi_tuning.c"
     INCLUDE_DIRS
         "framework"
         "detector"
@@ -21,6 +21,7 @@ idf_component_register(
         esp_mm
         esp-dl
         spiffs
+        nvs_flash
 )
 
 target_compile_options(${COMPONENT_LIB} PRIVATE -ffast-math -O3)

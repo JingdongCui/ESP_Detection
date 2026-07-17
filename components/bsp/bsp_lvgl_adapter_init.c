@@ -16,9 +16,7 @@ void BSP_LVGL_AdapterInit(void)
 {
     // 初始化 LVGL 适配器（创建 tick 定时器 + 任务）
     esp_lv_adapter_config_t adapter_cfg = ESP_LV_ADAPTER_DEFAULT_CONFIG();
-    // LVGL worker 栈落 SRAM（adapter 默认 stack_in_psram=false）。32KB→16KB：实测高水位峰值
-    // 约 6KB，留 2.6× 余量；腾出内部 SRAM 连续块给 vision_det(core1, 12KB SRAM 栈)。
-    adapter_cfg.task_stack_size = 16 * 1024;
+    adapter_cfg.task_stack_size = 8688;
     adapter_cfg.task_priority   = 5;
     adapter_cfg.task_core_id    = 1;
     ESP_ERROR_CHECK(esp_lv_adapter_init(&adapter_cfg));

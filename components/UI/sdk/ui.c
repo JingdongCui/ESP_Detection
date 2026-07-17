@@ -12,11 +12,15 @@
  */
 #include "ui.h"
 #include "ethernet_app.h"
+#include "bsp_cam_sensor.h"
+#include "esp_log.h"
 #include "esp_system.h"
 #include "lvgl_private.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+
+LV_FONT_DECLARE(lv_font_MiSans_Heavy_16_16);
 
 extern lv_obj_t *scr_dashboard;
 extern lv_obj_t *scr_dashboard_sw_detect;
@@ -26,6 +30,20 @@ extern lv_obj_t *scr_dashboard_label_confidence_value_mian;
 extern lv_obj_t *scr_dashboard_slider_confidence_threshold_logo;
 extern lv_obj_t *scr_dashboard_label_confidence_value_logo;
 extern lv_obj_t *scr_dashboard_btn_restart;
+extern lv_obj_t *scr_dashboard_cont_display;
+extern lv_obj_t *scr_dashboard_slider_Luminance;
+extern lv_obj_t *scr_dashboard_label_runtime_Luminance_data;
+extern lv_obj_t *scr_dashboard_slider_contrast;
+extern lv_obj_t *scr_dashboard_label_contrast_value;
+extern lv_obj_t *scr_dashboard_btn_contrast_auto;
+extern lv_obj_t *scr_dashboard_slider_saturation;
+extern lv_obj_t *scr_dashboard_label_saturation_value;
+extern lv_obj_t *scr_dashboard_btn_saturation_auto;
+extern lv_obj_t *scr_dashboard_slider_hue;
+extern lv_obj_t *scr_dashboard_label_hue_value;
+extern lv_obj_t *scr_dashboard_label_exposure_value;
+extern lv_obj_t *scr_dashboard_label_gain_value;
+extern lv_obj_t *scr_dashboard_label_wb_value;
 extern lv_obj_t *scr_dashboard_label_runtime_confidence_threshole_mian;
 extern lv_obj_t *scr_dashboard_label_runtime_confidence_threshole_logo;
 extern lv_obj_t *scr_dashboard_cont_log_01;
@@ -75,6 +93,28 @@ static void ui_label_set_text_fmt_safe(lv_obj_t *label, const char *fmt, ...)
     vsnprintf(buf, sizeof(buf), fmt, args);
     va_end(args);
     ui_label_set_text_safe(label, buf);
+}
+
+static void ui_slider_set_value_safe(lv_obj_t *slider, int32_t value)
+{
+    if (slider && lv_slider_get_value(slider) != value) {
+        lv_slider_set_value(slider, value, LV_ANIM_OFF);
+    }
+}
+
+static void ui_slider_set_range_safe(lv_obj_t *slider, int32_t minimum, int32_t maximum)
+{
+    if (slider && (lv_slider_get_min_value(slider) != minimum ||
+                   lv_slider_get_max_value(slider) != maximum)) {
+        lv_slider_set_range(slider, minimum, maximum);
+    }
+}
+
+static void ui_arc_set_value_safe(lv_obj_t *arc, int32_t value)
+{
+    if (arc && lv_arc_get_value(arc) != value) {
+        lv_arc_set_value(arc, value);
+    }
 }
 
 /* ============================================================================
@@ -182,30 +222,36 @@ void ui_expand_dashboard_hit_areas(void)
 
 void ui_flag_modify(lv_obj_t *target, int32_t flag, int value)
 {
+    bool has_flag = lv_obj_has_flag(target, flag);
     if (value == UI_FLAG_ACTION_TOGGLE) {
-        if (lv_obj_has_flag(target, flag)) {
+        if (has_flag) {
             lv_obj_remove_flag(target, flag);
         } else {
             lv_obj_add_flag(target, flag);
         }
     } else if (value == UI_FLAG_ACTION_ADD) {
-        lv_obj_add_flag(target, flag);
-    } else {
+        if (!has_flag) {
+            lv_obj_add_flag(target, flag);
+        }
+    } else if (has_flag) {
         lv_obj_remove_flag(target, flag);
     }
 }
 
 void ui_state_modify(lv_obj_t *target, int32_t state, int value)
 {
+    bool has_state = lv_obj_has_state(target, state);
     if (value == UI_STATE_ACTION_TOGGLE) {
-        if (lv_obj_has_state(target, state)) {
+        if (has_state) {
             lv_obj_remove_state(target, state);
         } else {
             lv_obj_add_state(target, state);
         }
     } else if (value == UI_STATE_ACTION_ADD) {
-        lv_obj_add_state(target, state);
-    } else {
+        if (!has_state) {
+            lv_obj_add_state(target, state);
+        }
+    } else if (has_state) {
         lv_obj_remove_state(target, state);
     }
 }
@@ -318,6 +364,7 @@ void ui_obj_nullify(lv_obj_t **obj)
     *obj = NULL;
 }
 
+extern lv_obj_t *scr_dashboard_cont_system;
 extern lv_obj_t *scr_dashboard_label_runtime_cpu_core1_usage;
 extern lv_obj_t *scr_dashboard_label_runtime_cpu_core2_usage;
 extern lv_obj_t *scr_dashboard_label_cpu_02_value;
@@ -341,8 +388,8 @@ extern lv_obj_t *scr_dashboard_label_task_count_value;
 extern lv_obj_t *scr_dashboard_label_about_runtime_value;
 extern lv_obj_t *scr_dashboard_label_memory_value;
 extern lv_obj_t *scr_dashboard_label_model_info_value;
-extern lv_obj_t *scr_dashboard_slider_82EIlsYJ;
-extern lv_obj_t *scr_dashboard_label_runtime_bright__data;
+extern lv_obj_t *scr_dashboard_slider_screen_brightness;
+extern lv_obj_t *scr_dashboard_label_runtime_Screen_Brightness__data;
 extern lv_obj_t *scr_dashboard_label_runtime_recognition_status;
 extern lv_obj_t *scr_dashboard_label_runtime_confidence_mian;
 extern lv_obj_t *scr_dashboard_slider_runtime_confidence_mian;
@@ -421,21 +468,63 @@ static lv_obj_t *ui_find_child_arc(lv_obj_t *parent)
     return NULL;
 }
 
-static void ui_arc_percent_set_by_label(lv_obj_t *label, int value)
+static void ui_arc_percent_set_by_label(lv_obj_t **arc, lv_obj_t *label, int value)
 {
     if (!label) {
         return;
     }
 
     value = ui_clamp_percent(value);
-
-    lv_obj_t *parent = lv_obj_get_parent(label);
-    lv_obj_t *arc = ui_find_child_arc(parent);
-    if (arc) {
-        lv_arc_set_value(arc, value);
+    if (!*arc) {
+        *arc = ui_find_child_arc(lv_obj_get_parent(label));
     }
-
+    ui_arc_set_value_safe(*arc, value);
     ui_label_set_text_fmt_safe(label, "%d%%", value);
+}
+
+static lv_obj_t *s_cpu_core1_arc;
+static lv_obj_t *s_cpu_core2_arc;
+static lv_obj_t *s_cpu_02_arc;
+static lv_obj_t *s_cpu_03_arc;
+static lv_obj_t *s_cpu_total_arc;
+static bool s_system_monitor_snapshot_valid;
+static bool s_system_monitor_system_dirty;
+static system_monitor_event_data_t s_system_monitor_snapshot;
+static bool s_vision_snapshot_valid;
+static vision_result_event_data_t s_vision_snapshot;
+
+static bool ui_system_monitor_data_equal(const system_monitor_event_data_t *a,
+                                         const system_monitor_event_data_t *b)
+{
+    return a->cpu1_usage == b->cpu1_usage &&
+           a->cpu2_usage == b->cpu2_usage &&
+           a->cpu_total_usage == b->cpu_total_usage &&
+           a->memory_usage == b->memory_usage &&
+           a->heap_free_kb == b->heap_free_kb &&
+           a->heap_min_free_kb == b->heap_min_free_kb &&
+           a->heap_max_block_kb == b->heap_max_block_kb &&
+           a->internal_free_kb == b->internal_free_kb &&
+           a->psram_usage == b->psram_usage &&
+           a->psram_free_kb == b->psram_free_kb &&
+           a->psram_total_kb == b->psram_total_kb &&
+           a->runtime_sec == b->runtime_sec &&
+           a->chip_temp == b->chip_temp &&
+           a->cpu_freq_mhz == b->cpu_freq_mhz &&
+           a->task_count == b->task_count;
+}
+
+static bool ui_vision_data_equal(const vision_result_event_data_t *a,
+                                 const vision_result_event_data_t *b)
+{
+    return strncmp(a->status, b->status, sizeof(a->status)) == 0 &&
+           a->confidence == b->confidence &&
+           a->logo_confidence == b->logo_confidence &&
+           a->fps_x10 == b->fps_x10 &&
+           a->infer_time_ms == b->infer_time_ms &&
+           strncmp(a->company, b->company, sizeof(a->company)) == 0 &&
+           a->jt_a == b->jt_a &&
+           a->zt_a == b->zt_a &&
+           a->yd_a == b->yd_a;
 }
 
 static void ui_system_monitor_event_cb(uint8_t event, uint16_t code, uint16_t type,
@@ -451,29 +540,49 @@ static void ui_system_monitor_event_cb(uint8_t event, uint16_t code, uint16_t ty
     }
 
     system_monitor_event_data_t *monitor = (system_monitor_event_data_t *)data;
+    bool system_visible = scr_dashboard_cont_system &&
+                          !lv_obj_has_flag(scr_dashboard_cont_system, LV_OBJ_FLAG_HIDDEN);
+    bool data_changed = !s_system_monitor_snapshot_valid ||
+                        !ui_system_monitor_data_equal(&s_system_monitor_snapshot, monitor);
+    if (!data_changed && !(system_visible && s_system_monitor_system_dirty)) {
+        return;
+    }
+    s_system_monitor_snapshot = *monitor;
+    s_system_monitor_snapshot_valid = true;
 
-    ui_arc_percent_set_by_label(scr_dashboard_label_runtime_cpu_core1_usage, monitor->cpu1_usage);
-    ui_arc_percent_set_by_label(scr_dashboard_label_runtime_cpu_core2_usage, monitor->cpu2_usage);
-    ui_arc_percent_set_by_label(scr_dashboard_label_cpu_02_value, monitor->cpu1_usage);
-    ui_arc_percent_set_by_label(scr_dashboard_label_cpu_03_value, monitor->cpu2_usage);
-    ui_arc_percent_set_by_label(scr_dashboard_label_cpu_total_value, monitor->cpu_total_usage);
+    ui_arc_percent_set_by_label(&s_cpu_core1_arc, scr_dashboard_label_runtime_cpu_core1_usage,
+                                monitor->cpu1_usage);
+    ui_arc_percent_set_by_label(&s_cpu_core2_arc, scr_dashboard_label_runtime_cpu_core2_usage,
+                                monitor->cpu2_usage);
 
-    lv_slider_set_value(scr_dashboard_slider_memory_usage, ui_clamp_percent(monitor->memory_usage), LV_ANIM_OFF);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_memory_usage_value, "%d%%", ui_clamp_percent(monitor->memory_usage));
-    ui_label_set_text_fmt_safe(scr_dashboard_label_ram_value, "%d", monitor->internal_free_kb);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_psram_usage_value, "%d%%", ui_clamp_percent(monitor->psram_usage));
-    lv_slider_set_value(scr_dashboard_slider_psram_usage, ui_clamp_percent(monitor->psram_usage), LV_ANIM_OFF);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_psram_free_value, "%d", monitor->psram_free_kb);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_psram_total_value, "%d", monitor->psram_total_kb);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_heap_free_value, "%d", monitor->heap_free_kb);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_heap_min_free_value, "%d", monitor->heap_min_free_kb);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_heap_max_block_value, "%d", monitor->heap_max_block_kb);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_value, "%02d:%02d:%02d", monitor->runtime_sec / 3600,
-                          (monitor->runtime_sec / 60) % 60, monitor->runtime_sec % 60);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_chip_temp_value, "%d.%d", monitor->chip_temp / 10,
-                          (monitor->chip_temp < 0 ? -monitor->chip_temp : monitor->chip_temp) % 10);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_cpu_freq_value, "%d", monitor->cpu_freq_mhz);
-    ui_label_set_text_fmt_safe(scr_dashboard_label_task_count_value, "%d", monitor->task_count);
+    if (system_visible) {
+        ui_arc_percent_set_by_label(&s_cpu_02_arc, scr_dashboard_label_cpu_02_value,
+                                    monitor->cpu1_usage);
+        ui_arc_percent_set_by_label(&s_cpu_03_arc, scr_dashboard_label_cpu_03_value,
+                                    monitor->cpu2_usage);
+        ui_arc_percent_set_by_label(&s_cpu_total_arc, scr_dashboard_label_cpu_total_value,
+                                    monitor->cpu_total_usage);
+
+        ui_slider_set_value_safe(scr_dashboard_slider_memory_usage, ui_clamp_percent(monitor->memory_usage));
+        ui_label_set_text_fmt_safe(scr_dashboard_label_memory_usage_value, "%d%%", ui_clamp_percent(monitor->memory_usage));
+        ui_label_set_text_fmt_safe(scr_dashboard_label_ram_value, "%d", monitor->internal_free_kb);
+        ui_label_set_text_fmt_safe(scr_dashboard_label_psram_usage_value, "%d%%", ui_clamp_percent(monitor->psram_usage));
+        ui_slider_set_value_safe(scr_dashboard_slider_psram_usage, ui_clamp_percent(monitor->psram_usage));
+        ui_label_set_text_fmt_safe(scr_dashboard_label_psram_free_value, "%d", monitor->psram_free_kb);
+        ui_label_set_text_fmt_safe(scr_dashboard_label_psram_total_value, "%d", monitor->psram_total_kb);
+        ui_label_set_text_fmt_safe(scr_dashboard_label_heap_free_value, "%d", monitor->heap_free_kb);
+        ui_label_set_text_fmt_safe(scr_dashboard_label_heap_min_free_value, "%d", monitor->heap_min_free_kb);
+        ui_label_set_text_fmt_safe(scr_dashboard_label_heap_max_block_value, "%d", monitor->heap_max_block_kb);
+        ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_value, "%02d:%02d:%02d", monitor->runtime_sec / 3600,
+                              (monitor->runtime_sec / 60) % 60, monitor->runtime_sec % 60);
+        ui_label_set_text_fmt_safe(scr_dashboard_label_chip_temp_value, "%d.%d", monitor->chip_temp / 10,
+                              (monitor->chip_temp < 0 ? -monitor->chip_temp : monitor->chip_temp) % 10);
+        ui_label_set_text_fmt_safe(scr_dashboard_label_cpu_freq_value, "%d", monitor->cpu_freq_mhz);
+        ui_label_set_text_fmt_safe(scr_dashboard_label_task_count_value, "%d", monitor->task_count);
+        s_system_monitor_system_dirty = false;
+    } else {
+        s_system_monitor_system_dirty = true;
+    }
 
     // 关于页：运行时长同 dashboard(HH:MM:SS)，可用内存取 PSRAM 总量，以 MB 一位小数显示
     ui_label_set_text_fmt_safe(scr_dashboard_label_about_runtime_value, "%02d:%02d:%02d",
@@ -502,12 +611,17 @@ static void ui_vision_result_event_cb(uint8_t event, uint16_t code, uint16_t typ
     }
 
     vision_result_event_data_t *v = (vision_result_event_data_t *)data;
+    if (s_vision_snapshot_valid && ui_vision_data_equal(&s_vision_snapshot, v)) {
+        return;
+    }
+    s_vision_snapshot = *v;
+    s_vision_snapshot_valid = true;
 
     ui_label_set_text_safe(scr_dashboard_label_runtime_recognition_status, v->status);
     ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_confidence_mian, "%d%%", ui_clamp_percent(v->confidence));
-    lv_slider_set_value(scr_dashboard_slider_runtime_confidence_mian, ui_clamp_percent(v->confidence), LV_ANIM_OFF);
+    ui_slider_set_value_safe(scr_dashboard_slider_runtime_confidence_mian, ui_clamp_percent(v->confidence));
     ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_confidence_logo, "%d%%", ui_clamp_percent(v->logo_confidence));
-    lv_slider_set_value(scr_dashboard_slider_runtime_confidence_logo, ui_clamp_percent(v->logo_confidence), LV_ANIM_OFF);
+    ui_slider_set_value_safe(scr_dashboard_slider_runtime_confidence_logo, ui_clamp_percent(v->logo_confidence));
     ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_recognition_fps, "%d.%d",
                           v->fps_x10 / 10, v->fps_x10 % 10);
     ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_infer_time, "%d", v->infer_time_ms);
@@ -515,9 +629,9 @@ static void ui_vision_result_event_cb(uint8_t event, uint16_t code, uint16_t typ
     ui_label_set_text_fmt_safe(scr_dashboard_label_JT_A, "A:%d.00%%", ui_clamp_percent(v->jt_a));
     ui_label_set_text_fmt_safe(scr_dashboard_label_ZT_A, "A:%d.00%%", ui_clamp_percent(v->zt_a));
     ui_label_set_text_fmt_safe(scr_dashboard_label_YD_A, "A:%d.00%%", ui_clamp_percent(v->yd_a));
-    lv_slider_set_value(scr_dashboard_slider_jt, ui_clamp_percent(v->jt_a), LV_ANIM_OFF);
-    lv_slider_set_value(scr_dashboard_slider_zt, ui_clamp_percent(v->zt_a), LV_ANIM_OFF);
-    lv_slider_set_value(scr_dashboard_slider_yd, ui_clamp_percent(v->yd_a), LV_ANIM_OFF);
+    ui_slider_set_value_safe(scr_dashboard_slider_jt, ui_clamp_percent(v->jt_a));
+    ui_slider_set_value_safe(scr_dashboard_slider_zt, ui_clamp_percent(v->zt_a));
+    ui_slider_set_value_safe(scr_dashboard_slider_yd, ui_clamp_percent(v->yd_a));
 }
 
 static uint32_t ui_register_vision_events(event_table_t *table)
@@ -548,9 +662,12 @@ static void ui_ethernet_event_cb(uint8_t event, uint16_t code, uint16_t type,
     }
 
     ethernet_event_data_t *eth = (ethernet_event_data_t *)data;
-    lv_imagebutton_set_state(scr_dashboard_img_runtime_ethernet_status,
-                             eth->connected ? LV_IMAGEBUTTON_STATE_CHECKED_RELEASED
-                                            : LV_IMAGEBUTTON_STATE_RELEASED);
+    bool connected = lv_obj_has_state(scr_dashboard_img_runtime_ethernet_status, LV_STATE_CHECKED);
+    if (connected != eth->connected) {
+        lv_imagebutton_set_state(scr_dashboard_img_runtime_ethernet_status,
+                                 eth->connected ? LV_IMAGEBUTTON_STATE_CHECKED_RELEASED
+                                                : LV_IMAGEBUTTON_STATE_RELEASED);
+    }
 }
 
 static uint32_t ui_register_ethernet_events(event_table_t *table)
@@ -587,6 +704,7 @@ static void ui_register_all_events(void)
 
 // main 注入的业务 handler 集合，由 ui_bind_dashboard 存下，供本层各回调取用。
 static ui_dashboard_handlers_t s_handlers = {0};
+static bool s_dashboard_bound;
 
 // 亮度滑块拖动：更新百分比标签，并把新亮度交给注入的背光 handler。
 static void ui_brightness_slider_event_cb(lv_event_t *e)
@@ -595,9 +713,7 @@ static void ui_brightness_slider_event_cb(lv_event_t *e)
     int pct = (int)lv_slider_get_value(slider);
     pct = ui_clamp_percent(pct);
 
-    if (scr_dashboard_label_runtime_bright__data) {
-        lv_label_set_text_fmt(scr_dashboard_label_runtime_bright__data, "%d%%", pct);
-    }
+    ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_Screen_Brightness__data, "%d%%", pct);
     if (s_handlers.brightness) {
         s_handlers.brightness(pct);
     }
@@ -606,16 +722,16 @@ static void ui_brightness_slider_event_cb(lv_event_t *e)
 // 给亮度滑块挂事件回调，并把滑块/标签初值同步为 UI_BRIGHTNESS_DEFAULT_PERCENT。
 static void ui_attach_brightness_slider(void)
 {
-    if (!scr_dashboard_slider_82EIlsYJ) {
+    if (!scr_dashboard_slider_screen_brightness) {
         return;
     }
 
-    lv_obj_add_event_cb(scr_dashboard_slider_82EIlsYJ, ui_brightness_slider_event_cb,
+    lv_obj_add_event_cb(scr_dashboard_slider_screen_brightness, ui_brightness_slider_event_cb,
                         LV_EVENT_VALUE_CHANGED, NULL);
 
     // 同步开机默认亮度：设滑块值并主动触发一次回调，使标签与背光与 UI 一致
-    lv_slider_set_value(scr_dashboard_slider_82EIlsYJ, UI_BRIGHTNESS_DEFAULT_PERCENT, LV_ANIM_OFF);
-    lv_obj_send_event(scr_dashboard_slider_82EIlsYJ, LV_EVENT_VALUE_CHANGED, NULL);
+    ui_slider_set_value_safe(scr_dashboard_slider_screen_brightness, UI_BRIGHTNESS_DEFAULT_PERCENT);
+    lv_obj_send_event(scr_dashboard_slider_screen_brightness, LV_EVENT_VALUE_CHANGED, NULL);
 }
 
 // LOGO 按键点击：请求视觉任务在下一帧执行一次 ROI 自适应调参（复刻原工程 cal_btn 回调）。
@@ -644,9 +760,21 @@ static void ui_detection_switch_event_cb(lv_event_t *e)
     if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
         return;
     }
+
+    bool enabled = lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED);
     if (s_handlers.detection_enabled) {
-        s_handlers.detection_enabled(lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED));
+        s_handlers.detection_enabled(enabled);
     }
+    if (enabled) {
+        return;
+    }
+
+    ui_state_modify(scr_dashboard_sw_preview_overlay, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
+    if (s_handlers.preview_overlay_enabled) {
+        s_handlers.preview_overlay_enabled(false);
+    }
+    ui_state_modify(scr_dashboard_sw_report_image, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
+    ethernet_app_set_report_image_enabled(false);
 }
 
 static void ui_preview_overlay_switch_event_cb(lv_event_t *e)
@@ -654,8 +782,15 @@ static void ui_preview_overlay_switch_event_cb(lv_event_t *e)
     if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
         return;
     }
+
+    lv_obj_t *target = lv_event_get_target(e);
+    bool enabled = lv_obj_has_state(target, LV_STATE_CHECKED) &&
+                   lv_obj_has_state(scr_dashboard_sw_detect, LV_STATE_CHECKED);
+    if (!enabled) {
+        ui_state_modify(target, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
+    }
     if (s_handlers.preview_overlay_enabled) {
-        s_handlers.preview_overlay_enabled(lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED));
+        s_handlers.preview_overlay_enabled(enabled);
     }
 }
 
@@ -664,13 +799,13 @@ static void ui_attach_detection_switches(void)
     if (scr_dashboard_sw_detect) {
         lv_obj_add_event_cb(scr_dashboard_sw_detect, ui_detection_switch_event_cb,
                             LV_EVENT_VALUE_CHANGED, NULL);
-        ui_state_modify(scr_dashboard_sw_detect, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
+        ui_state_modify(scr_dashboard_sw_detect, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
         lv_obj_send_event(scr_dashboard_sw_detect, LV_EVENT_VALUE_CHANGED, NULL);
     }
     if (scr_dashboard_sw_preview_overlay) {
         lv_obj_add_event_cb(scr_dashboard_sw_preview_overlay, ui_preview_overlay_switch_event_cb,
                             LV_EVENT_VALUE_CHANGED, NULL);
-        ui_state_modify(scr_dashboard_sw_preview_overlay, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
+        ui_state_modify(scr_dashboard_sw_preview_overlay, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
         lv_obj_send_event(scr_dashboard_sw_preview_overlay, LV_EVENT_VALUE_CHANGED, NULL);
     }
 }
@@ -720,8 +855,8 @@ static void ui_attach_confidence_threshold_sliders(void)
                             ui_waybill_threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
         int pct = s_handlers.waybill_score_threshold_get ?
                   s_handlers.waybill_score_threshold_get() : 0;
-        lv_slider_set_value(scr_dashboard_slider_confidence_threshold_mian,
-                            ui_clamp_percent(pct), LV_ANIM_OFF);
+        ui_slider_set_value_safe(scr_dashboard_slider_confidence_threshold_mian,
+                                 ui_clamp_percent(pct));
         lv_obj_send_event(scr_dashboard_slider_confidence_threshold_mian, LV_EVENT_VALUE_CHANGED, NULL);
     }
     if (scr_dashboard_slider_confidence_threshold_logo) {
@@ -729,9 +864,370 @@ static void ui_attach_confidence_threshold_sliders(void)
                             ui_logo_threshold_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
         int pct = s_handlers.logo_score_threshold_get ?
                   s_handlers.logo_score_threshold_get() : 0;
-        lv_slider_set_value(scr_dashboard_slider_confidence_threshold_logo,
-                            ui_clamp_percent(pct), LV_ANIM_OFF);
+        ui_slider_set_value_safe(scr_dashboard_slider_confidence_threshold_logo,
+                                 ui_clamp_percent(pct));
         lv_obj_send_event(scr_dashboard_slider_confidence_threshold_logo, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+}
+
+static const char *s_ui_isp_tag = "ui_isp";
+static bool s_isp_programmatic_update;
+static bool s_isp_brightness_pending;
+static bool s_isp_contrast_pending;
+static bool s_isp_saturation_pending;
+static bool s_isp_hue_pending;
+static int s_isp_brightness_target;
+static int s_isp_contrast_target;
+static int s_isp_saturation_target;
+static int s_isp_hue_target;
+static cam_sensor_isp_state_t s_isp_last_state;
+static bool s_isp_last_state_valid;
+static lv_timer_t *s_isp_refresh_timer;
+
+static bool ui_isp_control_info_equal(const cam_sensor_isp_control_info_t *a,
+                                      const cam_sensor_isp_control_info_t *b)
+{
+    return a->supported == b->supported &&
+           a->minimum == b->minimum &&
+           a->maximum == b->maximum &&
+           a->step == b->step &&
+           a->default_value == b->default_value;
+}
+
+static bool ui_isp_state_equal(const cam_sensor_isp_state_t *a,
+                               const cam_sensor_isp_state_t *b)
+{
+    return ui_isp_control_info_equal(&a->brightness_info, &b->brightness_info) &&
+           ui_isp_control_info_equal(&a->contrast_info, &b->contrast_info) &&
+           ui_isp_control_info_equal(&a->saturation_info, &b->saturation_info) &&
+           ui_isp_control_info_equal(&a->hue_info, &b->hue_info) &&
+           a->contrast_auto == b->contrast_auto &&
+           a->saturation_auto == b->saturation_auto &&
+           a->brightness_valid == b->brightness_valid &&
+           a->contrast_valid == b->contrast_valid &&
+           a->saturation_valid == b->saturation_valid &&
+           a->hue_valid == b->hue_valid &&
+           a->brightness == b->brightness &&
+           a->contrast == b->contrast &&
+           a->saturation == b->saturation &&
+           a->hue == b->hue &&
+           a->exposure_valid == b->exposure_valid &&
+           a->gain_valid == b->gain_valid &&
+           a->white_balance_valid == b->white_balance_valid &&
+           a->exposure_us == b->exposure_us &&
+           a->gain_x1000 == b->gain_x1000 &&
+           a->red_gain_x1000 == b->red_gain_x1000 &&
+           a->blue_gain_x1000 == b->blue_gain_x1000;
+}
+
+static int ui_align_isp_value(const cam_sensor_isp_control_info_t *info, int value)
+{
+    int step = info->step > 0 ? info->step : 1;
+    if (value < info->minimum) {
+        value = info->minimum;
+    } else if (value > info->maximum) {
+        value = info->maximum;
+    }
+    return info->minimum + ((value - info->minimum) / step) * step;
+}
+
+static void ui_set_isp_slider_value(lv_obj_t *slider, lv_obj_t *label, int value)
+{
+    ui_slider_set_value_safe(slider, value);
+    ui_label_set_text_fmt_safe(label, "%d", value);
+}
+
+static void ui_set_obj_state(lv_obj_t *obj, lv_state_t state, bool enabled)
+{
+    ui_state_modify(obj, state, enabled ? UI_STATE_ACTION_ADD : UI_STATE_ACTION_REMOVE);
+}
+
+static void ui_set_isp_control_enabled(lv_obj_t *slider, lv_obj_t *button,
+                                       bool supported, bool automatic)
+{
+    ui_set_obj_state(slider, LV_STATE_DISABLED, !supported || automatic);
+    if (button) {
+        ui_set_obj_state(button, LV_STATE_DISABLED, !supported);
+        ui_set_obj_state(button, LV_STATE_CHECKED, automatic);
+    }
+}
+
+static void ui_apply_isp_state(const cam_sensor_isp_state_t *state)
+{
+    s_isp_last_state = *state;
+    s_isp_last_state_valid = true;
+    s_isp_programmatic_update = true;
+
+    if (state->brightness_info.supported) {
+        ui_slider_set_range_safe(scr_dashboard_slider_Luminance,
+                                state->brightness_info.minimum, state->brightness_info.maximum);
+        ui_set_obj_state(scr_dashboard_slider_Luminance, LV_STATE_DISABLED, false);
+        if (!s_isp_brightness_pending ||
+                (state->brightness_valid && state->brightness == s_isp_brightness_target)) {
+            s_isp_brightness_pending = false;
+            if (state->brightness_valid) {
+                ui_set_isp_slider_value(scr_dashboard_slider_Luminance,
+                                        scr_dashboard_label_runtime_Luminance_data, state->brightness);
+            }
+        }
+    } else {
+        s_isp_brightness_pending = false;
+        ui_set_obj_state(scr_dashboard_slider_Luminance, LV_STATE_DISABLED, true);
+        ui_label_set_text_safe(scr_dashboard_label_runtime_Luminance_data, "--");
+    }
+
+    if (state->contrast_info.supported) {
+        ui_slider_set_range_safe(scr_dashboard_slider_contrast,
+                                state->contrast_info.minimum, state->contrast_info.maximum);
+        if (state->contrast_auto) {
+            s_isp_contrast_pending = false;
+            if (state->contrast_valid) {
+                ui_set_isp_slider_value(scr_dashboard_slider_contrast,
+                                        scr_dashboard_label_contrast_value, state->contrast);
+            } else {
+                ui_label_set_text_safe(scr_dashboard_label_contrast_value, "--");
+            }
+        } else if (!s_isp_contrast_pending ||
+                   (state->contrast_valid && state->contrast == s_isp_contrast_target)) {
+            s_isp_contrast_pending = false;
+            if (state->contrast_valid) {
+                ui_set_isp_slider_value(scr_dashboard_slider_contrast,
+                                        scr_dashboard_label_contrast_value, state->contrast);
+            }
+        }
+    } else {
+        s_isp_contrast_pending = false;
+        ui_label_set_text_safe(scr_dashboard_label_contrast_value, "--");
+    }
+    ui_set_isp_control_enabled(scr_dashboard_slider_contrast,
+                               scr_dashboard_btn_contrast_auto,
+                               state->contrast_info.supported, state->contrast_auto);
+
+    if (state->saturation_info.supported) {
+        ui_slider_set_range_safe(scr_dashboard_slider_saturation,
+                                state->saturation_info.minimum, state->saturation_info.maximum);
+        if (state->saturation_auto) {
+            s_isp_saturation_pending = false;
+            if (state->saturation_valid) {
+                ui_set_isp_slider_value(scr_dashboard_slider_saturation,
+                                        scr_dashboard_label_saturation_value, state->saturation);
+            } else {
+                ui_label_set_text_safe(scr_dashboard_label_saturation_value, "--");
+            }
+        } else if (!s_isp_saturation_pending ||
+                   (state->saturation_valid && state->saturation == s_isp_saturation_target)) {
+            s_isp_saturation_pending = false;
+            if (state->saturation_valid) {
+                ui_set_isp_slider_value(scr_dashboard_slider_saturation,
+                                        scr_dashboard_label_saturation_value, state->saturation);
+            }
+        }
+    } else {
+        s_isp_saturation_pending = false;
+        ui_label_set_text_safe(scr_dashboard_label_saturation_value, "--");
+    }
+    ui_set_isp_control_enabled(scr_dashboard_slider_saturation,
+                               scr_dashboard_btn_saturation_auto,
+                               state->saturation_info.supported, state->saturation_auto);
+
+    if (state->hue_info.supported) {
+        ui_slider_set_range_safe(scr_dashboard_slider_hue,
+                                state->hue_info.minimum, state->hue_info.maximum);
+        ui_set_obj_state(scr_dashboard_slider_hue, LV_STATE_DISABLED, false);
+        if (!s_isp_hue_pending || (state->hue_valid && state->hue == s_isp_hue_target)) {
+            s_isp_hue_pending = false;
+            if (state->hue_valid) {
+                ui_set_isp_slider_value(scr_dashboard_slider_hue,
+                                        scr_dashboard_label_hue_value, state->hue);
+            }
+        }
+    } else {
+        s_isp_hue_pending = false;
+        ui_set_obj_state(scr_dashboard_slider_hue, LV_STATE_DISABLED, true);
+        ui_label_set_text_safe(scr_dashboard_label_hue_value, "--");
+    }
+
+    if (state->exposure_valid) {
+        ui_label_set_text_fmt_safe(scr_dashboard_label_exposure_value, "%u.%u ms",
+                                   (unsigned)(state->exposure_us / 1000U),
+                                   (unsigned)((state->exposure_us % 1000U) / 100U));
+    } else {
+        ui_label_set_text_safe(scr_dashboard_label_exposure_value, "--");
+    }
+    if (state->gain_valid) {
+        ui_label_set_text_fmt_safe(scr_dashboard_label_gain_value, "%u.%02ux",
+                                   (unsigned)(state->gain_x1000 / 1000U),
+                                   (unsigned)((state->gain_x1000 % 1000U) / 10U));
+    } else {
+        ui_label_set_text_safe(scr_dashboard_label_gain_value, "--");
+    }
+    if (state->white_balance_valid) {
+        ui_label_set_text_fmt_safe(scr_dashboard_label_wb_value, "R %u.%02u / B %u.%02u",
+                                   (unsigned)(state->red_gain_x1000 / 1000U),
+                                   (unsigned)((state->red_gain_x1000 % 1000U) / 10U),
+                                   (unsigned)(state->blue_gain_x1000 / 1000U),
+                                   (unsigned)((state->blue_gain_x1000 % 1000U) / 10U));
+    } else {
+        ui_label_set_text_safe(scr_dashboard_label_wb_value, "--");
+    }
+
+    s_isp_programmatic_update = false;
+}
+
+static void ui_isp_slider_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED || s_isp_programmatic_update) {
+        return;
+    }
+
+    lv_obj_t *slider = lv_event_get_target(e);
+    if (lv_obj_has_state(slider, LV_STATE_DISABLED)) {
+        return;
+    }
+
+    int value = (int)lv_slider_get_value(slider);
+    const cam_sensor_isp_control_info_t *info;
+    lv_obj_t *label;
+    esp_err_t (*setter)(int32_t);
+    bool *pending;
+    int *target;
+
+    if (slider == scr_dashboard_slider_Luminance) {
+        info = &s_isp_last_state.brightness_info;
+        label = scr_dashboard_label_runtime_Luminance_data;
+        setter = cam_sensor_isp_set_brightness;
+        pending = &s_isp_brightness_pending;
+        target = &s_isp_brightness_target;
+    } else if (slider == scr_dashboard_slider_contrast) {
+        if (lv_obj_has_state(scr_dashboard_btn_contrast_auto, LV_STATE_CHECKED)) {
+            return;
+        }
+        info = &s_isp_last_state.contrast_info;
+        label = scr_dashboard_label_contrast_value;
+        setter = cam_sensor_isp_set_contrast;
+        pending = &s_isp_contrast_pending;
+        target = &s_isp_contrast_target;
+    } else if (slider == scr_dashboard_slider_saturation) {
+        if (lv_obj_has_state(scr_dashboard_btn_saturation_auto, LV_STATE_CHECKED)) {
+            return;
+        }
+        info = &s_isp_last_state.saturation_info;
+        label = scr_dashboard_label_saturation_value;
+        setter = cam_sensor_isp_set_saturation;
+        pending = &s_isp_saturation_pending;
+        target = &s_isp_saturation_target;
+    } else {
+        info = &s_isp_last_state.hue_info;
+        label = scr_dashboard_label_hue_value;
+        setter = cam_sensor_isp_set_hue;
+        pending = &s_isp_hue_pending;
+        target = &s_isp_hue_target;
+    }
+
+    value = ui_align_isp_value(info, value);
+    if ((int)lv_slider_get_value(slider) != value) {
+        s_isp_programmatic_update = true;
+        lv_slider_set_value(slider, value, LV_ANIM_OFF);
+        s_isp_programmatic_update = false;
+    }
+    ui_label_set_text_fmt_safe(label, "%d", value);
+
+    esp_err_t err = setter(value);
+    if (err == ESP_OK) {
+        *target = value;
+        *pending = true;
+    } else {
+        *pending = false;
+        ESP_LOGW(s_ui_isp_tag, "set ISP value failed: %s", esp_err_to_name(err));
+        ui_apply_isp_state(&s_isp_last_state);
+    }
+}
+
+static void ui_isp_auto_button_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED || s_isp_programmatic_update) {
+        return;
+    }
+
+    lv_obj_t *button = lv_event_get_target(e);
+    bool enabled = lv_obj_has_state(button, LV_STATE_CHECKED);
+    esp_err_t err;
+
+    if (button == scr_dashboard_btn_contrast_auto) {
+        s_isp_contrast_pending = false;
+        ui_set_isp_control_enabled(scr_dashboard_slider_contrast, button,
+                                   s_isp_last_state.contrast_info.supported, enabled);
+        err = cam_sensor_isp_set_contrast_auto(enabled);
+    } else {
+        s_isp_saturation_pending = false;
+        ui_set_isp_control_enabled(scr_dashboard_slider_saturation, button,
+                                   s_isp_last_state.saturation_info.supported, enabled);
+        err = cam_sensor_isp_set_saturation_auto(enabled);
+    }
+
+    if (err != ESP_OK) {
+        ESP_LOGW(s_ui_isp_tag, "set ISP auto mode failed: %s", esp_err_to_name(err));
+        ui_apply_isp_state(&s_isp_last_state);
+    }
+}
+
+static void ui_isp_refresh_timer_cb(lv_timer_t *timer)
+{
+    (void)timer;
+    if (!scr_dashboard_cont_display ||
+            lv_obj_has_flag(scr_dashboard_cont_display, LV_OBJ_FLAG_HIDDEN)) {
+        return;
+    }
+
+    cam_sensor_isp_state_t state;
+    esp_err_t err = cam_sensor_isp_get_state(&state);
+    if (err == ESP_OK &&
+            (!s_isp_last_state_valid || !ui_isp_state_equal(&s_isp_last_state, &state))) {
+        ui_apply_isp_state(&state);
+    }
+}
+
+static void ui_attach_isp_controls(void)
+{
+    lv_obj_add_event_cb(scr_dashboard_slider_Luminance, ui_isp_slider_event_cb,
+                        LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_event_cb(scr_dashboard_slider_contrast, ui_isp_slider_event_cb,
+                        LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_event_cb(scr_dashboard_slider_saturation, ui_isp_slider_event_cb,
+                        LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_event_cb(scr_dashboard_slider_hue, ui_isp_slider_event_cb,
+                        LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_event_cb(scr_dashboard_btn_contrast_auto, ui_isp_auto_button_event_cb,
+                        LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_event_cb(scr_dashboard_btn_saturation_auto, ui_isp_auto_button_event_cb,
+                        LV_EVENT_VALUE_CHANGED, NULL);
+
+    lv_obj_t *status_labels[] = {
+        scr_dashboard_label_exposure_value,
+        scr_dashboard_label_gain_value,
+        scr_dashboard_label_wb_value,
+    };
+    for (size_t i = 0; i < sizeof(status_labels) / sizeof(status_labels[0]); ++i) {
+        lv_obj_set_x(status_labels[i], 8);
+        lv_obj_set_width(status_labels[i], 194);
+        lv_label_set_long_mode(status_labels[i], LV_LABEL_LONG_CLIP);
+        lv_obj_set_style_text_font(status_labels[i], &lv_font_MiSans_Heavy_16_16,
+                                   LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_text_align(status_labels[i], LV_TEXT_ALIGN_CENTER,
+                                    LV_PART_MAIN | LV_STATE_DEFAULT);
+    }
+
+    cam_sensor_isp_state_t state;
+    esp_err_t err = cam_sensor_isp_get_state(&state);
+    if (err == ESP_OK) {
+        ui_apply_isp_state(&state);
+    } else {
+        state = (cam_sensor_isp_state_t){0};
+        ui_apply_isp_state(&state);
+        ESP_LOGW(s_ui_isp_tag, "get ISP state failed: %s", esp_err_to_name(err));
+    }
+    if (!s_isp_refresh_timer) {
+        s_isp_refresh_timer = lv_timer_create(ui_isp_refresh_timer_cb, 1000, NULL);
     }
 }
 
@@ -755,7 +1251,14 @@ static void ui_report_image_switch_event_cb(lv_event_t *e)
     if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
         return;
     }
-    ethernet_app_set_report_image_enabled(lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED));
+
+    lv_obj_t *target = lv_event_get_target(e);
+    bool enabled = lv_obj_has_state(target, LV_STATE_CHECKED) &&
+                   lv_obj_has_state(scr_dashboard_sw_detect, LV_STATE_CHECKED);
+    if (!enabled) {
+        ui_state_modify(target, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
+    }
+    ethernet_app_set_report_image_enabled(enabled);
 }
 
 // 指标上报开关：直接切换以太网层的指标上报总开关。
@@ -778,15 +1281,15 @@ static void ui_attach_network_controls(void)
         lv_obj_add_event_cb(scr_dashboard_slider_report_interval,
                             ui_report_interval_slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
         // 上报间隔范围 0-10s（覆盖 anyui 生成值，重生成不丢）。
-        lv_slider_set_range(scr_dashboard_slider_report_interval, 0, 10);
+        ui_slider_set_range_safe(scr_dashboard_slider_report_interval, 0, 10);
         // 同步以太网层默认间隔（1s），设滑块值并触发一次回调使标签一致。
-        lv_slider_set_value(scr_dashboard_slider_report_interval, 1, LV_ANIM_OFF);
+        ui_slider_set_value_safe(scr_dashboard_slider_report_interval, 1);
         lv_obj_send_event(scr_dashboard_slider_report_interval, LV_EVENT_VALUE_CHANGED, NULL);
     }
     if (scr_dashboard_sw_report_image) {
         lv_obj_add_event_cb(scr_dashboard_sw_report_image,
                             ui_report_image_switch_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
-        ui_state_modify(scr_dashboard_sw_report_image, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
+        ui_state_modify(scr_dashboard_sw_report_image, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
         lv_obj_send_event(scr_dashboard_sw_report_image, LV_EVENT_VALUE_CHANGED, NULL);
     }
     if (scr_dashboard_sw_report_metrics) {
@@ -897,6 +1400,7 @@ static void ui_attach_all_widgets(void)
     ui_attach_calibration_button();
     ui_attach_detection_switches();
     ui_attach_confidence_threshold_sliders();
+    ui_attach_isp_controls();
     ui_attach_network_controls();    // 网络设置页：IP 显示 + 上报间隔/图像/指标控件
     ui_attach_about_info();          // 关于页：模型信息静态填充
     ui_attach_restart_button();
@@ -918,6 +1422,42 @@ void ui_bind_dashboard(const ui_dashboard_handlers_t *handlers)
     if (handlers) {
         s_handlers = *handlers;
     }
+    if (s_dashboard_bound) {
+        return;
+    }
+
     ui_register_all_events();   // 第一层：事件 → 数据 → UI 更新
     ui_attach_all_widgets();    // 第二层：UI 交互 → 触发业务调用
+    s_dashboard_bound = true;
+}
+
+void ui_sync_remote_control_state(int brightness, bool detection_enabled,
+                                  bool preview_overlay_enabled,
+                                  int waybill_threshold, int logo_threshold,
+                                  bool report_image_enabled,
+                                  bool report_metrics_enabled)
+{
+    brightness = ui_clamp_percent(brightness);
+    waybill_threshold = ui_clamp_percent(waybill_threshold);
+    logo_threshold = ui_clamp_percent(logo_threshold);
+
+    ui_slider_set_value_safe(scr_dashboard_slider_screen_brightness, brightness);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_Screen_Brightness__data,
+                               "%d%%", brightness);
+    ui_state_modify(scr_dashboard_sw_detect, LV_STATE_CHECKED,
+                    detection_enabled ? UI_STATE_ACTION_ADD : UI_STATE_ACTION_REMOVE);
+    ui_state_modify(scr_dashboard_sw_preview_overlay, LV_STATE_CHECKED,
+                    detection_enabled && preview_overlay_enabled
+                        ? UI_STATE_ACTION_ADD : UI_STATE_ACTION_REMOVE);
+    ui_slider_set_value_safe(scr_dashboard_slider_confidence_threshold_mian,
+                             waybill_threshold);
+    ui_set_waybill_threshold_text(waybill_threshold);
+    ui_slider_set_value_safe(scr_dashboard_slider_confidence_threshold_logo,
+                             logo_threshold);
+    ui_set_logo_threshold_text(logo_threshold);
+    ui_state_modify(scr_dashboard_sw_report_image, LV_STATE_CHECKED,
+                    detection_enabled && report_image_enabled
+                        ? UI_STATE_ACTION_ADD : UI_STATE_ACTION_REMOVE);
+    ui_state_modify(scr_dashboard_sw_report_metrics, LV_STATE_CHECKED,
+                    report_metrics_enabled ? UI_STATE_ACTION_ADD : UI_STATE_ACTION_REMOVE);
 }

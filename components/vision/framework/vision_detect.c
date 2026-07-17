@@ -29,9 +29,9 @@
 #include "esp_cache.h"
 #include "SEGGER_RTT.h"
 #include "vision.h"                    // 对外接口：vision_frame_dump_request（供 UI 按键触发）
-#include "vision_internal.h"           // 已含 evt.h → vision_result_event_data_t
+#include "vision_internal.h"
+#include "vision_upload.h"           // 已含 evt.h → vision_result_event_data_t
 #include "vision_model.h"              // C 封装层：vision_model_run / 耗时 / 三类概率
-#include "roi_tuning.h"                // ROI 颜色阈值校准（C 接口，extern "C"）
 #include "sorting_sim_control.h"
 
 //允许miss次数
@@ -64,11 +64,40 @@ void vision_detect_task(void *arg)
     while (true) {
         xEventGroupWaitBits(eg, VISION_NEW_FRAME, pdTRUE, pdFALSE, portMAX_DELAY);
 
-        vision_frame_t fb;
-        if (!vision_frame_peek_latest(&fb)) {
+        vision_model_process_pending_switch();
+
+        vision_stable_slot_t *slot = vision_stable_frame_acquire();
+        if (!slot) {
             continue;
         }
 
+        vision_frame_ref_t ref;
+        if (!vision_frame_acquire_latest(&ref)) {
+            vision_stable_frame_discard(slot);
+            continue;
+        }
+
+        int64_t copy_start_us = esp_timer_get_time();
+        esp_err_t copy_ret = vision_stable_frame_copy_from_ref(slot, &ref);
+        int ppa_copy_us = (int)(esp_timer_get_time() - copy_start_us);
+        int64_t capture_timestamp_us = ref.frame.timestamp;
+        uint32_t frame_id = ref.frame.frame_id;
+        vision_frame_release(&ref);
+        if (copy_ret != ESP_OK) {
+            vision_stable_frame_discard(slot);
+            continue;
+        }
+        if (!vision_stable_frame_set_inferencing(slot)) {
+            vision_stable_frame_discard(slot);
+            continue;
+        }
+        uint8_t *infer_buf = vision_stable_frame_pixels(slot);
+        if (!infer_buf) {
+            vision_stable_frame_discard(slot);
+            continue;
+        }
+
+        bool upload_accepted = false;
         frame_seq++;
         int64_t now_us = esp_timer_get_time();
         // 时间窗口平均 fps：窗口内累计帧数，跨过 500ms 边界时结算平均值。
@@ -82,41 +111,26 @@ void vision_detect_task(void *arg)
             fps_win_start_us = now_us;
             fps_win_frames = 0;
         }
-    
-        // ROI 颜色阈值校准由 dashboard LOGO 按键触发（非每帧），避免常态化校准的耗时与堆压力。
-        // 复刻原工程 vision_app.cpp：consume 请求标记，命中则用当前 RGB888 帧重估阈值，
-        // 写入 roi_tuning 全局；下一次 vision_model_run 内 app_yolo 会 apply 这套新阈值。
-        if (roi_tuning_consume_calibration_request()) {
-            roi_tuning_calibration_result_t cal = {0};
-            bool cal_ok = roi_tuning_calibrate_from_rgb888(
-                fb.buf, fb.width, fb.height, fb.width * 3, &cal);
-            SEGGER_RTT_printf(0,
-                "[vision_det] ROI CAL %s area=(%d,%d %dx%d) px=%d old=(Y%d S%d D%d M%d) new=(Y%d S%d D%d M%d)\n",
-                cal_ok ? "OK" : "FAIL",
-                cal.region_x, cal.region_y, cal.region_w, cal.region_h, cal.sample_count,
-                cal.before.y_min, cal.before.sat_approx_max, cal.before.rgb_delta_max, cal.before.min_channel_min,
-                cal.after.y_min, cal.after.sat_approx_max, cal.after.rgb_delta_max, cal.after.min_channel_min);
-        }
 
         // ===== 诊断抓帧：命中 LOGO 键请求则锁定"进推理前"的整帧原始 RGB888 =====
         // memcpy 脱离 V4L2 mmap 到固定 PSRAM buffer，再 C2M cache writeback——否则 CPU
         // 写入滞留 cache，OpenOCD 从 PSRAM 物理读会拿到旧数据。RTT 打印地址+尺寸，
         // 主机据此用 dump_image 经 JTAG 拉成 .bin（紧凑 w×h×3、行优先、RGB 顺序）。
         if (atomic_exchange(&s_frame_dump_request, false)) {
-            size_t need = (size_t)fb.width * fb.height * 3;
+            size_t need = VISION_UPLOAD_RGB_BYTES;
             if (s_frame_dump_cap < need) {
                 heap_caps_free(s_frame_dump_buf);
                 s_frame_dump_buf = heap_caps_malloc(need, MALLOC_CAP_SPIRAM);
                 s_frame_dump_cap = s_frame_dump_buf ? need : 0;
             }
             if (s_frame_dump_buf) {
-                memcpy(s_frame_dump_buf, fb.buf, need);
+                memcpy(s_frame_dump_buf, infer_buf, need);
                 esp_cache_msync(s_frame_dump_buf, need,
                                 ESP_CACHE_MSYNC_FLAG_DIR_C2M | ESP_CACHE_MSYNC_FLAG_UNALIGNED);
                 SEGGER_RTT_printf(0,
                     "[FRAME_DUMP] addr=0x%08x w=%d h=%d bytes=%u\n"
                     "[FRAME_DUMP] cmd: dump_image <file> 0x%08x %u\n",
-                    (unsigned)(uintptr_t)s_frame_dump_buf, fb.width, fb.height, (unsigned)need,
+                    (unsigned)(uintptr_t)s_frame_dump_buf, VISION_UPLOAD_WIDTH, VISION_UPLOAD_HEIGHT, (unsigned)need,
                     (unsigned)(uintptr_t)s_frame_dump_buf, (unsigned)need);
             } else {
                 SEGGER_RTT_printf(0, "[FRAME_DUMP] PSRAM alloc FAIL for %u bytes\n", (unsigned)need);
@@ -128,7 +142,8 @@ void vision_detect_task(void *arg)
         int n = 0;
         bool detection_enabled = vision_is_detection_enabled();
         if (detection_enabled) {
-            n = vision_model_run(fb.buf, fb.width, fb.height, dets, VISION_MAX_BOXES);
+            n = vision_model_run(infer_buf, VISION_UPLOAD_WIDTH, VISION_UPLOAD_HEIGHT,
+                                 dets, VISION_MAX_BOXES);
             if (n < 0) {
                 n = 0;  // 推理失败按无目标处理
             }
@@ -136,13 +151,13 @@ void vision_detect_task(void *arg)
 
         // rescale 原图坐标 → 预览坐标，逐框 clip（复刻 rescale_detect_result + limit_box）。
         vision_det_frame_t result = {0};
-        result.timestamp = fb.timestamp;  // 与帧对齐，供显示侧时间戳对齐
+        result.timestamp = capture_timestamp_us;  // 与帧对齐，供显示侧时间戳对齐
         int pw = 0, ph = 0;
         vision_get_preview_size(&pw, &ph);
         int kept = 0;
-        if (detection_enabled && pw > 0 && ph > 0 && fb.width > 0 && fb.height > 0) {
-            float sx = (float)pw / fb.width;
-            float sy = (float)ph / fb.height;
+        if (detection_enabled && pw > 0 && ph > 0) {
+            float sx = (float)pw / VISION_UPLOAD_WIDTH;
+            float sy = (float)ph / VISION_UPLOAD_HEIGHT;
             for (int i = 0; i < n && kept < VISION_MAX_BOXES; i++) {
                 int x1 = (int)(dets[i].box[0] * sx);
                 int y1 = (int)(dets[i].box[1] * sy);
@@ -227,11 +242,18 @@ void vision_detect_task(void *arg)
             if (rising_edge) {
                 // category 直接透传为协议类别 0/1/2（0=极兔 1=韵达 2=中通），与上位机一致；conf 取 logo 置信度。
                 // 传原图坐标 dets[]+n，capture 内映射到 640×375 并 burn-in（图框同帧同步）。
-                uint16_t cls = (uint16_t)result.items[best_logo].category;
-                uint8_t conf = (uint8_t)result.ev.logo_confidence;
-                vision_boxed_snapshot_capture(fb.buf, fb.width, fb.height, dets, n, cls, conf);
-                SEGGER_RTT_printf(0, "[vision_det] BOXED SNAPSHOT captured cls=%u conf=%u boxes=%d\n",
-                                  (unsigned)cls, (unsigned)conf, n);
+                int primary_category = result.items[best_logo].category;
+                float primary_score = result.items[best_logo].score;
+                uint16_t primary_confidence = (uint16_t)(primary_score * 1000.0f + 0.5f);
+                int infer_ms = result.ev.infer_time_ms;
+                uint16_t infer_time_ms = (uint16_t)(infer_ms < 0 ? 0 :
+                                                    infer_ms > UINT16_MAX ? UINT16_MAX : infer_ms);
+                upload_accepted = vision_stable_frame_submit(
+                    slot, dets, n, (uint16_t)primary_category,
+                    primary_confidence, infer_time_ms);
+                SEGGER_RTT_printf(0, "[vision_det] upload frame accepted=%d boxes=%d\n",
+                                  upload_accepted ? 1 : 0, n);
+                slot = NULL;
             }
         } else if (s_display_has_last_hit && s_display_miss_count < VISION_DISPLAY_MISS_KEEP_COUNT) {
             s_display_miss_count++;
@@ -251,9 +273,15 @@ void vision_detect_task(void *arg)
         // push 进结果队列（detect 全程只持轻量 s_mutex，不碰 LVGL 锁）。
         vision_draw_save_result(&result);
 
-        SEGGER_RTT_printf(0, "[vision_det] frame #%u %dx%d boxes=%d infer=%dms %d.%d fps\n",
-                          (unsigned)frame_seq, fb.width, fb.height,
-                          result.count, result.ev.infer_time_ms,
-                          fps10 / 10, fps10 % 10);
+        SEGGER_RTT_printf(0,
+                          "[vision_det] frame #%u id=%lu %dx%d boxes=%d infer=%dms copy=%dus upload=%d %d.%d fps\n",
+                          (unsigned)frame_seq, (unsigned long)frame_id,
+                          VISION_UPLOAD_WIDTH, VISION_UPLOAD_HEIGHT,
+                          result.count, result.ev.infer_time_ms, ppa_copy_us,
+                          upload_accepted ? 1 : 0, fps10 / 10, fps10 % 10);
+
+        if (slot) {
+            vision_stable_frame_discard(slot);
+        }
     }
 }

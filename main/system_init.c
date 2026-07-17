@@ -1,5 +1,6 @@
 #include "esp_err.h"
 #include "esp_log.h"
+#include "nvs_flash.h"
 #include "system_init.h"
 #include "bsp_lcd.h"
 #include "bsp_touch.h"
@@ -13,15 +14,26 @@
 #include "sorting_sim_control.h"
 #include "vision.h"
 #include "vision_model.h"
-#include "roi_tuning.h"
 #include "system_monitor.h"
 #include "screen_uvc.h"
 
 static const char *TAG = "system";
 
+static void system_nvs_init(void)
+{
+    esp_err_t err = nvs_flash_init();
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        err = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(err);
+}
+
 void System_Init(void)
 {
     ESP_LOGI(TAG, "System initialization start");
+
+    system_nvs_init();
 
     BSP_LCD_Init();
 
@@ -57,6 +69,11 @@ void System_Init(void)
     ui_expand_dashboard_hit_areas();
     BSP_LVGL_Unlock();
 
+    //启动系统监视：后台周期采集 CPU/内存/系统指标，写入快照并通过 RTT 打印
+    system_monitor();
+
+    ethernet_app_start();
+
     //启动视觉链路：采集 + PPA 缩放 + LCD 视频区域直刷。需在 setupUi 建好预览容器后调用。
     vision_start();
 
@@ -71,11 +88,6 @@ void System_Init(void)
     sorting_sim_debug_start();
     sorting_sim_control_set_motor_output_enabled(true);
     sorting_sim_control_set_sensor_input_enabled(true);
-
-    //启动系统监视：后台周期采集 CPU/内存/系统指标，写入快照并通过 RTT 打印
-    system_monitor();
-
-    ethernet_app_start();
 
     ESP_LOGI(TAG, "System initialization done");
 }

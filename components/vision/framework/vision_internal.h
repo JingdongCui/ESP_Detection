@@ -12,7 +12,9 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
+#include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "evt.h"           // vision_result_event_data_t（UI 文本投递结构）
@@ -29,12 +31,18 @@ extern "C" {
 // 一帧的零拷贝引用：buf 指向 V4L2 mmap 区域（裸指针），有效期 = 该帧仍在 ringbuf 内。
 // 订阅者 peek 后直接读 buf，不归还；越界靠深度时间窗口避免（见上）。
 typedef struct {
-    const uint8_t *buf;   // RGB888 裸 mmap 指针（零拷贝）
+    const uint8_t *buf;   // RGB888 V4L2 mmap buffer pointer
     int width;
     int height;
-    size_t len;           // 实际字节数（bytesused）
-    int64_t timestamp;    // peek 时刻（esp_timer_get_time，us）；结果时序对齐备用
+    size_t len;           // valid bytes (bytesused)
+    int64_t timestamp;    // capture time from esp_timer_get_time(), in us
+    uint32_t frame_id;    // new generation for every successful DQBUF
 } vision_frame_t;
+
+typedef struct {
+    vision_frame_t frame;
+    bool acquired;
+} vision_frame_ref_t;
 
 // 订阅最新帧总线：返回一个新建的事件组，fetch 在 ringbuf 满时对其置 NEW_FRAME。
 // 必须在 vision fetch 任务启动前、由 vision_start 在建各订阅任务前调用，
@@ -45,6 +53,26 @@ EventGroupHandle_t vision_frame_subscribe(void);
 // 仅在取指针的瞬间持 mutex，返回后立即释放——之后读 buf 全程无锁。
 // 返回 false 表示尚无帧（首帧前），此时 out 不被修改。
 bool vision_frame_peek_latest(vision_frame_t *out);
+
+// Temporarily pin the latest frame until vision_frame_release().
+bool vision_frame_acquire_latest(vision_frame_ref_t *out);
+void vision_frame_release(vision_frame_ref_t *ref);
+
+typedef struct vision_stable_slot vision_stable_slot_t;
+
+esp_err_t vision_stable_frame_init(void);
+vision_stable_slot_t *vision_stable_frame_acquire(void);
+esp_err_t vision_stable_frame_copy_from_ref(vision_stable_slot_t *slot,
+                                             const vision_frame_ref_t *ref);
+uint8_t *vision_stable_frame_pixels(vision_stable_slot_t *slot);
+bool vision_stable_frame_set_inferencing(vision_stable_slot_t *slot);
+bool vision_stable_frame_submit(vision_stable_slot_t *slot,
+                                const vision_model_det_t *dets,
+                                int det_count,
+                                uint16_t primary_class_id,
+                                uint16_t primary_confidence_x1000,
+                                uint16_t infer_time_ms);
+bool vision_stable_frame_discard(vision_stable_slot_t *slot);
 
 // 一个检测框（纯 C 复刻 dl::detect::result_t，目标检测无 keypoint）。
 // box 为 [left_up_x, left_up_y, right_down_x, right_down_y]，预览坐标系。
@@ -88,13 +116,6 @@ void vision_draw_boxes_rgb888(uint8_t *buf, int w, int h, const vision_det_frame
 // 检测侧在「新包裹识别成功」上升沿调用：用当前原图帧 src(src_w×src_h RGB888)
 // 硬件缩放到 640×375，按同比例映射 dets[] 原图坐标框并 burn-in，生成带框快照，
 // 经信号量交给以太网侧消费。忙于上一张消费时本次静默跳过（不阻塞检测任务）。
-// dets 为原图坐标检测框数组（vision_model_det_t，含 category/score/stage）。
-void vision_boxed_snapshot_capture(const uint8_t *src, int src_w, int src_h,
-                                   const vision_model_det_t *dets, int det_count,
-                                   uint16_t class_id, uint8_t confidence_pct);
-
-// 取预览区域尺寸（vision_app.c 内 static，检测侧据此做坐标 rescale）。
-// vision_start 完成后才有效；之前返回 0。
 void vision_get_preview_size(int *w, int *h);
 
 // 推理任务入口（vision_detect.c 实现，vision_start 内创建任务时引用）。

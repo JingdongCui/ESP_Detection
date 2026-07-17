@@ -30,9 +30,11 @@
 #include "esp_log.h"
 #include "esp_err.h"
 #include "esp_spiffs.h"
+#include "nvs.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"   // ulTaskGetRunTimeCounter / xTaskGetCurrentTaskHandle（分段诊断）
+#include "freertos/queue.h"
 
 #include "dl_detect_base.hpp"
 #include "dl_detect_espdet_postprocessor.hpp"
@@ -46,24 +48,80 @@
 static const char *TAG = "vision_model";
 
 // ============================================================
-// 换模型只改这一段：每个模型的 SPIFFS 文件名 + 检测阈值。
-// 输入尺寸不用填——ImagePreprocessor 从模型自身读取输入张量形状。
-// 前处理（mean=0/std=255 归一化、letterbox 114）与后处理三段 stride(8/16/32)
-// 是 ESPDet-Pico 架构标准，两个模型通用，无需改。
+// 模型文件名配置表：文件放在项目根目录 model/，未使用的槽位填写 NULL。
+// 槽位必须从 1 开始连续填写；文件名同时作为 UI 显示名称。
 // ============================================================
-// 模型1：面单检测（单分类，category 恒 0）
-#define VISION_WAYBILL_MODEL_FILE  "waybill.espdl"  // 全屏范围找面单模型 224*224输入
+#define VISION_WAYBILL_MODEL_1 "waybill.espdl"
+#define VISION_WAYBILL_MODEL_2 NULL
+#define VISION_WAYBILL_MODEL_3 NULL
+
+#define VISION_LOGO_MODEL_1 "logo.espdl"
+#define VISION_LOGO_MODEL_2 NULL
+#define VISION_LOGO_MODEL_3 NULL
+
 #define VISION_WAYBILL_SCORE_THR_DEFAULT 0.85f
-#define VISION_WAYBILL_NMS_THR     0.70f
-// 模型2：logo 三分类（0=极兔 1=韵达 2=中通）
-#define VISION_LOGO_MODEL_FILE     "logo.espdl"  // 面单范围找logo模型 224*224输入
+#define VISION_WAYBILL_NMS_THR 0.70f
 #define VISION_LOGO_SCORE_THR_DEFAULT 0.60f
-#define VISION_LOGO_NMS_THR        0.70f
+#define VISION_LOGO_NMS_THR 0.70f
+
+struct model_registry_record_t {
+    const vision_model_entry_t *entry;
+    const char *file_name;
+    float nms_thr;
+};
+
+static const vision_model_entry_t s_waybill_entries[] = {
+    {VISION_MODEL_ID_WAYBILL_1, VISION_STAGE_WAYBILL, VISION_WAYBILL_MODEL_1},
+    {VISION_MODEL_ID_WAYBILL_2, VISION_STAGE_WAYBILL, VISION_WAYBILL_MODEL_2},
+    {VISION_MODEL_ID_WAYBILL_3, VISION_STAGE_WAYBILL, VISION_WAYBILL_MODEL_3},
+};
+
+static const vision_model_entry_t s_logo_entries[] = {
+    {VISION_MODEL_ID_LOGO_1, VISION_STAGE_LOGO, VISION_LOGO_MODEL_1},
+    {VISION_MODEL_ID_LOGO_2, VISION_STAGE_LOGO, VISION_LOGO_MODEL_2},
+    {VISION_MODEL_ID_LOGO_3, VISION_STAGE_LOGO, VISION_LOGO_MODEL_3},
+};
+
+static const model_registry_record_t s_waybill_registry[] = {
+    {&s_waybill_entries[0], VISION_WAYBILL_MODEL_1, VISION_WAYBILL_NMS_THR},
+    {&s_waybill_entries[1], VISION_WAYBILL_MODEL_2, VISION_WAYBILL_NMS_THR},
+    {&s_waybill_entries[2], VISION_WAYBILL_MODEL_3, VISION_WAYBILL_NMS_THR},
+};
+
+static const model_registry_record_t s_logo_registry[] = {
+    {&s_logo_entries[0], VISION_LOGO_MODEL_1, VISION_LOGO_NMS_THR},
+    {&s_logo_entries[1], VISION_LOGO_MODEL_2, VISION_LOGO_NMS_THR},
+    {&s_logo_entries[2], VISION_LOGO_MODEL_3, VISION_LOGO_NMS_THR},
+};
 
 static std::mutex s_threshold_mutex;
 static std::mutex s_model_mutex;
+static std::mutex s_switch_status_mutex;
 static float s_waybill_score_thr = VISION_WAYBILL_SCORE_THR_DEFAULT;
 static float s_logo_score_thr = VISION_LOGO_SCORE_THR_DEFAULT;
+
+#define VISION_MODEL_NVS_NAMESPACE "vision_model"
+#define VISION_MODEL_NVS_WAYBILL_KEY "waybill_id"
+#define VISION_MODEL_NVS_LOGO_KEY "logo_id"
+
+struct model_switch_request_t {
+    vision_stage_t stage;
+    vision_model_id_t model_id;
+};
+
+static QueueHandle_t s_switch_queue;
+static vision_model_switch_status_t s_switch_status = {
+    VISION_MODEL_SWITCH_IDLE,
+    VISION_STAGE_WAYBILL,
+    VISION_MODEL_ID_INVALID,
+    VISION_MODEL_ID_INVALID,
+    ESP_OK,
+};
+static vision_model_id_t s_waybill_active_id = VISION_MODEL_ID_INVALID;
+static vision_model_id_t s_logo_active_id = VISION_MODEL_ID_INVALID;
+static bool s_waybill_available;
+static bool s_logo_available;
+static bool s_model_started;
 
 static int clamp_percent(int percent)
 {
@@ -80,6 +138,50 @@ static int score_thr_to_percent(float value)
 {
     int percent = (int)(value * 100.0f + 0.5f);
     return clamp_percent(percent);
+}
+
+static const model_registry_record_t *find_registry_record(
+    vision_stage_t stage, vision_model_id_t id)
+{
+    const model_registry_record_t *records = nullptr;
+    size_t count = 0;
+    if (stage == VISION_STAGE_WAYBILL) {
+        records = s_waybill_registry;
+        count = sizeof(s_waybill_registry) / sizeof(s_waybill_registry[0]);
+    } else if (stage == VISION_STAGE_LOGO) {
+        records = s_logo_registry;
+        count = sizeof(s_logo_registry) / sizeof(s_logo_registry[0]);
+    } else {
+        return nullptr;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        if (!records[i].file_name) {
+            break;
+        }
+        if (records[i].entry->id == id) {
+            return &records[i];
+        }
+    }
+    return nullptr;
+}
+
+static vision_model_id_t default_model_id(vision_stage_t stage)
+{
+    return stage == VISION_STAGE_WAYBILL
+        ? VISION_MODEL_ID_WAYBILL_DEFAULT
+        : VISION_MODEL_ID_LOGO_DEFAULT;
+}
+
+static const char *nvs_key_for_stage(vision_stage_t stage)
+{
+    return stage == VISION_STAGE_WAYBILL
+        ? VISION_MODEL_NVS_WAYBILL_KEY
+        : VISION_MODEL_NVS_LOGO_KEY;
+}
+
+static const char *stage_name(vision_stage_t stage)
+{
+    return stage == VISION_STAGE_WAYBILL ? "waybill" : "logo";
 }
 
 // SPIFFS 挂载点与分区标签（模型文件由 spiffs_create_partition_image(storage model) 打包）。
@@ -273,6 +375,9 @@ class PicoDetect : public dl::detect::DetectImpl {
 public:
     PicoDetect(const char *path, float score_thr, float nms_thr)
     {
+        m_model = nullptr;
+        m_image_preprocessor = nullptr;
+        m_postprocessor = nullptr;
         m_score_thr = score_thr;
         // 从 SPIFFS 以文件路径（fopen 语义）加载 .espdl。
         m_model = new dl::Model(path, fbs::MODEL_LOCATION_IN_SDCARD);
@@ -327,6 +432,14 @@ public:
         m_postprocessor = new dl::detect::ESPDetPostProcessor(
             m_model, m_image_preprocessor, score_thr, nms_thr, VISION_MODEL_TOP_K,
             {{8, 8, 4, 4}, {16, 16, 8, 8}, {32, 32, 16, 16}});
+    }
+
+    bool valid() const
+    {
+        return m_model != nullptr &&
+               m_model->get_inputs().size() == 1 &&
+               m_image_preprocessor != nullptr &&
+               m_postprocessor != nullptr;
     }
 
     void set_runtime_score_thr(float score_thr)
@@ -426,8 +539,9 @@ private:
 struct vision_detector {
     PicoDetect *model;
 };
+typedef struct vision_detector vision_detector_t;
 
-extern "C" vision_detector_t *vision_detector_load(const char *model_name,
+static vision_detector_t *vision_detector_load(const char *model_name,
                                                    float score_thr, float nms_thr)
 {
     if (!model_name) {
@@ -439,7 +553,9 @@ extern "C" vision_detector_t *vision_detector_load(const char *model_name,
         return NULL;
     }
     det->model = new (std::nothrow) PicoDetect(path.c_str(), score_thr, nms_thr);
-    if (!det->model) {
+    if (!det->model || !det->model->valid()) {
+        ESP_LOGE(TAG, "invalid model %s", path.c_str());
+        delete det->model;
         delete det;
         return NULL;
     }
@@ -448,7 +564,7 @@ extern "C" vision_detector_t *vision_detector_load(const char *model_name,
     return det;
 }
 
-extern "C" void vision_detector_free(vision_detector_t *det)
+static void vision_detector_free(vision_detector_t *det)
 {
     if (det) {
         delete det->model;
@@ -456,9 +572,9 @@ extern "C" void vision_detector_free(vision_detector_t *det)
     }
 }
 
-static void vision_detector_set_score_threshold(vision_detector_t *det, float score_thr)
+static void vision_detector_set_score_threshold_locked(
+    vision_detector_t *det, float score_thr)
 {
-    std::lock_guard<std::mutex> lock(s_model_mutex);
     if (det && det->model) {
         det->model->set_runtime_score_thr(score_thr);
     }
@@ -481,7 +597,6 @@ static int vision_detector_run_internal(vision_detector_t *det,
     // ImagePreprocessor 目标为 RGB888(rgb_swap=false)，esp-dl 依 BGR→RGB 自动交换红蓝。
     in.pix_type = dl::image::DL_IMAGE_PIX_TYPE_BGR888;
 
-    std::lock_guard<std::mutex> lock(s_model_mutex);
     std::list<dl::detect::result_t> &res = det->model->run_with_runtime_mode(in, jt, zt, yd);
 
     int n = 0;
@@ -502,14 +617,6 @@ static int vision_detector_run_internal(vision_detector_t *det,
         n++;
     }
     return n;
-}
-
-extern "C" int vision_detector_run(vision_detector_t *det,
-                                   const uint8_t *img, int width, int height,
-                                   vision_model_det_t *out, int max)
-{
-    return vision_detector_run_internal(det, img, width, height, out, max,
-                                        nullptr, nullptr, nullptr);
 }
 
 static int vision_detector_run_with_probs(vision_detector_t *det,
@@ -719,6 +826,134 @@ static bool mount_model_spiffs(void)
     return true;
 }
 
+static esp_err_t read_stored_model_ids(vision_model_id_t *waybill_id,
+                                       vision_model_id_t *logo_id,
+                                       bool *needs_repair)
+{
+    *needs_repair = false;
+    nvs_handle_t handle;
+    esp_err_t err = nvs_open(VISION_MODEL_NVS_NAMESPACE, NVS_READONLY, &handle);
+    if (err == ESP_ERR_NVS_NOT_FOUND) {
+        *needs_repair = true;
+        return ESP_OK;
+    }
+    if (err != ESP_OK) {
+        return err;
+    }
+
+    uint32_t stored_id;
+    err = nvs_get_u32(handle, VISION_MODEL_NVS_WAYBILL_KEY, &stored_id);
+    if (err == ESP_OK) {
+        *waybill_id = stored_id;
+    } else if (err == ESP_ERR_NVS_NOT_FOUND) {
+        *needs_repair = true;
+    } else {
+        nvs_close(handle);
+        return err;
+    }
+
+    err = nvs_get_u32(handle, VISION_MODEL_NVS_LOGO_KEY, &stored_id);
+    if (err == ESP_OK) {
+        *logo_id = stored_id;
+    } else if (err == ESP_ERR_NVS_NOT_FOUND) {
+        *needs_repair = true;
+    } else {
+        nvs_close(handle);
+        return err;
+    }
+    nvs_close(handle);
+    return ESP_OK;
+}
+
+static esp_err_t write_active_model_ids(vision_model_id_t waybill_id,
+                                        vision_model_id_t logo_id)
+{
+    nvs_handle_t handle;
+    esp_err_t err = nvs_open(VISION_MODEL_NVS_NAMESPACE, NVS_READWRITE, &handle);
+    if (err != ESP_OK) {
+        return err;
+    }
+    err = nvs_set_u32(handle, VISION_MODEL_NVS_WAYBILL_KEY, waybill_id);
+    if (err == ESP_OK) {
+        err = nvs_set_u32(handle, VISION_MODEL_NVS_LOGO_KEY, logo_id);
+    }
+    if (err == ESP_OK) {
+        err = nvs_commit(handle);
+    }
+    nvs_close(handle);
+    return err;
+}
+
+static esp_err_t write_model_id(vision_stage_t stage, vision_model_id_t model_id)
+{
+    nvs_handle_t handle;
+    esp_err_t err = nvs_open(VISION_MODEL_NVS_NAMESPACE, NVS_READWRITE, &handle);
+    if (err != ESP_OK) {
+        return err;
+    }
+    err = nvs_set_u32(handle, nvs_key_for_stage(stage), model_id);
+    if (err == ESP_OK) {
+        err = nvs_commit(handle);
+    }
+    nvs_close(handle);
+    return err;
+}
+
+static vision_detector_t *load_registered_model(
+    const model_registry_record_t *record, float score_thr)
+{
+    return record
+        ? vision_detector_load(record->file_name, score_thr, record->nms_thr)
+        : nullptr;
+}
+
+static vision_detector_t *load_startup_model(vision_stage_t stage,
+                                             vision_model_id_t requested_id,
+                                             float score_thr,
+                                             vision_model_id_t *loaded_id)
+{
+    const model_registry_record_t *record = find_registry_record(stage, requested_id);
+    if (!record) {
+        requested_id = default_model_id(stage);
+        record = find_registry_record(stage, requested_id);
+    }
+    vision_detector_t *detector = load_registered_model(record, score_thr);
+    if (!detector && requested_id != default_model_id(stage)) {
+        requested_id = default_model_id(stage);
+        detector = load_registered_model(find_registry_record(stage, requested_id), score_thr);
+    }
+    if (detector) {
+        *loaded_id = requested_id;
+    }
+    return detector;
+}
+
+extern "C" const vision_model_entry_t *vision_model_registry_get(
+    vision_stage_t stage, size_t *count)
+{
+    if (!count) {
+        return nullptr;
+    }
+    if (stage == VISION_STAGE_WAYBILL) {
+        *count = 0;
+        while (*count < sizeof(s_waybill_registry) / sizeof(s_waybill_registry[0]) &&
+               s_waybill_registry[*count].file_name) {
+            ++*count;
+        }
+        return *count ? s_waybill_entries : nullptr;
+    }
+    if (stage == VISION_STAGE_LOGO) {
+        *count = 0;
+        while (*count < sizeof(s_logo_registry) / sizeof(s_logo_registry[0]) &&
+               s_logo_registry[*count].file_name) {
+            ++*count;
+        }
+        return *count ? s_logo_entries : nullptr;
+    }
+    *count = 0;
+    return nullptr;
+}
+
 extern "C" int vision_model_get_waybill_score_threshold_percent(void)
 {
     std::lock_guard<std::mutex> lock(s_threshold_mutex);
@@ -733,9 +968,24 @@ extern "C" int vision_model_get_logo_score_threshold_percent(void)
 
 extern "C" const char *vision_model_get_model_info_string(void)
 {
-    // 两个已挂载模型名的静态拼接串，编译期固定，供 UI 关于页显示。
-    static const char s_model_info[] = VISION_WAYBILL_MODEL_FILE " / " VISION_LOGO_MODEL_FILE;
-    return s_model_info;
+    static thread_local char info[96];
+    std::lock_guard<std::mutex> lock(s_switch_status_mutex);
+    vision_model_id_t waybill_id = s_model_started
+        ? s_waybill_active_id
+        : static_cast<vision_model_id_t>(VISION_MODEL_ID_WAYBILL_DEFAULT);
+    vision_model_id_t logo_id = s_model_started
+        ? s_logo_active_id
+        : static_cast<vision_model_id_t>(VISION_MODEL_ID_LOGO_DEFAULT);
+    const model_registry_record_t *waybill =
+        find_registry_record(VISION_STAGE_WAYBILL, waybill_id);
+    const model_registry_record_t *logo =
+        find_registry_record(VISION_STAGE_LOGO, logo_id);
+    snprintf(info, sizeof(info), "%s / %s",
+             waybill && (!s_model_started || s_waybill_available)
+                 ? waybill->entry->display_name : "Unavailable",
+             logo && (!s_model_started || s_logo_available)
+                 ? logo->entry->display_name : "Unavailable");
+    return info;
 }
 
 extern "C" void vision_model_set_waybill_score_threshold_percent(int percent)
@@ -747,7 +997,8 @@ extern "C" void vision_model_set_waybill_score_threshold_percent(int percent)
         s_waybill_score_thr = score_thr;
     }
     SEGGER_RTT_printf(0, "[vision-thr] waybill set percent=%d score_thr=%.2f\n", percent, score_thr);
-    vision_detector_set_score_threshold(s_waybill, score_thr);
+    std::lock_guard<std::mutex> model_lock(s_model_mutex);
+    vision_detector_set_score_threshold_locked(s_waybill, score_thr);
 }
 
 extern "C" void vision_model_set_logo_score_threshold_percent(int percent)
@@ -759,20 +1010,37 @@ extern "C" void vision_model_set_logo_score_threshold_percent(int percent)
         s_logo_score_thr = score_thr;
     }
     SEGGER_RTT_printf(0, "[vision-thr] logo set percent=%d score_thr=%.2f\n", percent, score_thr);
-    vision_detector_set_score_threshold(s_logo, score_thr);
+    std::lock_guard<std::mutex> model_lock(s_model_mutex);
+    vision_detector_set_score_threshold_locked(s_logo, score_thr);
 }
 
 extern "C" bool vision_model_init(void)
 {
     if (VISION_MODEL_BYPASS_LOAD) {
-        // 诊断旁路：不挂 SPIFFS、不 load 模型，句柄保持 NULL。
-        // 框架照常启动运行，vision_model_run 因句柄 NULL 返回 -1（0 框）。
         ESP_LOGW(TAG, "MODEL LOAD BYPASSED (diagnostic): framework-only, no inference");
         return true;
     }
     if (!mount_model_spiffs()) {
         return false;
     }
+    if (!s_switch_queue) {
+        s_switch_queue = xQueueCreate(1, sizeof(model_switch_request_t));
+        if (!s_switch_queue) {
+            ESP_LOGE(TAG, "create model switch queue failed");
+            return false;
+        }
+    }
+
+    vision_model_id_t requested_waybill = VISION_MODEL_ID_WAYBILL_DEFAULT;
+    vision_model_id_t requested_logo = VISION_MODEL_ID_LOGO_DEFAULT;
+    bool needs_nvs_repair = false;
+    esp_err_t err = read_stored_model_ids(
+        &requested_waybill, &requested_logo, &needs_nvs_repair);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "read model IDs failed: %s", esp_err_to_name(err));
+        return false;
+    }
+
     float waybill_score_thr;
     float logo_score_thr;
     {
@@ -780,21 +1048,233 @@ extern "C" bool vision_model_init(void)
         waybill_score_thr = s_waybill_score_thr;
         logo_score_thr = s_logo_score_thr;
     }
-    s_waybill = vision_detector_load(VISION_WAYBILL_MODEL_FILE,
-                                     waybill_score_thr, VISION_WAYBILL_NMS_THR);
-    s_logo    = vision_detector_load(VISION_LOGO_MODEL_FILE,
-                                     logo_score_thr, VISION_LOGO_NMS_THR);
+
+    vision_model_id_t loaded_waybill = VISION_MODEL_ID_INVALID;
+    vision_model_id_t loaded_logo = VISION_MODEL_ID_INVALID;
+    s_waybill = load_startup_model(VISION_STAGE_WAYBILL, requested_waybill,
+                                   waybill_score_thr, &loaded_waybill);
+    s_logo = load_startup_model(VISION_STAGE_LOGO, requested_logo,
+                               logo_score_thr, &loaded_logo);
     if (!s_waybill || !s_logo) {
         vision_detector_free(s_waybill);
         vision_detector_free(s_logo);
-        s_waybill = NULL;
-        s_logo = NULL;
+        s_waybill = nullptr;
+        s_logo = nullptr;
         return false;
     }
+
+    if (needs_nvs_repair || loaded_waybill != requested_waybill ||
+        loaded_logo != requested_logo) {
+        err = write_active_model_ids(loaded_waybill, loaded_logo);
+        if (err != ESP_OK) {
+            ESP_LOGE(TAG, "persist active model IDs failed: %s", esp_err_to_name(err));
+            vision_detector_free(s_waybill);
+            vision_detector_free(s_logo);
+            s_waybill = nullptr;
+            s_logo = nullptr;
+            return false;
+        }
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(s_switch_status_mutex);
+        s_waybill_active_id = loaded_waybill;
+        s_logo_active_id = loaded_logo;
+        s_waybill_available = true;
+        s_logo_available = true;
+        s_model_started = true;
+        s_switch_status = {
+            VISION_MODEL_SWITCH_IDLE,
+            VISION_STAGE_WAYBILL,
+            VISION_MODEL_ID_INVALID,
+            loaded_waybill,
+            ESP_OK,
+        };
+    }
+    ESP_LOGI(TAG, "active models: waybill=0x%08lx logo=0x%08lx",
+             (unsigned long)loaded_waybill, (unsigned long)loaded_logo);
+    SEGGER_RTT_printf(0,
+        "[model-init] active waybill=0x%08lx logo=0x%08lx repaired=%d\n",
+        (unsigned long)loaded_waybill, (unsigned long)loaded_logo,
+        needs_nvs_repair || loaded_waybill != requested_waybill ||
+            loaded_logo != requested_logo);
 #if VISION_FIXED_IMAGE_TEST_ENABLE
     run_fixed_image_tests();
 #endif
     return true;
+}
+
+extern "C" esp_err_t vision_model_get_switch_status(
+    vision_model_switch_status_t *out_status)
+{
+    if (!out_status) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    std::lock_guard<std::mutex> lock(s_switch_status_mutex);
+    *out_status = s_switch_status;
+    return ESP_OK;
+}
+
+extern "C" vision_model_id_t vision_model_get_active_id(vision_stage_t stage)
+{
+    std::lock_guard<std::mutex> lock(s_switch_status_mutex);
+    if (stage == VISION_STAGE_WAYBILL) {
+        return s_waybill_active_id;
+    }
+    if (stage == VISION_STAGE_LOGO) {
+        return s_logo_active_id;
+    }
+    return VISION_MODEL_ID_INVALID;
+}
+
+extern "C" esp_err_t vision_model_request_switch(
+    vision_stage_t stage, vision_model_id_t model_id)
+{
+    if (!find_registry_record(stage, model_id)) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    std::lock_guard<std::mutex> lock(s_switch_status_mutex);
+    if (!s_model_started || !s_switch_queue) {
+        return ESP_ERR_INVALID_STATE;
+    }
+    if (s_switch_status.state == VISION_MODEL_SWITCH_QUEUED ||
+        s_switch_status.state == VISION_MODEL_SWITCH_SWITCHING) {
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    vision_model_id_t active_id = stage == VISION_STAGE_WAYBILL
+        ? s_waybill_active_id : s_logo_active_id;
+    bool available = stage == VISION_STAGE_WAYBILL
+        ? s_waybill_available : s_logo_available;
+    if (available && active_id == model_id) {
+        s_switch_status = {
+            VISION_MODEL_SWITCH_SUCCEEDED,
+            stage,
+            model_id,
+            active_id,
+            ESP_OK,
+        };
+        return ESP_OK;
+    }
+
+    model_switch_request_t request = {stage, model_id};
+    if (xQueueSend(s_switch_queue, &request, 0) != pdTRUE) {
+        return ESP_ERR_INVALID_STATE;
+    }
+    s_switch_status = {
+        VISION_MODEL_SWITCH_QUEUED,
+        stage,
+        model_id,
+        active_id,
+        ESP_OK,
+    };
+    return ESP_OK;
+}
+
+static void publish_switch_result(const model_switch_request_t &request,
+                                  vision_model_switch_state_t state,
+                                  vision_model_id_t active_id,
+                                  bool available,
+                                  esp_err_t error)
+{
+    std::lock_guard<std::mutex> lock(s_switch_status_mutex);
+    if (request.stage == VISION_STAGE_WAYBILL) {
+        s_waybill_active_id = active_id;
+        s_waybill_available = available;
+    } else {
+        s_logo_active_id = active_id;
+        s_logo_available = available;
+    }
+    s_switch_status = {
+        state,
+        request.stage,
+        request.model_id,
+        active_id,
+        error,
+    };
+}
+
+static void perform_switch_transaction(const model_switch_request_t &request)
+{
+    std::lock_guard<std::mutex> model_lock(s_model_mutex);
+
+    vision_detector_t **slot = request.stage == VISION_STAGE_WAYBILL
+        ? &s_waybill : &s_logo;
+    vision_model_id_t old_id;
+    {
+        std::lock_guard<std::mutex> lock(s_switch_status_mutex);
+        old_id = request.stage == VISION_STAGE_WAYBILL
+            ? s_waybill_active_id : s_logo_active_id;
+    }
+    const model_registry_record_t *target =
+        find_registry_record(request.stage, request.model_id);
+    const model_registry_record_t *old =
+        find_registry_record(request.stage, old_id);
+
+    float score_thr;
+    {
+        std::lock_guard<std::mutex> lock(s_threshold_mutex);
+        score_thr = request.stage == VISION_STAGE_WAYBILL
+            ? s_waybill_score_thr : s_logo_score_thr;
+    }
+
+    ESP_LOGI(TAG, "switch %s: 0x%08lx -> 0x%08lx",
+             stage_name(request.stage), (unsigned long)old_id,
+             (unsigned long)request.model_id);
+    SEGGER_RTT_printf(0, "[model-switch] %s 0x%08lx -> 0x%08lx\n",
+                      stage_name(request.stage), (unsigned long)old_id,
+                      (unsigned long)request.model_id);
+
+    vision_detector_free(*slot);
+    *slot = nullptr;
+
+    vision_detector_t *replacement = load_registered_model(target, score_thr);
+    esp_err_t err = replacement
+        ? write_model_id(request.stage, request.model_id)
+        : ESP_FAIL;
+    if (replacement && err == ESP_OK) {
+        *slot = replacement;
+        publish_switch_result(request, VISION_MODEL_SWITCH_SUCCEEDED,
+                              request.model_id, true, ESP_OK);
+        ESP_LOGI(TAG, "switch %s succeeded: 0x%08lx",
+                 stage_name(request.stage), (unsigned long)request.model_id);
+        SEGGER_RTT_printf(0, "[model-switch] %s succeeded id=0x%08lx\n",
+                          stage_name(request.stage),
+                          (unsigned long)request.model_id);
+        return;
+    }
+
+    vision_detector_free(replacement);
+    vision_detector_t *restored = load_registered_model(old, score_thr);
+    *slot = restored;
+    vision_model_switch_state_t state = restored
+        ? VISION_MODEL_SWITCH_FAILED_RESTORED
+        : VISION_MODEL_SWITCH_FAILED_UNAVAILABLE;
+    publish_switch_result(request, state, old_id, restored != nullptr, err);
+    ESP_LOGE(TAG, "switch %s failed (%s), restored=%d old=0x%08lx",
+             stage_name(request.stage), esp_err_to_name(err), restored ? 1 : 0,
+             (unsigned long)old_id);
+    SEGGER_RTT_printf(0,
+        "[model-switch] %s failed err=0x%x restored=%d old=0x%08lx\n",
+        stage_name(request.stage), (int)err, restored ? 1 : 0,
+        (unsigned long)old_id);
+}
+
+extern "C" void vision_model_process_pending_switch(void)
+{
+    if (!s_switch_queue) {
+        return;
+    }
+    model_switch_request_t request;
+    if (xQueueReceive(s_switch_queue, &request, 0) != pdTRUE) {
+        return;
+    }
+    {
+        std::lock_guard<std::mutex> lock(s_switch_status_mutex);
+        s_switch_status.state = VISION_MODEL_SWITCH_SWITCHING;
+    }
+    perform_switch_transaction(request);
 }
 
 // 从原图【拷贝】裁剪 ROI 到模块内复用缓冲（PSRAM）。裁剪矩形 clip 到原图边界。
@@ -839,7 +1319,11 @@ static uint8_t *crop_roi(const uint8_t *buf, int width, int height,
 extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
                                 vision_model_det_t *dets, int max)
 {
-    if (!buf || !dets || max < 1 || !s_waybill || !s_logo) {
+    if (!buf || !dets || max < 1) {
+        return -1;
+    }
+    std::lock_guard<std::mutex> model_lock(s_model_mutex);
+    if (!s_waybill || !s_logo) {
         return -1;
     }
     int64_t t0 = esp_timer_get_time();
@@ -848,8 +1332,9 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
 
     // 1) 模型1：整张原图跑 waybill。
     vision_model_det_t wb[VISION_MODEL_MAX_WB];
-    int nwb = vision_detector_run(s_waybill, buf, width, height,
-                                  wb, VISION_MODEL_MAX_WB);
+    int nwb = vision_detector_run_internal(s_waybill, buf, width, height,
+                                           wb, VISION_MODEL_MAX_WB,
+                                           nullptr, nullptr, nullptr);
     int64_t t_wb = esp_timer_get_time();   // 模型1（前处理+推理+后处理）结束
     if (nwb <= 0) {
         s_last_infer_ms = (int)((esp_timer_get_time() - t0) / 1000);
