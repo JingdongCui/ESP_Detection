@@ -7,9 +7,11 @@
 #include "sorter_core/sorter_scheduler.h"
 
 #include "esp_err.h"
+#include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/idf_additions.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 
@@ -53,6 +55,9 @@ static void *s_downstream_send_ctx;
 #define REAL_IO_POLL_MS 10
 #define REAL_SCHEDULER_TICK_MS 100
 #define SENSOR_DEBOUNCE_MS 20
+#define REAL_IO_TASK_STACK_BYTES 4096
+#define REAL_IO_TASK_INTERNAL_CAPS (MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)
+#define REAL_IO_TASK_PSRAM_CAPS (MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)
 #define VISION_VOTE_MAX_COUNT 5
 
 typedef struct {
@@ -483,9 +488,35 @@ static void real_io_task(void *arg)
 static void start_real_io_task_locked(void)
 {
     if (s_real_io_task_started) return;
-    BaseType_t ok = xTaskCreatePinnedToCore(real_io_task, "sort_real_io", 2640, NULL, 4, &s_real_io_task, 0);
-    if (ok == pdPASS) s_real_io_task_started = true;
-    else ESP_LOGE(TAG, "create real IO task failed");
+    BaseType_t ok = xTaskCreatePinnedToCoreWithCaps(real_io_task, "sort_real_io",
+                                                    REAL_IO_TASK_STACK_BYTES,
+                                                    NULL, 4, &s_real_io_task, 0,
+                                                    REAL_IO_TASK_INTERNAL_CAPS);
+    if (ok == pdPASS) {
+        s_real_io_task_started = true;
+        ESP_LOGI(TAG, "real IO task stack allocated in internal RAM (%u bytes)",
+                 (unsigned)REAL_IO_TASK_STACK_BYTES);
+        return;
+    }
+
+    ESP_LOGW(TAG, "create real IO task in internal RAM failed, fallback to PSRAM; free_internal=%u free_psram=%u",
+             (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
+             (unsigned)heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+    s_real_io_task = NULL;
+    ok = xTaskCreatePinnedToCoreWithCaps(real_io_task, "sort_real_io",
+                                         REAL_IO_TASK_STACK_BYTES,
+                                         NULL, 4, &s_real_io_task, 0,
+                                         REAL_IO_TASK_PSRAM_CAPS);
+    if (ok == pdPASS) {
+        s_real_io_task_started = true;
+        ESP_LOGI(TAG, "real IO task stack allocated in PSRAM (%u bytes)",
+                 (unsigned)REAL_IO_TASK_STACK_BYTES);
+        return;
+    }
+
+    ESP_LOGE(TAG, "create real IO task failed, free_internal=%u free_psram=%u",
+             (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
+             (unsigned)heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
 }
 
 static void ensure_motor_ready_locked(void)
