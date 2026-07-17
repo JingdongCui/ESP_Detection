@@ -559,6 +559,7 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migra
   - 当前运行时分拣调参主要通过 TCP 或 USB 串口命令完成。
   - 2026-07-16 `sort_real_io` 的 4096 字节任务栈已迁到 PSRAM（提交 `e1cbd5d`），实机确认 S1/S2/S4 初始化并进入轮询，原任务创建失败已解决；S3 当前未配置 GPIO。
   - 2026-07-18 当前主分支发现该栈回退为 2640 字节内部 RAM。提交 `4fa6f3e` 将其提高为 4096 字节，优先 `MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT`，内部 RAM 创建失败才回退 PSRAM。实机确认实际分配在内部 RAM，连续多次 S1 上升沿和分拣超时调度期间无 panic/重启。
+  - 2026-07-18 `vision_det` 栈由队友包 12 的 3728 字节恢复为内部 RAM 12 KiB（提交 `a709e33`）。不能把该任务栈迁到 PSRAM：历史上 PSRAM 栈曾在 ESP-DL/中断并发中触发双核死锁。主分支与动态限速 worktree 均构建通过；实机连续识别、完整 5 票定案和大量 S1 上升沿并发运行约 121 秒，无 stack overflow、panic 或重启。
 
 ## Blue-Screen Long-Term Findings
 

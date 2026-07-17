@@ -10,6 +10,9 @@
 - 详细记录：`archive/2026-07-18-teammate-package13-merge.md`。
 - `sort_real_io` 栈已提高到 4096 字节，优先内部 RAM、失败才回退 PSRAM；实机确认分配在内部 RAM，连续多次 S1 上升沿无崩溃。
 - 详细记录：`archive/2026-07-18-real-io-internal-stack.md`。
+- `vision_det` 栈已从队友包回退的 3728 字节恢复为内部 RAM 12 KiB；主/动态限速两个 worktree 均构建通过，主分支已完整烧录。
+- 实机约 121 秒压力监视中，连续识别、5 票定案及大量 S1 上升沿并发均无栈溢出、panic 或重启。
+- 详细记录：`archive/2026-07-18-vision-det-stack-restore.md`。
 
 ## 下一步
 
@@ -17,4 +20,4 @@
 
 ## 阻塞点
 
-- S1 已反复物理触发并稳定运行；本次没有按正常间距配合 S2，队列最终达到 8 个并进入 `queue_full`，完整机械闭环仍待验证。
+- S1 已反复物理触发并稳定运行；本次没有按正常间距配合 S2，队列最终达到 8 个并进入 `queue_full/vision_without_package`，完整机械闭环仍待验证。这些是测试输入不完整造成的业务告警，不是任务栈崩溃。
