@@ -1,3 +1,3 @@
 # Current Task
 
-当前无进行中的任务。最近完成阶段见 `docs/agent/archive/2026-07-17-lvgl-responsive-inference.md`。
+当前无进行中的任务。最近完成阶段见 `docs/agent/archive/2026-07-17-preview-rate-restore.md`。

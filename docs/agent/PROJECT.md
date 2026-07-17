@@ -663,6 +663,7 @@ RGB565 必须确认整条显示路径都变成 16 bpp：
 - `goal.md` 规定格式的最终证据索引位于 `docs/agent/archive/2026-07-17-goal-acceptance/`。严格 5×60 数据是 `wb_only`，不能替代真实 waybill+logo 级联与六类业务负载；61 分钟全样本 max=217.760 ms。物理断电、真实包裹/IO、LCD/ISP 实拍和 USB OTG 拉流完成前不得标 stable。
 - 2026-07-17 LVGL 响应修复分支为 `fix/lvgl-responsive-inference`，最终提交 `9bbd224`；修改前备份标签为 `backup/before-lvgl-responsive-inference-20260717`。
 - 生产 UI 任务配置恢复为 `lvgl=5`、`swdraw=4`；`vision_disp=2`，检测/fetch/ESP-DL workers=4。预览 framebuffer blit 通过 `lv_async_call` 进入 LVGL 线程，模型运行时丢弃视觉刷新，避免外部低优先级任务持 LVGL mutex 时被优先级继承抬到检测任务之上。
-- 640×375 RGB888 预览双 framebuffer 整帧 PPA 搬运实测最坏约 142 ms；生产预览限为 4 FPS，在刷新之间保留 LVGL 触摸/重绘窗口。尝试 24 行条带化时，连续推理使每帧在 0～48 行就被取消，无法形成完整预览，已通过 `edc26cc` 回退，不能重新采用该方案。
+- 640×375 RGB888 预览双 framebuffer 整帧 PPA 搬运实测约 127～142 ms。提交 `683ce8f` 已按用户要求删除 250 ms/4 FPS 人工限流，恢复 goal 前“有新帧即尝试刷新”的节奏；实板完成速率约 6.46 FPS。尝试 24 行条带化时，连续推理使每帧在 0～48 行就被取消，无法形成完整预览，已通过 `edc26cc` 回退，不能重新采用该方案。
 - 最终限流固件 1×30 hard-reset 推理：P50 60.842 ms、P95 71.402 ms、max 80.548 ms、0 个 >=100 ms、0 个 >=500 ms；报告为 `ESP32P4_Detection/test_results/inference_latency_lvgl_final_1x30.json`。此前未限流异步版 1×60 为 P50 63.414 ms、P95 73.731 ms、max 74.280 ms。
-- 自动化只能证明任务配置、无死锁和推理时延；“触摸/动画是否不卡”仍需操作者在实屏连续切页、拖动滑块确认。当前方案的明确取舍是预览最多 4 FPS、UVC 关闭。
+- 连续预览版 1×60 hard-reset 推理：P50 67.188 ms、P95 75.037 ms、max 79.087 ms、0 个 >=100 ms、0 个 >=500 ms；报告为 `ESP32P4_Detection/test_results/inference_latency_preview_continuous_1x60.json`。
+- 自动化只能证明任务配置、无死锁、实际完成刷新速率和推理时延；“预览/LVGL 肉眼观感是否完全恢复”仍需操作者在实屏连续切页、拖动滑块确认。当前方案的明确取舍是推理 active 时丢预览帧、UVC 关闭。
