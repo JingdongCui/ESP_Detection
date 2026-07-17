@@ -4,6 +4,8 @@
 
 2026-07-17 goal 实现、测试、候选版本与备份阶段已归档到 `docs/agent/archive/2026-07-17-goal-inference-control-uvc.md`。
 
+最终逐项审计已补建 `docs/agent/archive/2026-07-17-goal-acceptance/`，按 `goal.md` 规定提供 README、inference/tasks/memory CSV、连接/控制/长稳摘要和 Host 截图索引。该目录明确区分已验证的软件证据与未完成的物理验收，不是通过证书。
+
 ## Recommended Baseline
 
 - Firmware: `c26dba8`, tag `backup/final-production-candidate-20260717`
@@ -22,3 +24,4 @@
 - 当前环境不能代替用户完成上述物理观察。
 - 当前电脑未接入或未枚举 ESP32-P4 USB OTG。
 - 因此不创建 `stable` 标签；推荐版本保持 candidate。
+- 300 个严格样本实际为 `wb_only`，没有真实包裹触发的 logo 级联与六类规定负载；61 分钟全样本 max=217.760 ms，也不满足 max<=150 ms。

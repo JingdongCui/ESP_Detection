@@ -659,3 +659,4 @@ RGB565 必须确认整条显示路径都变成 16 bpp：
 - JPEG engine 和 USB Device controller 是两个独立干扰层。把 JPEG engine 延迟到 host stream start 后，空闲 HS/FS UVC 仍使推理约 463～476 ms；因此生产必须保持 `CONFIG_SCREEN_UVC_ENABLE=n`，UVC 只能作为独立实验 profile。
 - `usb_device_uvc@1.3.1` 的 ESP32-P4 FS 配置需要显式 `.otg_speed = USB_PHY_SPEED_FULL`；否则 IDF 会把 undefined device speed 重定向到 UTMI HS PHY，造成 PHY/RHPORT 不匹配。修复候选标签为 `backup/uvc-fs-starts-latency-regression-20260717`，但其性能不合格。
 - ESP-DL core timing 诊断提交 `21ec574` 及其后续实验只用于根因定位，生产推荐仍为无诊断、UVC 默认关闭的 `c26dba8`。
+- `goal.md` 规定格式的最终证据索引位于 `docs/agent/archive/2026-07-17-goal-acceptance/`。严格 5×60 数据是 `wb_only`，不能替代真实 waybill+logo 级联与六类业务负载；61 分钟全样本 max=217.760 ms。物理断电、真实包裹/IO、LCD/ISP 实拍和 USB OTG 拉流完成前不得标 stable。

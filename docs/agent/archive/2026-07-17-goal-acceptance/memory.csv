@@ -1,0 +1,2 @@
+"captured_at","integrity","heap_free","heap_min","heap_largest","internal_free","internal_largest","dma_free","dma_largest","psram_free","psram_largest","tasks_requested","tasks_actual","internal_task_count","psram_task_count","reset_mode"
+"2026-07-17T01:48:03.719310+08:00","ok",6836391,6810219,6684660,26923,21492,1791,76,6809820,6684660,24,24,20,4,"CP2102N RTS hard reset (not power-cycle cold boot)"
