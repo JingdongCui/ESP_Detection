@@ -33,6 +33,7 @@
 - 定稿报告已删除采购/淘宝类硬件资料图和机械尺寸截图，保留系统正面、分拣过程、硬件接线、上位机、板端 UI 等实拍/截图资料。
 - 定稿 Word 要求：全文黑色字；主标题和高层标题黑体；较低层级标题和正文宋体；英文/数字 Times New Roman；最新已渲染检查 26 页。
 - 2026-07-08 最新报告已删除所有 Mermaid 流程图块，仅保留 `流程图.jpg` 作为系统整体流程图普通图片；其它流程语义均改为文字描述，避免 DOCX 转换出现流程图文本异常。
+- 以太网与 Qt 上位机答辩技术详解：`docs/ethernet_qt_link_defense_guide.md`；以当前固件 `0af4c90` 和 Host `3668ddb` 的实际执行路径为准。
 
 ## Dataset Notes
 
@@ -147,7 +148,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - 启动配置按模块归属维护：日志过滤宏在 `components/system_monitor/system_monitor.c`，TCP 链路宏在 `components/Ethernet_app/ethernet_app.c`，分拣调试及电机/传感器上电默认宏在 `components/Sorter_app/sorting_sim_control.c`；`main/system_init.c` 只负责编排。
 - `ESP32P4_Detection` 当前 `main/system_init.c` 初始化内容恢复自 `4946a30 restore lvgl perf monitor overlay`，这是上一轮实机验证 Ethernet/control/image 可连接的基线。
 - `ESP32P4_Detection` 当前视觉检测 miss 保持/发图 rearm 计数为 `VISION_DISPLAY_MISS_KEEP_COUNT=3`，位于 `components/vision/framework/vision_detect.c`。
-- `ESP32P4_Detection` 当前发图触发逻辑位于 `components/vision/framework/vision_detect.c`：启动/检测关闭后允许发图；第一次有效命中 capture 后关闭发图闸门；必须连续 miss 3 次后才重新允许下一次 capture，避免同一个包裹因检测抖动或包裹 ID 变化重复发图。`vision_package_id` 仅用于 RTT 日志，不再决定是否发图。
+- `ESP32P4_Detection` 当前发图触发逻辑位于 `components/vision/framework/vision_detect.c`：第一次有效命中后关闭发图闸门；常量 `VISION_DISPLAY_MISS_KEEP_COUNT=3` 表示保留 3 个 miss 帧，按当前 `<` 判断在第 4 个连续 miss 时清除上一命中状态，之后才允许下一次 capture。`vision_package_id` 仅用于 RTT 日志，不再决定是否发图。
 - `ESP32P4_Detection` 当前未检出/视觉失败包裹分类规则：
   - 实际调度入口：`components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `next_failed_class()`。
   - 调试状态显示：`components/Sorter_app/sorting_sim_control.c` 的 `failed_class_from_cursor()`。
@@ -160,7 +161,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
   - 2026-07-08 已验证 host 监听时板端冷启动自动连接 `5000/5001`；control 通道可收到 1 秒周期 metrics 包。
   - 图像 JPEG payload 由“识别成功的新包裹”快照触发；无包裹时 image TCP 可连接但不会产生图像包。
   - 2026-07-16 起板端 image `type=0x01` 使用 V2：40 字节公共头 + 32 字节图像元数据 + 最多 8 个 16 字节检测框 + 干净 JPEG。
-  - V2 框坐标与 `640x375` JPEG 同帧对齐，面单/Logo 框由上位机 QML 叠加，JPEG 本身不再 burn-in。control/metrics/time-sync 仍使用 V1。
+  - 当前 V2 框坐标与 `1024x600` JPEG 同帧对齐，面单/Logo 框由上位机 QML 叠加，JPEG 本身不再 burn-in。control/metrics/time-sync 仍使用 V1。
 
 ## Host V2 Image Link
 
@@ -186,7 +187,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - `sdkconfig` 中 `CONFIG_LV_USE_SYSMON=y` 保留；2026-07-07 用户要求恢复旧版性能显示，当前 `CONFIG_LV_USE_PERF_MONITOR=y` 且 `CONFIG_LV_PERF_MONITOR_ALIGN_BOTTOM_RIGHT=y`。
 - 串口优先使用 `/dev/serial/by-id/` 稳定路径；当前现场可能是 CP2102N 或 Espressif USB Serial/JTAG，按实际枚举选择。monitor 使用默认 `115200`。
 - 2026-07-16 Host 第三页设备控制已完成主机侧实现：checkpoint `c85829d`，功能提交 `6bcee3b`。
-- Host 已使用 V1 公共头的 `type=0x11 CONTROL_JSON`，支持 get/set/action、状态/错误解析和连接后自动状态查询；板端处理仍待实现。
+- Host 与当前板端均已实现 V1 公共头的 `type=0x11 CONTROL_JSON`：支持 get/set/action、状态/错误解析、连接后自动状态查询、板端参数校验/执行和完整 state 回传。
 - Host 控制范围为屏幕/ISP、检测与叠框、面单/Logo 阈值、A/B/C 三路开环速度、图像/指标上报和重启；明确不含 PID、发送频率、模型热切换和恢复出厂。
 
 ## 2026-07-06 Workspace Cleanup
