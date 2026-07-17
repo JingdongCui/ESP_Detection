@@ -5,6 +5,7 @@
 - 根目录：`/home/kazeform/2026esp`
 - 当前主固件工程：`ESP32P4_Detection`，来源为用户提供的 `ESP32P4_Detection(12).zip`。
 - 分拣限速对照 worktree：`ESP32P4_Detection_b_busy_60`，分支 `feat/sorter-b-busy-speed-cap`。
+- 2026-07-17 板端双版本队友包：`deliverables/ESP32P4_Detection_team_handoff_20260717_with_git.zip`，SHA256 `caee4a62169d7c8129909b78730d3a5bf4a1af5ad411c63e467c90904d7c727e`。包内是两个独立可移动的 Git 工作目录，分别默认检出基础分支和 B 忙限速分支。
 - 参考资料总目录：`reference/`。
 - 第 12 包替换前固件：`reference/firmware/ESP32P4_Detection_before_12_20260717/`；更早历史见 `reference/firmware/ESP32P4_Detection_before_9_20260716/`。
 - 当前活跃上位机工程：`esp32_host_no_inference/`（独立 Git）。
