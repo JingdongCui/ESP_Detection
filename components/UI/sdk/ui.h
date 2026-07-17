@@ -102,7 +102,12 @@ typedef void (*ui_brightness_handler_t)(int percent);
 typedef void (*ui_calibration_handler_t)(void);
 
 // 识别设置开关回调：enabled 为 true 表示启用对应功能。
+typedef bool (*ui_bool_getter_t)(void);
 typedef void (*ui_bool_switch_handler_t)(bool enabled);
+
+// 电机速度回调：motor_index 为 0~2，对应 A/B/C，percent 为 0~100。
+typedef int  (*ui_motor_speed_getter_t)(int motor_index);
+typedef void (*ui_motor_speed_handler_t)(int motor_index, int percent);
 
 // 百分比值回调：percent 为 0~100；getter 返回当前默认/运行时值，setter 写入业务层。
 typedef int  (*ui_percent_getter_t)(void);
@@ -120,6 +125,10 @@ typedef struct {
     ui_calibration_handler_t calibration;            // LOGO 按键 → 注入的业务回调
     ui_bool_switch_handler_t detection_enabled;      // 检测开关 → vision 推理门控
     ui_bool_switch_handler_t preview_overlay_enabled;// 预览叠加框开关 → vision 画框门控
+    ui_bool_getter_t motor_output_enabled_get;        // 电机总开关初值读取
+    ui_bool_switch_handler_t motor_output_enabled_set;// 电机总开关 → 分拣输出门控
+    ui_motor_speed_getter_t motor_speed_get;          // A/B/C 速度初值读取，索引 0/1/2
+    ui_motor_speed_handler_t motor_speed_set;         // A/B/C 速度写入，索引 0/1/2
     ui_percent_getter_t waybill_score_threshold_get; // 面单阈值滑块默认值读取
     ui_percent_handler_t waybill_score_threshold_set;// 面单阈值滑块 → vision 模型阈值
     ui_percent_getter_t logo_score_threshold_get;    // Logo 阈值滑块默认值读取
@@ -139,6 +148,8 @@ void ui_bind_dashboard(const ui_dashboard_handlers_t *handlers);
 void ui_sync_remote_control_state(int brightness, bool detection_enabled,
                                   bool preview_overlay_enabled,
                                   int waybill_threshold, int logo_threshold,
+                                  bool motor_output_enabled, int motor_a_speed,
+                                  int motor_b_speed, int motor_c_speed,
                                   bool report_image_enabled,
                                   bool report_metrics_enabled);
 

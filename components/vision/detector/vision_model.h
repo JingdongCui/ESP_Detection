@@ -82,6 +82,8 @@ int vision_model_run(const uint8_t *buf, int width, int height,
 
 // 最近一次 vision_model_run 的两级合计推理耗时（毫秒）。
 int vision_model_last_infer_ms(void);
+int vision_model_last_waybill_infer_ms(void);
+int vision_model_last_logo_infer_ms(void);
 
 // 取三类（极兔/韵达/中通）概率 ×100（来自模型2 Logo 分类）。
 void vision_model_get_class_probs(int *jt, int *zt, int *yd);

@@ -24,6 +24,8 @@ void ethernet_app_set_report_metrics_enabled(bool en);
 bool ethernet_app_get_report_image_enabled(void);
 bool ethernet_app_get_report_metrics_enabled(void);
 
+void ethernet_app_notify_control_state_changed(void);
+
 #ifdef __cplusplus
 }
 #endif

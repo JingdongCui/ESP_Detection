@@ -19,8 +19,10 @@
  * 读完（深度时间窗口，见 docs/零拷贝peek竞态风险.md）；若推理耗时不可控，应在此
  * 处先拷贝再处理。model->run 是 C++，纯 C 调用需 C++ 薄封装暴露 C 接口。
  */
+#include <stdio.h>
 #include <string.h>
 #include <stdatomic.h>
+#include <time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
@@ -33,6 +35,8 @@
 #include "vision_upload.h"           // 已含 evt.h → vision_result_event_data_t
 #include "vision_model.h"              // C 封装层：vision_model_run / 耗时 / 三类概率
 #include "sorting_sim_control.h"
+#include "bsp_lvgl_adapter_init.h"
+#include "sdk.h"
 
 //允许miss次数
 #define VISION_DISPLAY_MISS_KEEP_COUNT 5
@@ -48,6 +52,29 @@ static int s_display_miss_count;
 void vision_frame_dump_request(void)
 {
     atomic_store(&s_frame_dump_request, true);
+}
+
+static void post_vision_log(const vision_det_frame_t *result)
+{
+    vision_log_event_data_t log = {0};
+    time_t now = time(NULL);
+    struct tm local = {0};
+    if (now >= 1704067200 && localtime_r(&now, &local)) {
+        strftime(log.time, sizeof(log.time), "%Y-%m-%d %H:%M:%S", &local);
+    } else {
+        strcpy(log.time, "--");
+    }
+    snprintf(log.company, sizeof(log.company), "%s", result->ev.company);
+    snprintf(log.result, sizeof(log.result), "%s", result->ev.status);
+    log.waybill_confidence = result->ev.confidence;
+    log.logo_confidence = result->ev.logo_confidence;
+    log.waybill_infer_time_ms = vision_model_last_waybill_infer_ms();
+    log.logo_infer_time_ms = vision_model_last_logo_infer_ms();
+
+    BSP_LVGL_Lock();
+    send_event(get_current_event_table(), EVT_VISION, EVT_VISION_LOG_APPENDED,
+               (uint8_t *)&log, 0);
+    BSP_LVGL_Unlock();
 }
 
 void vision_detect_task(void *arg)
@@ -248,6 +275,7 @@ void vision_detect_task(void *arg)
                 int infer_ms = result.ev.infer_time_ms;
                 uint16_t infer_time_ms = (uint16_t)(infer_ms < 0 ? 0 :
                                                     infer_ms > UINT16_MAX ? UINT16_MAX : infer_ms);
+                post_vision_log(&result);
                 upload_accepted = vision_stable_frame_submit(
                     slot, dets, n, (uint16_t)primary_category,
                     primary_confidence, infer_time_ms);

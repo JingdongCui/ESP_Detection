@@ -937,11 +937,39 @@ void sorting_sim_control_set_mode(sorting_debug_mode_t mode)
     sorting_sim_control_apply_settings(&settings);
 }
 
+bool sorting_sim_control_get_motor_output_enabled(void)
+{
+    sorting_debug_settings_t settings;
+    sorting_sim_control_get_settings(&settings);
+    return settings.motor_output_enabled;
+}
+
 void sorting_sim_control_set_motor_output_enabled(bool enabled)
 {
     sorting_debug_settings_t settings;
     sorting_sim_control_get_settings(&settings);
     settings.motor_output_enabled = enabled;
+    sorting_sim_control_apply_settings(&settings);
+}
+
+int sorting_sim_control_get_motor_speed_percent(int motor_index)
+{
+    if (motor_index < 0 || motor_index >= 3) {
+        return 0;
+    }
+    sorting_debug_settings_t settings;
+    sorting_sim_control_get_settings(&settings);
+    return settings.motor_speed_percent[motor_index];
+}
+
+void sorting_sim_control_set_motor_speed_percent(int motor_index, int percent)
+{
+    if (motor_index < 0 || motor_index >= 3) {
+        return;
+    }
+    sorting_debug_settings_t settings;
+    sorting_sim_control_get_settings(&settings);
+    settings.motor_speed_percent[motor_index] = percent;
     sorting_sim_control_apply_settings(&settings);
 }
 

@@ -72,6 +72,7 @@ typedef struct {
 #define EVT_VISION 7
 enum vision_evt_enum {
   EVT_VISION_RESULT_CHANGED = 1,
+  EVT_VISION_LOG_APPENDED = 2,
 };
 
 typedef struct {
@@ -85,6 +86,16 @@ typedef struct {
   int  zt_a;            // 中通 A 概率 %(0~100)
   int  yd_a;            // 韵达 A 概率 %(0~100)
 } vision_result_event_data_t;
+
+typedef struct {
+  char time[20];
+  char company[24];
+  char result[24];
+  int waybill_confidence;
+  int logo_confidence;
+  int waybill_infer_time_ms;
+  int logo_infer_time_ms;
+} vision_log_event_data_t;
 
 #define EVT_ETHERNET 8
 enum ethernet_evt_enum {

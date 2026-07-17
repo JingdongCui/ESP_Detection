@@ -25,6 +25,14 @@ LV_FONT_DECLARE(lv_font_MiSans_Heavy_16_16);
 extern lv_obj_t *scr_dashboard;
 extern lv_obj_t *scr_dashboard_sw_detect;
 extern lv_obj_t *scr_dashboard_sw_preview_overlay;
+extern lv_obj_t *scr_dashboard_btn_open_motor;
+extern lv_obj_t *scr_dashboard_btn_open_motor_label;
+extern lv_obj_t *scr_dashboard_slider_A_speed;
+extern lv_obj_t *scr_dashboard_label_A_speed_value;
+extern lv_obj_t *scr_dashboard_slider_B_speed;
+extern lv_obj_t *scr_dashboard_label_B_speed_value;
+extern lv_obj_t *scr_dashboard_slider_C_speed;
+extern lv_obj_t *scr_dashboard_label_C_speed_value;
 extern lv_obj_t *scr_dashboard_slider_confidence_threshold_mian;
 extern lv_obj_t *scr_dashboard_label_confidence_value_mian;
 extern lv_obj_t *scr_dashboard_slider_confidence_threshold_logo;
@@ -66,6 +74,85 @@ extern lv_obj_t *scr_dashboard_cont_log_17;
 extern lv_obj_t *scr_dashboard_cont_log_18;
 extern lv_obj_t *scr_dashboard_cont_log_19;
 extern lv_obj_t *scr_dashboard_cont_log_20;
+
+#define UI_LOG_WIDGET_EXTERNS(n) \
+    extern lv_obj_t *scr_dashboard_label_time_##n; \
+    extern lv_obj_t *scr_dashboard_label_company_##n; \
+    extern lv_obj_t *scr_dashboard_label_result_##n; \
+    extern lv_obj_t *scr_dashboard_label_confidence_##n; \
+    extern lv_obj_t *scr_dashboard_label_detail_time_##n; \
+    extern lv_obj_t *scr_dashboard_label_detail_result_##n; \
+    extern lv_obj_t *scr_dashboard_label_logo_conf_##n; \
+    extern lv_obj_t *scr_dashboard_label_mian_conf_##n; \
+    extern lv_obj_t *scr_dashboard_label_logo_inft_##n; \
+    extern lv_obj_t *scr_dashboard_label_mian_inft_##n; \
+    extern lv_obj_t *scr_dashboard_label_detail_badge_##n
+
+UI_LOG_WIDGET_EXTERNS(01);
+UI_LOG_WIDGET_EXTERNS(02);
+UI_LOG_WIDGET_EXTERNS(03);
+UI_LOG_WIDGET_EXTERNS(04);
+UI_LOG_WIDGET_EXTERNS(05);
+UI_LOG_WIDGET_EXTERNS(06);
+UI_LOG_WIDGET_EXTERNS(07);
+UI_LOG_WIDGET_EXTERNS(08);
+UI_LOG_WIDGET_EXTERNS(09);
+UI_LOG_WIDGET_EXTERNS(10);
+UI_LOG_WIDGET_EXTERNS(11);
+UI_LOG_WIDGET_EXTERNS(12);
+UI_LOG_WIDGET_EXTERNS(13);
+UI_LOG_WIDGET_EXTERNS(14);
+UI_LOG_WIDGET_EXTERNS(15);
+UI_LOG_WIDGET_EXTERNS(16);
+UI_LOG_WIDGET_EXTERNS(17);
+UI_LOG_WIDGET_EXTERNS(18);
+UI_LOG_WIDGET_EXTERNS(19);
+UI_LOG_WIDGET_EXTERNS(20);
+
+#undef UI_LOG_WIDGET_EXTERNS
+
+#define UI_LOG_CAPACITY 20
+
+typedef struct {
+    lv_obj_t **time;
+    lv_obj_t **company;
+    lv_obj_t **result;
+    lv_obj_t **confidence;
+    lv_obj_t **detail_time;
+    lv_obj_t **detail_result;
+    lv_obj_t **logo_confidence;
+    lv_obj_t **waybill_confidence;
+    lv_obj_t **logo_infer_time;
+    lv_obj_t **waybill_infer_time;
+    lv_obj_t **badge;
+} ui_log_widgets_t;
+
+#define UI_LOG_WIDGETS(n) { \
+    &scr_dashboard_label_time_##n, \
+    &scr_dashboard_label_company_##n, \
+    &scr_dashboard_label_result_##n, \
+    &scr_dashboard_label_confidence_##n, \
+    &scr_dashboard_label_detail_time_##n, \
+    &scr_dashboard_label_detail_result_##n, \
+    &scr_dashboard_label_logo_conf_##n, \
+    &scr_dashboard_label_mian_conf_##n, \
+    &scr_dashboard_label_logo_inft_##n, \
+    &scr_dashboard_label_mian_inft_##n, \
+    &scr_dashboard_label_detail_badge_##n \
+}
+
+static const ui_log_widgets_t s_log_widgets[UI_LOG_CAPACITY] = {
+    UI_LOG_WIDGETS(01), UI_LOG_WIDGETS(02), UI_LOG_WIDGETS(03), UI_LOG_WIDGETS(04),
+    UI_LOG_WIDGETS(05), UI_LOG_WIDGETS(06), UI_LOG_WIDGETS(07), UI_LOG_WIDGETS(08),
+    UI_LOG_WIDGETS(09), UI_LOG_WIDGETS(10), UI_LOG_WIDGETS(11), UI_LOG_WIDGETS(12),
+    UI_LOG_WIDGETS(13), UI_LOG_WIDGETS(14), UI_LOG_WIDGETS(15), UI_LOG_WIDGETS(16),
+    UI_LOG_WIDGETS(17), UI_LOG_WIDGETS(18), UI_LOG_WIDGETS(19), UI_LOG_WIDGETS(20),
+};
+
+#undef UI_LOG_WIDGETS
+
+static vision_log_event_data_t s_vision_logs[UI_LOG_CAPACITY];
+static size_t s_vision_log_count;
 
 /* 文本未变则跳过 set_text，避免无谓的 free/realloc/文本重新布局/invalidate 重绘。
  * LVGL label 内部已保存当前文本，直接比对即可，无需维护影子状态。 */
@@ -183,13 +270,19 @@ static void ui_expand_standard_hit_areas(lv_obj_t *root)
         return;
     }
 
-    if (lv_obj_has_class(root, &lv_slider_class)) {
-        ui_apply_hit_area(root, &s_slider_hit_area);
-    } else if (lv_obj_has_class(root, &lv_switch_class)) {
-        ui_apply_hit_area(root, &s_switch_hit_area);
-    } else if (lv_obj_has_class(root, &lv_button_class) ||
-               lv_obj_has_class(root, &lv_imagebutton_class)) {
-        ui_apply_hit_area(root, &s_button_hit_area);
+    bool explicitly_managed = root == scr_dashboard_btn_open_motor ||
+                              root == scr_dashboard_slider_A_speed ||
+                              root == scr_dashboard_slider_B_speed ||
+                              root == scr_dashboard_slider_C_speed;
+    if (!explicitly_managed) {
+        if (lv_obj_has_class(root, &lv_slider_class)) {
+            ui_apply_hit_area(root, &s_slider_hit_area);
+        } else if (lv_obj_has_class(root, &lv_switch_class)) {
+            ui_apply_hit_area(root, &s_switch_hit_area);
+        } else if (lv_obj_has_class(root, &lv_button_class) ||
+                   lv_obj_has_class(root, &lv_imagebutton_class)) {
+            ui_apply_hit_area(root, &s_button_hit_area);
+        }
     }
 
     uint32_t child_count = lv_obj_get_child_count(root);
@@ -212,11 +305,20 @@ void ui_expand_dashboard_hit_areas(void)
         scr_dashboard_cont_log_15, scr_dashboard_cont_log_16,
         scr_dashboard_cont_log_17, scr_dashboard_cont_log_18,
         scr_dashboard_cont_log_19, scr_dashboard_cont_log_20,
+        scr_dashboard_btn_open_motor,
+    };
+    lv_obj_t *slider_targets[] = {
+        scr_dashboard_slider_A_speed,
+        scr_dashboard_slider_B_speed,
+        scr_dashboard_slider_C_speed,
     };
 
     ui_expand_standard_hit_areas(scr_dashboard);
     for (uint32_t i = 0; i < sizeof(button_targets) / sizeof(button_targets[0]); ++i) {
         ui_apply_hit_area(button_targets[i], &s_button_hit_area);
+    }
+    for (uint32_t i = 0; i < sizeof(slider_targets) / sizeof(slider_targets[0]); ++i) {
+        ui_apply_hit_area(slider_targets[i], &s_slider_hit_area);
     }
 }
 
@@ -634,10 +736,76 @@ static void ui_vision_result_event_cb(uint8_t event, uint16_t code, uint16_t typ
     ui_slider_set_value_safe(scr_dashboard_slider_yd, ui_clamp_percent(v->yd_a));
 }
 
+static void ui_refresh_vision_log_slot(size_t index)
+{
+    const ui_log_widgets_t *widgets = &s_log_widgets[index];
+    if (index >= s_vision_log_count) {
+        ui_label_set_text_safe(*widgets->time, "--");
+        ui_label_set_text_safe(*widgets->company, "--");
+        ui_label_set_text_safe(*widgets->result, "--");
+        ui_label_set_text_safe(*widgets->confidence, "--");
+        ui_label_set_text_safe(*widgets->detail_time, "--");
+        ui_label_set_text_safe(*widgets->detail_result, "--");
+        ui_label_set_text_safe(*widgets->logo_confidence, "--");
+        ui_label_set_text_safe(*widgets->waybill_confidence, "--");
+        ui_label_set_text_safe(*widgets->logo_infer_time, "--");
+        ui_label_set_text_safe(*widgets->waybill_infer_time, "--");
+        ui_label_set_text_safe(*widgets->badge, "--");
+        return;
+    }
+
+    const vision_log_event_data_t *log = &s_vision_logs[index];
+    size_t time_len = strnlen(log->time, sizeof(log->time));
+    const char *list_time = time_len >= 8 ? log->time + time_len - 8 : log->time;
+    ui_label_set_text_safe(*widgets->time, list_time);
+    ui_label_set_text_safe(*widgets->company, log->company);
+    ui_label_set_text_safe(*widgets->result, log->result);
+    ui_label_set_text_fmt_safe(*widgets->confidence, "%d%%", ui_clamp_percent(log->logo_confidence));
+    ui_label_set_text_safe(*widgets->detail_time, log->time);
+    ui_label_set_text_safe(*widgets->detail_result, log->result);
+    ui_label_set_text_fmt_safe(*widgets->logo_confidence, "%d%%", ui_clamp_percent(log->logo_confidence));
+    ui_label_set_text_fmt_safe(*widgets->waybill_confidence, "%d%%", ui_clamp_percent(log->waybill_confidence));
+    ui_label_set_text_fmt_safe(*widgets->logo_infer_time, "%d ms", log->logo_infer_time_ms);
+    ui_label_set_text_fmt_safe(*widgets->waybill_infer_time, "%d ms", log->waybill_infer_time_ms);
+    ui_label_set_text_safe(*widgets->badge, log->company);
+}
+
+static void ui_vision_log_event_cb(uint8_t event, uint16_t code, uint16_t type,
+                                   uint16_t len, uint8_t *data, uint8_t status)
+{
+    LV_UNUSED(event);
+    LV_UNUSED(code);
+    LV_UNUSED(type);
+    LV_UNUSED(status);
+
+    if (!data || len != sizeof(vision_log_event_data_t)) {
+        return;
+    }
+
+    size_t move_count = s_vision_log_count < UI_LOG_CAPACITY
+                            ? s_vision_log_count
+                            : UI_LOG_CAPACITY - 1;
+    if (move_count > 0) {
+        memmove(&s_vision_logs[1], &s_vision_logs[0],
+                move_count * sizeof(s_vision_logs[0]));
+    }
+    s_vision_logs[0] = *(vision_log_event_data_t *)data;
+    if (s_vision_log_count < UI_LOG_CAPACITY) {
+        s_vision_log_count++;
+    }
+
+    for (size_t i = 0; i < UI_LOG_CAPACITY; i++) {
+        ui_refresh_vision_log_slot(i);
+    }
+}
+
 static uint32_t ui_register_vision_events(event_table_t *table)
 {
-    return register_event(table, EVT_VISION, EVT_VISION_RESULT_CHANGED, 0,
-                          sizeof(vision_result_event_data_t), ui_vision_result_event_cb);
+    uint32_t result = register_event(table, EVT_VISION, EVT_VISION_RESULT_CHANGED, 0,
+                                     sizeof(vision_result_event_data_t), ui_vision_result_event_cb);
+    result |= register_event(table, EVT_VISION, EVT_VISION_LOG_APPENDED, 0,
+                             sizeof(vision_log_event_data_t), ui_vision_log_event_cb);
+    return result;
 }
 
 /* 以太网状态：该控件是 imgbtn，RELEASED=disconnect_126x36(断开/失败)，
@@ -717,6 +885,7 @@ static void ui_brightness_slider_event_cb(lv_event_t *e)
     if (s_handlers.brightness) {
         s_handlers.brightness(pct);
     }
+    ethernet_app_notify_control_state_changed();
 }
 
 // 给亮度滑块挂事件回调，并把滑块/标签初值同步为 UI_BRIGHTNESS_DEFAULT_PERCENT。
@@ -765,16 +934,16 @@ static void ui_detection_switch_event_cb(lv_event_t *e)
     if (s_handlers.detection_enabled) {
         s_handlers.detection_enabled(enabled);
     }
-    if (enabled) {
-        return;
-    }
 
-    ui_state_modify(scr_dashboard_sw_preview_overlay, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
+    ui_state_modify(scr_dashboard_sw_preview_overlay, LV_STATE_CHECKED,
+                    enabled ? UI_STATE_ACTION_ADD : UI_STATE_ACTION_REMOVE);
     if (s_handlers.preview_overlay_enabled) {
-        s_handlers.preview_overlay_enabled(false);
+        s_handlers.preview_overlay_enabled(enabled);
     }
-    ui_state_modify(scr_dashboard_sw_report_image, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-    ethernet_app_set_report_image_enabled(false);
+    ui_state_modify(scr_dashboard_sw_report_image, LV_STATE_CHECKED,
+                    enabled ? UI_STATE_ACTION_ADD : UI_STATE_ACTION_REMOVE);
+    ethernet_app_set_report_image_enabled(enabled);
+    ethernet_app_notify_control_state_changed();
 }
 
 static void ui_preview_overlay_switch_event_cb(lv_event_t *e)
@@ -792,6 +961,7 @@ static void ui_preview_overlay_switch_event_cb(lv_event_t *e)
     if (s_handlers.preview_overlay_enabled) {
         s_handlers.preview_overlay_enabled(enabled);
     }
+    ethernet_app_notify_control_state_changed();
 }
 
 static void ui_attach_detection_switches(void)
@@ -807,6 +977,70 @@ static void ui_attach_detection_switches(void)
                             LV_EVENT_VALUE_CHANGED, NULL);
         ui_state_modify(scr_dashboard_sw_preview_overlay, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
         lv_obj_send_event(scr_dashboard_sw_preview_overlay, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+}
+
+static void ui_motor_output_button_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
+        return;
+    }
+
+    bool enabled = lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED);
+    ui_label_set_text_safe(scr_dashboard_btn_open_motor_label, enabled ? "开启" : "关闭");
+    if (s_handlers.motor_output_enabled_set) {
+        s_handlers.motor_output_enabled_set(enabled);
+    }
+    ethernet_app_notify_control_state_changed();
+}
+
+static void ui_motor_speed_slider_event_cb(lv_event_t *e)
+{
+    if (lv_event_get_code(e) != LV_EVENT_VALUE_CHANGED) {
+        return;
+    }
+
+    int motor_index = (int)(intptr_t)lv_event_get_user_data(e);
+    lv_obj_t *slider = lv_event_get_target(e);
+    lv_obj_t *labels[] = {
+        scr_dashboard_label_A_speed_value,
+        scr_dashboard_label_B_speed_value,
+        scr_dashboard_label_C_speed_value,
+    };
+    int pct = ui_clamp_percent((int)lv_slider_get_value(slider));
+    ui_label_set_text_fmt_safe(labels[motor_index], "%d%%", pct);
+    if (s_handlers.motor_speed_set) {
+        s_handlers.motor_speed_set(motor_index, pct);
+    }
+    ethernet_app_notify_control_state_changed();
+}
+
+static void ui_attach_motor_controls(void)
+{
+    if (scr_dashboard_btn_open_motor) {
+        lv_obj_add_event_cb(scr_dashboard_btn_open_motor, ui_motor_output_button_event_cb,
+                            LV_EVENT_VALUE_CHANGED, NULL);
+        bool enabled = s_handlers.motor_output_enabled_get &&
+                       s_handlers.motor_output_enabled_get();
+        ui_state_modify(scr_dashboard_btn_open_motor, LV_STATE_CHECKED,
+                        enabled ? UI_STATE_ACTION_ADD : UI_STATE_ACTION_REMOVE);
+        lv_obj_send_event(scr_dashboard_btn_open_motor, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+
+    lv_obj_t *sliders[] = {
+        scr_dashboard_slider_A_speed,
+        scr_dashboard_slider_B_speed,
+        scr_dashboard_slider_C_speed,
+    };
+    for (int motor_index = 0; motor_index < 3; ++motor_index) {
+        if (!sliders[motor_index]) {
+            continue;
+        }
+        lv_obj_add_event_cb(sliders[motor_index], ui_motor_speed_slider_event_cb,
+                            LV_EVENT_VALUE_CHANGED, (void *)(intptr_t)motor_index);
+        int pct = s_handlers.motor_speed_get ? s_handlers.motor_speed_get(motor_index) : 0;
+        ui_slider_set_value_safe(sliders[motor_index], ui_clamp_percent(pct));
+        lv_obj_send_event(sliders[motor_index], LV_EVENT_VALUE_CHANGED, NULL);
     }
 }
 
@@ -834,6 +1068,7 @@ static void ui_waybill_threshold_slider_event_cb(lv_event_t *e)
     if (s_handlers.waybill_score_threshold_set) {
         s_handlers.waybill_score_threshold_set(pct);
     }
+    ethernet_app_notify_control_state_changed();
 }
 
 static void ui_logo_threshold_slider_event_cb(lv_event_t *e)
@@ -846,6 +1081,7 @@ static void ui_logo_threshold_slider_event_cb(lv_event_t *e)
     if (s_handlers.logo_score_threshold_set) {
         s_handlers.logo_score_threshold_set(pct);
     }
+    ethernet_app_notify_control_state_changed();
 }
 
 static void ui_attach_confidence_threshold_sliders(void)
@@ -1136,6 +1372,7 @@ static void ui_isp_slider_event_cb(lv_event_t *e)
     if (err == ESP_OK) {
         *target = value;
         *pending = true;
+        ethernet_app_notify_control_state_changed();
     } else {
         *pending = false;
         ESP_LOGW(s_ui_isp_tag, "set ISP value failed: %s", esp_err_to_name(err));
@@ -1168,6 +1405,8 @@ static void ui_isp_auto_button_event_cb(lv_event_t *e)
     if (err != ESP_OK) {
         ESP_LOGW(s_ui_isp_tag, "set ISP auto mode failed: %s", esp_err_to_name(err));
         ui_apply_isp_state(&s_isp_last_state);
+    } else {
+        ethernet_app_notify_control_state_changed();
     }
 }
 
@@ -1259,6 +1498,7 @@ static void ui_report_image_switch_event_cb(lv_event_t *e)
         ui_state_modify(target, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
     }
     ethernet_app_set_report_image_enabled(enabled);
+    ethernet_app_notify_control_state_changed();
 }
 
 // 指标上报开关：直接切换以太网层的指标上报总开关。
@@ -1268,6 +1508,7 @@ static void ui_report_metrics_switch_event_cb(lv_event_t *e)
         return;
     }
     ethernet_app_set_report_metrics_enabled(lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED));
+    ethernet_app_notify_control_state_changed();
 }
 
 // 网络设置页：上电填 IP 显示，挂上报间隔滑块与两个开关，并同步初值到以太网层。
@@ -1399,6 +1640,7 @@ static void ui_attach_all_widgets(void)
     ui_attach_brightness_slider();   // 内部同步默认亮度并触发一次回调点亮背光
     ui_attach_calibration_button();
     ui_attach_detection_switches();
+    ui_attach_motor_controls();
     ui_attach_confidence_threshold_sliders();
     ui_attach_isp_controls();
     ui_attach_network_controls();    // 网络设置页：IP 显示 + 上报间隔/图像/指标控件
@@ -1434,12 +1676,17 @@ void ui_bind_dashboard(const ui_dashboard_handlers_t *handlers)
 void ui_sync_remote_control_state(int brightness, bool detection_enabled,
                                   bool preview_overlay_enabled,
                                   int waybill_threshold, int logo_threshold,
+                                  bool motor_output_enabled, int motor_a_speed,
+                                  int motor_b_speed, int motor_c_speed,
                                   bool report_image_enabled,
                                   bool report_metrics_enabled)
 {
     brightness = ui_clamp_percent(brightness);
     waybill_threshold = ui_clamp_percent(waybill_threshold);
     logo_threshold = ui_clamp_percent(logo_threshold);
+    motor_a_speed = ui_clamp_percent(motor_a_speed);
+    motor_b_speed = ui_clamp_percent(motor_b_speed);
+    motor_c_speed = ui_clamp_percent(motor_c_speed);
 
     ui_slider_set_value_safe(scr_dashboard_slider_screen_brightness, brightness);
     ui_label_set_text_fmt_safe(scr_dashboard_label_runtime_Screen_Brightness__data,
@@ -1455,6 +1702,17 @@ void ui_sync_remote_control_state(int brightness, bool detection_enabled,
     ui_slider_set_value_safe(scr_dashboard_slider_confidence_threshold_logo,
                              logo_threshold);
     ui_set_logo_threshold_text(logo_threshold);
+    ui_state_modify(scr_dashboard_btn_open_motor, LV_STATE_CHECKED,
+                    motor_output_enabled
+                        ? UI_STATE_ACTION_ADD : UI_STATE_ACTION_REMOVE);
+    ui_label_set_text_safe(scr_dashboard_btn_open_motor_label,
+                           motor_output_enabled ? "开启" : "关闭");
+    ui_slider_set_value_safe(scr_dashboard_slider_A_speed, motor_a_speed);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_A_speed_value, "%d%%", motor_a_speed);
+    ui_slider_set_value_safe(scr_dashboard_slider_B_speed, motor_b_speed);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_B_speed_value, "%d%%", motor_b_speed);
+    ui_slider_set_value_safe(scr_dashboard_slider_C_speed, motor_c_speed);
+    ui_label_set_text_fmt_safe(scr_dashboard_label_C_speed_value, "%d%%", motor_c_speed);
     ui_state_modify(scr_dashboard_sw_report_image, LV_STATE_CHECKED,
                     detection_enabled && report_image_enabled
                         ? UI_STATE_ACTION_ADD : UI_STATE_ACTION_REMOVE);

@@ -633,6 +633,8 @@ static int vision_detector_run_with_probs(vision_detector_t *det,
 static vision_detector_t *s_waybill;   // 模型1句柄（单分类面单）
 static vision_detector_t *s_logo;      // 模型2句柄（三分类 logo）
 static int s_last_infer_ms;            // 最近一次两级合计耗时（ms）
+static int s_last_waybill_infer_ms;
+static int s_last_logo_infer_ms;
 static int s_prob_jt, s_prob_zt, s_prob_yd;  // 三类概率 ×100（来自模型2）
 
 // 分段推理诊断（仅"完整跑两级"路径填充）：各段墙钟 us + 两级总墙钟/本任务实际运行 us。
@@ -1328,6 +1330,8 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
     }
     int64_t t0 = esp_timer_get_time();
     uint32_t cpu0 = vision_task_runtime_us();
+    s_last_waybill_infer_ms = 0;
+    s_last_logo_infer_ms = 0;
     s_prob_jt = s_prob_zt = s_prob_yd = 0;
 
     // 1) 模型1：整张原图跑 waybill。
@@ -1336,6 +1340,7 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
                                            wb, VISION_MODEL_MAX_WB,
                                            nullptr, nullptr, nullptr);
     int64_t t_wb = esp_timer_get_time();   // 模型1（前处理+推理+后处理）结束
+    s_last_waybill_infer_ms = (int)((t_wb - t0) / 1000);
     if (nwb <= 0) {
         s_last_infer_ms = (int)((esp_timer_get_time() - t0) / 1000);
         return 0;   // 无面单：整帧无目标
@@ -1377,6 +1382,7 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
                                              lg, VISION_MODEL_MAX_LOGO,
                                              &s_prob_jt, &s_prob_zt, &s_prob_yd);
     int64_t t_lg = esp_timer_get_time();   // 模型2（ROI 前处理+推理+后处理）结束
+    s_last_logo_infer_ms = (int)((t_lg - t_crop) / 1000);
 
     // 5) 三类概率来自模型2原始 score tensor；画框仍只取 NMS 后最高分 logo 框。
     int best_lg = -1;
@@ -1433,6 +1439,16 @@ extern "C" int vision_model_run(const uint8_t *buf, int width, int height,
 extern "C" int vision_model_last_infer_ms(void)
 {
     return s_last_infer_ms;
+}
+
+extern "C" int vision_model_last_waybill_infer_ms(void)
+{
+    return s_last_waybill_infer_ms;
+}
+
+extern "C" int vision_model_last_logo_infer_ms(void)
+{
+    return s_last_logo_infer_ms;
 }
 
 extern "C" void vision_model_get_class_probs(int *jt, int *zt, int *yd)

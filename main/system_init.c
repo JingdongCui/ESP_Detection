@@ -59,6 +59,10 @@ void System_Init(void)
         .calibration = vision_frame_dump_request,   // 诊断期临时占用：LOGO 键触发抓帧（ROI 校准仍为 stub）
         .detection_enabled = vision_set_detection_enabled,
         .preview_overlay_enabled = vision_set_preview_overlay_enabled,
+        .motor_output_enabled_get = sorting_sim_control_get_motor_output_enabled,
+        .motor_output_enabled_set = sorting_sim_control_set_motor_output_enabled,
+        .motor_speed_get = sorting_sim_control_get_motor_speed_percent,
+        .motor_speed_set = sorting_sim_control_set_motor_speed_percent,
         .waybill_score_threshold_get = vision_model_get_waybill_score_threshold_percent,
         .waybill_score_threshold_set = vision_model_set_waybill_score_threshold_percent,
         .logo_score_threshold_get = vision_model_get_logo_score_threshold_percent,

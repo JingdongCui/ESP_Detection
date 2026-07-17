@@ -457,25 +457,22 @@ lv_obj_t * scr_dashboard_cont_wb = NULL;
 lv_obj_t * scr_dashboard_label_wb_value = NULL;
 lv_obj_t * scr_dashboard_label_wb_title = NULL;
 lv_obj_t * scr_dashboard_cont_control = NULL;
-lv_obj_t * scr_dashboard_cont_control_pid = NULL;
-lv_obj_t * scr_dashboard_label_pid_control = NULL;
-lv_obj_t * scr_dashboard_btn_openloop_mode = NULL;
-lv_obj_t * scr_dashboard_btn_openloop_mode_label = NULL;
-lv_obj_t * scr_dashboard_btn_pid_mode = NULL;
-lv_obj_t * scr_dashboard_btn_pid_mode_label = NULL;
-lv_obj_t * scr_dashboard_cont_control_openloop = NULL;
-lv_obj_t * scr_dashboard_slider_openloop_speed = NULL;
-lv_obj_t * scr_dashboard_label_openloop_speed = NULL;
-lv_obj_t * scr_dashboard_cont_control_pid_speed = NULL;
-lv_obj_t * scr_dashboard_label_pid_speed = NULL;
-lv_obj_t * scr_dashboard_btn_pid_speed_20 = NULL;
-lv_obj_t * scr_dashboard_btn_pid_speed_20_label = NULL;
-lv_obj_t * scr_dashboard_btn_pid_speed_30 = NULL;
-lv_obj_t * scr_dashboard_btn_pid_speed_30_label = NULL;
-lv_obj_t * scr_dashboard_btn_pid_speed_40 = NULL;
-lv_obj_t * scr_dashboard_btn_pid_speed_40_label = NULL;
-lv_obj_t * scr_dashboard_btn_pid_speed_50 = NULL;
-lv_obj_t * scr_dashboard_btn_pid_speed_50_label = NULL;
+lv_obj_t * scr_dashboard_cont_control_motor = NULL;
+lv_obj_t * scr_dashboard_label_text_motor = NULL;
+lv_obj_t * scr_dashboard_btn_open_motor = NULL;
+lv_obj_t * scr_dashboard_btn_open_motor_label = NULL;
+lv_obj_t * scr_dashboard_cont_control_A = NULL;
+lv_obj_t * scr_dashboard_slider_A_speed = NULL;
+lv_obj_t * scr_dashboard_label_text_A_speed = NULL;
+lv_obj_t * scr_dashboard_label_A_speed_value = NULL;
+lv_obj_t * scr_dashboard_cont_control_B = NULL;
+lv_obj_t * scr_dashboard_slider_B_speed = NULL;
+lv_obj_t * scr_dashboard_label_text_B_speed = NULL;
+lv_obj_t * scr_dashboard_label_B_speed_value = NULL;
+lv_obj_t * scr_dashboard_cont_control_C = NULL;
+lv_obj_t * scr_dashboard_slider_C_speed = NULL;
+lv_obj_t * scr_dashboard_label_text_C_speed = NULL;
+lv_obj_t * scr_dashboard_label_C_speed_value = NULL;
 lv_obj_t * scr_dashboard_cont_detect = NULL;
 lv_obj_t * scr_dashboard_cont_detect_confidence = NULL;
 lv_obj_t * scr_dashboard_slider_confidence_threshold_mian = NULL;
@@ -595,12 +592,6 @@ static void scr_dashboard_btn_logo_model_3_event_handler(lv_event_t * e);
 static void scr_dashboard_btn_mian_model_1_event_handler(lv_event_t * e);
 static void scr_dashboard_btn_mian_model_2_event_handler(lv_event_t * e);
 static void scr_dashboard_btn_mian_model_3_event_handler(lv_event_t * e);
-static void scr_dashboard_btn_pid_speed_50_event_handler(lv_event_t * e);
-static void scr_dashboard_btn_pid_speed_40_event_handler(lv_event_t * e);
-static void scr_dashboard_btn_pid_speed_30_event_handler(lv_event_t * e);
-static void scr_dashboard_btn_pid_speed_20_event_handler(lv_event_t * e);
-static void scr_dashboard_btn_pid_mode_event_handler(lv_event_t * e);
-static void scr_dashboard_btn_openloop_mode_event_handler(lv_event_t * e);
 static void scr_dashboard_imgbtn_display_event_handler(lv_event_t * e);
 static void scr_dashboard_imgbtn_detect_event_handler(lv_event_t * e);
 static void scr_dashboard_imgbtn_about_event_handler(lv_event_t * e);
@@ -799,100 +790,6 @@ static void scr_dashboard_btn_mian_model_3_event_handler(lv_event_t * e) {
     case LV_EVENT_CLICKED: {
         ui_state_modify(scr_dashboard_btn_mian_model_1, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
         ui_state_modify(scr_dashboard_btn_mian_model_2, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        break;
-    }
-    default: {
-        break;
-    }
-    }
-}
-static void scr_dashboard_btn_pid_speed_50_event_handler(lv_event_t * e) {
-    lv_event_code_t code = lv_event_get_code(e);
-    switch (code) {
-    case LV_EVENT_CLICKED: {
-        ui_state_modify(scr_dashboard_btn_pid_speed_50, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
-        ui_state_modify(scr_dashboard_btn_pid_speed_40, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_30, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_20, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        break;
-    }
-    default: {
-        break;
-    }
-    }
-}
-static void scr_dashboard_btn_pid_speed_40_event_handler(lv_event_t * e) {
-    lv_event_code_t code = lv_event_get_code(e);
-    switch (code) {
-    case LV_EVENT_CLICKED: {
-        ui_state_modify(scr_dashboard_btn_pid_speed_50, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_40, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
-        ui_state_modify(scr_dashboard_btn_pid_speed_30, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_20, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        break;
-    }
-    default: {
-        break;
-    }
-    }
-}
-static void scr_dashboard_btn_pid_speed_30_event_handler(lv_event_t * e) {
-    lv_event_code_t code = lv_event_get_code(e);
-    switch (code) {
-    case LV_EVENT_CLICKED: {
-        ui_state_modify(scr_dashboard_btn_pid_speed_50, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_40, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_30, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
-        ui_state_modify(scr_dashboard_btn_pid_speed_20, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        break;
-    }
-    default: {
-        break;
-    }
-    }
-}
-static void scr_dashboard_btn_pid_speed_20_event_handler(lv_event_t * e) {
-    lv_event_code_t code = lv_event_get_code(e);
-    switch (code) {
-    case LV_EVENT_CLICKED: {
-        ui_state_modify(scr_dashboard_btn_pid_speed_50, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_40, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_30, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_20, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
-        break;
-    }
-    default: {
-        break;
-    }
-    }
-}
-static void scr_dashboard_btn_pid_mode_event_handler(lv_event_t * e) {
-    lv_event_code_t code = lv_event_get_code(e);
-    switch (code) {
-    case LV_EVENT_CLICKED: {
-        ui_flag_modify(scr_dashboard_cont_control_pid_speed, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_REMOVE);
-        ui_flag_modify(scr_dashboard_cont_control_openloop, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
-        ui_state_modify(scr_dashboard_btn_pid_mode, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
-        ui_state_modify(scr_dashboard_btn_openloop_mode, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        break;
-    }
-    default: {
-        break;
-    }
-    }
-}
-static void scr_dashboard_btn_openloop_mode_event_handler(lv_event_t * e) {
-    lv_event_code_t code = lv_event_get_code(e);
-    switch (code) {
-    case LV_EVENT_CLICKED: {
-        ui_flag_modify(scr_dashboard_cont_control_pid_speed, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
-        ui_flag_modify(scr_dashboard_cont_control_openloop, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_mode, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_openloop_mode, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
-        ui_state_modify(scr_dashboard_btn_pid_speed_50, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_40, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_30, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
-        ui_state_modify(scr_dashboard_btn_pid_speed_20, LV_STATE_CHECKED, UI_STATE_ACTION_REMOVE);
         break;
     }
     default: {
@@ -2061,12 +1958,6 @@ static void register_ui_events(void) {
     lv_obj_add_event_cb(scr_dashboard_btn_mian_model_1, scr_dashboard_btn_mian_model_1_event_handler, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(scr_dashboard_btn_mian_model_2, scr_dashboard_btn_mian_model_2_event_handler, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(scr_dashboard_btn_mian_model_3, scr_dashboard_btn_mian_model_3_event_handler, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(scr_dashboard_btn_pid_speed_50, scr_dashboard_btn_pid_speed_50_event_handler, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(scr_dashboard_btn_pid_speed_40, scr_dashboard_btn_pid_speed_40_event_handler, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(scr_dashboard_btn_pid_speed_30, scr_dashboard_btn_pid_speed_30_event_handler, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(scr_dashboard_btn_pid_speed_20, scr_dashboard_btn_pid_speed_20_event_handler, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(scr_dashboard_btn_pid_mode, scr_dashboard_btn_pid_mode_event_handler, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(scr_dashboard_btn_openloop_mode, scr_dashboard_btn_openloop_mode_event_handler, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(scr_dashboard_imgbtn_display, scr_dashboard_imgbtn_display_event_handler, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(scr_dashboard_imgbtn_detect, scr_dashboard_imgbtn_detect_event_handler, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(scr_dashboard_imgbtn_about, scr_dashboard_imgbtn_about_event_handler, LV_EVENT_ALL, NULL);
@@ -9831,442 +9722,314 @@ static lv_obj_t * create_ui(void) {
     ui_flag_modify(scr_dashboard_cont_control, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_control, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
     ui_flag_modify(scr_dashboard_cont_control, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
-    // Create scr_dashboard_cont_control_pid
-    scr_dashboard_cont_control_pid = lv_obj_create(scr_dashboard_cont_control);
-    lv_obj_set_x(scr_dashboard_cont_control_pid, 16);
-    lv_obj_set_y(scr_dashboard_cont_control_pid, 8);
-    lv_obj_set_width(scr_dashboard_cont_control_pid, 669);
-    lv_obj_set_height(scr_dashboard_cont_control_pid, 56);
-    lv_obj_set_scrollbar_mode(scr_dashboard_cont_control_pid, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_set_layout(scr_dashboard_cont_control_pid, LV_LAYOUT_NONE);
-    // Add style for scr_dashboard_cont_control_pid - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_cont_control_pid, lv_color_hex(0x2D4145), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_cont_control_pid, lv_color_hex(0x314144), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_cont_control_pid, 44, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_cont_control_pid, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(scr_dashboard_cont_control_pid, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(scr_dashboard_cont_control_pid, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(scr_dashboard_cont_control_pid, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(scr_dashboard_cont_control_pid, 14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(scr_dashboard_cont_control_pid, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(scr_dashboard_cont_control_pid, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_left(scr_dashboard_cont_control_pid, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(scr_dashboard_cont_control_pid, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_flag_modify(scr_dashboard_cont_control_pid, LV_OBJ_FLAG_SCROLLABLE, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_pid, LV_OBJ_FLAG_SCROLL_ELASTIC, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_pid, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_pid, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_pid, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
-    // Create scr_dashboard_label_pid_control
-    scr_dashboard_label_pid_control = lv_label_create(scr_dashboard_cont_control_pid);
-    lv_obj_set_x(scr_dashboard_label_pid_control, 25);
-    lv_obj_set_y(scr_dashboard_label_pid_control, 21);
-    lv_obj_set_width(scr_dashboard_label_pid_control, LV_SIZE_CONTENT);
-    lv_obj_set_height(scr_dashboard_label_pid_control, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_pid_control, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_pid_control, "控制模式");
-    lv_label_set_long_mode(scr_dashboard_label_pid_control, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_pid_control - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_pid_control, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(scr_dashboard_label_pid_control, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_pid_control, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_pid_control, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Create scr_dashboard_btn_openloop_mode
-    scr_dashboard_btn_openloop_mode = lv_btn_create(scr_dashboard_cont_control_pid);
-    lv_obj_set_x(scr_dashboard_btn_openloop_mode, 570);
-    lv_obj_set_y(scr_dashboard_btn_openloop_mode, 11);
-    lv_obj_set_width(scr_dashboard_btn_openloop_mode, 90);
-    lv_obj_set_height(scr_dashboard_btn_openloop_mode, 32);
-    scr_dashboard_btn_openloop_mode_label = lv_label_create(scr_dashboard_btn_openloop_mode);
-    lv_obj_set_scrollbar_mode(scr_dashboard_btn_openloop_mode, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_btn_openloop_mode_label, "开环控制");
-    lv_obj_set_style_pad_all(scr_dashboard_btn_openloop_mode, 0, LV_STATE_DEFAULT);
-    lv_obj_align(scr_dashboard_btn_openloop_mode_label, LV_ALIGN_CENTER, 0, 0);
-    // Add style for scr_dashboard_btn_openloop_mode - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0x111919), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0x232C2C), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_openloop_mode, 180, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_openloop_mode, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_openloop_mode, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(scr_dashboard_btn_openloop_mode, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(scr_dashboard_btn_openloop_mode, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(scr_dashboard_btn_openloop_mode, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_btn_openloop_mode - LV_PART_MAIN | LV_STATE_CHECKED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0x111919), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0x232C2C), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_openloop_mode, 180, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_openloop_mode, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_openloop_mode, 80, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_openloop_mode, 1, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_radius(scr_dashboard_btn_openloop_mode, 10, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_CHECKED);
-    // Add style for scr_dashboard_btn_openloop_mode - LV_PART_MAIN | LV_STATE_PRESSED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0x111919), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0x232C2C), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_openloop_mode, 180, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_openloop_mode, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_openloop_mode, 80, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_openloop_mode, 1, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_radius(scr_dashboard_btn_openloop_mode, 10, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_openloop_mode, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_openloop_mode, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_btn_openloop_mode, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_btn_openloop_mode, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_openloop_mode, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_openloop_mode, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_openloop_mode, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_PRESSED);
-    ui_flag_modify(scr_dashboard_btn_openloop_mode, LV_OBJ_FLAG_CHECKABLE, UI_FLAG_ACTION_ADD);
-    ui_state_modify(scr_dashboard_btn_openloop_mode, LV_STATE_CHECKED, UI_STATE_ACTION_ADD);
-    // Create scr_dashboard_btn_pid_mode
-    scr_dashboard_btn_pid_mode = lv_btn_create(scr_dashboard_cont_control_pid);
-    lv_obj_set_x(scr_dashboard_btn_pid_mode, 470);
-    lv_obj_set_y(scr_dashboard_btn_pid_mode, 11);
-    lv_obj_set_width(scr_dashboard_btn_pid_mode, 90);
-    lv_obj_set_height(scr_dashboard_btn_pid_mode, 32);
-    scr_dashboard_btn_pid_mode_label = lv_label_create(scr_dashboard_btn_pid_mode);
-    lv_obj_set_scrollbar_mode(scr_dashboard_btn_pid_mode, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_btn_pid_mode_label, "PID控制");
-    lv_obj_set_style_pad_all(scr_dashboard_btn_pid_mode, 0, LV_STATE_DEFAULT);
-    lv_obj_align(scr_dashboard_btn_pid_mode_label, LV_ALIGN_CENTER, 0, 0);
-    // Add style for scr_dashboard_btn_pid_mode - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_mode, lv_color_hex(0x111919), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_mode, lv_color_hex(0x232C2C), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_mode, 180, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_mode, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_mode, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_mode, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_mode, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_mode, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(scr_dashboard_btn_pid_mode, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_mode, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_btn_pid_mode - LV_PART_MAIN | LV_STATE_CHECKED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_mode, lv_color_hex(0x111919), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_mode, lv_color_hex(0x232C2C), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_mode, 180, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_mode, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_mode, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_mode, 80, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_mode, 1, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_mode, 10, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_mode, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_CHECKED);
-    // Add style for scr_dashboard_btn_pid_mode - LV_PART_MAIN | LV_STATE_PRESSED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_mode, lv_color_hex(0x111919), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_mode, lv_color_hex(0x232C2C), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_mode, 180, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_mode, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_mode, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_mode, 80, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_mode, 1, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_mode, 10, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_mode, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_mode, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_mode, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_mode, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_mode, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_mode, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_mode, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_PRESSED);
-    ui_flag_modify(scr_dashboard_btn_pid_mode, LV_OBJ_FLAG_CHECKABLE, UI_FLAG_ACTION_ADD);
-    // Create scr_dashboard_cont_control_openloop
-    scr_dashboard_cont_control_openloop = lv_obj_create(scr_dashboard_cont_control);
-    lv_obj_set_x(scr_dashboard_cont_control_openloop, 16);
-    lv_obj_set_y(scr_dashboard_cont_control_openloop, 95);
-    lv_obj_set_width(scr_dashboard_cont_control_openloop, 669);
-    lv_obj_set_height(scr_dashboard_cont_control_openloop, 56);
-    lv_obj_set_scrollbar_mode(scr_dashboard_cont_control_openloop, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_set_layout(scr_dashboard_cont_control_openloop, LV_LAYOUT_NONE);
-    // Add style for scr_dashboard_cont_control_openloop - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_cont_control_openloop, lv_color_hex(0x2D4145), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_cont_control_openloop, lv_color_hex(0x314144), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_cont_control_openloop, 44, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_cont_control_openloop, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(scr_dashboard_cont_control_openloop, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(scr_dashboard_cont_control_openloop, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(scr_dashboard_cont_control_openloop, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(scr_dashboard_cont_control_openloop, 14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(scr_dashboard_cont_control_openloop, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(scr_dashboard_cont_control_openloop, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_left(scr_dashboard_cont_control_openloop, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(scr_dashboard_cont_control_openloop, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_flag_modify(scr_dashboard_cont_control_openloop, LV_OBJ_FLAG_SCROLLABLE, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_openloop, LV_OBJ_FLAG_SCROLL_ELASTIC, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_openloop, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_openloop, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_openloop, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
-    // Create scr_dashboard_slider_openloop_speed
-    scr_dashboard_slider_openloop_speed = lv_slider_create(scr_dashboard_cont_control_openloop);
-    lv_obj_set_x(scr_dashboard_slider_openloop_speed, 139);
-    lv_obj_set_y(scr_dashboard_slider_openloop_speed, 24);
-    lv_obj_set_width(scr_dashboard_slider_openloop_speed, 500);
-    lv_obj_set_height(scr_dashboard_slider_openloop_speed, 8);
-    lv_obj_set_scrollbar_mode(scr_dashboard_slider_openloop_speed, LV_SCROLLBAR_MODE_OFF);
-    lv_slider_set_range(scr_dashboard_slider_openloop_speed, 0, 100);
-    lv_slider_set_value(scr_dashboard_slider_openloop_speed, 0, LV_ANIM_OFF);
-    // Add style for scr_dashboard_slider_openloop_speed - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_slider_openloop_speed, lv_color_hex(0x05161A), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_slider_openloop_speed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_slider_openloop_speed - LV_PART_INDICATOR | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_slider_openloop_speed, lv_color_hex(0x217A96), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_slider_openloop_speed, lv_color_hex(0x84D5E0), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_slider_openloop_speed, 200, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_slider_openloop_speed, LV_GRAD_DIR_NONE, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_slider_openloop_speed - LV_PART_KNOB | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_slider_openloop_speed, lv_color_hex(0xBDD3D6), LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_slider_openloop_speed, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
-    // Create scr_dashboard_label_openloop_speed
-    scr_dashboard_label_openloop_speed = lv_label_create(scr_dashboard_cont_control_openloop);
-    lv_obj_set_x(scr_dashboard_label_openloop_speed, 27);
-    lv_obj_set_y(scr_dashboard_label_openloop_speed, 21);
-    lv_obj_set_width(scr_dashboard_label_openloop_speed, LV_SIZE_CONTENT);
-    lv_obj_set_height(scr_dashboard_label_openloop_speed, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_openloop_speed, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_openloop_speed, "开环控制速度");
-    lv_label_set_long_mode(scr_dashboard_label_openloop_speed, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_openloop_speed - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_openloop_speed, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(scr_dashboard_label_openloop_speed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_openloop_speed, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_openloop_speed, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Create scr_dashboard_cont_control_pid_speed
-    scr_dashboard_cont_control_pid_speed = lv_obj_create(scr_dashboard_cont_control);
-    lv_obj_set_x(scr_dashboard_cont_control_pid_speed, 16);
-    lv_obj_set_y(scr_dashboard_cont_control_pid_speed, 95);
-    lv_obj_set_width(scr_dashboard_cont_control_pid_speed, 669);
-    lv_obj_set_height(scr_dashboard_cont_control_pid_speed, 56);
-    lv_obj_set_scrollbar_mode(scr_dashboard_cont_control_pid_speed, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_set_layout(scr_dashboard_cont_control_pid_speed, LV_LAYOUT_NONE);
-    // Add style for scr_dashboard_cont_control_pid_speed - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_cont_control_pid_speed, lv_color_hex(0x2D4145), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_cont_control_pid_speed, lv_color_hex(0x314144), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_cont_control_pid_speed, 44, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_cont_control_pid_speed, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(scr_dashboard_cont_control_pid_speed, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(scr_dashboard_cont_control_pid_speed, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(scr_dashboard_cont_control_pid_speed, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(scr_dashboard_cont_control_pid_speed, 14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(scr_dashboard_cont_control_pid_speed, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(scr_dashboard_cont_control_pid_speed, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_left(scr_dashboard_cont_control_pid_speed, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(scr_dashboard_cont_control_pid_speed, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ui_flag_modify(scr_dashboard_cont_control_pid_speed, LV_OBJ_FLAG_HIDDEN, UI_FLAG_ACTION_ADD);
-    ui_flag_modify(scr_dashboard_cont_control_pid_speed, LV_OBJ_FLAG_SCROLLABLE, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_pid_speed, LV_OBJ_FLAG_SCROLL_ELASTIC, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_pid_speed, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_pid_speed, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
-    ui_flag_modify(scr_dashboard_cont_control_pid_speed, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
-    // Create scr_dashboard_label_pid_speed
-    scr_dashboard_label_pid_speed = lv_label_create(scr_dashboard_cont_control_pid_speed);
-    lv_obj_set_x(scr_dashboard_label_pid_speed, 27);
-    lv_obj_set_y(scr_dashboard_label_pid_speed, 21);
-    lv_obj_set_width(scr_dashboard_label_pid_speed, LV_SIZE_CONTENT);
-    lv_obj_set_height(scr_dashboard_label_pid_speed, LV_SIZE_CONTENT);
-    lv_obj_set_scrollbar_mode(scr_dashboard_label_pid_speed, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_label_pid_speed, "设置PID速度");
-    lv_label_set_long_mode(scr_dashboard_label_pid_speed, LV_LABEL_LONG_WRAP);
-    // Add style for scr_dashboard_label_pid_speed - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_text_color(scr_dashboard_label_pid_speed, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(scr_dashboard_label_pid_speed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_label_pid_speed, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_label_pid_speed, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Create scr_dashboard_btn_pid_speed_20
-    scr_dashboard_btn_pid_speed_20 = lv_btn_create(scr_dashboard_cont_control_pid_speed);
-    lv_obj_set_x(scr_dashboard_btn_pid_speed_20, 309);
-    lv_obj_set_y(scr_dashboard_btn_pid_speed_20, 12);
-    lv_obj_set_width(scr_dashboard_btn_pid_speed_20, 72);
-    lv_obj_set_height(scr_dashboard_btn_pid_speed_20, 32);
-    scr_dashboard_btn_pid_speed_20_label = lv_label_create(scr_dashboard_btn_pid_speed_20);
-    lv_obj_set_scrollbar_mode(scr_dashboard_btn_pid_speed_20, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_btn_pid_speed_20_label, "20cm/s");
-    lv_obj_set_style_pad_all(scr_dashboard_btn_pid_speed_20, 0, LV_STATE_DEFAULT);
-    lv_obj_align(scr_dashboard_btn_pid_speed_20_label, LV_ALIGN_CENTER, 0, 0);
-    // Add style for scr_dashboard_btn_pid_speed_20 - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_20, 120, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_20, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_20, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_20, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_20, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(scr_dashboard_btn_pid_speed_20, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_btn_pid_speed_20 - LV_PART_MAIN | LV_STATE_CHECKED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_20, 120, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_20, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_20, 80, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_20, 1, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_20, 16, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_CHECKED);
-    // Add style for scr_dashboard_btn_pid_speed_20 - LV_PART_MAIN | LV_STATE_PRESSED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_20, 120, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_20, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_20, 80, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_20, 1, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_20, 16, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_20, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_20, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_20, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_20, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_20, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_20, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_20, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_PRESSED);
-    ui_flag_modify(scr_dashboard_btn_pid_speed_20, LV_OBJ_FLAG_CHECKABLE, UI_FLAG_ACTION_ADD);
-    // Create scr_dashboard_btn_pid_speed_30
-    scr_dashboard_btn_pid_speed_30 = lv_btn_create(scr_dashboard_cont_control_pid_speed);
-    lv_obj_set_x(scr_dashboard_btn_pid_speed_30, 393);
-    lv_obj_set_y(scr_dashboard_btn_pid_speed_30, 12);
-    lv_obj_set_width(scr_dashboard_btn_pid_speed_30, 72);
-    lv_obj_set_height(scr_dashboard_btn_pid_speed_30, 32);
-    scr_dashboard_btn_pid_speed_30_label = lv_label_create(scr_dashboard_btn_pid_speed_30);
-    lv_obj_set_scrollbar_mode(scr_dashboard_btn_pid_speed_30, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_btn_pid_speed_30_label, "30cm/s");
-    lv_obj_set_style_pad_all(scr_dashboard_btn_pid_speed_30, 0, LV_STATE_DEFAULT);
-    lv_obj_align(scr_dashboard_btn_pid_speed_30_label, LV_ALIGN_CENTER, 0, 0);
-    // Add style for scr_dashboard_btn_pid_speed_30 - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_30, 120, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_30, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_30, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_30, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_30, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(scr_dashboard_btn_pid_speed_30, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_btn_pid_speed_30 - LV_PART_MAIN | LV_STATE_CHECKED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_30, 120, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_30, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_30, 80, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_30, 1, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_30, 16, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_CHECKED);
-    // Add style for scr_dashboard_btn_pid_speed_30 - LV_PART_MAIN | LV_STATE_PRESSED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_30, 120, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_30, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_30, 80, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_30, 1, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_30, 16, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_30, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_30, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_30, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_30, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_30, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_30, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_30, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_PRESSED);
-    ui_flag_modify(scr_dashboard_btn_pid_speed_30, LV_OBJ_FLAG_CHECKABLE, UI_FLAG_ACTION_ADD);
-    // Create scr_dashboard_btn_pid_speed_40
-    scr_dashboard_btn_pid_speed_40 = lv_btn_create(scr_dashboard_cont_control_pid_speed);
-    lv_obj_set_x(scr_dashboard_btn_pid_speed_40, 477);
-    lv_obj_set_y(scr_dashboard_btn_pid_speed_40, 12);
-    lv_obj_set_width(scr_dashboard_btn_pid_speed_40, 72);
-    lv_obj_set_height(scr_dashboard_btn_pid_speed_40, 32);
-    scr_dashboard_btn_pid_speed_40_label = lv_label_create(scr_dashboard_btn_pid_speed_40);
-    lv_obj_set_scrollbar_mode(scr_dashboard_btn_pid_speed_40, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_btn_pid_speed_40_label, "40cm/s");
-    lv_obj_set_style_pad_all(scr_dashboard_btn_pid_speed_40, 0, LV_STATE_DEFAULT);
-    lv_obj_align(scr_dashboard_btn_pid_speed_40_label, LV_ALIGN_CENTER, 0, 0);
-    // Add style for scr_dashboard_btn_pid_speed_40 - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_40, 120, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_40, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_40, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_40, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_40, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(scr_dashboard_btn_pid_speed_40, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_btn_pid_speed_40 - LV_PART_MAIN | LV_STATE_CHECKED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_40, 120, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_40, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_40, 80, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_40, 1, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_40, 16, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_CHECKED);
-    // Add style for scr_dashboard_btn_pid_speed_40 - LV_PART_MAIN | LV_STATE_PRESSED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_40, 120, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_40, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_40, 80, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_40, 1, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_40, 16, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_40, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_40, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_40, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_40, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_40, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_40, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_40, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_PRESSED);
-    ui_flag_modify(scr_dashboard_btn_pid_speed_40, LV_OBJ_FLAG_CHECKABLE, UI_FLAG_ACTION_ADD);
-    // Create scr_dashboard_btn_pid_speed_50
-    scr_dashboard_btn_pid_speed_50 = lv_btn_create(scr_dashboard_cont_control_pid_speed);
-    lv_obj_set_x(scr_dashboard_btn_pid_speed_50, 561);
-    lv_obj_set_y(scr_dashboard_btn_pid_speed_50, 12);
-    lv_obj_set_width(scr_dashboard_btn_pid_speed_50, 72);
-    lv_obj_set_height(scr_dashboard_btn_pid_speed_50, 32);
-    scr_dashboard_btn_pid_speed_50_label = lv_label_create(scr_dashboard_btn_pid_speed_50);
-    lv_obj_set_scrollbar_mode(scr_dashboard_btn_pid_speed_50, LV_SCROLLBAR_MODE_OFF);
-    lv_label_set_text(scr_dashboard_btn_pid_speed_50_label, "50cm/s");
-    lv_obj_set_style_pad_all(scr_dashboard_btn_pid_speed_50, 0, LV_STATE_DEFAULT);
-    lv_obj_align(scr_dashboard_btn_pid_speed_50_label, LV_ALIGN_CENTER, 0, 0);
-    // Add style for scr_dashboard_btn_pid_speed_50 - LV_PART_MAIN | LV_STATE_DEFAULT
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_50, 120, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_50, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_50, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_50, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_50, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(scr_dashboard_btn_pid_speed_50, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0xffffff), LV_PART_MAIN | LV_STATE_DEFAULT);
-    // Add style for scr_dashboard_btn_pid_speed_50 - LV_PART_MAIN | LV_STATE_CHECKED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_50, 120, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_50, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_50, 80, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_50, 1, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_50, 16, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_CHECKED);
-    // Add style for scr_dashboard_btn_pid_speed_50 - LV_PART_MAIN | LV_STATE_PRESSED
-    lv_obj_set_style_bg_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x0B242B), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x124040), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_opa(scr_dashboard_btn_pid_speed_50, 120, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_pid_speed_50, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x75B8A3), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_opa(scr_dashboard_btn_pid_speed_50, 80, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_border_width(scr_dashboard_btn_pid_speed_50, 1, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_radius(scr_dashboard_btn_pid_speed_50, 16, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_color(scr_dashboard_btn_pid_speed_50, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_50, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_50, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_50, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_50, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_font(scr_dashboard_btn_pid_speed_50, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_PRESSED);
-    lv_obj_set_style_text_align(scr_dashboard_btn_pid_speed_50, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_PRESSED);
-    ui_flag_modify(scr_dashboard_btn_pid_speed_50, LV_OBJ_FLAG_CHECKABLE, UI_FLAG_ACTION_ADD);
+    // Create scr_dashboard_cont_control_motor
+    scr_dashboard_cont_control_motor = lv_obj_create(scr_dashboard_cont_control);
+    lv_obj_set_x(scr_dashboard_cont_control_motor, 16);
+    lv_obj_set_y(scr_dashboard_cont_control_motor, 8);
+    lv_obj_set_width(scr_dashboard_cont_control_motor, 669);
+    lv_obj_set_height(scr_dashboard_cont_control_motor, 56);
+    lv_obj_set_scrollbar_mode(scr_dashboard_cont_control_motor, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_layout(scr_dashboard_cont_control_motor, LV_LAYOUT_NONE);
+    // Add style for scr_dashboard_cont_control_motor - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_cont_control_motor, lv_color_hex(0x2D4145), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_cont_control_motor, lv_color_hex(0x314144), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_cont_control_motor, 44, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_cont_control_motor, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(scr_dashboard_cont_control_motor, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(scr_dashboard_cont_control_motor, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(scr_dashboard_cont_control_motor, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(scr_dashboard_cont_control_motor, 14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(scr_dashboard_cont_control_motor, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(scr_dashboard_cont_control_motor, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(scr_dashboard_cont_control_motor, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(scr_dashboard_cont_control_motor, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_flag_modify(scr_dashboard_cont_control_motor, LV_OBJ_FLAG_SCROLLABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_motor, LV_OBJ_FLAG_SCROLL_ELASTIC, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_motor, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_motor, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_motor, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
+    // Create scr_dashboard_label_text_motor
+    scr_dashboard_label_text_motor = lv_label_create(scr_dashboard_cont_control_motor);
+    lv_obj_set_x(scr_dashboard_label_text_motor, 25);
+    lv_obj_set_y(scr_dashboard_label_text_motor, 21);
+    lv_obj_set_width(scr_dashboard_label_text_motor, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_text_motor, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_text_motor, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_text_motor, "是否开启电机传输");
+    lv_label_set_long_mode(scr_dashboard_label_text_motor, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_text_motor - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_text_motor, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_text_motor, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_text_motor, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_text_motor, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_btn_open_motor
+    scr_dashboard_btn_open_motor = lv_btn_create(scr_dashboard_cont_control_motor);
+    lv_obj_set_x(scr_dashboard_btn_open_motor, 585);
+    lv_obj_set_y(scr_dashboard_btn_open_motor, 13);
+    lv_obj_set_width(scr_dashboard_btn_open_motor, 48);
+    lv_obj_set_height(scr_dashboard_btn_open_motor, 28);
+    scr_dashboard_btn_open_motor_label = lv_label_create(scr_dashboard_btn_open_motor);
+    lv_obj_set_scrollbar_mode(scr_dashboard_btn_open_motor, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_btn_open_motor_label, "开启");
+    lv_obj_set_style_pad_all(scr_dashboard_btn_open_motor, 0, LV_STATE_DEFAULT);
+    lv_obj_align(scr_dashboard_btn_open_motor_label, LV_ALIGN_CENTER, 0, 0);
+    // Add style for scr_dashboard_btn_open_motor - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_btn_open_motor, lv_color_hex(0x111919), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_open_motor, lv_color_hex(0x232C2C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_btn_open_motor, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_open_motor, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(scr_dashboard_btn_open_motor, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(scr_dashboard_btn_open_motor, 80, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(scr_dashboard_btn_open_motor, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(scr_dashboard_btn_open_motor, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_opa(scr_dashboard_btn_open_motor, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(scr_dashboard_btn_open_motor, lv_color_hex(0x9D9D9D), LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_btn_open_motor - LV_PART_MAIN | LV_STATE_CHECKED
+    lv_obj_set_style_bg_color(scr_dashboard_btn_open_motor, lv_color_hex(0x111919), LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_open_motor, lv_color_hex(0x232C2C), LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_bg_opa(scr_dashboard_btn_open_motor, 180, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_open_motor, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_border_color(scr_dashboard_btn_open_motor, lv_color_hex(0x71B8CF), LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_border_opa(scr_dashboard_btn_open_motor, 162, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_border_width(scr_dashboard_btn_open_motor, 1, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_radius(scr_dashboard_btn_open_motor, 10, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_text_color(scr_dashboard_btn_open_motor, lv_color_hex(0x71B8CF), LV_PART_MAIN | LV_STATE_CHECKED);
+    // Add style for scr_dashboard_btn_open_motor - LV_PART_MAIN | LV_STATE_PRESSED
+    lv_obj_set_style_bg_color(scr_dashboard_btn_open_motor, lv_color_hex(0x111919), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_btn_open_motor, lv_color_hex(0x232C2C), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_opa(scr_dashboard_btn_open_motor, 180, LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_btn_open_motor, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_border_color(scr_dashboard_btn_open_motor, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_border_opa(scr_dashboard_btn_open_motor, 80, LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_border_width(scr_dashboard_btn_open_motor, 1, LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_radius(scr_dashboard_btn_open_motor, 10, LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_text_color(scr_dashboard_btn_open_motor, lv_color_hex(0x71CF97), LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_text_font(scr_dashboard_btn_open_motor, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_btn_open_motor, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_btn_open_motor, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_text_align(scr_dashboard_btn_open_motor, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_text_font(scr_dashboard_btn_open_motor, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_text_align(scr_dashboard_btn_open_motor, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_PRESSED);
+    ui_flag_modify(scr_dashboard_btn_open_motor, LV_OBJ_FLAG_CHECKABLE, UI_FLAG_ACTION_ADD);
+    // Create scr_dashboard_cont_control_A
+    scr_dashboard_cont_control_A = lv_obj_create(scr_dashboard_cont_control);
+    lv_obj_set_x(scr_dashboard_cont_control_A, 16);
+    lv_obj_set_y(scr_dashboard_cont_control_A, 79);
+    lv_obj_set_width(scr_dashboard_cont_control_A, 669);
+    lv_obj_set_height(scr_dashboard_cont_control_A, 56);
+    lv_obj_set_scrollbar_mode(scr_dashboard_cont_control_A, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_layout(scr_dashboard_cont_control_A, LV_LAYOUT_NONE);
+    // Add style for scr_dashboard_cont_control_A - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_cont_control_A, lv_color_hex(0x2D4145), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_cont_control_A, lv_color_hex(0x314144), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_cont_control_A, 44, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_cont_control_A, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(scr_dashboard_cont_control_A, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(scr_dashboard_cont_control_A, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(scr_dashboard_cont_control_A, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(scr_dashboard_cont_control_A, 14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(scr_dashboard_cont_control_A, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(scr_dashboard_cont_control_A, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(scr_dashboard_cont_control_A, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(scr_dashboard_cont_control_A, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_flag_modify(scr_dashboard_cont_control_A, LV_OBJ_FLAG_SCROLLABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_A, LV_OBJ_FLAG_SCROLL_ELASTIC, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_A, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_A, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_A, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
+    // Create scr_dashboard_slider_A_speed
+    scr_dashboard_slider_A_speed = lv_slider_create(scr_dashboard_cont_control_A);
+    lv_obj_set_x(scr_dashboard_slider_A_speed, 139);
+    lv_obj_set_y(scr_dashboard_slider_A_speed, 24);
+    lv_obj_set_width(scr_dashboard_slider_A_speed, 460);
+    lv_obj_set_height(scr_dashboard_slider_A_speed, 8);
+    lv_obj_set_scrollbar_mode(scr_dashboard_slider_A_speed, LV_SCROLLBAR_MODE_OFF);
+    lv_slider_set_range(scr_dashboard_slider_A_speed, 0, 100);
+    lv_slider_set_value(scr_dashboard_slider_A_speed, 0, LV_ANIM_OFF);
+    // Add style for scr_dashboard_slider_A_speed - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_A_speed, lv_color_hex(0x05161A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_A_speed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_A_speed - LV_PART_INDICATOR | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_A_speed, lv_color_hex(0x217A96), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_slider_A_speed, lv_color_hex(0x84D5E0), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_A_speed, 200, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_slider_A_speed, LV_GRAD_DIR_NONE, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_A_speed - LV_PART_KNOB | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_A_speed, lv_color_hex(0xBDD3D6), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_A_speed, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_text_A_speed
+    scr_dashboard_label_text_A_speed = lv_label_create(scr_dashboard_cont_control_A);
+    lv_obj_set_x(scr_dashboard_label_text_A_speed, 27);
+    lv_obj_set_y(scr_dashboard_label_text_A_speed, 21);
+    lv_obj_set_width(scr_dashboard_label_text_A_speed, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_text_A_speed, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_text_A_speed, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_text_A_speed, "A带速度");
+    lv_label_set_long_mode(scr_dashboard_label_text_A_speed, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_text_A_speed - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_text_A_speed, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_text_A_speed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_text_A_speed, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_text_A_speed, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_A_speed_value
+    scr_dashboard_label_A_speed_value = lv_label_create(scr_dashboard_cont_control_A);
+    lv_obj_set_x(scr_dashboard_label_A_speed_value, 615);
+    lv_obj_set_y(scr_dashboard_label_A_speed_value, 21);
+    lv_obj_set_width(scr_dashboard_label_A_speed_value, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_A_speed_value, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_A_speed_value, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_A_speed_value, "--");
+    lv_label_set_long_mode(scr_dashboard_label_A_speed_value, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_A_speed_value - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_A_speed_value, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_A_speed_value, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_A_speed_value, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_cont_control_B
+    scr_dashboard_cont_control_B = lv_obj_create(scr_dashboard_cont_control);
+    lv_obj_set_x(scr_dashboard_cont_control_B, 16);
+    lv_obj_set_y(scr_dashboard_cont_control_B, 155);
+    lv_obj_set_width(scr_dashboard_cont_control_B, 669);
+    lv_obj_set_height(scr_dashboard_cont_control_B, 56);
+    lv_obj_set_scrollbar_mode(scr_dashboard_cont_control_B, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_layout(scr_dashboard_cont_control_B, LV_LAYOUT_NONE);
+    // Add style for scr_dashboard_cont_control_B - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_cont_control_B, lv_color_hex(0x2D4145), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_cont_control_B, lv_color_hex(0x314144), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_cont_control_B, 44, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_cont_control_B, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(scr_dashboard_cont_control_B, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(scr_dashboard_cont_control_B, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(scr_dashboard_cont_control_B, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(scr_dashboard_cont_control_B, 14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(scr_dashboard_cont_control_B, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(scr_dashboard_cont_control_B, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(scr_dashboard_cont_control_B, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(scr_dashboard_cont_control_B, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_flag_modify(scr_dashboard_cont_control_B, LV_OBJ_FLAG_SCROLLABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_B, LV_OBJ_FLAG_SCROLL_ELASTIC, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_B, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_B, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_B, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
+    // Create scr_dashboard_slider_B_speed
+    scr_dashboard_slider_B_speed = lv_slider_create(scr_dashboard_cont_control_B);
+    lv_obj_set_x(scr_dashboard_slider_B_speed, 139);
+    lv_obj_set_y(scr_dashboard_slider_B_speed, 24);
+    lv_obj_set_width(scr_dashboard_slider_B_speed, 460);
+    lv_obj_set_height(scr_dashboard_slider_B_speed, 8);
+    lv_obj_set_scrollbar_mode(scr_dashboard_slider_B_speed, LV_SCROLLBAR_MODE_OFF);
+    lv_slider_set_range(scr_dashboard_slider_B_speed, 0, 100);
+    lv_slider_set_value(scr_dashboard_slider_B_speed, 0, LV_ANIM_OFF);
+    // Add style for scr_dashboard_slider_B_speed - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_B_speed, lv_color_hex(0x05161A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_B_speed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_B_speed - LV_PART_INDICATOR | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_B_speed, lv_color_hex(0x217A96), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_slider_B_speed, lv_color_hex(0x84D5E0), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_B_speed, 200, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_slider_B_speed, LV_GRAD_DIR_NONE, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_B_speed - LV_PART_KNOB | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_B_speed, lv_color_hex(0xBDD3D6), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_B_speed, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_text_B_speed
+    scr_dashboard_label_text_B_speed = lv_label_create(scr_dashboard_cont_control_B);
+    lv_obj_set_x(scr_dashboard_label_text_B_speed, 27);
+    lv_obj_set_y(scr_dashboard_label_text_B_speed, 21);
+    lv_obj_set_width(scr_dashboard_label_text_B_speed, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_text_B_speed, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_text_B_speed, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_text_B_speed, "B带速度");
+    lv_label_set_long_mode(scr_dashboard_label_text_B_speed, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_text_B_speed - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_text_B_speed, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_text_B_speed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_text_B_speed, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_text_B_speed, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_B_speed_value
+    scr_dashboard_label_B_speed_value = lv_label_create(scr_dashboard_cont_control_B);
+    lv_obj_set_x(scr_dashboard_label_B_speed_value, 615);
+    lv_obj_set_y(scr_dashboard_label_B_speed_value, 21);
+    lv_obj_set_width(scr_dashboard_label_B_speed_value, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_B_speed_value, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_B_speed_value, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_B_speed_value, "--");
+    lv_label_set_long_mode(scr_dashboard_label_B_speed_value, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_B_speed_value - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_B_speed_value, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_B_speed_value, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_B_speed_value, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_cont_control_C
+    scr_dashboard_cont_control_C = lv_obj_create(scr_dashboard_cont_control);
+    lv_obj_set_x(scr_dashboard_cont_control_C, 17);
+    lv_obj_set_y(scr_dashboard_cont_control_C, 228);
+    lv_obj_set_width(scr_dashboard_cont_control_C, 669);
+    lv_obj_set_height(scr_dashboard_cont_control_C, 56);
+    lv_obj_set_scrollbar_mode(scr_dashboard_cont_control_C, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_layout(scr_dashboard_cont_control_C, LV_LAYOUT_NONE);
+    // Add style for scr_dashboard_cont_control_C - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_cont_control_C, lv_color_hex(0x2D4145), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_cont_control_C, lv_color_hex(0x314144), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_cont_control_C, 44, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_cont_control_C, LV_GRAD_DIR_HOR, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(scr_dashboard_cont_control_C, lv_color_hex(0xC9C9C9), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(scr_dashboard_cont_control_C, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(scr_dashboard_cont_control_C, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(scr_dashboard_cont_control_C, 14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(scr_dashboard_cont_control_C, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(scr_dashboard_cont_control_C, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(scr_dashboard_cont_control_C, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(scr_dashboard_cont_control_C, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_flag_modify(scr_dashboard_cont_control_C, LV_OBJ_FLAG_SCROLLABLE, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_C, LV_OBJ_FLAG_SCROLL_ELASTIC, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_C, LV_OBJ_FLAG_SCROLL_MOMENTUM, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_C, LV_OBJ_FLAG_SCROLL_WITH_ARROW, UI_FLAG_ACTION_REMOVE);
+    ui_flag_modify(scr_dashboard_cont_control_C, LV_OBJ_FLAG_SCROLL_CHAIN, UI_FLAG_ACTION_REMOVE);
+    // Create scr_dashboard_slider_C_speed
+    scr_dashboard_slider_C_speed = lv_slider_create(scr_dashboard_cont_control_C);
+    lv_obj_set_x(scr_dashboard_slider_C_speed, 139);
+    lv_obj_set_y(scr_dashboard_slider_C_speed, 24);
+    lv_obj_set_width(scr_dashboard_slider_C_speed, 460);
+    lv_obj_set_height(scr_dashboard_slider_C_speed, 8);
+    lv_obj_set_scrollbar_mode(scr_dashboard_slider_C_speed, LV_SCROLLBAR_MODE_OFF);
+    lv_slider_set_range(scr_dashboard_slider_C_speed, 0, 100);
+    lv_slider_set_value(scr_dashboard_slider_C_speed, 0, LV_ANIM_OFF);
+    // Add style for scr_dashboard_slider_C_speed - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_C_speed, lv_color_hex(0x05161A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_C_speed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_C_speed - LV_PART_INDICATOR | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_C_speed, lv_color_hex(0x217A96), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(scr_dashboard_slider_C_speed, lv_color_hex(0x84D5E0), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_C_speed, 200, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(scr_dashboard_slider_C_speed, LV_GRAD_DIR_NONE, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    // Add style for scr_dashboard_slider_C_speed - LV_PART_KNOB | LV_STATE_DEFAULT
+    lv_obj_set_style_bg_color(scr_dashboard_slider_C_speed, lv_color_hex(0xBDD3D6), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(scr_dashboard_slider_C_speed, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_text_C_speed
+    scr_dashboard_label_text_C_speed = lv_label_create(scr_dashboard_cont_control_C);
+    lv_obj_set_x(scr_dashboard_label_text_C_speed, 27);
+    lv_obj_set_y(scr_dashboard_label_text_C_speed, 21);
+    lv_obj_set_width(scr_dashboard_label_text_C_speed, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_text_C_speed, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_text_C_speed, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_text_C_speed, "C带速度");
+    lv_label_set_long_mode(scr_dashboard_label_text_C_speed, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_text_C_speed - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_text_C_speed, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(scr_dashboard_label_text_C_speed, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_text_C_speed, &lv_font_MiSansVF_14_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_text_C_speed, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Create scr_dashboard_label_C_speed_value
+    scr_dashboard_label_C_speed_value = lv_label_create(scr_dashboard_cont_control_C);
+    lv_obj_set_x(scr_dashboard_label_C_speed_value, 615);
+    lv_obj_set_y(scr_dashboard_label_C_speed_value, 21);
+    lv_obj_set_width(scr_dashboard_label_C_speed_value, LV_SIZE_CONTENT);
+    lv_obj_set_height(scr_dashboard_label_C_speed_value, LV_SIZE_CONTENT);
+    lv_obj_set_scrollbar_mode(scr_dashboard_label_C_speed_value, LV_SCROLLBAR_MODE_OFF);
+    lv_label_set_text(scr_dashboard_label_C_speed_value, "--");
+    lv_label_set_long_mode(scr_dashboard_label_C_speed_value, LV_LABEL_LONG_WRAP);
+    // Add style for scr_dashboard_label_C_speed_value - LV_PART_MAIN | LV_STATE_DEFAULT
+    lv_obj_set_style_text_color(scr_dashboard_label_C_speed_value, lv_color_hex(0xD1DEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(scr_dashboard_label_C_speed_value, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(scr_dashboard_label_C_speed_value, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     // Create scr_dashboard_cont_detect
     scr_dashboard_cont_detect = lv_obj_create(scr_dashboard_cont_set);
     lv_obj_set_x(scr_dashboard_cont_detect, 258);

@@ -129,6 +129,8 @@ static QueueHandle_t s_encode_queue;
 static SemaphoreHandle_t s_submit_gate;
 static uint32_t s_tx_seq;
 static volatile bool s_control_send_failed;
+static atomic_bool s_control_state_dirty = ATOMIC_VAR_INIT(false);
+static atomic_int_least64_t s_control_state_changed_ms = ATOMIC_VAR_INIT(0);
 
 // 运行时可调（设置页 UI 下发）。指标发送条件 = enabled && interval_ms>0。
 static volatile uint32_t s_metrics_interval_ms = TCP_METRICS_INTERVAL_MS;
@@ -415,6 +417,13 @@ static int send_metrics_packet(int sock)
     int image_queue_depth = 0;
     snapshot_image_stats(&stats, &image_queue_depth);
 
+    cam_sensor_isp_state_t isp = {0};
+    bool have_isp = cam_sensor_isp_get_state(&isp) == ESP_OK;
+    long long exposure_us = have_isp && isp.exposure_valid ? (long long)isp.exposure_us : -1;
+    long long gain_x1000 = have_isp && isp.gain_valid ? (long long)isp.gain_x1000 : -1;
+    long long red_gain_x1000 = have_isp && isp.white_balance_valid ? (long long)isp.red_gain_x1000 : -1;
+    long long blue_gain_x1000 = have_isp && isp.white_balance_valid ? (long long)isp.blue_gain_x1000 : -1;
+
     char json[1024];
     int len = snprintf(json, sizeof(json),
                        "{\"seq\":%lu,\"uptime_ms\":%llu,\"cpu_usage\":%u,"
@@ -422,6 +431,8 @@ static int send_metrics_packet(int sock)
                        "\"free_heap\":%lu,\"min_free_heap\":%lu,"
                        "\"free_internal\":%lu,\"free_psram\":%lu,"
                        "\"total_psram\":%lu,\"largest_free_block\":%lu,"
+                       "\"isp_exposure_us\":%lld,\"isp_gain_x1000\":%lld,"
+                       "\"isp_red_gain_x1000\":%lld,\"isp_blue_gain_x1000\":%lld,"
                        "\"image_queue_depth\":%d,\"image_encoded\":%lu,"
                        "\"image_sent\":%lu,\"image_drop_backpressure\":%lu,"
                        "\"image_drop_stale\":%lu,\"image_encode_fail\":%lu,"
@@ -443,6 +454,10 @@ static int send_metrics_packet(int sock)
                        (unsigned long)m.free_psram,
                        (unsigned long)m.total_psram,
                        (unsigned long)m.largest_free_block,
+                       exposure_us,
+                       gain_x1000,
+                       red_gain_x1000,
+                       blue_gain_x1000,
                        image_queue_depth,
                        (unsigned long)stats.encoded,
                        (unsigned long)stats.sent,
@@ -761,12 +776,17 @@ static void add_isp_capability(cJSON *caps, const char *key,
 
 static void sync_remote_control_ui(void)
 {
+    sorting_debug_settings_t sorter = {0};
+    sorting_sim_control_get_settings(&sorter);
+
     BSP_LVGL_Lock();
     ui_sync_remote_control_state(
         BSP_LCD_GetBrightness(), vision_is_detection_enabled(),
         vision_is_preview_overlay_enabled(),
         vision_model_get_waybill_score_threshold_percent(),
         vision_model_get_logo_score_threshold_percent(),
+        sorter.motor_output_enabled, sorter.motor_speed_percent[0],
+        sorter.motor_speed_percent[1], sorter.motor_speed_percent[2],
         ethernet_app_get_report_image_enabled(),
         ethernet_app_get_report_metrics_enabled());
     BSP_LVGL_Unlock();
@@ -806,6 +826,8 @@ static int send_control_state(int sock)
                             vision_model_get_waybill_score_threshold_percent());
     cJSON_AddNumberToObject(settings, "vision.logo_threshold",
                             vision_model_get_logo_score_threshold_percent());
+    cJSON_AddBoolToObject(settings, "sorter.motor_output_enabled",
+                         sorter.motor_output_enabled);
     cJSON_AddNumberToObject(settings, "sorter.motor_a_speed", sorter.motor_speed_percent[0]);
     cJSON_AddNumberToObject(settings, "sorter.motor_b_speed", sorter.motor_speed_percent[1]);
     cJSON_AddNumberToObject(settings, "sorter.motor_c_speed", sorter.motor_speed_percent[2]);
@@ -920,6 +942,14 @@ static esp_err_t apply_control_set(const char *key, const cJSON *value,
         else if (strcmp(key, "vision.preview_overlay_enabled") == 0) vision_set_preview_overlay_enabled(boolean);
         else if (strcmp(key, "report.image_enabled") == 0) ethernet_app_set_report_image_enabled(boolean);
         else ethernet_app_set_report_metrics_enabled(boolean);
+        return ESP_OK;
+    }
+    if (strcmp(key, "sorter.motor_output_enabled") == 0) {
+        if (!is_bool) {
+            *message = "value must be boolean";
+            return ESP_ERR_INVALID_ARG;
+        }
+        sorting_sim_control_set_motor_output_enabled(boolean);
         return ESP_OK;
     }
     if (strcmp(key, "vision.waybill_threshold") == 0 ||
@@ -1180,6 +1210,18 @@ static void control_tcp_task(void *arg)
             }
 
             int64_t now_ms = monotonic_ms();
+            int64_t state_changed_ms = atomic_load(&s_control_state_changed_ms);
+            if (atomic_load(&s_control_state_dirty) &&
+                    now_ms - state_changed_ms >= 600) {
+                if (send_control_state(sock) != 0) {
+                    ESP_LOGW(TAG, "TCP control state send failed errno=%d", errno);
+                    break;
+                }
+                if (atomic_load(&s_control_state_changed_ms) == state_changed_ms) {
+                    atomic_store(&s_control_state_dirty, false);
+                }
+            }
+
             uint32_t interval = s_metrics_interval_ms;
             if (s_report_metrics_en && interval > 0 && now_ms >= next_metrics_ms) {
                 if (send_metrics_packet(sock) != 0) {
@@ -1578,4 +1620,10 @@ bool ethernet_app_get_report_image_enabled(void)
 bool ethernet_app_get_report_metrics_enabled(void)
 {
     return s_report_metrics_en;
+}
+
+void ethernet_app_notify_control_state_changed(void)
+{
+    atomic_store(&s_control_state_changed_ms, monotonic_ms());
+    atomic_store(&s_control_state_dirty, true);
 }
