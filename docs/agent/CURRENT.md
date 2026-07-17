@@ -13,6 +13,8 @@
 - `vision_det` 栈已从队友包回退的 3728 字节恢复为内部 RAM 12 KiB；主/动态限速两个 worktree 均构建通过，主分支已完整烧录。
 - 实机约 121 秒压力监视中，连续识别、5 票定案及大量 S1 上升沿并发均无栈溢出、panic 或重启。
 - 详细记录：`archive/2026-07-18-vision-det-stack-restore.md`。
+- 已生成包含两套独立 Git 板端工程的队友交接包：`deliverables/ESP32P4_Detection_team_handoff_20260718_with_git.zip`。
+- 交接包已通过 ZIP、包内 SHA256、Git fsck、默认分支/HEAD、工作区和 remote 独立性校验；详细记录：`archive/2026-07-18-team-handoff-package.md`。
 
 ## 下一步
 

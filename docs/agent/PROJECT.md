@@ -664,6 +664,7 @@ RGB565 必须确认整条显示路径都变成 16 bpp：
 - 2026-07-17 实板确认 24 个任务中 4 个栈在 PSRAM：`eth_control`、`eth_img_send`、`eth_img_prod`、`cam_isp`；其余 20 个在内部 SRAM。`sort_dbg` 生产配置关闭，因此不会出现在任务表。
 - 2026-07-18 合并队友 `ESP32P4_Detection(13).zip`：仅接收 UI、Ethernet 状态同步、ISP/模型耗时和识别日志；拒绝包内 `sort_dbg` USB 调试任务、单帧即时分类、电机/传感器参数改动。主分支提交 `24fa4a1`，动态限速分支提交 `e814b48`，Host 提交 `e9f8ae2`。
 - 当前两板端分支共同保持 S1=GPIO22、S2=GPIO23、S3/S4=-1，A/B/C=65/100/100，交接延时 100 ms，B/C timeout=900/1300 ms，5 次置信度加权投票，且不创建 `sort_dbg`。
+- 2026-07-18 最新队友交接包为 `deliverables/ESP32P4_Detection_team_handoff_20260718_with_git.zip`，SHA256 `ba4e1962a887763b72c80bf7eee49fa3b81ed8402e45fae90d8a7737c5e6c4c2`。包内基础版 HEAD `a709e33`、B 忙限速版 HEAD `1092a30`，均为无 remote 的独立 Git 仓库。
 - UVC 失败时实测 `MALLOC_CAP_DMA` free=1791 B、largest=76 B；即使 internal 8-bit largest 仍有 21492 B，也不能满足 JPEG engine 的 DMA-capable 连续块。后续 UVC 修复必须针对 DMA-capable 内存的早期预留/碎片，而不是只看普通 internal free。
 - 2026-07-17 长稳发现 ESP-DL dual-core worker 稀有崩溃：约 40 分钟时 Core0 Instruction access fault，MEPC/RA/MTVAL=0x10，SP 位于 `dl_mc0`；栈中可符号化地址经过 `DualCoreWorkerTask`→`Module::forward_args`→depthwise-conv/std::function。后续应围绕 `DualCoreWorkerRuntime.op/args`、Module/vtable/std::function 生命周期或内存破坏调查，不能归因于普通栈耗尽，也不能用自动重启掩盖。
 - UVC JPEG `rxlink` 内部 DMA 内存不足已通过启动早期预留解决；HS profile 可启动。启用 UVC 后的推理回退不是简单任务优先级问题：双 worker wake 为几十微秒，但同一算子 exec 同步膨胀到约 80～85 ms。
