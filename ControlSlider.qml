@@ -11,7 +11,13 @@ PremiumPanel {
     property int to: 100
     property int stepSize: 1
     property string suffix: "%"
+    property int displayValue: value
     signal moved(int value)
+    signal committed(int value)
+    onValueChanged: {
+        if (!slider.pressed)
+            displayValue = value
+    }
     radius: 18
     topColor: theme.panelTop
     bottomColor: theme.panelBottom
@@ -50,7 +56,7 @@ PremiumPanel {
                 Layout.preferredWidth: 70
                 Layout.preferredHeight: 38
                 theme: root.theme
-                text: root.value + root.suffix
+                text: root.displayValue + root.suffix
                 fillColor: theme.accentMist
                 strokeColor: slider.pressed ? theme.accent : theme.panelStroke
                 textColor: theme.accent
@@ -64,11 +70,20 @@ PremiumPanel {
             from: root.from
             to: root.to
             stepSize: root.stepSize
-            value: root.value
+            value: root.displayValue
             enabled: root.enabled
             activeFocusOnTab: true
             hoverEnabled: true
-            onMoved: root.moved(Math.round(value))
+            onMoved: {
+                root.displayValue = Math.round(value)
+                root.moved(root.displayValue)
+            }
+            onPressedChanged: {
+                if (!pressed) {
+                    root.displayValue = Math.round(value)
+                    root.committed(root.displayValue)
+                }
+            }
 
             background: Item {
                 x: slider.leftPadding
@@ -156,7 +171,7 @@ PremiumPanel {
                 Text {
                     id: valueBubbleText
                     anchors.centerIn: parent
-                    text: root.value + root.suffix
+                    text: root.displayValue + root.suffix
                     color: theme.text
                     font.pixelSize: 11
                     font.weight: Font.Black

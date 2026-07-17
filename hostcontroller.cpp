@@ -10,122 +10,16 @@
 #include <QImage>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QPainter>
 #include <QSaveFile>
+#include <QSettings>
 #include <QStandardPaths>
 #include <QThread>
 #include <QUrl>
 #include <QUrlQuery>
 
-#include <algorithm>
-#include <array>
 
 namespace {
-
-int median9(std::array<int, 9> values)
-{
-    std::sort(values.begin(), values.end());
-    return values[4];
-}
-
-int clampColor(int value)
-{
-    return qBound(0, value, 255);
-}
-
-QImage enhancePreviewImage(const QImage &source)
-{
-    if (source.isNull()) {
-        return {};
-    }
-
-    const QImage input = source.convertToFormat(QImage::Format_RGB32);
-    QImage denoised(input.size(), QImage::Format_RGB32);
-    denoised.fill(Qt::black);
-
-    const int width = input.width();
-    const int height = input.height();
-    for (int y = 0; y < height; ++y) {
-        QRgb *outLine = reinterpret_cast<QRgb *>(denoised.scanLine(y));
-        const QRgb *inLine = reinterpret_cast<const QRgb *>(input.constScanLine(y));
-        for (int x = 0; x < width; ++x) {
-            if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
-                outLine[x] = inLine[x];
-                continue;
-            }
-
-            std::array<int, 9> reds;
-            std::array<int, 9> greens;
-            std::array<int, 9> blues;
-            int index = 0;
-            for (int ky = -1; ky <= 1; ++ky) {
-                const QRgb *scan = reinterpret_cast<const QRgb *>(input.constScanLine(y + ky));
-                for (int kx = -1; kx <= 1; ++kx) {
-                    const QRgb pixel = scan[x + kx];
-                    reds[index] = qRed(pixel);
-                    greens[index] = qGreen(pixel);
-                    blues[index] = qBlue(pixel);
-                    ++index;
-                }
-            }
-
-            const QRgb center = inLine[x];
-            const int mr = median9(reds);
-            const int mg = median9(greens);
-            const int mb = median9(blues);
-            const int delta = qAbs(qRed(center) - mr) + qAbs(qGreen(center) - mg) + qAbs(qBlue(center) - mb);
-
-            int r = qRed(center);
-            int g = qGreen(center);
-            int b = qBlue(center);
-            if (delta > 34) {
-                r = (r + mr * 4) / 5;
-                g = (g + mg * 4) / 5;
-                b = (b + mb * 4) / 5;
-            } else {
-                r = (r * 3 + mr) / 4;
-                g = (g * 3 + mg) / 4;
-                b = (b * 3 + mb) / 4;
-            }
-            outLine[x] = qRgb(r, g, b);
-        }
-    }
-
-    QImage output(denoised.size(), QImage::Format_RGB32);
-    output.fill(Qt::black);
-    for (int y = 0; y < height; ++y) {
-        QRgb *outLine = reinterpret_cast<QRgb *>(output.scanLine(y));
-        const QRgb *srcLine = reinterpret_cast<const QRgb *>(denoised.constScanLine(y));
-        for (int x = 0; x < width; ++x) {
-            if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
-                outLine[x] = srcLine[x];
-                continue;
-            }
-
-            int blurR = 0;
-            int blurG = 0;
-            int blurB = 0;
-            for (int ky = -1; ky <= 1; ++ky) {
-                const QRgb *scan = reinterpret_cast<const QRgb *>(denoised.constScanLine(y + ky));
-                for (int kx = -1; kx <= 1; ++kx) {
-                    const QRgb pixel = scan[x + kx];
-                    blurR += qRed(pixel);
-                    blurG += qGreen(pixel);
-                    blurB += qBlue(pixel);
-                }
-            }
-            blurR /= 9;
-            blurG /= 9;
-            blurB /= 9;
-
-            const QRgb center = srcLine[x];
-            const int r = clampColor(qRed(center) + (qRed(center) - blurR) / 7);
-            const int g = clampColor(qGreen(center) + (qGreen(center) - blurG) / 7);
-            const int b = clampColor(qBlue(center) + (qBlue(center) - blurB) / 7);
-            output.setPixel(x, y, qRgb(r, g, b));
-        }
-    }
-    return output;
-}
 
 bool writeBytesAtomic(const QString &path, const QByteArray &bytes)
 {
@@ -155,9 +49,15 @@ HostController::HostController(QObject *parent)
     : QObject(parent)
 {
     const QString docs = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    m_saveDir = QDir(docs.isEmpty() ? QDir::homePath() : docs).filePath(QStringLiteral("ESP32Host"));
+    const QString defaultSaveDir = QDir(docs.isEmpty() ? QDir::homePath() : docs)
+                                       .filePath(QStringLiteral("ESP32Host"));
+    m_saveDir = QSettings().value(QStringLiteral("storage/saveDir"), defaultSaveDir).toString();
     m_imageDir = QDir(m_saveDir).filePath(QStringLiteral("images"));
-    ensureSaveDirs();
+    if (!ensureSaveDirs()) {
+        m_saveDir = defaultSaveDir;
+        m_imageDir = QDir(m_saveDir).filePath(QStringLiteral("images"));
+        ensureSaveDirs();
+    }
 
     m_networkThread = new QThread(this);
     m_networkWorker = new HostNetworkWorker();
@@ -192,12 +92,14 @@ HostController::~HostController()
 
 bool HostController::listening() const { return m_listening; }
 bool HostController::connected() const { return m_connected; }
+bool HostController::controlStateReady() const { return m_controlStateReady; }
 QString HostController::statusText() const { return m_statusText; }
 QString HostController::latestImageUrl() const { return m_latestImageUrl; }
 QString HostController::latestFrameInfo() const { return m_imageCount > 0 ? m_latestFrameInfo : QStringLiteral("无"); }
 QString HostController::latestCategoryLabel() const { return m_imageCount > 0 ? m_latestCategoryLabel : QStringLiteral("无"); }
 int HostController::latestCategoryConfidence() const { return m_latestCategoryConfidence; }
-QString HostController::saveDir() const { return m_saveDir; }
+QString HostController::saveDir() const { return QDir::toNativeSeparators(m_saveDir); }
+QUrl HostController::saveDirUrl() const { return QUrl::fromLocalFile(m_saveDir); }
 QString HostController::telemetryText() const { return m_telemetryText; }
 int HostController::cpuUsage() const { return m_cpuUsage; }
 double HostController::psramUsage() const { return m_psramUsage; }
@@ -247,6 +149,7 @@ int HostController::cameraHueStep() const { return m_cameraHueStep; }
 bool HostController::cameraHueSupported() const { return m_cameraHueSupported; }
 int HostController::waybillThreshold() const { return m_waybillThreshold; }
 int HostController::logoThreshold() const { return m_logoThreshold; }
+bool HostController::motorOutputEnabled() const { return m_motorOutputEnabled; }
 int HostController::motorASpeed() const { return m_motorASpeed; }
 int HostController::motorBSpeed() const { return m_motorBSpeed; }
 int HostController::motorCSpeed() const { return m_motorCSpeed; }
@@ -324,6 +227,40 @@ void HostController::sendTimeSync()
               : QStringLiteral("待连接：已记录时间同步请求"));
 }
 
+bool HostController::setSaveDirectory(const QUrl &directoryUrl)
+{
+    const QString path = QDir::cleanPath(directoryUrl.toLocalFile());
+    if (path.isEmpty() || path == m_saveDir) {
+        return !path.isEmpty();
+    }
+
+    const QString previousSaveDir = m_saveDir;
+    const QString previousImageDir = m_imageDir;
+    m_saveDir = path;
+    m_imageDir = QDir(m_saveDir).filePath(QStringLiteral("images"));
+    if (!ensureSaveDirs()) {
+        m_saveDir = previousSaveDir;
+        m_imageDir = previousImageDir;
+        appendLog(QStringLiteral("保存目录不可用：%1").arg(QDir::toNativeSeparators(path)));
+        return false;
+    }
+
+    QSettings().setValue(QStringLiteral("storage/saveDir"), m_saveDir);
+    emit saveDirChanged();
+    appendLog(QStringLiteral("保存目录已更改：%1").arg(QDir::toNativeSeparators(m_saveDir)));
+    return true;
+}
+
+void HostController::setDangerThreshold(int value)
+{
+    const int next = qBound(0, value, 100);
+    if (m_dangerThreshold == next) {
+        return;
+    }
+    m_dangerThreshold = next;
+    emit controlsChanged();
+}
+
 void HostController::setScreenBrightness(int value) { updateControl(QStringLiteral("display.screen_brightness"), qBound(0, value, 100), true); }
 void HostController::setCameraBrightness(int value) { updateControl(QStringLiteral("camera.brightness"), value, true); }
 void HostController::setCameraContrast(int value) { updateControl(QStringLiteral("camera.contrast"), value, true); }
@@ -333,12 +270,20 @@ void HostController::setCameraSaturationAuto(bool enabled) { updateControl(QStri
 void HostController::setCameraHue(int value) { updateControl(QStringLiteral("camera.hue"), value, true); }
 void HostController::setWaybillThreshold(int value) { updateControl(QStringLiteral("vision.waybill_threshold"), qBound(0, value, 100), true); }
 void HostController::setLogoThreshold(int value) { updateControl(QStringLiteral("vision.logo_threshold"), qBound(0, value, 100), true); }
+void HostController::setMotorOutputEnabled(bool enabled) { updateControl(QStringLiteral("sorter.motor_output_enabled"), enabled, true); }
 void HostController::setMotorASpeed(int value) { updateControl(QStringLiteral("sorter.motor_a_speed"), qBound(0, value, 100), true); }
 void HostController::setMotorBSpeed(int value) { updateControl(QStringLiteral("sorter.motor_b_speed"), qBound(0, value, 100), true); }
 void HostController::setMotorCSpeed(int value) { updateControl(QStringLiteral("sorter.motor_c_speed"), qBound(0, value, 100), true); }
 void HostController::setReportImageEnabled(bool enabled) { updateControl(QStringLiteral("report.image_enabled"), enabled, true); }
 void HostController::setReportMetricsEnabled(bool enabled) { updateControl(QStringLiteral("report.metrics_enabled"), enabled, true); }
-void HostController::setDetectionEnabled(bool enabled) { updateControl(QStringLiteral("vision.detection_enabled"), enabled, true); }
+void HostController::setDetectionEnabled(bool enabled)
+{
+    updateControl(QStringLiteral("vision.detection_enabled"), enabled, false);
+    updateControl(QStringLiteral("vision.preview_overlay_enabled"), enabled, false);
+    updateControl(QStringLiteral("report.image_enabled"), enabled, false);
+    emit controlsChanged();
+    emit dashboardChanged();
+}
 void HostController::setPreviewOverlayEnabled(bool enabled) { updateControl(QStringLiteral("vision.preview_overlay_enabled"), enabled, true); }
 
 void HostController::restartDevice()
@@ -360,12 +305,24 @@ void HostController::sendControl(const QString &command, const QVariant &value)
     updateControl(command, value, false);
 }
 
+void HostController::commitPendingControls()
+{
+    m_controlFlushTimer.stop();
+    flushPendingControl();
+}
+
 void HostController::clearFrameHistory()
 {
     if (m_frameHistory.isEmpty()) {
         return;
     }
     m_frameHistory.clear();
+    m_latestImageUrl.clear();
+    m_latestFrameInfo = QStringLiteral("无");
+    m_latestCategoryLabel = QStringLiteral("无");
+    m_latestCategoryConfidence = 0;
+    m_currentDetections.clear();
+    emit imageChanged();
     emit detectionChanged();
 }
 
@@ -378,9 +335,18 @@ void HostController::onNetworkStateChanged(bool listening, bool connected, const
     emit stateChanged();
     appendLog(statusText);
     if (justConnected) {
+        m_controlFlushTimer.stop();
+        m_pendingControls.clear();
+        m_pendingControlOrder.clear();
         m_lastSentControls.clear();
+        m_controlStateReady = false;
         requestDeviceState();
     } else if (!connected) {
+        m_controlFlushTimer.stop();
+        m_pendingControls.clear();
+        m_pendingControlOrder.clear();
+        m_lastSentControls.clear();
+        m_controlStateReady = false;
         m_controlStatusText = QStringLiteral("设备未连接");
         emit controlsChanged();
     }
@@ -398,8 +364,9 @@ void HostController::onNetworkImageResultReady(quint16 protocolVersion, quint32 
 {
     const int confidencePct = qBound(0, qRound(double(confidenceX1000) / 10.0), 100);
     const QVariantList detections = makeImageDetections(width, height, boxes);
-    if (!saveLatestPreviewImage(frameId, width, height, HostProtocol::kPixelJpeg, jpeg)) {
-        appendLog(QStringLiteral("V%1 JPEG 解码失败 frame=%2").arg(protocolVersion).arg(frameId));
+    if (!saveLatestPreviewImage(frameId, width, height, HostProtocol::kPixelJpeg, jpeg,
+                                classId, confidencePct, detections)) {
+        appendLog(QStringLiteral("V%1 图像保存失败 frame=%2").arg(protocolVersion).arg(frameId));
         return;
     }
 
@@ -595,7 +562,9 @@ void HostController::handleControlJson(const QByteArray &payload)
     applyControlState(message);
 }
 
-bool HostController::saveLatestPreviewImage(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload)
+bool HostController::saveLatestPreviewImage(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat,
+                                            const QByteArray &imagePayload, quint16 classId, int confidencePct,
+                                            const QVariantList &detections)
 {
     QImage decoded;
     if (pixelFormat == HostProtocol::kPixelJpeg) {
@@ -616,21 +585,91 @@ bool HostController::saveLatestPreviewImage(quint32 frameSeq, quint16 width, qui
         return false;
     }
 
-    // 下位机 BGR888 数据被当作 RGB888 送入 JPEG 编码，红蓝通道互换，此处交换回来
-    decoded = decoded.rgbSwapped();
-
-    const QImage enhanced = enhancePreviewImage(decoded);
-    if (enhanced.isNull()) {
-        return false;
-    }
-    const QByteArray bytes = encodeJpeg(enhanced, 88);
-    if (bytes.isEmpty()) {
+    decoded = decoded.rgbSwapped().convertToFormat(QImage::Format_RGB32);
+    if (decoded.isNull()) {
         return false;
     }
 
-    const QString framePath = QDir(m_imageDir).filePath(QStringLiteral("frame_%1.jpg").arg(frameSeq, 6, 10, QLatin1Char('0')));
-    const QString latestPath = QDir(m_imageDir).filePath(QStringLiteral("latest_preview.jpg"));
-    if (!writeBytesAtomic(framePath, bytes) || !writeBytesAtomic(latestPath, bytes)) {
+    QPainter painter(&decoded);
+    painter.setRenderHint(QPainter::Antialiasing);
+    const qreal scale = qMax<qreal>(1.0, qMin(decoded.width(), decoded.height()) / 375.0);
+    const int margin = qRound(8 * scale);
+    const int lineWidth = qRound(2 * scale);
+    QFont font = painter.font();
+    font.setPixelSize(qRound(14 * scale));
+    font.setBold(true);
+    painter.setFont(font);
+
+    const QString timestamp = QDateTime::currentDateTime().toString(QStringLiteral("yyyy-MM-dd HH:mm:ss"));
+    const QFontMetrics metrics(font);
+    const QRect timeTextRect = metrics.boundingRect(timestamp);
+    const QRect timeBackground(margin,
+                               margin,
+                               timeTextRect.width() + margin * 2,
+                               timeTextRect.height() + margin);
+    painter.fillRect(timeBackground, QColor(0, 0, 0, 170));
+    painter.setPen(Qt::white);
+    painter.drawText(timeBackground, Qt::AlignCenter, timestamp);
+
+    int legendY = margin;
+    for (const QVariant &value : detections) {
+        const QVariantMap detection = value.toMap();
+        const QColor color(detection.value(QStringLiteral("color")).toString());
+        const int x = qRound(detection.value(QStringLiteral("x")).toDouble() * decoded.width());
+        const int y = qRound(detection.value(QStringLiteral("y")).toDouble() * decoded.height());
+        const int boxWidth = qRound(detection.value(QStringLiteral("w")).toDouble() * decoded.width());
+        const int boxHeight = qRound(detection.value(QStringLiteral("h")).toDouble() * decoded.height());
+        const QRect boxRect(x, y, qMax(1, boxWidth - 1), qMax(1, boxHeight - 1));
+
+        painter.setPen(QPen(color, lineWidth));
+        painter.drawRect(boxRect);
+
+        const QString label = QStringLiteral("%1 %2%")
+                                  .arg(detection.value(QStringLiteral("label")).toString())
+                                  .arg(qRound(detection.value(QStringLiteral("confidence")).toDouble() * 100.0));
+        const QRect labelBounds = metrics.boundingRect(label);
+        const int badgeWidth = labelBounds.width() + margin * 2;
+        const QRect labelBackground(decoded.width() - badgeWidth - margin,
+                                    legendY,
+                                    badgeWidth,
+                                    labelBounds.height() + margin);
+        painter.fillRect(labelBackground, QColor(color.red(), color.green(), color.blue(), 220));
+        painter.setPen(Qt::black);
+        painter.drawText(labelBackground, Qt::AlignCenter, label);
+        legendY = labelBackground.bottom() + margin;
+    }
+
+    const QString result = QStringLiteral("%1 %2%")
+                               .arg(categoryLabelFromId(classId))
+                               .arg(qBound(0, confidencePct, 100));
+    const QRect resultBounds = metrics.boundingRect(result);
+    const QRect resultBackground(margin,
+                                 timeBackground.bottom() + margin,
+                                 resultBounds.width() + margin * 2,
+                                 resultBounds.height() + margin);
+    painter.fillRect(resultBackground, QColor(0, 0, 0, 170));
+    painter.setPen(Qt::white);
+    painter.drawText(resultBackground, Qt::AlignCenter, result);
+    painter.end();
+
+    const QByteArray bytes = encodeJpeg(decoded, 92);
+    if (bytes.isEmpty() || !ensureSaveDirs()) {
+        return false;
+    }
+
+    QString resultCode;
+    if (classId == 1) {
+        resultCode = QStringLiteral("yd");
+    } else if (classId == 2) {
+        resultCode = QStringLiteral("zt");
+    } else {
+        resultCode = QStringLiteral("jt");
+    }
+    const QString fileName = QStringLiteral("%1_%2.jpg")
+                                 .arg(QDateTime::currentDateTime().toString(QStringLiteral("M.d_HH-mm-ss-zzz")),
+                                      resultCode);
+    const QString framePath = QDir(m_imageDir).filePath(fileName);
+    if (!writeBytesAtomic(framePath, bytes)) {
         return false;
     }
 
@@ -675,11 +714,13 @@ QVariantList HostController::makeImageDetections(quint16 width, quint16 height, 
             detection.insert(QStringLiteral("y"), normalized.y);
             detection.insert(QStringLiteral("w"), normalized.width);
             detection.insert(QStringLiteral("h"), normalized.height);
-            detection.insert(QStringLiteral("label"), stage == 0 ? QStringLiteral("面单") : categoryLabelFromId(box.category));
-            detection.insert(QStringLiteral("color"), stage == 0 ? QStringLiteral("#00ff00")
-                                                                   : box.category == 1 ? QStringLiteral("#ffff00")
-                                                                   : box.category == 2 ? QStringLiteral("#0066ff")
-                                                                                       : QStringLiteral("#ff3030"));
+            detection.insert(QStringLiteral("label"), stage == 0
+                                 ? QStringLiteral("面单")
+                                 : QStringLiteral("%1 Logo").arg(categoryLabelFromId(box.category)));
+            detection.insert(QStringLiteral("color"), stage == 0 ? QStringLiteral("#32e843")
+                                                                   : box.category == 1 ? QStringLiteral("#ffe600")
+                                                                   : box.category == 2 ? QStringLiteral("#38a3ff")
+                                                                                       : QStringLiteral("#ff4d5a"));
             detections.append(detection);
         }
     }
@@ -704,6 +745,15 @@ void HostController::addImageHistoryRecord(quint32 frameSeq, quint16 width, quin
         ++m_jtImageCount;
     }
 
+    int logoConfidence = 0;
+    for (const QVariant &value : detections) {
+        const QVariantMap detection = value.toMap();
+        if (detection.value(QStringLiteral("stage")).toInt() == 1) {
+            logoConfidence = qMax(logoConfidence,
+                                  qRound(detection.value(QStringLiteral("confidence")).toDouble() * 100.0));
+        }
+    }
+
     QVariantMap record;
     record.insert(QStringLiteral("seq"), int(frameSeq));
     record.insert(QStringLiteral("time"), QDateTime::currentDateTime().toString(QStringLiteral("HH:mm:ss")));
@@ -712,13 +762,14 @@ void HostController::addImageHistoryRecord(quint32 frameSeq, quint16 width, quin
     record.insert(QStringLiteral("packageLabel"), packageLabel);
     record.insert(QStringLiteral("categoryLabel"), category);
     record.insert(QStringLiteral("categoryConfidence"), confidence);
+    record.insert(QStringLiteral("logoConfidence"), logoConfidence);
     record.insert(QStringLiteral("title"), QStringLiteral("%1  %2").arg(packageLabel, category));
     record.insert(QStringLiteral("model"), QStringLiteral("板端 %1 预览").arg(formatText));
     record.insert(QStringLiteral("resolution"), QStringLiteral("%1 x %2").arg(width).arg(height));
     record.insert(QStringLiteral("processMs"), inferTimeMs);
     record.insert(QStringLiteral("count"), detections.size());
     record.insert(QStringLiteral("confidence"), confidence / 100.0);
-    record.insert(QStringLiteral("danger"), confidence < m_dangerThreshold);
+    record.insert(QStringLiteral("danger"), logoConfidence < m_dangerThreshold);
     record.insert(QStringLiteral("detections"), detections);
 
     m_frameHistory.prepend(record);
@@ -886,9 +937,9 @@ void HostController::appendLog(const QString &line)
     emit logChanged();
 }
 
-void HostController::ensureSaveDirs()
+bool HostController::ensureSaveDirs()
 {
-    QDir().mkpath(m_imageDir);
+    return QDir().mkpath(m_imageDir);
 }
 
 void HostController::sendJsonPacket(quint16 type, const QByteArray &json)
@@ -918,6 +969,14 @@ void HostController::sendSimLine(const QString &line)
 
 void HostController::updateControl(const QString &command, const QVariant &value, bool emitSignal)
 {
+    if (!m_connected || !m_controlStateReady) {
+        m_controlStatusText = m_connected
+            ? QStringLiteral("正在读取设备状态")
+            : QStringLiteral("设备未连接");
+        emit controlsChanged();
+        return;
+    }
+
     bool changed = false;
     if (command == QStringLiteral("display.screen_brightness")) {
         const int next = qBound(0, value.toInt(), 100);
@@ -951,11 +1010,14 @@ void HostController::updateControl(const QString &command, const QVariant &value
         const int next = qBound(0, value.toInt(), 100);
         changed = m_waybillThreshold != next;
         m_waybillThreshold = next;
-        m_dangerThreshold = next;
     } else if (command == QStringLiteral("vision.logo_threshold")) {
         const int next = qBound(0, value.toInt(), 100);
         changed = m_logoThreshold != next;
         m_logoThreshold = next;
+    } else if (command == QStringLiteral("sorter.motor_output_enabled")) {
+        const bool next = value.toBool();
+        changed = m_motorOutputEnabled != next;
+        m_motorOutputEnabled = next;
     } else if (command == QStringLiteral("sorter.motor_a_speed")) {
         const int next = qBound(0, value.toInt(), 100);
         changed = m_motorASpeed != next;
@@ -1101,6 +1163,7 @@ void HostController::applyControlState(const QJsonObject &message)
     setInt(QStringLiteral("vision.logo_threshold"), &m_logoThreshold);
     setBool(QStringLiteral("vision.detection_enabled"), &m_detectionEnabled);
     setBool(QStringLiteral("vision.preview_overlay_enabled"), &m_previewOverlayEnabled);
+    setBool(QStringLiteral("sorter.motor_output_enabled"), &m_motorOutputEnabled);
     setInt(QStringLiteral("sorter.motor_a_speed"), &m_motorASpeed);
     setInt(QStringLiteral("sorter.motor_b_speed"), &m_motorBSpeed);
     setInt(QStringLiteral("sorter.motor_c_speed"), &m_motorCSpeed);
@@ -1119,7 +1182,7 @@ void HostController::applyControlState(const QJsonObject &message)
     setCapability(QStringLiteral("camera.hue"), &m_cameraHueSupported,
                   &m_cameraHueMin, &m_cameraHueMax, &m_cameraHueStep);
 
-    m_dangerThreshold = m_waybillThreshold;
+    m_controlStateReady = true;
     m_controlStatusText = QStringLiteral("设备状态已同步");
     m_lastSentControls.clear();
     emit controlsChanged();

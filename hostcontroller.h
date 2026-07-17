@@ -10,6 +10,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTimer>
+#include <QUrl>
 #include <QVariant>
 #include <QVariantList>
 
@@ -21,12 +22,14 @@ class HostController : public QObject
     Q_OBJECT
     Q_PROPERTY(bool listening READ listening NOTIFY stateChanged)
     Q_PROPERTY(bool connected READ connected NOTIFY stateChanged)
+    Q_PROPERTY(bool controlStateReady READ controlStateReady NOTIFY controlsChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY stateChanged)
     Q_PROPERTY(QString latestImageUrl READ latestImageUrl NOTIFY imageChanged)
     Q_PROPERTY(QString latestFrameInfo READ latestFrameInfo NOTIFY imageChanged)
     Q_PROPERTY(QString latestCategoryLabel READ latestCategoryLabel NOTIFY imageChanged)
     Q_PROPERTY(int latestCategoryConfidence READ latestCategoryConfidence NOTIFY imageChanged)
-    Q_PROPERTY(QString saveDir READ saveDir CONSTANT)
+    Q_PROPERTY(QString saveDir READ saveDir NOTIFY saveDirChanged)
+    Q_PROPERTY(QUrl saveDirUrl READ saveDirUrl NOTIFY saveDirChanged)
     Q_PROPERTY(QString telemetryText READ telemetryText NOTIFY dashboardChanged)
     Q_PROPERTY(int cpuUsage READ cpuUsage NOTIFY dashboardChanged)
     Q_PROPERTY(double psramUsage READ psramUsage NOTIFY dashboardChanged)
@@ -80,6 +83,7 @@ class HostController : public QObject
     Q_PROPERTY(bool cameraHueSupported READ cameraHueSupported NOTIFY controlsChanged)
     Q_PROPERTY(int waybillThreshold READ waybillThreshold NOTIFY controlsChanged)
     Q_PROPERTY(int logoThreshold READ logoThreshold NOTIFY controlsChanged)
+    Q_PROPERTY(bool motorOutputEnabled READ motorOutputEnabled NOTIFY controlsChanged)
     Q_PROPERTY(int motorASpeed READ motorASpeed NOTIFY controlsChanged)
     Q_PROPERTY(int motorBSpeed READ motorBSpeed NOTIFY controlsChanged)
     Q_PROPERTY(int motorCSpeed READ motorCSpeed NOTIFY controlsChanged)
@@ -99,12 +103,14 @@ public:
 
     bool listening() const;
     bool connected() const;
+    bool controlStateReady() const;
     QString statusText() const;
     QString latestImageUrl() const;
     QString latestFrameInfo() const;
     QString latestCategoryLabel() const;
     int latestCategoryConfidence() const;
     QString saveDir() const;
+    QUrl saveDirUrl() const;
     QString telemetryText() const;
     int cpuUsage() const;
     double psramUsage() const;
@@ -158,6 +164,7 @@ public:
     bool cameraHueSupported() const;
     int waybillThreshold() const;
     int logoThreshold() const;
+    bool motorOutputEnabled() const;
     int motorASpeed() const;
     int motorBSpeed() const;
     int motorCSpeed() const;
@@ -173,6 +180,8 @@ public:
 
     Q_INVOKABLE void startServer();
     Q_INVOKABLE void sendTimeSync();
+    Q_INVOKABLE bool setSaveDirectory(const QUrl &directoryUrl);
+    Q_INVOKABLE void setDangerThreshold(int value);
     Q_INVOKABLE void setScreenBrightness(int value);
     Q_INVOKABLE void setCameraBrightness(int value);
     Q_INVOKABLE void setCameraContrast(int value);
@@ -182,6 +191,7 @@ public:
     Q_INVOKABLE void setCameraHue(int value);
     Q_INVOKABLE void setWaybillThreshold(int value);
     Q_INVOKABLE void setLogoThreshold(int value);
+    Q_INVOKABLE void setMotorOutputEnabled(bool enabled);
     Q_INVOKABLE void setMotorASpeed(int value);
     Q_INVOKABLE void setMotorBSpeed(int value);
     Q_INVOKABLE void setMotorCSpeed(int value);
@@ -192,6 +202,7 @@ public:
     Q_INVOKABLE void restartDevice();
     Q_INVOKABLE void requestDeviceState();
     Q_INVOKABLE void sendControl(const QString &command, const QVariant &value);
+    Q_INVOKABLE void commitPendingControls();
     Q_INVOKABLE void clearFrameHistory();
 
 signals:
@@ -202,6 +213,7 @@ signals:
     void statsChanged();
     void logChanged();
     void controlsChanged();
+    void saveDirChanged();
 
 private:
     void onNetworkStateChanged(bool listening, bool connected, const QString &statusText);
@@ -218,7 +230,9 @@ private:
     void handleTelemetry(const QByteArray &payload);
     void handleDetectionJson(const QByteArray &payload);
     void handleControlJson(const QByteArray &payload);
-    bool saveLatestPreviewImage(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat, const QByteArray &imagePayload);
+    bool saveLatestPreviewImage(quint32 frameSeq, quint16 width, quint16 height, quint16 pixelFormat,
+                                const QByteArray &imagePayload, quint16 classId, int confidencePct,
+                                const QVariantList &detections);
     QVariantList makeImageDetections(quint16 width, quint16 height, const QVariantList &boxes) const;
     void addImageHistoryRecord(quint32 frameSeq, quint16 width, quint16 height, quint16 classId,
                                int confidencePct, quint16 inferTimeMs, const QString &formatText,
@@ -227,7 +241,7 @@ private:
     void applyDetectionFrame(const QVariantMap &frame, bool forceUpdate);
     void appendMetricHistory();
     void appendLog(const QString &line);
-    void ensureSaveDirs();
+    bool ensureSaveDirs();
     void sendJsonPacket(quint16 type, const QByteArray &json);
     void sendSimLine(const QString &line);
     void updateControl(const QString &command, const QVariant &value, bool emitSignal);
@@ -271,6 +285,7 @@ private:
     quint32 m_txSeq = 0;
     bool m_listening = false;
     bool m_connected = false;
+    bool m_controlStateReady = false;
 
     int m_cpuUsage = 0;
     int m_cpu0Usage = 0;
@@ -300,7 +315,7 @@ private:
     int m_ztImageCount = 0;
     int m_ydImageCount = 0;
 
-    int m_dangerThreshold = 50;
+    int m_dangerThreshold = 60;
     bool m_detectionEnabled = true;
     bool m_previewOverlayEnabled = true;
     int m_screenBrightness = 80;
@@ -328,6 +343,7 @@ private:
     bool m_cameraHueSupported = false;
     int m_waybillThreshold = 50;
     int m_logoThreshold = 50;
+    bool m_motorOutputEnabled = false;
     int m_motorASpeed = 60;
     int m_motorBSpeed = 100;
     int m_motorCSpeed = 100;

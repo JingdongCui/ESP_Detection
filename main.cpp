@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
     raiseProcessPriority();
 
     QGuiApplication app(argc, argv);
+    QCoreApplication::setOrganizationName(QStringLiteral("KazeForm"));
+    QCoreApplication::setApplicationName(QStringLiteral("ESP32VisionHost"));
 
     HostController hostController;
 

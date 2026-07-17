@@ -9,6 +9,7 @@ PremiumPanel {
     property string categoryLabel: "无"
     property int categoryConfidence: 0
     property bool overlayEnabled: true
+    property bool imageAlreadyAnnotated: false
     radius: 18
     topColor: theme.imageBg
     bottomColor: theme.bgBottom
@@ -121,7 +122,7 @@ PremiumPanel {
     }
 
     Repeater {
-        model: root.overlayEnabled && frameImage.status === Image.Ready ? root.detections : []
+        model: root.overlayEnabled && !root.imageAlreadyAnnotated && frameImage.status === Image.Ready ? root.detections : []
         delegate: Rectangle {
             id: detectionBox
             property real conf: Number(modelData.confidence || 0) * 100
@@ -163,19 +164,34 @@ PremiumPanel {
                     color: detectionBox.boxColor
                 }
             }
-            Rectangle {
-                x: -1
-                y: -32
+        }
+    }
+
+    Column {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.margins: 24
+        spacing: 8
+        z: 2
+
+        Repeater {
+            model: root.overlayEnabled && !root.imageAlreadyAnnotated && frameImage.status === Image.Ready ? root.detections : []
+
+            delegate: Rectangle {
+                required property var modelData
+                readonly property color badgeColor: modelData.color || root.theme.accent
+                width: legendText.width + 22
                 height: 28
-                radius: 10
-                color: Qt.rgba(detectionBox.boxColor.r, detectionBox.boxColor.g, detectionBox.boxColor.b, 0.22)
-                border.color: detectionBox.boxColor
-                width: labelText.width + 18
+                radius: 9
+                color: Qt.rgba(badgeColor.r, badgeColor.g, badgeColor.b, 0.82)
+                border.color: badgeColor
+
                 Text {
-                    id: labelText
+                    id: legendText
                     anchors.centerIn: parent
-                    text: (modelData.label || "快递标识") + "  " + Math.round(detectionBox.conf) + "%"
-                    color: theme.text
+                    text: (parent.modelData.label || qsTr("快递标识")) + "  "
+                          + Math.round(Number(parent.modelData.confidence || 0) * 100) + "%"
+                    color: "black"
                     font.pixelSize: 12
                     font.weight: Font.Black
                 }
@@ -187,6 +203,7 @@ PremiumPanel {
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.margins: 24
+        visible: !root.imageAlreadyAnnotated
         width: categoryText.width + 28
         height: 42
         radius: 14
@@ -224,7 +241,8 @@ PremiumPanel {
             anchors.right: parent.right
             anchors.rightMargin: 24
             anchors.verticalCenter: parent.verticalCenter
-            text: root.overlayEnabled ? "叠加框开启" : "叠加框关闭"
+            text: root.imageAlreadyAnnotated ? qsTr("标注已写入图片")
+                                             : root.overlayEnabled ? qsTr("叠加框开启") : qsTr("叠加框关闭")
             color: root.overlayEnabled ? theme.accent : theme.faint
             font.pixelSize: 13
             font.weight: Font.Black

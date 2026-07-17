@@ -8,7 +8,7 @@ include(CTest)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Network)
+find_package(Qt6 REQUIRED COMPONENTS Quick QuickDialogs2 Network)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -32,6 +32,7 @@ qt_add_qml_module(appesp32_host
         NavButton.qml
         PillButton.qml
         MetricCard.qml
+        MetricStatusIndicator.qml
         CircularGauge.qml
         TrendChart.qml
         DashboardPage.qml
@@ -61,7 +62,7 @@ set_target_properties(appesp32_host PROPERTIES
 target_compile_definitions(appesp32_host PRIVATE ESP32_HOST_NO_INFERENCE=1)
 
 target_link_libraries(appesp32_host
-    PRIVATE Qt6::Quick Qt6::Network
+    PRIVATE Qt6::Quick Qt6::QuickDialogs2 Qt6::Network
 )
 
 install(TARGETS appesp32_host
