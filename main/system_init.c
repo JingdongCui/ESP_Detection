@@ -85,7 +85,6 @@ void System_Init(void)
         ESP_LOGW(TAG, "screen UVC stream start failed: %s", esp_err_to_name(uvc_ret));
     }
     */
-    sorting_sim_debug_start();
     sorting_sim_control_set_motor_output_enabled(true);
     sorting_sim_control_set_sensor_input_enabled(true);
 

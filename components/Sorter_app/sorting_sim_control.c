@@ -6,7 +6,6 @@
 #include "sorter_debug_config.h"
 #include "sorter_core/sorter_scheduler.h"
 
-#include "driver/usb_serial_jtag.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -24,7 +23,6 @@ static const char *TAG = "sorting_sim";
 static sorter_config_t s_config;
 static sorter_scheduler_t s_scheduler;
 static bool s_initialized;
-static TaskHandle_t s_debug_task;
 static int s_next_package_id = 1;
 static bool s_vision_s1_active;
 static int s_vision_package_id;
@@ -1079,109 +1077,4 @@ void sorting_sim_control_start_motor_test(void)
     lock_control();
     start_motor_test_locked();
     unlock_control();
-}
-
-static int serial_send(void *ctx, const char *line)
-{
-    (void)ctx;
-    printf("SIMOUT %s\n", line); fflush(stdout); return 0;
-}
-
-static void debug_wait_and_tick(uint32_t wait_ms)
-{
-    if (wait_ms > 0) {
-        vTaskDelay(pdMS_TO_TICKS(wait_ms));
-    }
-    sorting_sim_control_tick(serial_send, NULL);
-}
-
-static void run_debug_script(const char *name, int cls)
-{
-    char line[96];
-    printf("SIMTEST %s start\n", name);
-    sorting_sim_control_handle_line("RESET", strlen("RESET"), serial_send, NULL);
-    sorting_sim_control_handle_line("VISION_FRAME,s1=1,free=0,class=none", strlen("VISION_FRAME,s1=1,free=0,class=none"), serial_send, NULL);
-    snprintf(line, sizeof(line), "VISION_FRAME,s1=1,free=0,class=%d", cls);
-    sorting_sim_control_handle_line(line, strlen(line), serial_send, NULL);
-    sorting_sim_control_handle_line("VISION_FRAME,s1=0,free=0,class=none", strlen("VISION_FRAME,s1=0,free=0,class=none"), serial_send, NULL);
-    sorting_sim_control_handle_line("SENSOR,id=2,state=1", strlen("SENSOR,id=2,state=1"), serial_send, NULL);
-    sorting_sim_control_handle_line("SENSOR,id=2,state=0", strlen("SENSOR,id=2,state=0"), serial_send, NULL);
-    debug_wait_and_tick(s_config.handoff_delay_ms + 100);
-    if (cls == 1) sorting_sim_control_handle_line("SENSOR,id=3,state=1", strlen("SENSOR,id=3,state=1"), serial_send, NULL);
-    else {
-        sorting_sim_control_handle_line("SENSOR,id=4,state=1", strlen("SENSOR,id=4,state=1"), serial_send, NULL);
-        sorting_sim_control_handle_line("SENSOR,id=4,state=0", strlen("SENSOR,id=4,state=0"), serial_send, NULL);
-        debug_wait_and_tick(s_config.handoff_delay_ms + 100);
-        sorting_sim_control_handle_line("DISTANCE,motor=3,dist=0.0", strlen("DISTANCE,motor=3,dist=0.0"), serial_send, NULL);
-        debug_wait_and_tick(s_config.c_min_busy_ms + 100);
-        sorting_sim_control_handle_line("DISTANCE,motor=3,dist=370.0", strlen("DISTANCE,motor=3,dist=370.0"), serial_send, NULL);
-    }
-    printf("SIMTEST %s end\n", name); fflush(stdout);
-}
-
-static void serial_tick_active(void)
-{
-    ensure_initialized();
-    lock_control();
-    if (sorter_scheduler_active_count(&s_scheduler) > 0) {
-        if (s_downstream_send_fn && s_downstream_send_fn != serial_send) {
-            unlock_control();
-            return;
-        }
-        set_scheduler_sender_locked(serial_send, NULL);
-        sorter_scheduler_tick(&s_scheduler);
-    }
-    unlock_control();
-}
-
-static void debug_task(void *arg)
-{
-    (void)arg;
-    char line[192];
-    size_t len = 0;
-    int64_t next_tick_ms = 0;
-    printf("\nSORTDBG ready. Commands: help, reset, test1, test2, test3, or raw protocol lines.\n"); fflush(stdout);
-    while (true) {
-        uint8_t bytes[32];
-        int got = usb_serial_jtag_read_bytes(bytes, sizeof(bytes), pdMS_TO_TICKS(100));
-        if (got > 0) {
-            for (int i = 0; i < got; ++i) {
-                int ch = bytes[i];
-                if (ch == '\r' || ch == '\n') {
-                    line[len] = '\0';
-                    if (len > 0) {
-                        if (strcmp(line, "help") == 0) sorting_sim_control_handle_line("HELP", 4, serial_send, NULL);
-                        else if (strcmp(line, "reset") == 0) sorting_sim_control_handle_line("RESET", 5, serial_send, NULL);
-                        else if (strcmp(line, "test1") == 0) run_debug_script("class1", 1);
-                        else if (strcmp(line, "test2") == 0) run_debug_script("class2", 2);
-                        else if (strcmp(line, "test3") == 0) run_debug_script("class3", 3);
-                        else sorting_sim_control_handle_line(line, len, serial_send, NULL);
-                    }
-                    len = 0;
-                } else if (len < sizeof(line) - 1) {
-                    if (ch == 8 || ch == 127) { if (len > 0) --len; }
-                    else line[len++] = (char)ch;
-                }
-            }
-        }
-        int64_t now_ms = esp_timer_get_time() / 1000;
-        if (now_ms >= next_tick_ms) {
-            serial_tick_active();
-            next_tick_ms = now_ms + 100;
-        }
-    }
-}
-
-void sorting_sim_debug_start(void)
-{
-#if SORTER_DEBUG_ENABLE_USB_SERIAL
-    if (s_debug_task) return;
-    usb_serial_jtag_driver_config_t config = { .rx_buffer_size = 512, .tx_buffer_size = 512 };
-    esp_err_t ret = usb_serial_jtag_driver_install(&config);
-    if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE)
-        ESP_LOGW(TAG, "USB Serial/JTAG debug driver install failed: %s", esp_err_to_name(ret));
-    xTaskCreatePinnedToCore(debug_task, "sort_dbg", 1152, NULL, 3, &s_debug_task, 0);
-#else
-    ESP_LOGI(TAG, "USB Serial/JTAG sorter debug disabled");
-#endif
 }

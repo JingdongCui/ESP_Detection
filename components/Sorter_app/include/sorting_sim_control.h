@@ -59,7 +59,6 @@ typedef struct {
 void sorting_sim_control_reset(void);
 void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_send_fn_t send_fn, void *send_ctx);
 void sorting_sim_control_tick(sorting_sim_send_fn_t send_fn, void *send_ctx);
-void sorting_sim_debug_start(void);
 void sorting_sim_control_get_settings(sorting_debug_settings_t *settings);
 void sorting_sim_control_apply_settings(const sorting_debug_settings_t *settings);
 void sorting_sim_control_set_mode(sorting_debug_mode_t mode);

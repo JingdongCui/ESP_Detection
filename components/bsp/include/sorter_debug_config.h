@@ -8,8 +8,6 @@
  * drive unverified hardware accidentally.
  */
 
-#define SORTER_DEBUG_ENABLE_USB_SERIAL 1
-
 #define SORTER_MOTOR_COUNT 3
 #define SORTER_MOTOR1_PWM_A_GPIO 32
 #define SORTER_MOTOR1_PWM_B_GPIO 36
