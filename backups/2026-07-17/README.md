@@ -4,8 +4,8 @@
 
 | 文件 | 内容 | SHA-256 |
 |---|---|---|
-| `workspace-docs.bundle` | 根目录文档与测试证据仓库，HEAD `10905e5` | `ba775e6af005995ca0beb78c7cc47bd847449a55386d546ea689fb4da58deba6` |
-| `firmware.bundle` | 固件全部分支和 27 个 refs，HEAD `c26dba8` | `ff67c222bd6e9f726d457780fd9f698a096df9da3626aefd3713b0c634176b06` |
+| `workspace-docs.bundle` | 根目录文档、阶段归档与最终测试证据，HEAD `d841daa` | `370d45bce2eb0a2328fda89c05589b7e3e3369143388e34b919b838de84c8269` |
+| `firmware.bundle` | 固件全部分支和标签（含生产、core timing、HS/FS UVC 实验 refs），HEAD `c26dba8` | `a19ab61a315f30f3ee3402272b8855d413ac423179c9693fe5ed38d6fd6f87bf` |
 | `host.bundle` | Host 全历史，HEAD `6bcee3b` | `922845ae796f9ac551445de3a880093b08e62826d1c2907c005d2ac085545046` |
 
 恢复示例：
