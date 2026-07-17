@@ -558,6 +558,7 @@ python -m esp32_sorter_sim_py.log_audit esp32_sorter_sim_py/logs/merge_tcp_migra
   - `sorting_sim_control_get_settings()`、`sorting_sim_control_apply_settings()`、`sorting_sim_control_get_runtime_debug()`、`sorting_sim_control_get_hardware_status()` 是后续 UI 接入可用的 C API；当前生成 UI 没有调用这些接口。
   - 当前运行时分拣调参主要通过 TCP 或 USB 串口命令完成。
   - 2026-07-16 `sort_real_io` 的 4096 字节任务栈已迁到 PSRAM（提交 `e1cbd5d`），实机确认 S1/S2/S4 初始化并进入轮询，原任务创建失败已解决；S3 当前未配置 GPIO。
+  - 2026-07-18 当前主分支发现该栈回退为 2640 字节内部 RAM。提交 `4fa6f3e` 将其提高为 4096 字节，优先 `MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT`，内部 RAM 创建失败才回退 PSRAM。实机确认实际分配在内部 RAM，连续多次 S1 上升沿和分拣超时调度期间无 panic/重启。
 
 ## Blue-Screen Long-Term Findings
 
