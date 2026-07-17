@@ -28,6 +28,10 @@ static bool s_vision_s1_active;
 static int s_vision_package_id;
 static bool s_vision_classified;
 static bool s_vision_failed_seen;
+static float s_vision_vote_score[4];
+static float s_vision_vote_best_conf[4];
+static int s_vision_vote_count[4];
+static int s_vision_vote_total;
 static sorting_debug_mode_t s_debug_mode = SORTING_DEBUG_MODE_REAL_SENSOR;
 static bool s_motor_output_enabled = true;
 static bool s_sensor_input_enabled = true;
@@ -49,6 +53,7 @@ static void *s_downstream_send_ctx;
 #define REAL_IO_POLL_MS 10
 #define REAL_SCHEDULER_TICK_MS 100
 #define SENSOR_DEBOUNCE_MS 20
+#define VISION_VOTE_MAX_COUNT 5
 
 typedef struct {
     bool raw;
@@ -266,12 +271,21 @@ static void ensure_control_lock(void) { if (!s_control_lock) s_control_lock = xS
 static void lock_control(void) { ensure_control_lock(); if (s_control_lock) xSemaphoreTake(s_control_lock, portMAX_DELAY); }
 static void unlock_control(void) { if (s_control_lock) xSemaphoreGive(s_control_lock); }
 
+static void clear_vision_votes(void)
+{
+    memset(s_vision_vote_score, 0, sizeof(s_vision_vote_score));
+    memset(s_vision_vote_best_conf, 0, sizeof(s_vision_vote_best_conf));
+    memset(s_vision_vote_count, 0, sizeof(s_vision_vote_count));
+    s_vision_vote_total = 0;
+}
+
 static void reset_vision_window(void)
 {
     s_vision_s1_active = false;
     s_vision_package_id = 0;
     s_vision_classified = false;
     s_vision_failed_seen = false;
+    clear_vision_votes();
 }
 
 static void reset_real_io_state(void)
@@ -623,14 +637,57 @@ static sorter_package_class_t parse_vision_class(const char *line)
     return sorter_package_class_from_int(parse_int_field(line, "class=", 0), free_flag, error_flag);
 }
 
-static bool is_success_class(sorter_package_class_t cls)
+static float normalize_vote_confidence(float confidence)
 {
-    return cls == SORTER_CLASS_1 || cls == SORTER_CLASS_2 || cls == SORTER_CLASS_3 || cls == SORTER_CLASS_FREE;
+    if (confidence > 1.0f && confidence <= 100.0f) {
+        confidence /= 100.0f;
+    }
+    if (confidence <= 0.0f || !isfinite(confidence)) {
+        return 1.0f;
+    }
+    return confidence > 1.0f ? 1.0f : confidence;
+}
+
+static sorter_package_class_t current_vote_winner(void)
+{
+    sorter_package_class_t best = SORTER_CLASS_UNKNOWN;
+    for (int cls = SORTER_CLASS_1; cls <= SORTER_CLASS_3; ++cls) {
+        if (s_vision_vote_count[cls] <= 0) continue;
+        if (best == SORTER_CLASS_UNKNOWN ||
+            s_vision_vote_score[cls] > s_vision_vote_score[best] ||
+            (s_vision_vote_score[cls] == s_vision_vote_score[best] &&
+             s_vision_vote_best_conf[cls] > s_vision_vote_best_conf[best]) ||
+            (s_vision_vote_score[cls] == s_vision_vote_score[best] &&
+             s_vision_vote_best_conf[cls] == s_vision_vote_best_conf[best] &&
+             s_vision_vote_count[cls] > s_vision_vote_count[best])) {
+            best = (sorter_package_class_t)cls;
+        }
+    }
+    return best;
+}
+
+static bool commit_vote_winner_locked(const char *reason)
+{
+    sorter_package_class_t cls = current_vote_winner();
+    if (s_vision_package_id <= 0 || s_vision_classified || cls == SORTER_CLASS_UNKNOWN) {
+        return false;
+    }
+    ESP_LOGI(TAG,
+             "SORT 投票定案: 包裹#%d %s reason=%s votes=%d score1=%.3f/%d score2=%.3f/%d score3=%.3f/%d",
+             s_vision_package_id, class_text(cls), reason ? reason : "",
+             s_vision_vote_total,
+             (double)s_vision_vote_score[SORTER_CLASS_1], s_vision_vote_count[SORTER_CLASS_1],
+             (double)s_vision_vote_score[SORTER_CLASS_2], s_vision_vote_count[SORTER_CLASS_2],
+             (double)s_vision_vote_score[SORTER_CLASS_3], s_vision_vote_count[SORTER_CLASS_3]);
+    sorter_scheduler_vision_result(&s_scheduler, s_vision_package_id, cls);
+    s_vision_classified = true;
+    return true;
 }
 
 static void fail_current_vision_window(void)
 {
     if (s_vision_package_id <= 0 || s_vision_classified) return;
+    if (commit_vote_winner_locked("window_close")) return;
     (void)s_vision_failed_seen;
     sorter_scheduler_vision_result(&s_scheduler, s_vision_package_id, SORTER_CLASS_VISION_FAILED);
     s_vision_classified = true;
@@ -642,6 +699,7 @@ static void open_vision_window_locked(void)
     s_vision_package_id = s_next_package_id++;
     s_vision_classified = false;
     s_vision_failed_seen = false;
+    clear_vision_votes();
     sorter_scheduler_package_new(&s_scheduler, s_vision_package_id);
 }
 
@@ -672,10 +730,24 @@ static void process_real_sensor_event_locked(bsp_sort_sensor_id_t sensor_id, boo
     }
 }
 
-static void classify_current_vision_window_locked(sorter_package_class_t cls)
+static void classify_current_vision_window_locked(sorter_package_class_t cls, float confidence)
 {
     if (s_vision_package_id <= 0 || s_vision_classified) return;
-    if (is_success_class(cls)) {
+    if (cls >= SORTER_CLASS_1 && cls <= SORTER_CLASS_3) {
+        float vote_conf = normalize_vote_confidence(confidence);
+        s_vision_vote_score[cls] += vote_conf;
+        if (vote_conf > s_vision_vote_best_conf[cls]) {
+            s_vision_vote_best_conf[cls] = vote_conf;
+        }
+        s_vision_vote_count[cls]++;
+        s_vision_vote_total++;
+        ESP_LOGI(TAG, "SORT 视觉投票: 包裹#%d %s conf=%.1f%% vote=%d/%d",
+                 s_vision_package_id, class_text(cls), (double)(vote_conf * 100.0f),
+                 s_vision_vote_total, VISION_VOTE_MAX_COUNT);
+        if (s_vision_vote_total >= VISION_VOTE_MAX_COUNT) {
+            commit_vote_winner_locked("vote_full");
+        }
+    } else if (cls == SORTER_CLASS_FREE) {
         sorter_scheduler_vision_result(&s_scheduler, s_vision_package_id, cls);
         s_vision_classified = true;
     } else if (cls == SORTER_CLASS_ERROR) {
@@ -759,10 +831,11 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
     }
     if (strncmp(buf, "VISION_RESULT", 13) == 0) {
         sorter_package_class_t cls = parse_vision_class(buf);
+        float confidence = parse_float_field(buf, "conf=", parse_float_field(buf, "confidence=", 1.0f));
         if (external_sim_input_allowed()) {
             sorter_scheduler_vision_result(&s_scheduler, parse_int_field(buf, "id=", 0), cls);
         } else if (real_sensor_input_allowed()) {
-            classify_current_vision_window_locked(cls);
+            classify_current_vision_window_locked(cls, confidence);
         } else {
             ESP_LOGI(TAG, "ignore VISION_RESULT while mode=%s", debug_mode_name(s_debug_mode));
         }
@@ -771,11 +844,12 @@ void sorting_sim_control_handle_line(const char *line, size_t len, sorting_sim_s
     if (strncmp(buf, "VISION_FRAME", 12) == 0) {
         bool s1_active = parse_int_field(buf, "s1=", 0) != 0;
         sorter_package_class_t cls = parse_vision_class(buf);
+        float confidence = parse_float_field(buf, "conf=", parse_float_field(buf, "confidence=", 1.0f));
         if (external_sim_input_allowed()) {
             update_vision_s1_locked(s1_active);
-            classify_current_vision_window_locked(cls);
+            classify_current_vision_window_locked(cls, confidence);
         } else if (real_sensor_input_allowed()) {
-            classify_current_vision_window_locked(cls);
+            classify_current_vision_window_locked(cls, confidence);
         } else {
             ESP_LOGI(TAG, "ignore VISION_FRAME while mode=%s", debug_mode_name(s_debug_mode));
         }
@@ -916,7 +990,7 @@ void sorting_sim_control_submit_vision_category(int model_category, float confid
     }
     ESP_LOGI(TAG, "SORT 视觉识别: 包裹#%d %s conf=%.1f%%",
              s_vision_package_id, class_text(cls), (double)(confidence * 100.0f));
-    classify_current_vision_window_locked(cls);
+    classify_current_vision_window_locked(cls, confidence);
     unlock_control();
 }
 
