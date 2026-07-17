@@ -72,9 +72,9 @@ V2 元数据布局：
 
 每个框依次为 `stage:u8, category:u8, score_x1000:u16, x1/y1/x2/y2:u16, flags:u16, reserved:u16`。坐标基于 JPEG 尺寸且为闭区间；Host 会按 `Image.paintedWidth/paintedHeight` 映射到 `PreserveAspectFit` 的实际绘制区域。`stage=0` 面单框为绿色；`stage=1` Logo 按 `category=0/1/2` 使用极兔红、韵达黄、中通蓝。关闭“叠加框”只隐藏 QML 图层，V2 JPEG 文件本身始终不烧入框。
 
-主界面显示系统遥测、图像链路、包裹图像记录、置信度阈值和电机调速。电机速度通过 packet type `0x12`
-发送 `CONFIG a_speed=<v> b_speed=<v> c_speed=<v>`。亮度、置信度阈值、检测开关和预览叠加框当前为上位机本地状态。
-系统维护页提供监听状态、端口、保存目录、运行日志、重新监听和同步时间。板端 DEV 页调试项不在上位机中镜像。
+主界面显示系统遥测、图像链路、包裹图像记录、置信度阈值和电机调速。设备控制使用公共头 `type=0x11 CONTROL_JSON`：Host 连接后自动发送 `{"op":"get"}`，并用板端回传的 `state/capabilities/error` 校正界面状态。支持屏幕亮度、相机 ISP、检测/叠框、面单与 Logo 阈值、A/B/C 三路速度、图像/指标上报和设备重启。
+
+旧 `type=0x12` 仍用于接收板端 SIM line，不再用于设备设置。系统维护页提供监听状态、端口、保存目录、运行日志、重新监听和同步时间。板端 DEV 页调试项不在上位机中镜像。
 
 ## Windows
 
