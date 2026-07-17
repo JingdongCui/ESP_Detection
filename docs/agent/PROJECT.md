@@ -147,8 +147,8 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - `ESP32P4_Detection` 当前启动路径为：LCD → Touch → Camera → Motor → Encoder → LVGL/UI → System Monitor → Vision → dormant real-IO task → Ethernet → Sorter → UVC。Touch 必须先建立 Camera 复用的 I2C 总线。UVC 末尾初始化存在 JPEG 内部 DMA 内存不足风险，按用户要求暂不继续处理。
 - 启动配置按模块归属维护：日志过滤宏在 `components/system_monitor/system_monitor.c`，TCP 链路宏在 `components/Ethernet_app/ethernet_app.c`，分拣调试及电机/传感器上电默认宏在 `components/Sorter_app/sorting_sim_control.c`；`main/system_init.c` 只负责编排。
 - `ESP32P4_Detection` 当前 `main/system_init.c` 初始化内容恢复自 `4946a30 restore lvgl perf monitor overlay`，这是上一轮实机验证 Ethernet/control/image 可连接的基线。
-- `ESP32P4_Detection` 当前视觉检测 miss 保持/发图 rearm 计数为 `VISION_DISPLAY_MISS_KEEP_COUNT=3`，位于 `components/vision/framework/vision_detect.c`。
-- `ESP32P4_Detection` 当前发图触发逻辑位于 `components/vision/framework/vision_detect.c`：第一次有效命中后关闭发图闸门；常量 `VISION_DISPLAY_MISS_KEEP_COUNT=3` 表示保留 3 个 miss 帧，按当前 `<` 判断在第 4 个连续 miss 时清除上一命中状态，之后才允许下一次 capture。`vision_package_id` 仅用于 RTT 日志，不再决定是否发图。
+- `ESP32P4_Detection` 当前视觉检测 miss 保持/发图 rearm 计数为 `VISION_DISPLAY_MISS_KEEP_COUNT=5`，位于 `components/vision/framework/vision_detect.c`。
+- `ESP32P4_Detection` 当前发图触发逻辑位于 `components/vision/framework/vision_detect.c`：第一次有效命中后关闭发图闸门；常量 `VISION_DISPLAY_MISS_KEEP_COUNT=5` 表示保留 5 个 miss 帧，按当前 `<` 判断在第 6 个连续 miss 时清除上一命中状态，之后才允许下一次 capture。`vision_package_id` 仅用于 RTT 日志，不再决定是否发图。
 - `ESP32P4_Detection` 当前未检出/视觉失败包裹分类规则：
   - 实际调度入口：`components/Sorter_app/sorter_core/sorter_scheduler.c` 的 `next_failed_class()`。
   - 调试状态显示：`components/Sorter_app/sorting_sim_control.c` 的 `failed_class_from_cursor()`。
@@ -660,6 +660,8 @@ RGB565 必须确认整条显示路径都变成 16 bpp：
 - 采样器应同时保存 `wb_us/wall_us/cpu_us/wait_us`。2026-07-17 的 1x100 增强诊断中 `corr(wb,wait)=0.9907`、`corr(wb,cpu)=0.1058`，且 max 110.665 ms；这支持延迟波动主要来自 ESP-DL worker/调度等待，但因未复现 150 ms 尾部，不能作为异常根因的最终证明。
 - 启动任务/堆证据可用 `ESP32P4_Detection/tools/system_acceptance_snapshot.py` 采集；产物为 CSV、memory JSON 与原始 UART log。栈归属必须依据实际 `pxStackBase` 地址，而不是创建 API 的预期 caps。
 - 2026-07-17 实板确认 24 个任务中 4 个栈在 PSRAM：`eth_control`、`eth_img_send`、`eth_img_prod`、`cam_isp`；其余 20 个在内部 SRAM。`sort_dbg` 生产配置关闭，因此不会出现在任务表。
+- 2026-07-18 合并队友 `ESP32P4_Detection(13).zip`：仅接收 UI、Ethernet 状态同步、ISP/模型耗时和识别日志；拒绝包内 `sort_dbg` USB 调试任务、单帧即时分类、电机/传感器参数改动。主分支提交 `24fa4a1`，动态限速分支提交 `e814b48`，Host 提交 `e9f8ae2`。
+- 当前两板端分支共同保持 S1=GPIO22、S2=GPIO23、S3/S4=-1，A/B/C=65/100/100，交接延时 100 ms，B/C timeout=900/1300 ms，5 次置信度加权投票，且不创建 `sort_dbg`。
 - UVC 失败时实测 `MALLOC_CAP_DMA` free=1791 B、largest=76 B；即使 internal 8-bit largest 仍有 21492 B，也不能满足 JPEG engine 的 DMA-capable 连续块。后续 UVC 修复必须针对 DMA-capable 内存的早期预留/碎片，而不是只看普通 internal free。
 - 2026-07-17 长稳发现 ESP-DL dual-core worker 稀有崩溃：约 40 分钟时 Core0 Instruction access fault，MEPC/RA/MTVAL=0x10，SP 位于 `dl_mc0`；栈中可符号化地址经过 `DualCoreWorkerTask`→`Module::forward_args`→depthwise-conv/std::function。后续应围绕 `DualCoreWorkerRuntime.op/args`、Module/vtable/std::function 生命周期或内存破坏调查，不能归因于普通栈耗尽，也不能用自动重启掩盖。
 - UVC JPEG `rxlink` 内部 DMA 内存不足已通过启动早期预留解决；HS profile 可启动。启用 UVC 后的推理回退不是简单任务优先级问题：双 worker wake 为几十微秒，但同一算子 exec 同步膨胀到约 80～85 ms。
