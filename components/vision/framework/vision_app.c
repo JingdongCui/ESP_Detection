@@ -47,7 +47,8 @@
 #define VISION_DISP_PRIORITY    4
 
 // 推理栈必须位于 SRAM；PSRAM 栈曾在中断保存现场时引发双核死锁。
-#define VISION_DET_STACK_SIZE 3728
+// 12KB 是已完成长稳验证的配置，覆盖 ESP-DL 推理及命中时的 UI/识别日志调用链。
+#define VISION_DET_STACK_SIZE (12 * 1024)
 #define VISION_DET_PRIORITY   4
 
 // 最多订阅者数（显示 + 推理 = 2，留点余量）。
