@@ -2,6 +2,7 @@
 
 - 2026-07-26 上位机云端回复演示：在 `esp32_host_no_inference` 的基线提交 `547cab7` 后实施。断连状态使用控制器读取层的固定演示数据，避免污染真实遥测累计；第 4 页保留系统维护并新增本地回复卡片。
 - 2026-07-26 展示在线状态：断连时新增 `displayConnected` 仅供 QML 显示层使用，侧栏、顶部、控制页、维护页、卡片、日志及检测记录统一显示在线/正常，真实 `connected` 仍用于控制命令安全门控。构建、CTest 和离屏启动验证通过。
+- 2026-07-26 云端回复标签清理：移除“本地演示内容，不连接云端服务”说明文字；上位机构建和 CTest 通过。
 - 2026-07-26 动画定义：第 4 页可见时先加载旋转 2 秒，再每 50 ms 显示一个字符，完整回复停留 10 秒后循环；离开页面停止计时器与旋转动画。
 - 2026-07-26 验证：`cmake --build build -j2` 成功；`ctest --test-dir build --output-on-failure` 通过 1/1；`QT_QPA_PLATFORM=offscreen timeout 5s build/bin/esp32_host_no_inference` 无运行期输出。仅改动 Qt 上位机，`idf.py build` 与烧录监视不适用。
 - 2026-07-26 报告更新：基于 `info.txt`、报告要求和现有工程资料，建立 `report_work/` 并完成新版 Markdown、HTML/SVG 源流程图及 PNG 导出；待用户确认 Markdown 后再生成 Word。
