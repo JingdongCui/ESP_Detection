@@ -253,6 +253,7 @@ private:
     QVariantMap makeCard(const QString &title, const QString &value, const QString &note, const QString &accent) const;
     QString categoryLabelFromId(int classId) const;
     void updateLatestCategory(int classId, int confidencePct);
+    bool usingDemoData() const;
 
     QTcpServer m_server;
     QPointer<QTcpSocket> m_socket;
@@ -273,6 +274,10 @@ private:
     QVariantList m_metricHistory;
     QVariantList m_frameHistory;
     QVariantList m_currentDetections;
+    QVariantList m_demoMetricHistory;
+    QVariantList m_demoFrameHistory;
+    QVariantList m_demoDetections;
+    QStringList m_demoLogLines;
     QTimer m_controlFlushTimer;
     QHash<QString, QVariant> m_pendingControls;
     QHash<QString, QVariant> m_lastSentControls;

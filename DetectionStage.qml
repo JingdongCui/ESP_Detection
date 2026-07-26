@@ -212,7 +212,7 @@ PremiumPanel {
         Text {
             id: categoryText
             anchors.centerIn: parent
-            text: root.imageUrl.length === 0 ? qsTr("无") : root.categoryLabel + "  " + Math.round(Number(root.categoryConfidence || 0)) + "%"
+            text: root.frameInfo.length === 0 ? qsTr("无") : root.categoryLabel + "  " + Math.round(Number(root.categoryConfidence || 0)) + "%"
             color: theme.text
             font.pixelSize: 16
             font.weight: Font.Black
