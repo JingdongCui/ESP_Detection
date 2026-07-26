@@ -2,24 +2,20 @@
 
 ## 当前目标
 
-- 无进行中任务。
+- 更新“嵌入式边缘 AI 智能分拣系统”比赛报告 Markdown 版本，待用户确认后生成 Word 版本。
 
 ## 当前现状
 
-- 2026-07-18 队友新包合并、两板端分支编译、主分支烧录与启动监视已完成。
-- 详细记录：`archive/2026-07-18-teammate-package13-merge.md`。
-- `sort_real_io` 栈已提高到 4096 字节，优先内部 RAM、失败才回退 PSRAM；实机确认分配在内部 RAM，连续多次 S1 上升沿无崩溃。
-- 详细记录：`archive/2026-07-18-real-io-internal-stack.md`。
-- `vision_det` 栈已从队友包回退的 3728 字节恢复为内部 RAM 12 KiB；主/动态限速两个 worktree 均构建通过，主分支已完整烧录。
-- 实机约 121 秒压力监视中，连续识别、5 票定案及大量 S1 上升沿并发均无栈溢出、panic 或重启。
-- 详细记录：`archive/2026-07-18-vision-det-stack-restore.md`。
-- 已生成包含两套独立 Git 板端工程的队友交接包：`deliverables/ESP32P4_Detection_team_handoff_20260718_with_git.zip`。
-- 交接包已通过 ZIP、包内 SHA256、Git fsck、默认分支/HEAD、工作区和 remote 独立性校验；详细记录：`archive/2026-07-18-team-handoff-package.md`。
+- 已在 `report_work/` 建立独立报告工作目录，未覆盖旧版 `docs/competition_report_final.md`。
+- 已生成新版 Markdown：`report_work/嵌入式边缘AI智能分拣系统_报告.md`。
+- 已复制 14 张实物/界面配图，并制作、导出 6 张系统/硬件/软件流程 PNG 图。
+- Markdown 图片路径、五部分报告结构和测试数据已完成静态检查。
 
 ## 下一步
 
-- 现场用完整包裹链路触发 S1/S2，核对投票日志、电机时序与机械出口。
+- 用户审阅并确认 Markdown 内容、配图与技术口径。
+- 确认后生成 Word，渲染页面 PNG 并逐页完成版式检查。
 
 ## 阻塞点
 
-- S1 已反复物理触发并稳定运行；本次没有按正常间距配合 S2，队列最终达到 8 个并进入 `queue_full/vision_without_package`，完整机械闭环仍待验证。这些是测试输入不完整造成的业务告警，不是任务栈崩溃。
+- 等待用户确认 Markdown 后再进入 Word 转换阶段。
