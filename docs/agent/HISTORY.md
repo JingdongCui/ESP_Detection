@@ -1,5 +1,8 @@
 # History
 
+- 2026-07-26 上位机云端回复演示：在 `esp32_host_no_inference` 的基线提交 `547cab7` 后实施。断连状态使用控制器读取层的固定演示数据，避免污染真实遥测累计；第 4 页保留系统维护并新增本地回复卡片。
+- 2026-07-26 动画定义：第 4 页可见时先加载旋转 2 秒，再每 50 ms 显示一个字符，完整回复停留 10 秒后循环；离开页面停止计时器与旋转动画。
+- 2026-07-26 验证：`cmake --build build -j2` 成功；`ctest --test-dir build --output-on-failure` 通过 1/1；`QT_QPA_PLATFORM=offscreen timeout 5s build/bin/esp32_host_no_inference` 无运行期输出。仅改动 Qt 上位机，`idf.py build` 与烧录监视不适用。
 - 2026-07-26 报告更新：基于 `info.txt`、报告要求和现有工程资料，建立 `report_work/` 并完成新版 Markdown、HTML/SVG 源流程图及 PNG 导出；待用户确认 Markdown 后再生成 Word。
 - 2026-07-26 报告目录修正：`info.txt` 第 13 行规定正文六章结构，已将 Markdown 重构为“设计需求分析、特色与创新、功能设计、系统实现、其他内容、参考文献”，并采用章、节、小节三级目录。
 - 2026-07-26 报告云端内容扩充：明确云端大模型承担长时间尺度的数据分析、报告生成和优化建议；Qt 上位机承担数据组织、命令校验与转发；ESP32-P4 保持实时识别、调度和安全控制。

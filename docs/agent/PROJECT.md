@@ -191,6 +191,7 @@ idf.py -p /dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controll
 - 2026-07-16 Host 第三页设备控制已完成主机侧实现：checkpoint `c85829d`，功能提交 `6bcee3b`。
 - Host 与当前板端均已实现 V1 公共头的 `type=0x11 CONTROL_JSON`：支持 get/set/action、状态/错误解析、连接后自动状态查询、板端参数校验/执行和完整 state 回传。
 - Host 控制范围为屏幕/ISP、检测与叠框、面单/Logo 阈值、A/B/C 三路开环速度、图像/指标上报和重启；明确不含 PID、发送频率、模型热切换和恢复出厂。
+- 2026-07-26 Host 展示模式：`esp32_host_no_inference` 未连接板子时，`HostController` 输出固定模拟指标、趋势、检测历史、统计与日志；连接后自动恢复真实数据。`ReservePage.qml` 的系统维护页包含纯本地云端大模型回复演示，不发起云端请求，动画为 2 秒转圈、20 字/秒逐字显示、完成后停留 10 秒循环。
 
 ## 2026-07-06 Workspace Cleanup
 
