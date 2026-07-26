@@ -14,9 +14,8 @@
 
 ## 下一步
 
-- 用户审阅并确认 Markdown 内容、配图与技术口径。
-- 确认后生成 Word，渲染页面 PNG 并逐页完成版式检查。
+- 已完成 Markdown 转 Word；如用户提出内容或格式修订，再同步修改 Markdown 与 Word。
 
 ## 阻塞点
 
-- 等待用户确认 Markdown 后再进入 Word 转换阶段。
+- 无。

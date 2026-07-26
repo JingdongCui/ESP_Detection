@@ -19,9 +19,9 @@ OUT = ROOT / "docs" / "competition_report_final.docx"
 
 FONT_BODY_CN = "SimSun"
 FONT_BODY_CN_ALT = "宋体"
-FONT_TITLE_CN = "SimHei"
-FONT_TITLE_CN_ALT = "黑体"
-FONT_EN = "Times New Roman"
+FONT_TITLE_CN = "SimSun"
+FONT_TITLE_CN_ALT = "宋体"
+FONT_EN = "SimSun"
 BLACK = RGBColor(0, 0, 0)
 
 
@@ -91,6 +91,19 @@ def shade_cell(cell, fill):
     shd.set(qn("w:fill"), fill)
 
 
+def set_row_cant_split(row):
+    tr_pr = row._tr.get_or_add_trPr()
+    cant_split = OxmlElement("w:cantSplit")
+    tr_pr.append(cant_split)
+
+
+def set_repeat_table_header(row):
+    tr_pr = row._tr.get_or_add_trPr()
+    header = OxmlElement("w:tblHeader")
+    header.set(qn("w:val"), "true")
+    tr_pr.append(header)
+
+
 def set_table_width(table, width_dxa=9020):
     tbl = table._tbl
     tbl_pr = tbl.tblPr
@@ -148,6 +161,7 @@ def setup_doc():
 def add_text_runs(paragraph, text, east_asia=FONT_BODY_CN, size=10.5, bold=False):
     # Keep inline code readable but avoid Markdown backticks in final DOCX.
     text = re.sub(r"`([^`]+)`", r"\1", text)
+    text = text.replace("**", "")
     run = paragraph.add_run(text)
     set_rfonts(run, east_asia=east_asia)
     run.font.size = Pt(size)
@@ -199,6 +213,9 @@ def add_table(doc, rows):
     table.style = "Table Grid"
     set_table_width(table)
     for r_idx, row in enumerate(rows):
+        set_row_cant_split(table.rows[r_idx])
+        if r_idx == 0:
+            set_repeat_table_header(table.rows[r_idx])
         for c_idx in range(cols):
             cell = table.rows[r_idx].cells[c_idx]
             cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
@@ -265,6 +282,7 @@ def build_doc():
     in_code = False
     code_lang = ""
     code_block = []
+    in_references = False
 
     while i < len(lines):
         line = lines[i].rstrip()
@@ -314,6 +332,7 @@ def build_doc():
             continue
 
         if line.startswith("## "):
+            in_references = "参考文献" in line
             p = doc.add_paragraph(style="Heading 1")
             add_text_runs(p, line[3:].strip(), east_asia=FONT_TITLE_CN, size=16, bold=True)
             i += 1
@@ -339,13 +358,20 @@ def build_doc():
 
         m = re.match(r"^(\d+)\. (.*)", line)
         if m:
+            if in_references:
+                p = doc.add_paragraph()
+                p.paragraph_format.space_after = Pt(0)
+                p.paragraph_format.line_spacing = 1.0
+                add_text_runs(p, line.strip(), east_asia=FONT_BODY_CN, size=9.5)
+                i += 1
+                continue
             p = doc.add_paragraph(style="List Number")
             add_text_runs(p, m.group(2).strip(), east_asia=FONT_BODY_CN, size=10.5)
             i += 1
             continue
 
         p = doc.add_paragraph()
-        if line.startswith("图："):
+        if re.match(r"^图\s*\d+", line) or line.startswith("图："):
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             add_text_runs(p, line.strip(), east_asia=FONT_BODY_CN, size=10)
         else:
@@ -354,7 +380,7 @@ def build_doc():
         i += 1
 
     # Footer page number placeholder is intentionally omitted for simple submission style.
-    doc.core_properties.title = "基于 ESP32-P4 的快递智能分拣系统与 YOLO 轻量化部署优化"
+    doc.core_properties.title = MD.stem
     doc.core_properties.author = ""
     doc.core_properties.last_modified_by = ""
     doc.core_properties.comments = ""
@@ -366,4 +392,9 @@ def build_doc():
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 3:
+        MD = Path(sys.argv[1]).resolve()
+        OUT = Path(sys.argv[2]).resolve()
+    elif len(sys.argv) != 1:
+        raise SystemExit("用法：build_competition_report_docx.py [输入.md 输出.docx]")
     build_doc()
