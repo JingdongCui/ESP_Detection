@@ -466,13 +466,6 @@ Item {
                                     elide: Text.ElideRight
                                 }
 
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: qsTr("本地演示内容，不连接云端服务")
-                                    color: theme.muted
-                                    font.pixelSize: 11
-                                    elide: Text.ElideRight
-                                }
                             }
 
                             StatusPill {
