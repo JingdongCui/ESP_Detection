@@ -33,7 +33,7 @@
 - 定稿报告已删除采购/淘宝类硬件资料图和机械尺寸截图，保留系统正面、分拣过程、硬件接线、上位机、板端 UI 等实拍/截图资料。
 - 定稿 Word 要求：全文黑色字；主标题和高层标题黑体；较低层级标题和正文宋体；英文/数字 Times New Roman；最新已渲染检查 26 页。
 - 2026-07-08 最新报告已删除所有 Mermaid 流程图块，仅保留 `流程图.jpg` 作为系统整体流程图普通图片；其它流程语义均改为文字描述，避免 DOCX 转换出现流程图文本异常。
-- 2026-07-26 新版报告工作目录为 `report_work/`；Markdown 为 `report_work/嵌入式边缘AI智能分拣系统_报告.md`，流程图 HTML/SVG 源在 `report_work/html/`，PNG 在 `report_work/figures/`。新版作品名称为“嵌入式边缘 AI 智能分拣系统”，Word 生成必须在 Markdown 经用户确认后进行。
+- 2026-07-26 新版报告工作目录为 `report_work/`；Markdown 为 `report_work/嵌入式边缘AI智能分拣系统_报告.md`，流程图 HTML/SVG 源在 `report_work/html/`，PNG 在 `report_work/figures/`。新版作品名称为“嵌入式边缘 AI 智能分拣系统”，正文严格使用 `info.txt` 的六章结构，Word 生成必须在 Markdown 经用户确认后进行。
 - 以太网与 Qt 上位机答辩技术详解：`docs/ethernet_qt_link_defense_guide.md`；以当前固件 `0af4c90` 和 Host `3668ddb` 的实际执行路径为准。
 
 ## Dataset Notes

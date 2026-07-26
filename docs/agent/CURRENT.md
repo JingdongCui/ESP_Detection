@@ -7,7 +7,7 @@
 ## 当前现状
 
 - 已在 `report_work/` 建立独立报告工作目录，未覆盖旧版 `docs/competition_report_final.md`。
-- 已生成新版 Markdown：`report_work/嵌入式边缘AI智能分拣系统_报告.md`。
+- 已生成新版 Markdown：`report_work/嵌入式边缘AI智能分拣系统_报告.md`，正文严格采用 `info.txt` 规定的六章顺序：设计需求分析、特色与创新、功能设计、系统实现、其他内容、参考文献。
 - 已复制 14 张实物/界面配图，并制作、导出 6 张系统/硬件/软件流程 PNG 图。
 - Markdown 图片路径、五部分报告结构和测试数据已完成静态检查。
 
