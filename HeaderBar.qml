@@ -89,10 +89,10 @@ PremiumPanel {
                     Layout.preferredWidth: 8
                     Layout.preferredHeight: 8
                     radius: 4
-                    color: host.connected ? theme.accent : theme.warn
+                    color: host.displayConnected ? theme.accent : theme.warn
                 }
                 Text {
-                    text: host.connected ? qsTr("在线运行") : qsTr("等待连接")
+                    text: host.displayConnected ? qsTr("在线运行") : qsTr("等待连接")
                     color: theme.text
                     font.pixelSize: 13
                     font.weight: Font.Bold

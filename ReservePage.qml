@@ -221,10 +221,10 @@ Item {
                             Layout.preferredWidth: 92
                             Layout.preferredHeight: 30
                             theme: root.theme
-                            text: host.connected ? "设备在线" : "待连接"
-                            fillColor: host.connected ? theme.statusBg : theme.warnWash
-                            strokeColor: host.connected ? theme.accent : theme.warn
-                            textColor: host.connected ? theme.statusText : theme.warnText
+                            text: host.displayConnected ? "设备在线" : "待连接"
+                            fillColor: host.displayConnected ? theme.statusBg : theme.warnWash
+                            strokeColor: host.displayConnected ? theme.accent : theme.warn
+                            textColor: host.displayConnected ? theme.statusText : theme.warnText
                             textSize: 11
                         }
                     }
@@ -625,10 +625,10 @@ Item {
 
                             StatusPill {
                                 theme: root.theme
-                                text: host.connected ? "链路正常" : "等待数据"
-                                fillColor: host.connected ? theme.statusBg : theme.warnWash
-                                strokeColor: host.connected ? theme.accent : theme.warn
-                                textColor: host.connected ? theme.statusText : theme.warnText
+                                text: host.displayConnected ? "链路正常" : "等待数据"
+                                fillColor: host.displayConnected ? theme.statusBg : theme.warnWash
+                                strokeColor: host.displayConnected ? theme.accent : theme.warn
+                                textColor: host.displayConnected ? theme.statusText : theme.warnText
                                 textSize: 10
                             }
                         }

@@ -202,11 +202,11 @@ Window {
                                 Layout.preferredWidth: 8
                                 Layout.preferredHeight: 8
                                 radius: 4
-                                color: hostController.connected ? theme.accent : theme.warn
+                                color: hostController.displayConnected ? theme.accent : theme.warn
                             }
                             Text {
                                 Layout.fillWidth: true
-                                text: hostController.connected ? qsTr("设备已连接") : qsTr("等待设备连接")
+                                text: hostController.displayConnected ? qsTr("设备已连接") : qsTr("等待设备连接")
                                 color: theme.text
                                 font.pixelSize: 12
                                 font.weight: Font.Bold

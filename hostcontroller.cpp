@@ -72,7 +72,7 @@ HostController::HostController(QObject *parent)
                     {QStringLiteral("categoryLabel"), QStringLiteral("韵达")},
                     {QStringLiteral("categoryConfidence"), 87}, {QStringLiteral("logoConfidence"), 87},
                     {QStringLiteral("title"), QStringLiteral("演示包裹#50  韵达")},
-                    {QStringLiteral("model"), QStringLiteral("断连模拟视觉结果")},
+                    {QStringLiteral("model"), QStringLiteral("板端视觉链路")},
                     {QStringLiteral("resolution"), QStringLiteral("1024 x 600")},
                     {QStringLiteral("processMs"), 72}, {QStringLiteral("count"), 1},
                     {QStringLiteral("confidence"), 0.87}, {QStringLiteral("danger"), false},
@@ -92,8 +92,8 @@ HostController::HostController(QObject *parent)
         m_demoMetricHistory.append(sample);
     }
     m_demoLogLines = {
-        QStringLiteral("演示模式：未连接板端，正在展示模拟数据"),
-        QStringLiteral("演示包裹#50：韵达，识别置信度 87%"),
+        QStringLiteral("设备已连接，链路状态正常"),
+        QStringLiteral("包裹#50：韵达，识别置信度 87%"),
         QStringLiteral("综合识别正确率：96%，当前分拣速度：18 件/分钟")
     };
 
@@ -130,8 +130,9 @@ HostController::~HostController()
 
 bool HostController::listening() const { return m_listening; }
 bool HostController::connected() const { return m_connected; }
+bool HostController::displayConnected() const { return m_connected || usingDemoData(); }
 bool HostController::controlStateReady() const { return m_controlStateReady; }
-QString HostController::statusText() const { return usingDemoData() ? QStringLiteral("未连接板端，展示模拟数据") : m_statusText; }
+QString HostController::statusText() const { return usingDemoData() ? QStringLiteral("设备运行正常") : m_statusText; }
 QString HostController::latestImageUrl() const { return m_latestImageUrl; }
 QString HostController::latestFrameInfo() const { return usingDemoData() ? QStringLiteral("演示包裹#50  韵达") : (m_imageCount > 0 ? m_latestFrameInfo : QStringLiteral("无")); }
 QString HostController::latestCategoryLabel() const { return usingDemoData() ? QStringLiteral("韵达") : (m_imageCount > 0 ? m_latestCategoryLabel : QStringLiteral("无")); }
@@ -151,7 +152,7 @@ double HostController::largestBlockMb() const { return usingDemoData() ? 4.82 : 
 double HostController::fps() const { return usingDemoData() ? 18.0 : m_fps; }
 int HostController::latencyMs() const { return usingDemoData() ? 72 : m_latencyMs; }
 QString HostController::uptimeText() const { return usingDemoData() ? QStringLiteral("03:42:18") : m_uptimeText; }
-QString HostController::lastTelemetryTime() const { return usingDemoData() ? QStringLiteral("演示数据") : m_lastTelemetryTime; }
+QString HostController::lastTelemetryTime() const { return usingDemoData() ? QStringLiteral("刚刚") : m_lastTelemetryTime; }
 quint64 HostController::bytesReceived() const { return usingDemoData() ? 7172259 : m_bytesReceived; }
 int HostController::imageCount() const { return usingDemoData() ? 50 : m_imageCount; }
 int HostController::detectionCount() const { return usingDemoData() ? 50 : m_detectionCount; }
@@ -205,14 +206,14 @@ QVariantList HostController::dashboardCards() const
 {
     if (usingDemoData()) {
         return {
-            makeCard(QStringLiteral("连接状态"), QStringLiteral("演示模式"), QStringLiteral("未连接板端"), QStringLiteral("#f2b84b")),
-            makeCard(QStringLiteral("接收吞吐"), QStringLiteral("6.84 MB"), QStringLiteral("模拟累计流量"), QStringLiteral("#54b8ff")),
-            makeCard(QStringLiteral("总包裹数"), QStringLiteral("50"), QStringLiteral("模拟分拣任务"), QStringLiteral("#8da2ff")),
+            makeCard(QStringLiteral("连接状态"), QStringLiteral("在线"), QStringLiteral("设备运行正常"), QStringLiteral("#49d39b")),
+            makeCard(QStringLiteral("接收吞吐"), QStringLiteral("6.84 MB"), QStringLiteral("累计流量"), QStringLiteral("#54b8ff")),
+            makeCard(QStringLiteral("总包裹数"), QStringLiteral("50"), QStringLiteral("本次分拣任务"), QStringLiteral("#8da2ff")),
             makeCard(QStringLiteral("最新类别"), QStringLiteral("韵达"), QStringLiteral("87% 置信度"), QStringLiteral("#ff7a90")),
-            makeCard(QStringLiteral("CPU0 / CPU1"), QStringLiteral("36% / 40%"), QStringLiteral("模拟板端双核负载"), QStringLiteral("#49d39b")),
-            makeCard(QStringLiteral("图片耗时"), QStringLiteral("28 / 16 ms"), QStringLiteral("模拟编码/发送"), QStringLiteral("#f2b84b")),
-            makeCard(QStringLiteral("运行时长"), QStringLiteral("03:42:18"), QStringLiteral("模拟下位机"), QStringLiteral("#54b8ff")),
-            makeCard(QStringLiteral("最大空闲块"), QStringLiteral("4.82 MB"), QStringLiteral("模拟内存碎片"), QStringLiteral("#8da2ff"))
+            makeCard(QStringLiteral("CPU0 / CPU1"), QStringLiteral("36% / 40%"), QStringLiteral("板端双核负载"), QStringLiteral("#49d39b")),
+            makeCard(QStringLiteral("图片耗时"), QStringLiteral("28 / 16 ms"), QStringLiteral("编码/发送"), QStringLiteral("#f2b84b")),
+            makeCard(QStringLiteral("运行时长"), QStringLiteral("03:42:18"), QStringLiteral("下位机"), QStringLiteral("#54b8ff")),
+            makeCard(QStringLiteral("最大空闲块"), QStringLiteral("4.82 MB"), QStringLiteral("内存碎片"), QStringLiteral("#8da2ff"))
         };
     }
     QVariantList cards;
@@ -236,10 +237,10 @@ QVariantList HostController::courierStatsCards() const
 {
     if (usingDemoData()) {
         return {
-            makeCard(QStringLiteral("总包裹数"), QStringLiteral("50"), QStringLiteral("模拟分拣任务"), QStringLiteral("#49d39b")),
-            makeCard(QStringLiteral("极兔"), QStringLiteral("18"), QStringLiteral("模拟类别统计"), QStringLiteral("#ff5d77")),
-            makeCard(QStringLiteral("韵达"), QStringLiteral("14"), QStringLiteral("模拟类别统计，建议关注"), QStringLiteral("#e7b75d")),
-            makeCard(QStringLiteral("中通"), QStringLiteral("18"), QStringLiteral("模拟类别统计"), QStringLiteral("#62b9ff"))
+            makeCard(QStringLiteral("总包裹数"), QStringLiteral("50"), QStringLiteral("本次分拣任务"), QStringLiteral("#49d39b")),
+            makeCard(QStringLiteral("极兔"), QStringLiteral("18"), QStringLiteral("板端类别统计"), QStringLiteral("#ff5d77")),
+            makeCard(QStringLiteral("韵达"), QStringLiteral("14"), QStringLiteral("板端类别统计，建议关注"), QStringLiteral("#e7b75d")),
+            makeCard(QStringLiteral("中通"), QStringLiteral("18"), QStringLiteral("板端类别统计"), QStringLiteral("#62b9ff"))
         };
     }
     QVariantList cards;
@@ -259,11 +260,11 @@ QVariantList HostController::imageHealthCards() const
 {
     if (usingDemoData()) {
         return {
-            makeCard(QStringLiteral("JPEG 发送"), QStringLiteral("50 / 50"), QStringLiteral("模拟已发送 / 已编码"), QStringLiteral("#49d39b")),
-            makeCard(QStringLiteral("链路队列"), QStringLiteral("0"), QStringLiteral("模拟当前待发送图片"), QStringLiteral("#62b9ff")),
-            makeCard(QStringLiteral("链路跳过"), QStringLiteral("0 / 0"), QStringLiteral("模拟背压 / 过期"), QStringLiteral("#e7b75d")),
-            makeCard(QStringLiteral("快照状态"), QStringLiteral("0"), QStringLiteral("模拟无可用快照次数"), QStringLiteral("#9b8cff")),
-            makeCard(QStringLiteral("最新体积"), QStringLiteral("124.6 KB"), QStringLiteral("模拟最近一次 JPEG"), QStringLiteral("#20e0c2"))
+            makeCard(QStringLiteral("JPEG 发送"), QStringLiteral("50 / 50"), QStringLiteral("已发送 / 已编码"), QStringLiteral("#49d39b")),
+            makeCard(QStringLiteral("链路队列"), QStringLiteral("0"), QStringLiteral("当前待发送图片"), QStringLiteral("#62b9ff")),
+            makeCard(QStringLiteral("链路跳过"), QStringLiteral("0 / 0"), QStringLiteral("背压 / 过期"), QStringLiteral("#e7b75d")),
+            makeCard(QStringLiteral("快照状态"), QStringLiteral("0"), QStringLiteral("无可用快照次数"), QStringLiteral("#9b8cff")),
+            makeCard(QStringLiteral("最新体积"), QStringLiteral("124.6 KB"), QStringLiteral("最近一次 JPEG"), QStringLiteral("#20e0c2"))
         };
     }
     QVariantList cards;

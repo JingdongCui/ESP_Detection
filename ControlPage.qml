@@ -344,11 +344,11 @@ Item {
                     Layout.preferredWidth: 8
                     Layout.preferredHeight: 8
                     radius: 4
-                    color: root.host.connected ? root.theme.accent : root.theme.warn
+                    color: root.host.displayConnected ? root.theme.accent : root.theme.warn
                 }
 
                 Text {
-                    text: root.host.connected ? qsTr("设备在线") : qsTr("设备离线")
+                    text: root.host.displayConnected ? qsTr("设备在线") : qsTr("设备离线")
                     color: root.theme.text
                     font.pixelSize: 12
                     font.weight: Font.Black

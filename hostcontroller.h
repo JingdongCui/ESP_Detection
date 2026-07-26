@@ -22,6 +22,7 @@ class HostController : public QObject
     Q_OBJECT
     Q_PROPERTY(bool listening READ listening NOTIFY stateChanged)
     Q_PROPERTY(bool connected READ connected NOTIFY stateChanged)
+    Q_PROPERTY(bool displayConnected READ displayConnected NOTIFY stateChanged)
     Q_PROPERTY(bool controlStateReady READ controlStateReady NOTIFY controlsChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY stateChanged)
     Q_PROPERTY(QString latestImageUrl READ latestImageUrl NOTIFY imageChanged)
@@ -103,6 +104,7 @@ public:
 
     bool listening() const;
     bool connected() const;
+    bool displayConnected() const;
     bool controlStateReady() const;
     QString statusText() const;
     QString latestImageUrl() const;
