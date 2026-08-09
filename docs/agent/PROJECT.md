@@ -3,6 +3,7 @@
 ## Workspace
 
 - 根目录：`/home/kazeform/2026esp`
+- GitHub 发布仓库：`git@github.com:JingdongCui/ESP_Detection.git`，默认分支 `main`。仓库根目录为板端工程，上位机位于 `esp32_host_no_inference/`；2026-08-09 发布时保留板端与上位机完整 Git 历史，合并提交为 `76110c4`，共 45 个可达提交。
 - 当前主固件工程：`ESP32P4_Detection`，来源为用户提供的 `ESP32P4_Detection(12).zip`。
 - 分拣限速对照 worktree：`ESP32P4_Detection_b_busy_60`，分支 `feat/sorter-b-busy-speed-cap`。
 - 2026-07-17 板端双版本队友包：`deliverables/ESP32P4_Detection_team_handoff_20260717_with_git.zip`，SHA256 `caee4a62169d7c8129909b78730d3a5bf4a1af5ad411c63e467c90904d7c727e`。包内是两个独立可移动的 Git 工作目录，分别默认检出基础分支和 B 忙限速分支。
