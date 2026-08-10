@@ -1,0 +1,332 @@
+# History
+
+## 2026-07-02 Handoff Documentation
+
+- Read root `AGENTS.md`.
+- Initialized root git repository and committed the existing docs baseline:
+  - commit `91456ef docs: record current project docs baseline`
+- Confirmed `esp32_host/.codegraph` exists and used CodeGraph before inspecting host protocol code.
+- Confirmed protocol constants in `esp32_host/packetprotocol.h`.
+- Confirmed host image path:
+  - `HostController::handleImage` validates RGB888 payload, saves PNG, updates UI state, then calls `requestInference`.
+- Confirmed inference path:
+  - `HostController::requestInference` posts JSON to `/infer`.
+  - `HostController::sendInferenceResultToDevice` sends response JSON as packet type `0x12`.
+- Confirmed 26m training output:
+  - `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`
+- Confirmed latest 300-image external test summary:
+  - `295/300` detections at confidence `0.1`, max one detection per image.
+
+## 2026-07-02 Real ESP32-P4 Host-Inference Chain
+
+- Created ESP32 project backup before refactor:
+  - commit `e52ec9e backup: teammate ui camera host pipeline wip`
+  - tag `backup/before-camera-net-refactor-20260702`
+- Created root backup before inference endpoint fix:
+  - commit `e7940a8 backup: inference service raw endpoint wip`
+- Extracted teammate reference project:
+  - `/tmp/ESP32P4_Detection_ref/ESP32P4_Detection`
+- Imported teammate UI generated/sdk assets into `esp32_project/components/UI`.
+- Backed up previous debug/system UI assets:
+  - `docs/agent/archive/2026-07-02-current-ui-debug-backup/`
+- Replaced board camera capture with teammate-style `esp_video` MIPI CSI V4L2 path:
+  - `1024 x 600`
+  - RGB888
+  - 3 buffers
+  - ISP/IPA AWB, ACC, AGC enabled
+- Root cause for camera startup failure:
+  - Starting camera after Ethernet/LwIP caused CSI internal queue allocation failure:
+    - `CSI: esp_cam_new_csi_ctlr: no memory for transaction queue`
+    - `no available csi controller`
+  - Fix was to reserve LwIP task semaphore early, then start camera before Ethernet driver/socket buffers.
+- Root cause for camera green cast:
+  - Old camera link/config did not use the teammate esp-video + ISP/IPA color path.
+  - Fix was to use `esp_video_init`, MIPI CSI video device, RGB888 output, and AWB/ACC/AGC config.
+- Root cause for host raw endpoint 500:
+  - `_predict()` referenced `request.image_width` and `request.image_height` outside the request object scope.
+  - Fixed `_predict()` to use explicit `width` and `height` parameters.
+- Root cause for LwIP `thread_sem_init: out of memory`:
+  - TCP task first called socket APIs after camera had consumed most internal RAM.
+  - Fixed by creating the TCP task right after `esp_netif_init()` and calling `lwip_socket_thread_init()` in that task before camera startup.
+- Root cause for LwIP socket `errno=105` after enabling motor:
+  - Sorter debug/MCPWM startup consumed enough internal RAM to prevent socket allocation.
+  - Disabled sorter debug/MCPWM startup in this validation firmware; old assets are backed up for later resource-aware re-integration.
+- Latency optimization:
+  - Full `1024 x 600` RGB888 upload was too slow.
+  - `320 x 188` worked but later stabilized around 3-6 seconds.
+  - Final validation uses `224 x 132` RGB888 upload, 88,704 bytes.
+  - Metrics packets delayed to 10 seconds to avoid competing with image/result traffic.
+- Final real-board verification:
+  - `idf.py build`: passed.
+  - `idf.py -p /dev/ttyUSB0 flash`: passed.
+  - `idf.py -p /dev/ttyUSB0 monitor`: passed.
+  - Observed frames:
+    - `seq=1 total=360ms infer=20ms`
+    - `seq=2 total=122ms infer=18ms`
+    - `seq=3 total=72ms infer=19ms`
+    - sustained later frames around `1.6-2.6s`
+- Note:
+  - Validation scene returned `det=0`, so no visible box was drawn in that run. The returned result path, coordinate parser, preview update, and total-latency display were verified.
+
+## 2026-07-02 Full-Frame JPEG Latency Work
+
+- Assessed feasibility of the requested `1024 x 600` under 0.5 s chain:
+  - Existing validated firmware uploaded `224 x 132` RGB888, not full-frame.
+  - Raw `1024 x 600` RGB888 is 1.84 MiB/frame and was judged high risk for stable sub-0.5 s on the current ESP32/LwIP path.
+  - Host GPU inference itself is not the bottleneck; local raw `1024 x 600` service calls were about 19-25 ms.
+- Chosen implementation:
+  - Upload full-frame JPEG instead of raw RGB888.
+  - Keep packet type `0x01`; add `pixel_format=2` for JPEG and keep `pixel_format=1` RGB888 compatibility.
+- Board changes:
+  - `Ethernet_app` now encodes the `1024 x 600` RGB888 camera frame with `esp_new_jpeg`.
+  - JPEG quality fallback is `70 -> 60 -> 50`; target payload is `256 KiB`; output buffer is `768 KiB`.
+  - TCP client task priority increased to `12`; frame pause disabled; result polling delay reduced to 1 ms.
+  - Logs now include `dq/jpeg/send/wait/preview/total`, payload size, quality, and inference time.
+- Host/service changes:
+  - Qt host accepts JPEG image packets, posts them to `/infer_jpeg`, and overwrites `latest_frame.jpg`.
+  - FastAPI service added `/infer_jpeg`, OpenCV in-memory decode, and `decode_ms` in the result JSON.
+- Verification so far:
+  - `cmake --build esp32_host/build/linux-release`: passed.
+  - Direct JPEG service test with synthetic `1024 x 600` JPEG: passed; warm runs about 19-20 ms total, `decode_ms` 0-1 ms, `inference_ms` 18 ms.
+  - `idf.py build`: passed.
+  - First `idf.py -p /dev/ttyUSB0 flash monitor`: flashed and booted, host connection succeeded after PC host restart, but `esp_new_jpeg` failed to create its helper task under current internal RAM pressure.
+  - Changed JPEG encoder to synchronous mode (`task_enable=false`) to avoid creating the helper task.
+- Remaining:
+  - Run `idf.py -p /dev/ttyUSB0 flash monitor` and validate p95 end-to-end board `total` under 500 ms.
+
+## 2026-07-02 JPEG/RAW Final Latency Validation
+
+- Added runtime upload-format handling:
+  - Board supports `UPLOAD_FORMAT_JPEG` and `UPLOAD_FORMAT_RAW_RGB888`.
+  - Host sends `upload_format` control on connect based on `ESP32_UPLOAD_FORMAT=jpeg|raw`.
+  - Fixed the board's string parser so it only matches real JSON keys, not a key name appearing inside another value.
+- Removed host hot-path image saving:
+  - JPEG and RAW packets are forwarded to inference in memory.
+  - UI/image/log/detection updates are sampled; result packet `0x12` is sent to the board before host UI work.
+- Raised priority for the validation run:
+  - Host process and Python inference service were reniced to `nice=-10` using sudo.
+  - Uvicorn access log is disabled by default.
+- JPEG final validation:
+  - Final default firmware flashed with `idf.py -p /dev/ttyUSB0 flash monitor`.
+  - Board confirmed `upload format set to JPEG`.
+  - Representative frames: `total=340-342ms`, `encode=273-274ms`, `send=1ms`, `wait=64-67ms`, `infer=18-19ms`.
+  - Occasional observed outliers remained, including around `580ms`, but the normal path is under 0.5s.
+- RAW full-frame validation:
+  - Temporarily set default upload mode to RAW and flashed for direct comparison.
+  - Frame `seq=1`: `payload=1843200`, `send=15980ms`, `total=16801ms`, `infer=27ms`.
+  - Frame `seq=3`: `payload=1843200`, `send=41983ms`, `total=42808ms`, `infer=29ms`.
+  - Conclusion: direct `1024 x 600` RGB888 upload is not viable on the current ESP32/LwIP path; JPEG is the only practical full-frame path for the 0.5s goal.
+- Recognition note:
+  - The real-board scene used in this validation did not contain a trained `jt/zt/yd` logo, so detections were `det=0`.
+  - Result packet parsing, board result display, and overlay path were still exercised.
+
+## 2026-07-02 Dual TCP Low-Latency Optimization
+
+- User rejected lowering image quality; kept full-frame `1024 x 600` JPEG and removed the temporary lower-quality JPEG fallback.
+- Investigated references for ESP-IDF/LwIP/Ethernet buffering, task priority, and Qt socket threading. Chosen approach was TCP dual-channel plus host-side worker thread.
+- Host changes:
+  - Added `HostNetworkWorker` on a dedicated `QThread`.
+  - Control/result server listens on port `5000`; image upload server listens on port `5001`.
+  - Image receive, packet parsing, and inference request now run outside the UI thread.
+  - Compact inference result is sent back to the board before host UI updates.
+  - Host samples incoming full-frame JPEG previews and exposes `latest_preview.jpg` through `latestImageUrl` so the upper computer shows the inference image.
+- Board changes:
+  - ESP32 opens separate control and image sockets.
+  - Metrics/result/control polling only uses the control socket.
+  - Full-frame JPEG upload only uses the image socket.
+  - JPEG quality is fixed at `70`; no q60/q50 fallback remains.
+- Buffer tuning:
+  - Tried Ethernet DMA RX/TX `12/16`, but boot failed with `emac_esp_alloc_driver_obj: create emac_rx task failed`.
+  - Backed off to RX/TX `8/8`, which booted successfully with camera/LVGL active.
+  - Kept larger LwIP TCP send/window buffers, IPv6 disabled, and LwIP IRAM optimization enabled.
+- Verification:
+  - `cmake --build esp32_host/build/linux-release`: passed.
+  - `idf.py build`: passed.
+  - `idf.py -p /dev/ttyUSB0 flash`: passed.
+  - `idf.py -p /dev/ttyUSB0 monitor`: passed.
+  - Real-board run connected both sockets and processed frames through about `seq=160`.
+  - Observed stable path: `total=359-365ms`, `encode=290-295ms`, `send=2-8ms`, `wait=60-68ms`, `infer=18-20ms`, `host=60-64ms`, `q=70`.
+  - Previous 1-2 second wait spikes were not reproduced with the dual-channel/worker path.
+
+## 2026-07-02 Weight And Recognition Quality Check
+
+- Checked the training script:
+  - `scripts/train_logo_yolo26m_150.sh` trains from `models/yolo26m.pt`.
+  - It uses `datasets/logo_train_quick/data.yaml`, `imgsz=1024`, `epochs=150`, and run name `logo_yolo26m_150`.
+- Checked the service start script and running process:
+  - `scripts/start_inference_service.sh` defaults to `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`.
+  - Running process command line also used that same trained `best.pt`.
+  - `/health` returned `model=best.pt`, `imgsz=1024`, `conf=0.1`, `max_det=1`.
+- Checked model metadata:
+  - `models/yolo26m.pt` has COCO class names and is about `43 MiB`.
+  - trained `best.pt` is about `168 MiB`, has class names `{0: jt, 1: zt, 2: yd}`, and records data `datasets/logo_train_quick/data.yaml`.
+  - `results.csv` reached high validation metrics around epoch 70: `mAP50` about `0.99`.
+- Root cause found for poor live recognition:
+  - `ml/logo_inference_service.py` decoded JPEG with OpenCV to BGR, then incorrectly converted it to RGB before passing numpy input to Ultralytics.
+  - Local Ultralytics `BasePredictor.preprocess()` reverses numpy channel order internally with `im[..., ::-1]  # BGR to RGB`, so the service had effectively passed wrong channel order.
+  - Fixed JPEG path to keep OpenCV BGR.
+  - Fixed RGB888 path to convert board RGB payload to BGR before calling YOLO.
+- Validation:
+  - `.venv/bin/python -m py_compile ml/logo_inference_service.py`: passed.
+  - Restarted inference service with trained `best.pt`; health check passed.
+  - Non-interactive `sudo` was unavailable, so the restarted service process could not be reniced to `-10` in this run.
+
+## 2026-07-02 Full Dataset Prediction Review
+
+- Ran trained weight over all quick training dataset images:
+  - model: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_150/weights/best.pt`
+  - dataset: `/home/kazeform/2026upper/datasets/logo_train_quick`
+  - command mode: `yolo predict`, `imgsz=1024`, `conf=0.1`, `max_det=5`, `device=0`
+- Outputs:
+  - train annotated images and txt: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_train_best`
+  - val annotated images and txt: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_val_best`
+  - val metrics/plots: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_val_metrics`
+  - summary report: `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_dataset_report.md`
+- Dataset counts:
+  - train images: `339`
+  - val images: `85`
+- Predict summary:
+  - train: `337` prediction label files, `2` no-prediction images, `2` first-class mismatches in quick check, `124` images with multiple predictions at `conf=0.1`.
+  - val: `85` prediction label files, `0` no-prediction images, `0` first-class mismatches, `31` images with multiple predictions at `conf=0.1`.
+- Val metrics from `yolo val`:
+  - all: `P=0.946`, `R=0.941`, `mAP50=0.986`, `mAP50-95=0.695`
+  - jt: `P=0.910`, `R=0.933`, `mAP50=0.985`, `mAP50-95=0.647`
+  - zt: `P=0.929`, `R=1.000`, `mAP50=0.993`, `mAP50-95=0.743`
+  - yd: `P=1.000`, `R=0.889`, `mAP50=0.981`, `mAP50-95=0.695`
+- Notable samples:
+  - no train prediction: `jt_074_000_jt_388.jpg`, `jt_120_006_jt_2536.jpg`
+  - train first-class mismatch: `jt_150_006_jt_2695.jpg` predicted `yd` at confidence `0.366`
+  - `yd_023_004_yd_1724.txt` is an empty label file; quick check treated its ground truth as missing while prediction was `yd`.
+- Cleanup:
+  - removed project `__pycache__`/`.pyc` generated files.
+  - removed Ultralytics dataset cache files `datasets/logo_train_quick/labels/train.cache` and `datasets/logo_train_quick/labels/val.cache`; these are regenerated automatically.
+  - added root `.gitignore` rules for Python cache files.
+
+## 2026-07-02 YOLO Predict Output Refinement And 25-Epoch Retrain
+
+- User requested improving `/home/kazeform/runs/detect/runs/inspect/logo_yolo26m_all_datasets_best` before retraining.
+- Created pre-change empty baseline commit:
+  - `22454ec chore: pre yolo refinement baseline`
+- Added `scripts/refine_yolo_predict_dataset.py`.
+- Refinement behavior:
+  - Builds class mapping from `/home/kazeform/2026upper/datasets` directory names and image names.
+  - Handles numeric-only filenames by matching them back to original continuous directories such as `000_jt`, `001_zt`, `002_zt`, `003_zt`, `004_yd`, `005_yd`, `006_jt`.
+  - Uses YOLO predict labels from `logo_yolo26m_all_datasets_best/labels`.
+  - Drops wrong-class detections.
+  - Keeps at most one detection per image: the smallest-area box among boxes of the resolved correct class.
+  - Drops images with no correct-class detection.
+  - Copies original source images from `datasets/`, not predict-output annotated preview images.
+- Ran:
+  - `scripts/refine_yolo_predict_dataset.py`
+- Refined dataset output:
+  - `datasets/logo_refined_yolo26m/data.yaml`
+  - `datasets/logo_refined_yolo26m/images/{train,val}`
+  - `datasets/logo_refined_yolo26m/labels/{train,val}`
+  - `datasets/logo_refined_yolo26m/refine_report.md`
+- Dataset stats:
+  - kept total: `5947`
+  - train: `4757`
+  - val: `1190`
+  - kept `jt=1816`, `zt=2558`, `yd=1573`
+  - removed because no correct-class detection: `107`
+  - image/label counts matched; each label file has exactly one YOLO row.
+- Initially started 50-epoch training, but user changed requirement to 25 epochs.
+- Stopped active 50-epoch processes for `logo_yolo26m_refined_50_full`.
+- Replaced 50-epoch helper with `scripts/train_logo_yolo26m_refined_25.sh`.
+- Started 25-epoch training in background:
+  - run: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25`
+  - log: `logs/train_logo_yolo26m_refined_25.log`
+  - command: `models/yolo26m.pt`, refined data, `imgsz=1024`, `epochs=25`, `batch=1`
+  - startup verified: data scan `4757` train / `1190` val, `0` corrupt, entered epoch `1/25`.
+- Training completed:
+  - best checkpoint: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt`
+  - last checkpoint: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/last.pt`
+- User requested replacing the upper-computer inference model with this checkpoint and not running tests.
+- Updated `scripts/start_inference_service.sh` default model path to:
+  - `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt`
+- No service process was running at the time of the switch, so no old process needed restart.
+- Did not run inference tests per user request.
+
+## 2026-07-02 Camera Green-Cast Config Match
+
+- Compared current camera config against teammate `ESP32P4_Detection(4).zip`.
+- Confirmed SC2336, MIPI RAW8, default IPA JSON, AWB, ACC, and AGC were already enabled in current config.
+- Found the key mismatch:
+  - teammate: `CONFIG_ESP_VIDEO_ENABLE_ISP_PIPELINE_CONTROLLER=y`
+  - current: pipeline controller was disabled
+- Enabled ISP pipeline controller in `esp32_project/sdkconfig` and `sdkconfig.defaults`.
+- First build failed with `undefined reference to __wrap_esp_ipa_detect_get_array`.
+- Switched ESP-IPA detection to static store and added a main-component linker keepalive:
+  - `CONFIG_ESP_IPA_DETECT_METHOD_STATIC_STORE=y`
+  - `target_link_libraries(${COMPONENT_LIB} INTERFACE "-u __wrap_esp_ipa_detect_get_array")`
+- Build then passed.
+- First real-board monitor after enabling pipeline controller failed Ethernet init:
+  - after camera: `internal=17315`, `largest_internal=15872`
+  - `emac_esp_alloc_driver_obj: create emac_rx task failed`
+- Moved ISP pipeline controller task stack to PSRAM:
+  - `CONFIG_ISP_PIPELINE_CONTROLLER_TASK_STACK_USE_PSRAM=y`
+- Rebuilt and reflashed successfully.
+- Final monitor result:
+  - camera initialized as `1024x600 RGB888`, 3 buffers
+  - after camera: `internal=21335`, `largest_internal=19456`
+  - Ethernet driver installed successfully
+  - board connected control `5000` and image `5001`
+  - JPEG q70 frames with detection results stayed around `342-354ms` total through the sampled window
+- `idf.py -p /dev/ttyUSB0 flash monitor` could not run monitor in the non-TTY exec environment, so flash and monitor were run as separate commands.
+
+## 2026-07-03 Flash And Start Upper Computer Inference
+
+- User reported board was connected and requested flashing firmware, starting upper-computer inference, and a simple startup command note.
+- Checked existing processes; no old inference service or host app process was running.
+- Ran:
+  - `idf.py -p /dev/ttyUSB0 flash`
+- Flash result:
+  - ESP32-P4 detected on `/dev/ttyUSB0`
+  - bootloader, app, partition table, and storage were written and hash verified
+  - board hard-reset via RTS at completion
+- Started inference service in background:
+  - `scripts/start_inference_service.sh`
+  - log: `logs/inference_service.log`
+  - model: `/home/kazeform/runs/detect/runs/logo/logo_yolo26m_refined_25/weights/best.pt`
+  - listener: `127.0.0.1:8765`
+- Built/configured Qt host:
+  - `cmake -S . -B build/linux-release -G Ninja -DCMAKE_BUILD_TYPE=Release`
+  - `cmake --build build/linux-release`
+- Started Qt host in background:
+  - `/home/kazeform/2026upper/esp32_host/build/linux-release/bin/esp32_host`
+  - log: `logs/esp32_host.log`
+  - listeners: `192.168.10.1:5000`, `192.168.10.1:5001`
+- Confirmed board connected:
+  - control socket: `192.168.10.2:63066 -> 192.168.10.1:5000`
+  - image socket: `192.168.10.2:63067 -> 192.168.10.1:5001`
+- Confirmed host connected to local inference service:
+  - `127.0.0.1:<ephemeral> -> 127.0.0.1:8765`
+- Process priority elevation was not available without permission:
+  - inference service reported `Operation not permitted`
+  - host reported `Permission denied`
+
+## 2026-07-03 No Upper-Computer Inference Host Copy
+
+- User interrupted the compile-time split approach and requested git rollback plus a copied version without upper-computer inference.
+- Confirmed the previous attempted patch had not modified tracked source files.
+- Rolled `esp32_host` back from empty baseline commit `7f6e32d` to:
+  - `071329d optimize host image pipeline`
+- Searched `esp32_host` history:
+  - `071329d optimize host image pipeline`
+  - `a7297a8 prioritize host inference hot path`
+  - `9ce21ef backup: raw rgb inference host path`
+  - `e5552a2 chore: add host app baseline`
+- Result: every available `esp32_host` commit already contained upper-computer inference code (`requestInference`, `/infer`, or inference service URL).
+- Searched root submodule pointer history and project backup locations; no existing no-inference Qt host copy was found.
+- Created a new copy using:
+  - `git archive 071329d | tar -x -C /home/kazeform/2026upper/esp32_host_no_inference`
+- Modified only the copied directory:
+  - `CMakeLists.txt`: project/output binary changed to `esp32_host_no_inference`.
+  - `HostNetworkWorker`: inference enabled false, service URL empty, worker `requestInference()` empty.
+  - `HostController`: inference enabled false, service URL empty, service ping reports no-inference version, legacy `requestInference()` empty.
+  - `ModelWorkspacePage.qml`: inference controls disabled and launch command changed to the no-inference binary.
+  - `README.md`: added no-inference usage instructions.
+- Verification:
+  - Built successfully with `cmake -S . -B build/linux-release -G Ninja -DCMAKE_BUILD_TYPE=Release`.
+  - Rebuilt successfully after QML placeholder cleanup.
+  - Checked copied source with `rg`; no active `/infer`, `infer_jpeg`, `infer_rgb888`, `m_network.post`, or `127.0.0.1:8765` references remain outside README explanation.
