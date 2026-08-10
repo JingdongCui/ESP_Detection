@@ -1,0 +1,326 @@
+I (372) esp_image: segment 1: paddr=001cafe0 vaddr=30100000 size=00088h (   136) load
+I (374) esp_image: segment 2: paddr=001cb070 vaddr=4ff00000 size=04fa8h ( 20392) load
+I (381) esp_image: segment 3: paddr=001d0020 vaddr=48000020 size=359ae0h (3513056) map
+I (908) esp_image: segment 4: paddr=00529b08 vaddr=4ff04fa8 size=13124h ( 78116) load
+I (923) esp_image: segment 5: paddr=0053cc34 vaddr=4ff18100 size=0446ch ( 17516) load
+I (928) esp_image: segment 6: paddr=005410a8 vaddr=50108080 size=00020h (    32) load
+I (935) boot: Loaded app from partition at offset 0x10000
+I (935) boot: Disabling RNG early entropy source...
+I (950) hex_psram: vendor id    : 0x0d (AP)
+I (950) hex_psram: Latency      : 0x01 (Fixed)
+I (950) hex_psram: DriveStr.    : 0x00 (25 Ohm)
+I (951) hex_psram: dev id       : 0x03 (generation 4)
+I (956) hex_psram: density      : 0x07 (256 Mbit)
+I (960) hex_psram: good-die     : 0x06 (Pass)
+I (964) hex_psram: SRF          : 0x02 (Slow Refresh)
+I (969) hex_psram: BurstType    : 0x00 ( Wrap)
+I (973) hex_psram: BurstLen     : 0x03 (2048 Byte)
+I (978) hex_psram: BitMode      : 0x01 (X16 Mode)
+I (982) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
+I (987) hex_psram: DriveStrength: 0x00 (1/1)
+I (991) MSPI Timing: Enter psram timing tuning
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+I (1299) mmu_psram: .rodata xip on psram
+I (1561) mmu_psram: .text xip on psram
+I (1562) hex_psram: psram CS IO is dedicated
+I (1562) cpu_start: Multicore app
+I (1948) esp_psram: SPI SRAM memory test OK
+I (1957) cpu_start: GPIO 38 and 37 are used as console UART I/O pins
+I (1957) cpu_start: Pro cpu start user code
+I (1957) cpu_start: cpu freq: 360000000 Hz
+I (1959) app_init: Application information:
+I (1963) app_init: Project name:     sample_project
+I (1968) app_init: App version:      backup/final-production-candida
+I (1974) app_init: Compile time:     Jul 17 2026 07:27:52
+I (1979) app_init: ELF file SHA256:  89be481e3...
+I (1984) app_init: ESP-IDF:          v5.5.4
+I (1987) efuse_init: Min chip rev:     v0.0
+I (1991) efuse_init: Max chip rev:     v1.99 
+I (1995) efuse_init: Chip rev:         v1.0
+I (1999) heap_init: Initializing. RAM available for dynamic allocation:
+I (2006) heap_init: At 4FF23F90 len 00017030 (92 KiB): RETENT_RAM
+I (2011) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
+I (2017) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
+I (2026) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
+I (2027) heap_init: At 30100088 len 00001F78 (7 KiB): TCM
+I (2170) esp_psram: Adding pool of 27520K of PSRAM memory to heap allocator
+I (2171) esp_psram: Adding pool of 25K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
+I (2177) esp_psram: Adding pool of 20K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
+I (2188) spi_flash: detected chip: gd
+I (2191) spi_flash: flash io: qio
+I (2195) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+I (2201) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+I (2208) main_task: Started on CPU0
+I (2211) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (2219) main_task: Calling app_main()
+I (2222) system: System initialization start
+I (2232) bsp_lcd: Backlight LEDC PWM on, default 80%
+I (2232) bsp_lcd: MIPI DSI PHY powered on
+I (2236) ek79007: version: 1.0.4
+I (2439) bsp_lcd: [QoS] AXI ICM tuned: DW_GDMA rd=15 > Cache=4 > CPU=2
+I (2439) bsp_lcd: LCD init done
+I (2439) screen_uvc: jpeg engine reserved early (dma free=339127 largest=253940)
+I (2444) bsp_touch: I2C bus initialized
+I (2519) GT911: TouchPad_ID:0x39,0x31,0x31
+I (2519) GT911: TouchPad_Config_Version:89
+I (2519) bsp_touch: GT911 detected at I2C address 0x5D
+I (2520) bsp_touch: Touch init done
+I (2525) sc2336: Detected Camera sensor PID=0xcb3a
+I (2653) bsp_cam: camera init: 1024x600 RGB888, 3 buffers, 30fps, streaming
+I (2653) bsp_motor: motor 1 PWM GPIO A=2 B=3
+I (2653) bsp_motor: motor 2 PWM GPIO A=32 B=36
+I (2657) bsp_motor: motor 3 PWM GPIO A=4 B=5
+I (2661) bsp_motor: motor BSP initialized
+I (2664) bsp_motor: motor output enabled
+I (2668) bsp_encoder: encoder BSP initialized
+I (2673) esp_lvgl:adapter: LVGL adapter initialized successfully
+I (2681) esp_lvgl:bridge_v9: Initializing hardware resources
+I (2683) esp_lvgl:bridge_v9: Hardware resources initialized successfully
+I (2690) bsp_lvgl: Display registered (1024x600)
+W (2694) esp_lvgl:touch: LV_USE_GESTURE_RECOGNITION is disabled; only single-point pointer events are available
+I (2704) esp_lvgl:touch: Touch input device registered successfully (IRQ mode: enabled)
+I (2711) bsp_lvgl: Touch registered
+I (2715) esp_lvgl:adapter: LVGL task started successfully
+I (2720) bsp_lvgl: LVGL adapter started
+I (3601) eth_example: metrics interval set to 1000 ms
+I (3601) eth_example: image report enabled
+I (3601) eth_example: metrics report enabled
+I (3611) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C
+I (3863) vision_stable: PPA copy client registered
+I (3918) vision_stable: allocated 3 stable RGB slots (1843200 bytes each)
+
+I (5156) dl::Model: Testing output box0.
+I (5157) dl::Model: Testing output score0.
+I (5164) dl::Model: Testing output box1.
+I (5165) dl::Model: Testing output score1.
+I (5168) dl::Model: Testing output box2.
+I (5169) dl::Model: Testing output score2.
+I (5191) dl::Model: Test Pass!
+W (5191) dl::Model: minimize() will delete unused inference variables, breaking model testing/debugging.
+I (5196) vision_model: loaded model /spiffs/waybill.espdl (score_thr=0.85 nms_thr=0.70)
+
+I (6073) dl::Model: Testing output box0.
+I (6075) dl::Model: Testing output score0.
+I (6082) dl::Model: Testing output box1.
+I (6083) dl::Model: Testing output score1.
+I (6086) dl::Model: Testing output box2.
+I (6087) dl::Model: Testing output score2.
+I (6110) dl::Model: Test Pass!
+W (6110) dl::Model: minimize() will delete unused inference variables, breaking model testing/debugging.
+I (6119) vision_model: loaded model /spiffs/logo.espdl (score_thr=0.60 nms_thr=0.70)
+I (6119) vision_model: active models: waybill=0x00010001 logo=0x00020001
+I (6125) vision_model: 
+I (6127) vision_model: [fixed-test] ===== begin fixed image tests =====
+I (6840) vision_model: [tensor-dump][waybill] live score0 dtype=3 exp=-1 shape=[1,28,28,1] raw_min=-86 raw_max=-6 thr_q=3 sigmoid_max=0.0474
+I (6841) vision_model: [tensor-dump][waybill] live score1 dtype=3 exp=0 shape=[1,14,14,1] raw_min=-44 raw_max=2 thr_q=2 sigmoid_max=0.8808
+I (6853) vision_model: [tensor-dump][waybill] live score2 dtype=3 exp=-1 shape=[1,7,7,1] raw_min=-53 raw_max=-26 thr_q=3 sigmoid_max=0.0000
+I (6866) vision_model: [fixed-test][waybill] image=waybill102460001.bin w=1024 h=600 bytes=1843200 n=1
+I (6875) vision_model: [fixed-test][waybill] i=0 box=[493,128,809,421] cat=0 score=0.881
+I (6882) vision_model: [fixed-test][waybill] best_cat=0 best_score=0.881
+I (7061) vision_model: [tensor-dump][logo1] live score0 dtype=3 exp=-1 shape=[1,28,28,3] raw_min=-84 raw_max=-5 thr_q=1 sigmoid_max=0.0759
+I (7063) vision_model: [tensor-dump][logo1] live score1 dtype=3 exp=-1 shape=[1,14,14,3] raw_min=-82 raw_max=3 thr_q=1 sigmoid_max=0.8176
+I (7075) vision_model: [tensor-dump][logo1] live score2 dtype=3 exp=-2 shape=[1,7,7,3] raw_min=-83 raw_max=-45 thr_q=2 sigmoid_max=0.0000
+I (7087) vision_model: [fixed-test][logo1] image=jt30829206.bin w=308 h=292 bytes=269808 n=1
+I (7095) vision_model: [fixed-test][logo1] i=0 box=[27,166,71,283] cat=0 score=0.818
+I (7102) vision_model: [fixed-test][logo1] best_cat=0 best_score=0.818
+I (7410) vision_model: [tensor-dump][logo2] live score0 dtype=3 exp=-1 shape=[1,28,28,3] raw_min=-62 raw_max=2 thr_q=1 sigmoid_max=0.7311
+I (7411) vision_model: [tensor-dump][logo2] live score1 dtype=3 exp=-1 shape=[1,14,14,3] raw_min=-60 raw_max=2 thr_q=1 sigmoid_max=0.7311
+I (7423) vision_model: [tensor-dump][logo2] live score2 dtype=3 exp=-2 shape=[1,7,7,3] raw_min=-80 raw_max=-41 thr_q=2 sigmoid_max=0.0000
+I (7436) vision_model: [fixed-test][logo2] image=zt31241902.bin w=312 h=419 bytes=392184 n=1
+I (7443) vision_model: [fixed-test][logo2] i=0 box=[125,370,245,418] cat=2 score=0.731
+I (7451) vision_model: [fixed-test][logo2] best_cat=2 best_score=0.731
+I (7642) vision_model: [tensor-dump][logo3] live score0 dtype=3 exp=-1 shape=[1,28,28,3] raw_min=-52 raw_max=0 thr_q=1 sigmoid_max=0.5000
+I (7643) vision_model: [tensor-dump][logo3] live score1 dtype=3 exp=-1 shape=[1,14,14,3] raw_min=-46 raw_max=-16 thr_q=1 sigmoid_max=0.0003
+I (7655) vision_model: [tensor-dump][logo3] live score2 dtype=3 exp=-2 shape=[1,7,7,3] raw_min=-81 raw_max=-43 thr_q=2 sigmoid_max=0.0000
+I (7667) vision_model: [fixed-test][logo3] image=yd29041906.bin w=290 h=419 bytes=364530 n=0
+I (7675) vision_model: [fixed-test][logo3] score=none (n=0)
+I (7683) vision_model: [fixed-test] ===== end fixed image tests =====
+I (7687) vision_model: 
+I (7691) vision: vision started: preview 640x375 at 19,118, ring depth 1
+I (7695) sorting_sim: real IO task prepared in internal RAM, free_internal=55799 largest=21492
+I (7745) esp_eth.netif.netif_glue: 30:ed:a0:e0:f3:b2
+I (7745) esp_eth.netif.netif_glue: ethernet attached to netif
+I (10476) eth_example: Ethernet Started
+I (10477) eth_example: Ethernet Link Up
+I (10477) eth_example: Ethernet HW Addr 30:ed:a0:e0:f3:b2
+I (10477) esp_netif_handlers: eth ip: 192.168.10.2, mask: 255.255.255.0, gw: 192.168.10.1
+I (10485) eth_example: Ethernet Got IP Address
+I (10489) eth_example: ~~~~~~~~~~~
+I (10492) eth_example: ETHIP:192.168.10.2
+I (10496) eth_example: ETHMASK:255.255.255.0
+I (10500) eth_example: ETHGW:192.168.10.1
+I (10504) eth_example: ~~~~~~~~~~~
+W (10507) dl_timing: slow seq=2631 op=0x49493c80 total=30795 wake0=30743 exec0=41 wake1=39 exec1=46
+I (10511) eth_example: connecting control to host 192.168.10.1:5000
+I (10523) eth_example: control connected to host
+I (10526) eth_example: time synced unix_ms=1784244657894 tz_offset_min=480
+I (10533) sorting_sim: SORT 电机M1: 正转 60%
+I (10537) bsp_motor: motor 1 compare A=0 B=60
+I (10544) eth_example: connecting image to host 192.168.10.1:5001
+I (10549) eth_example: image connected to host
+I (10551) sorting_sim: 硬件分拣调试监视已关闭
+I (10556) bsp_sort_sensor: sort sensor S1 configured on GPIO 53, active level 1
+I (10563) bsp_sort_sensor: sort sensor S2 configured on GPIO 23, active level 1
+W (10570) bsp_sort_sensor: sort sensor S3 GPIO is not configured
+I (10576) bsp_sort_sensor: sort sensor S4 configured on GPIO 22, active level 1
+I (10583) sorting_sim: SORT 真实硬件链路已启用
+I (10589) sorting_sim: SORT 真实硬件链路已启用
+I (10612) sorting_sim: SORT 传感器S1 初始化: raw=0 active=0 valid=1
+I (10612) sorting_sim: SORT 传感器S2 初始化: raw=0 active=0 valid=1
+I (10615) sorting_sim: SORT 传感器S3 初始化: raw=0 active=0 valid=0
+I (10621) sorting_sim: SORT 传感器S4 初始化: raw=0 active=0 valid=1
+W (10722) usb_phy: Using UTMI PHY instead of requested internal PHY
+E (10722) usbd_uvc: USB Device Stack Init Fail
+E (10722) screen_uvc: screen_uvc_start(257): uvc init
+W (10726) system: screen UVC stream start failed: ESP_FAIL
+I (10802) system: [ACCEPT_HEAP] integrity=ok free=6833615 min=6808187 largest=6684660 internal_free=26387 internal_largest=21492 dma_free=2043 dma_largest=292 psram_free=6807228 psram_largest=6684660
+I (10814) system: [ACCEPT_TASKS_BEGIN] requested=24 actual=24 stack_unit=1 total_runtime=8781638
+I (10821) system: [ACCEPT_TASK] name,handle,core,priority,state,stack_base,stack_end,allocated_bytes,free_min_bytes,used_max_bytes,region,runtime
+I (10834) system: [ACCEPT_TASK] main,0x4ff296b4,0,1,0,0x4ff26c28,0x4ff294a0,10361,4664,5697,internal,4750806
+I (10844) system: [ACCEPT_TASK] IDLE1,0x4ff2a644,1,0,1,0x4ff2a000,0x4ff2a5f0,1521,1184,337,internal,6420558
+I (10853) system: [ACCEPT_TASK] IDLE0,0x4ff29e7c,0,0,1,0x4ff29838,0x4ff29e30,1529,1192,337,internal,1894051
+I (10865) system: [ACCEPT_TASK] eth_control,0x4ff32bc8,0,4,2,0x49646890,0x49648880,8177,5604,2573,psram,22750
+I (10872) system: [ACCEPT_TASK] eth_img_send,0x4ff32fc0,0,2,2,0x4964aa98,0x4964c290,6137,4092,2045,psram,2592
+I (10882) system: [ACCEPT_TASK] sysmon,0x4ff79ccc,0,3,2,0x4ff78c4c,0x4ff79bc0,3957,1832,2125,internal,99953
+I (10891) system: [ACCEPT_TASK] tiT,0x4ff32484,-1,18,2,0x4ff31600,0x4ff323f0,3569,2768,801,internal,2761
+I (10906) system: [ACCEPT_TASK] cam_isp,0x4ff3f34c,0,2,2,0x4851c7a4,0x4851d710,3949,3244,705,psram,2213
+I (10909) system: [ACCEPT_TASK] sort_real_io,0x4ff7f7c4,0,4,2,0x4ff7e744,0x4ff7f6b0,3949,1984,1965,internal,5164
+I (10919) system: [ACCEPT_TASK] ipc0,0x4ff24e74,0,1,3,0x4ff24a30,0x4ff24e20,1009,472,537,internal,175338
+I (10928) system: [ACCEPT_TASK] eth_img_prod,0x4ff32e3c,0,3,2,0x49648994,0x4964a990,8189,7676,513,psram,16
+I (10938) system: [ACCEPT_TASK] sys_evt,0x4ff328f8,0,20,2,0x30100210,0x30100d00,2801,836,1965,internal,30304
+I (10947) system: [ACCEPT_TASK] dl_mc0,0x4ff1f930,0,4,3,0x4ff1fcf8,0x4ff203f0,1785,864,921,internal,1248636
+I (10957) system: [ACCEPT_TASK] dl_mc1,0x4ff1fa98,1,4,3,0x4ff204f8,0x4ff20bf0,1785,864,921,internal,1212211
+I (10969) system: [ACCEPT_TASK] vision_det,0x4ff7b204,1,4,2,0x4ff2b8a4,0x4ff2e720,11901,8304,3597,internal,731327
+I (10977) system: [ACCEPT_TASK] emac_rx,0x4ff7bc90,-1,15,3,0x4ff30410,0x4ff31400,4081,3552,529,internal,732
+I (10986) system: [ACCEPT_TASK] vision_fetch,0x4ff7aefc,0,4,2,0x4ff7c4b8,0x4ff7d4b0,4089,3240,849,internal,4688
+I (10996) system: [ACCEPT_TASK] isp_task,0x4ff3ef84,0,11,2,0x4ff3df04,0x4ff3ee70,3949,1484,2465,internal,93921
+I (11005) system: [ACCEPT_TASK] vision_disp,0x4ff7b080,0,2,2,0x4ff7d640,0x4ff7e5b0,3953,1536,2417,internal,17795
+I (11015) system: [ACCEPT_TASK] swdraw,0x4ff35e04,0,3,3,0x4ff33c84,0x4ff35bf0,8045,6700,1345,internal,310897
+I (11025) system: [ACCEPT_TASK] lvgl,0x4ff38708,1,3,3,0x4ff4043c,0x4ff443b0,16245,9444,6801,internal,227989
+I (11034) system: [ACCEPT_TASK] esp_timer,0x4ff26850,0,22,3,0x4ff257d0,0x4ff26740,3953,3480,473,internal,130068
+I (11044) system: [ACCEPT_TASK] Tmr Svc,0x4ff2b04c,-1,1,2,0x4ff2a7c8,0x4ff2afc0,2041,1624,417,internal,10
+I (11053) system: [ACCEPT_TASK] ipc1,0x4ff2543c,1,24,3,0x4ff24ff8,0x4ff253f0,1017,616,401,internal,175432
+I (11070) system: [ACCEPT_TASKS_END] actual=24
+I (11073) system: System initialization done
+I (11343) vision_model: [infer_diag] path=wb_only nwb=0 wb=64474us wall=64475us cpu=23435us wait=41040us
+W (12009) dl_timing: slow seq=3691 op=0x4851f480 total=84325 wake0=9 exec0=84306 wake1=29 exec1=79923
+W (12801) dl_timing: slow seq=4141 op=0x4851f480 total=84359 wake0=11 exec0=84337 wake1=20 exec1=79771
+I (15169) vision_model: [infer_diag] path=wb_only nwb=0 wb=70226us wall=70228us cpu=24604us wait=45624us
+W (15322) dl_timing: slow seq=6121 op=0x4851f480 total=84222 wake0=12 exec0=84199 wake1=20 exec1=80065
+W (18764) dl_timing: slow seq=8731 op=0x4851f480 total=84539 wake0=13 exec0=84517 wake1=23 exec1=80137
+I (19144) vision_model: [infer_diag] path=wb_only nwb=0 wb=71689us wall=71690us cpu=26973us wait=44717us
+W (20080) dl_timing: slow seq=9721 op=0x4851f480 total=84478 wake0=12 exec0=84455 wake1=21 exec1=80088
+I (22530) vision_model: [infer_diag] path=wb_only nwb=0 wb=61969us wall=61971us cpu=21891us wait=40080us
+I (26147) vision_model: [infer_diag] path=wb_only nwb=0 wb=70995us wall=70996us cpu=26890us wait=44106us
+I (29590) vision_model: [infer_diag] path=wb_only nwb=0 wb=68516us wall=68518us cpu=24914us wait=43604us
+W (32846) dl_timing: slow seq=20251 op=0x4851f480 total=84218 wake0=11 exec0=84196 wake1=19 exec1=80230
+I (33340) vision_model: [infer_diag] path=wb_only nwb=0 wb=68475us wall=68477us cpu=24184us wait=44293us
+W (35010) dl_timing: slow seq=21781 op=0x4851f480 total=84510 wake0=13 exec0=84486 wake1=26 exec1=79947
+W (35991) dl_timing: slow seq=22501 op=0x4851f480 total=84177 wake0=9 exec0=84158 wake1=20 exec1=80248
+I (37171) vision_model: [infer_diag] path=wb_only nwb=0 wb=74322us wall=74323us cpu=25956us wait=48367us
+W (38046) dl_timing: slow seq=24031 op=0x4851f480 total=84137 wake0=11 exec0=84115 wake1=23 exec1=80173
+I (40883) vision_model: [infer_diag] path=wb_only nwb=0 wb=63531us wall=63533us cpu=25240us wait=38293us
+W (43452) dl_timing: slow seq=28261 op=0x4851f480 total=84891 wake0=18 exec0=84862 wake1=18 exec1=80471
+I (44491) vision_model: [infer_diag] path=wb_only nwb=0 wb=59133us wall=59134us cpu=21007us wait=38127us
+I (47941) vision_model: [infer_diag] path=wb_only nwb=0 wb=68954us wall=68956us cpu=24663us wait=44293us
+I (51416) vision_model: [infer_diag] path=wb_only nwb=0 wb=70936us wall=70937us cpu=26644us wait=44293us
+I (54930) vision_model: [infer_diag] path=wb_only nwb=0 wb=69706us wall=69707us cpu=24614us wait=45093us
+W (56087) dl_timing: slow seq=38701 op=0x4851f480 total=84585 wake0=11 exec0=84564 wake1=29 exec1=80277
+W (57532) dl_timing: slow seq=39781 op=0x4851f480 total=84390 wake0=11 exec0=84368 wake1=19 exec1=79985
+W (58222) dl_timing: slow seq=40321 op=0x4851f480 total=84218 wake0=10 exec0=84197 wake1=19 exec1=80198
+I (58732) vision_model: [infer_diag] path=wb_only nwb=0 wb=72686us wall=72688us cpu=24138us wait=48550us
+I (62357) vision_model: [infer_diag] path=wb_only nwb=0 wb=68105us wall=68106us cpu=24604us wait=43502us
+I (65918) vision_model: [infer_diag] path=wb_only nwb=0 wb=99820us wall=99822us cpu=30328us wait=69494us
+W (66241) dl_timing: slow seq=46621 op=0x4851f480 total=84332 wake0=13 exec0=84309 wake1=29 exec1=79915
+W (69602) dl_timing: slow seq=49231 op=0x4851f480 total=84693 wake0=9 exec0=84672 wake1=22 exec1=79994
+I (69659) vision_model: [infer_diag] path=wb_only nwb=0 wb=146795us wall=146797us cpu=24789us wait=122008us
+I (73272) vision_model: [infer_diag] path=wb_only nwb=0 wb=62889us wall=62890us cpu=23205us wait=39685us
+I (76634) vision_model: [infer_diag] path=wb_only nwb=0 wb=70384us wall=70386us cpu=25842us wait=44544us
+I (80264) vision_model: [infer_diag] path=wb_only nwb=0 wb=59523us wall=59524us cpu=21476us wait=38048us
+I (84048) vision_model: [infer_diag] path=wb_only nwb=0 wb=67906us wall=67907us cpu=24320us wait=43587us
+I (87468) vision_model: [infer_diag] path=wb_only nwb=0 wb=63152us wall=63154us cpu=23317us wait=39837us
+I (91007) vision_model: [infer_diag] path=wb_only nwb=0 wb=68245us wall=68246us cpu=24061us wait=44185us
+W (93781) dl_timing: slow seq=68761 op=0x4851f480 total=84652 wake0=13 exec0=84629 wake1=21 exec1=80128
+I (94621) vision_model: [infer_diag] path=wb_only nwb=0 wb=75320us wall=75321us cpu=29376us wait=45945us
+W (95069) dl_timing: slow seq=69751 op=0x4851f480 total=84712 wake0=10 exec0=84691 wake1=22 exec1=79953
+I (98399) vision_model: [infer_diag] path=wb_only nwb=0 wb=70420us wall=70421us cpu=25402us wait=45019us
+W (101753) dl_timing: slow seq=75061 op=0x4851f480 total=84177 wake0=9 exec0=84157 wake1=25 exec1=80093
+I (101938) vision_model: [infer_diag] path=wb_only nwb=0 wb=84608us wall=84610us cpu=25841us wait=58769us
+I (105451) vision_model: [infer_diag] path=wb_only nwb=0 wb=62876us wall=62878us cpu=23300us wait=39578us
+I (108934) vision_model: [infer_diag] path=wb_only nwb=0 wb=71364us wall=71365us cpu=24017us wait=47348us
+I (112305) vision_model: [infer_diag] path=wb_only nwb=0 wb=68010us wall=68011us cpu=23741us wait=44270us
+I (115826) vision_model: [infer_diag] path=wb_only nwb=0 wb=62758us wall=62759us cpu=22768us wait=39991us
+I (119368) vision_model: [infer_diag] path=wb_only nwb=0 wb=67445us wall=67447us cpu=24794us wait=42653us
+I (122849) vision_model: [infer_diag] path=wb_only nwb=0 wb=83091us wall=83092us cpu=24185us wait=58907us
+I (126287) vision_model: [infer_diag] path=wb_only nwb=0 wb=66816us wall=66818us cpu=23730us wait=43088us
+I (129736) vision_model: [infer_diag] path=wb_only nwb=0 wb=62812us wall=62813us cpu=22878us wait=39935us
+I (133542) vision_model: [infer_diag] path=wb_only nwb=0 wb=68060us wall=68062us cpu=24518us wait=43544us
+I (137166) vision_model: [infer_diag] path=wb_only nwb=0 wb=69585us wall=69587us cpu=23718us wait=45869us
+I (140746) vision_model: [infer_diag] path=wb_only nwb=0 wb=96388us wall=96389us cpu=25310us wait=71079us
+I (144087) vision_model: [infer_diag] path=wb_only nwb=0 wb=65430us wall=65433us cpu=22987us wait=42446us
+W (146541) dl_timing: slow seq=111691 op=0x4851f480 total=84401 wake0=11 exec0=84380 wake1=22 exec1=79758
+I (147763) vision_model: [infer_diag] path=wb_only nwb=0 wb=59924us wall=59926us cpu=21212us wait=38714us
+I (151176) vision_model: [infer_diag] path=wb_only nwb=0 wb=70335us wall=70337us cpu=26362us wait=43975us
+I (154685) vision_model: [infer_diag] path=wb_only nwb=0 wb=68014us wall=68017us cpu=24551us wait=43466us
+I (158326) vision_model: [infer_diag] path=wb_only nwb=0 wb=66461us wall=66462us cpu=23934us wait=42528us
+I (161787) vision_model: [infer_diag] path=wb_only nwb=0 wb=68044us wall=68046us cpu=24356us wait=43690us
+I (165183) vision_model: [infer_diag] path=wb_only nwb=0 wb=134610us wall=134612us cpu=37336us wait=97276us
+W (168273) dl_timing: slow seq=129511 op=0x4851f480 total=84483 wake0=13 exec0=84459 wake1=35 exec1=80127
+I (168794) vision_model: [infer_diag] path=wb_only nwb=0 wb=67633us wall=67636us cpu=23852us wait=43784us
+I (172298) vision_model: [infer_diag] path=wb_only nwb=0 wb=64024us wall=64025us cpu=22751us wait=41274us
+I (175981) vision_model: [infer_diag] path=wb_only nwb=0 wb=61671us wall=61673us cpu=22419us wait=39254us
+I (179549) vision_model: [infer_diag] path=wb_only nwb=0 wb=68451us wall=68452us cpu=24344us wait=44108us
+I (183064) vision_model: [infer_diag] path=wb_only nwb=0 wb=65415us wall=65417us cpu=22256us wait=43161us
+W (184471) dl_timing: slow seq=142561 op=0x4851f480 total=84341 wake0=14 exec0=84316 wake1=24 exec1=79963
+I (186782) vision_model: [infer_diag] path=wb_only nwb=0 wb=114795us wall=114796us cpu=26245us wait=88551us
+W (190069) dl_timing: slow seq=146881 op=0x4851f480 total=84357 wake0=13 exec0=84334 wake1=24 exec1=79849
+I (190482) vision_model: [infer_diag] path=wb_only nwb=0 wb=67243us wall=67244us cpu=24072us wait=43172us
+W (193530) dl_timing: slow seq=149581 op=0x4851f480 total=84810 wake0=10 exec0=84790 wake1=20 exec1=80236
+I (194173) vision_model: [infer_diag] path=wb_only nwb=0 wb=70706us wall=70707us cpu=25352us wait=45355us
+I (197821) vision_model: [infer_diag] path=wb_only nwb=0 wb=65846us wall=65847us cpu=22876us wait=42971us
+W (199016) dl_timing: slow seq=153901 op=0x4851f480 total=84241 wake0=11 exec0=84221 wake1=19 exec1=80258
+I (201352) vision_model: [infer_diag] path=wb_only nwb=0 wb=68273us wall=68275us cpu=24264us wait=44011us
+I (204738) vision_model: [infer_diag] path=wb_only nwb=0 wb=68437us wall=68439us cpu=23458us wait=44981us
+W (205977) dl_timing: slow seq=159661 op=0x4851f480 total=84418 wake0=14 exec0=84393 wake1=22 exec1=79922
+I (208440) vision_model: [infer_diag] path=wb_only nwb=0 wb=73177us wall=73178us cpu=24618us wait=48560us
+I (211798) vision_model: [infer_diag] path=wb_only nwb=0 wb=68190us wall=68191us cpu=23522us wait=44669us
+I (215274) vision_model: [infer_diag] path=wb_only nwb=0 wb=62932us wall=62933us cpu=23547us wait=39386us
+I (218877) vision_model: [infer_diag] path=wb_only nwb=0 wb=71019us wall=71021us cpu=26532us wait=44489us
+I (222336) vision_model: [infer_diag] path=wb_only nwb=0 wb=66536us wall=66538us cpu=23076us wait=43462us
+I (225827) vision_model: [infer_diag] path=wb_only nwb=0 wb=68238us wall=68239us cpu=24268us wait=43971us
+I (229498) vision_model: [infer_diag] path=wb_only nwb=0 wb=68137us wall=68138us cpu=23401us wait=44737us
+I (233065) vision_model: [infer_diag] path=wb_only nwb=0 wb=66001us wall=66002us cpu=22634us wait=43368us
+W (235290) dl_timing: slow seq=183511 op=0x4851f480 total=84211 wake0=11 exec0=84190 wake1=19 exec1=80311
+I (236615) vision_model: [infer_diag] path=wb_only nwb=0 wb=70486us wall=70487us cpu=26020us wait=44467us
+I (240101) vision_model: [infer_diag] path=wb_only nwb=0 wb=68506us wall=68507us cpu=23670us wait=44837us
+W (242133) dl_timing: slow seq=189091 op=0x4851f480 total=84581 wake0=12 exec0=84558 wake1=21 exec1=79975
+I (243685) vision_model: [infer_diag] path=wb_only nwb=0 wb=68492us wall=68495us cpu=24608us wait=43887us
+I (247230) vision_model: [infer_diag] path=wb_only nwb=0 wb=68018us wall=68019us cpu=23506us wait=44513us
+W (249567) dl_timing: slow seq=195211 op=0x4851f480 total=84442 wake0=14 exec0=84417 wake1=29 exec1=79893
+I (250684) vision_model: [infer_diag] path=wb_only nwb=0 wb=62928us wall=62930us cpu=23110us wait=39820us
+I (254291) vision_model: [infer_diag] path=wb_only nwb=0 wb=69018us wall=69019us cpu=24347us wait=44672us
+I (257840) vision_model: [infer_diag] path=wb_only nwb=0 wb=68507us wall=68508us cpu=24190us wait=44318us
+W (258550) dl_timing: slow seq=202411 op=0x4851f480 total=84399 wake0=37 exec0=84352 wake1=18 exec1=80007
+W (259547) dl_timing: slow seq=203221 op=0x4851f480 total=84306 wake0=11 exec0=84285 wake1=23 exec1=80172
+I (261465) vision_model: [infer_diag] path=wb_only nwb=0 wb=89826us wall=89827us cpu=31804us wait=58023us
+W (261789) dl_timing: slow seq=205021 op=0x4851f480 total=84115 wake0=13 exec0=84091 wake1=22 exec1=80052
+W (263058) dl_timing: slow seq=205921 op=0x4851f480 total=84501 wake0=11 exec0=84478 wake1=23 exec1=80165
+W (264151) dl_timing: slow seq=206641 op=0x4851f480 total=84386 wake0=10 exec0=84365 wake1=22 exec1=80291
+I (265389) vision_model: [infer_diag] path=wb_only nwb=0 wb=64004us wall=64006us cpu=25408us wait=38598us
+I (269037) vision_model: [infer_diag] path=wb_only nwb=0 wb=217844us wall=217845us cpu=30679us wait=187166us
+W (271033) dl_timing: slow seq=212221 op=0x4851f480 total=84190 wake0=9 exec0=84170 wake1=25 exec1=79815
+W (272192) dl_timing: slow seq=213121 op=0x4851f480 total=84252 wake0=10 exec0=84231 wake1=19 exec1=80218
+I (272732) vision_model: [infer_diag] path=wb_only nwb=0 wb=79598us wall=79599us cpu=29196us wait=50403us
+I (276243) vision_model: [infer_diag] path=wb_only nwb=0 wb=67909us wall=67911us cpu=24613us wait=43298us
+W (277793) dl_timing: slow seq=217531 op=0x4851f480 total=84443 wake0=11 exec0=84421 wake1=19 exec1=80165
+W (279096) dl_timing: slow seq=218521 op=0x4851f480 total=85138 wake0=12 exec0=85115 wake1=22 exec1=80259
+I (279940) vision_model: [infer_diag] path=wb_only nwb=0 wb=67407us wall=67409us cpu=23961us wait=43448us
+I (283471) vision_model: [infer_diag] path=wb_only nwb=0 wb=99772us wall=99773us cpu=26657us wait=73116us
+I (286899) vision_model: [infer_diag] path=wb_only nwb=0 wb=68174us wall=68176us cpu=23757us wait=44419us
+W (287249) dl_timing: slow seq=225181 op=0x4851f480 total=84525 wake0=11 exec0=84503 wake1=19 exec1=80240
+W (289559) dl_timing: slow seq=226981 op=0x4851f480 total=86698 wake0=11 exec0=86676 wake1=19 exec1=79822
+I (290727) vision_model: [infer_diag] path=wb_only nwb=0 wb=69407us wall=69409us cpu=24744us wait=44665us
+I (294348) vision_model: [infer_diag] path=wb_only nwb=0 wb=69755us wall=69756us cpu=24777us wait=44979us
+W (296894) dl_timing: slow seq=232741 op=0x4851f480 total=84627 wake0=12 exec0=84604 wake1=28 exec1=80210
+I (297937) vision_model: [infer_diag] path=wb_only nwb=0 wb=62248us wall=62250us cpu=21992us wait=40258us

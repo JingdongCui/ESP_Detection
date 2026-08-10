@@ -1,0 +1,28 @@
+{
+  "captured_at": "2026-07-17T01:48:03.719310+08:00",
+  "port": "/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0",
+  "reset_mode": "CP2102N RTS hard reset (not power-cycle cold boot)",
+  "heap": {
+    "integrity": "ok",
+    "free": 6836391,
+    "min": 6810219,
+    "largest": 6684660,
+    "internal_free": 26923,
+    "internal_largest": 21492,
+    "dma_free": 1791,
+    "dma_largest": 76,
+    "psram_free": 6809820,
+    "psram_largest": 6684660
+  },
+  "tasks": {
+    "requested": 24,
+    "actual": 24,
+    "stack_unit": 1,
+    "total_runtime": 9151639
+  },
+  "regions": {
+    "internal": 20,
+    "psram": 4,
+    "other": 0
+  }
+}

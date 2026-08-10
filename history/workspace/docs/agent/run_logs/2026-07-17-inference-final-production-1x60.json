@@ -1,0 +1,524 @@
+{
+  "started_at": "2026-07-17T06:43:37.688933+08:00",
+  "reset_mode": "CP2102N RTS hard reset (not power-cycle cold boot)",
+  "port": "/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_7ee2f3966ac3ee11be78b90f9e1b1c54-if00-port0",
+  "warmup_samples_per_boot": 2,
+  "boots": [
+    {
+      "index": 1,
+      "summary": {
+        "count": 60,
+        "p50_us": 67718,
+        "p95_us": 71507,
+        "max_us": 72325,
+        "ge_150ms": 0,
+        "ge_500ms": 0,
+        "wait_p50_us": 43854,
+        "wait_p95_us": 45964,
+        "wait_max_us": 46812
+      },
+      "samples_us": [
+        59714,
+        69211,
+        68516,
+        67509,
+        68422,
+        70235,
+        65651,
+        68355,
+        68442,
+        70345,
+        68075,
+        68626,
+        66726,
+        67949,
+        68590,
+        64517,
+        66946,
+        65628,
+        67605,
+        67688,
+        67891,
+        61457,
+        72060,
+        71719,
+        67676,
+        66133,
+        66858,
+        65950,
+        67796,
+        67051,
+        66222,
+        67905,
+        68286,
+        68678,
+        66603,
+        67684,
+        65982,
+        67258,
+        71507,
+        67931,
+        62383,
+        69164,
+        68141,
+        66774,
+        71200,
+        66358,
+        64494,
+        59854,
+        66438,
+        67748,
+        72325,
+        68201,
+        66681,
+        70375,
+        68208,
+        67120,
+        61716,
+        70013,
+        68045,
+        66852
+      ],
+      "samples": [
+        {
+          "nwb": 0,
+          "wb_us": 59714,
+          "wall_us": 59717,
+          "cpu_us": 21548,
+          "wait_us": 38169
+        },
+        {
+          "nwb": 0,
+          "wb_us": 69211,
+          "wall_us": 69212,
+          "cpu_us": 24484,
+          "wait_us": 44728
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68516,
+          "wall_us": 68518,
+          "cpu_us": 23655,
+          "wait_us": 44863
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67509,
+          "wall_us": 67511,
+          "cpu_us": 23415,
+          "wait_us": 44096
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68422,
+          "wall_us": 68424,
+          "cpu_us": 24463,
+          "wait_us": 43961
+        },
+        {
+          "nwb": 0,
+          "wb_us": 70235,
+          "wall_us": 70238,
+          "cpu_us": 25178,
+          "wait_us": 45060
+        },
+        {
+          "nwb": 0,
+          "wb_us": 65651,
+          "wall_us": 65652,
+          "cpu_us": 23506,
+          "wait_us": 42146
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68355,
+          "wall_us": 68356,
+          "cpu_us": 24445,
+          "wait_us": 43911
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68442,
+          "wall_us": 68443,
+          "cpu_us": 23530,
+          "wait_us": 44913
+        },
+        {
+          "nwb": 0,
+          "wb_us": 70345,
+          "wall_us": 70347,
+          "cpu_us": 25583,
+          "wait_us": 44764
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68075,
+          "wall_us": 68077,
+          "cpu_us": 24104,
+          "wait_us": 43973
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68626,
+          "wall_us": 68627,
+          "cpu_us": 23661,
+          "wait_us": 44966
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66726,
+          "wall_us": 66730,
+          "cpu_us": 24050,
+          "wait_us": 42680
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67949,
+          "wall_us": 67951,
+          "cpu_us": 23614,
+          "wait_us": 44337
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68590,
+          "wall_us": 68591,
+          "cpu_us": 24733,
+          "wait_us": 43858
+        },
+        {
+          "nwb": 0,
+          "wb_us": 64517,
+          "wall_us": 64519,
+          "cpu_us": 22813,
+          "wait_us": 41706
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66946,
+          "wall_us": 66948,
+          "cpu_us": 22771,
+          "wait_us": 44177
+        },
+        {
+          "nwb": 0,
+          "wb_us": 65628,
+          "wall_us": 65630,
+          "cpu_us": 24059,
+          "wait_us": 41571
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67605,
+          "wall_us": 67609,
+          "cpu_us": 24307,
+          "wait_us": 43302
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67688,
+          "wall_us": 67689,
+          "cpu_us": 23311,
+          "wait_us": 44378
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67891,
+          "wall_us": 67892,
+          "cpu_us": 23891,
+          "wait_us": 44001
+        },
+        {
+          "nwb": 0,
+          "wb_us": 61457,
+          "wall_us": 61459,
+          "cpu_us": 21825,
+          "wait_us": 39634
+        },
+        {
+          "nwb": 0,
+          "wb_us": 72060,
+          "wall_us": 72061,
+          "cpu_us": 25249,
+          "wait_us": 46812
+        },
+        {
+          "nwb": 0,
+          "wb_us": 71719,
+          "wall_us": 71721,
+          "cpu_us": 25369,
+          "wait_us": 46352
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67676,
+          "wall_us": 67677,
+          "cpu_us": 24058,
+          "wait_us": 43619
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66133,
+          "wall_us": 66138,
+          "cpu_us": 23850,
+          "wait_us": 42288
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66858,
+          "wall_us": 66860,
+          "cpu_us": 24391,
+          "wait_us": 42469
+        },
+        {
+          "nwb": 0,
+          "wb_us": 65950,
+          "wall_us": 65951,
+          "cpu_us": 23691,
+          "wait_us": 42260
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67796,
+          "wall_us": 67798,
+          "cpu_us": 23479,
+          "wait_us": 44319
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67051,
+          "wall_us": 67057,
+          "cpu_us": 24405,
+          "wait_us": 42652
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66222,
+          "wall_us": 66224,
+          "cpu_us": 23929,
+          "wait_us": 42295
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67905,
+          "wall_us": 67907,
+          "cpu_us": 24373,
+          "wait_us": 43534
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68286,
+          "wall_us": 68287,
+          "cpu_us": 24437,
+          "wait_us": 43850
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68678,
+          "wall_us": 68681,
+          "cpu_us": 24530,
+          "wait_us": 44151
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66603,
+          "wall_us": 66604,
+          "cpu_us": 22762,
+          "wait_us": 43842
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67684,
+          "wall_us": 67685,
+          "cpu_us": 23441,
+          "wait_us": 44244
+        },
+        {
+          "nwb": 0,
+          "wb_us": 65982,
+          "wall_us": 65984,
+          "cpu_us": 24189,
+          "wait_us": 41795
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67258,
+          "wall_us": 67259,
+          "cpu_us": 23999,
+          "wait_us": 43260
+        },
+        {
+          "nwb": 0,
+          "wb_us": 71507,
+          "wall_us": 71509,
+          "cpu_us": 24823,
+          "wait_us": 46686
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67931,
+          "wall_us": 67932,
+          "cpu_us": 24236,
+          "wait_us": 43696
+        },
+        {
+          "nwb": 0,
+          "wb_us": 62383,
+          "wall_us": 62385,
+          "cpu_us": 22785,
+          "wait_us": 39600
+        },
+        {
+          "nwb": 0,
+          "wb_us": 69164,
+          "wall_us": 69166,
+          "cpu_us": 24928,
+          "wait_us": 44238
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68141,
+          "wall_us": 68143,
+          "cpu_us": 23604,
+          "wait_us": 44539
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66774,
+          "wall_us": 66775,
+          "cpu_us": 23063,
+          "wait_us": 43712
+        },
+        {
+          "nwb": 0,
+          "wb_us": 71200,
+          "wall_us": 71202,
+          "cpu_us": 25745,
+          "wait_us": 45457
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66358,
+          "wall_us": 66360,
+          "cpu_us": 24065,
+          "wait_us": 42295
+        },
+        {
+          "nwb": 0,
+          "wb_us": 64494,
+          "wall_us": 64499,
+          "cpu_us": 22988,
+          "wait_us": 41511
+        },
+        {
+          "nwb": 0,
+          "wb_us": 59854,
+          "wall_us": 59855,
+          "cpu_us": 21466,
+          "wait_us": 38389
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66438,
+          "wall_us": 66440,
+          "cpu_us": 23504,
+          "wait_us": 42936
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67748,
+          "wall_us": 67749,
+          "cpu_us": 23530,
+          "wait_us": 44219
+        },
+        {
+          "nwb": 0,
+          "wb_us": 72325,
+          "wall_us": 72326,
+          "cpu_us": 26362,
+          "wait_us": 45964
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68201,
+          "wall_us": 68202,
+          "cpu_us": 23996,
+          "wait_us": 44206
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66681,
+          "wall_us": 66683,
+          "cpu_us": 23572,
+          "wait_us": 43111
+        },
+        {
+          "nwb": 0,
+          "wb_us": 70375,
+          "wall_us": 70377,
+          "cpu_us": 25204,
+          "wait_us": 45173
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68208,
+          "wall_us": 68210,
+          "cpu_us": 24362,
+          "wait_us": 43848
+        },
+        {
+          "nwb": 0,
+          "wb_us": 67120,
+          "wall_us": 67122,
+          "cpu_us": 23915,
+          "wait_us": 43207
+        },
+        {
+          "nwb": 0,
+          "wb_us": 61716,
+          "wall_us": 61717,
+          "cpu_us": 22702,
+          "wait_us": 39015
+        },
+        {
+          "nwb": 0,
+          "wb_us": 70013,
+          "wall_us": 70014,
+          "cpu_us": 24816,
+          "wait_us": 45198
+        },
+        {
+          "nwb": 0,
+          "wb_us": 68045,
+          "wall_us": 68047,
+          "cpu_us": 23966,
+          "wait_us": 44081
+        },
+        {
+          "nwb": 0,
+          "wb_us": 66852,
+          "wall_us": 66853,
+          "cpu_us": 24342,
+          "wait_us": 42511
+        }
+      ]
+    }
+  ],
+  "overall": {
+    "count": 60,
+    "p50_us": 67718,
+    "p95_us": 71507,
+    "max_us": 72325,
+    "ge_150ms": 0,
+    "ge_500ms": 0,
+    "wait_p50_us": 43854,
+    "wait_p95_us": 45964,
+    "wait_max_us": 46812
+  },
+  "finished_at": "2026-07-17T06:47:17.072159+08:00",
+  "acceptance": {
+    "p50_60_to_85ms": true,
+    "p95_le_100ms": true,
+    "max_le_150ms": true,
+    "zero_ge_500ms": true
+  }
+}

@@ -1,0 +1,378 @@
+Script started on 2026-06-28 09:22:10+08:00 [COMMAND="idf.py -p /dev/ttyACM0 flash monitor" TERM="dumb" TTY="/dev/pts/2" COLUMNS="80" LINES="24"]
+Executing action: flash
+Running ninja in directory /home/kazeform/2026esp/bug_project/build
+Executing "ninja flash"...
+[1/6] cd /home/kazeform/2026esp/bug_pr...p/bug_project/build/sample_project.bin[K
+sample_project.bin binary size 0x31f140 bytes. Smallest app partition is 0x600000 bytes. 0x2e0ec0 bytes (48%) free.
+[2/6] Performing build step for 'bootloader'[K[1/1] cd /home/kazeform/2026esp/bug_pr...roject/build/bootloader/bootloader.bin[K
+Bootloader binary size 0x5a20 bytes. 0x5e0 bytes (6%) free.
+[3/6] No install step for 'bootloader'[K[4/6] Completed 'bootloader'[K[5/6] cd /home/kazeform/2026esp/bug_pr...meta-len=4 --use-magic --use-magic-len[K[5/6] cd /home/kazeform/ProgramFiles/e...nents/esptool_py/run_serial_tool.cmake[K
+esptool.py --chip esp32p4 -p /dev/ttyACM0 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 16MB 0x2000 bootloader/bootloader.bin 0x10000 sample_project.bin 0x8000 partition_table/partition-table.bin 0xb00000 storage.bin
+esptool.py v4.12.dev2
+Serial port /dev/ttyACM0
+Connecting...
+Chip is ESP32-P4 (revision v3.1)
+Features: High-Performance MCU
+Crystal is 40MHz
+USB mode: USB-Serial/JTAG
+MAC: e8:f6:0a:e1:7a:d1
+Using the new stub flasher.
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00002000 to 0x00007fff...
+Flash will be erased from 0x00010000 to 0x0032ffff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x00b00000 to 0x00ffffff...
+SHA digest in image updated
+Compressed 23072 bytes to 14335...
+Writing at 0x00002000... (100 %)[K
+Wrote 23072 bytes (14335 compressed) at 0x00002000 in 0.3 seconds (effective 631.0 kbit/s)...
+Hash of data verified.
+Compressed 3273024 bytes to 1042279...
+Writing at 0x00010000... (1 %)[KWriting at 0x0001e0f6... (3 %)[KWriting at 0x0002c91b... (4 %)[KWriting at 0x0003cd56... (6 %)[KWriting at 0x00053966... (7 %)[KWriting at 0x000866fa... (9 %)[KWriting at 0x000b1b3a... (10 %)[KWriting at 0x000f12c1... (12 %)[KWriting at 0x0010a911... (14 %)[KWriting at 0x0011245d... (15 %)[KWriting at 0x0011afa9... (17 %)[KWriting at 0x001220c5... (18 %)[KWriting at 0x0012989e... (20 %)[KWriting at 0x00132c7a... (21 %)[KWriting at 0x00138e37... (23 %)[KWriting at 0x0013fe86... (25 %)[KWriting at 0x0014730b... (26 %)[KWriting at 0x0014e76c... (28 %)[KWriting at 0x00154150... (29 %)[KWriting at 0x0015a579... (31 %)[KWriting at 0x0016371d... (32 %)[KWriting at 0x0016c7c0... (34 %)[KWriting at 0x00174c3a... (35 %)[KWriting at 0x0017ebfc... (37 %)[KWriting at 0x00184b2d... (39 %)[KWriting at 0x0018b41f... (40 %)[KWriting at 0x001944da... (42 %)[KWriting at 0x0019ac2a... (43 %)[KWriting at 0x001a160d... (45 %)[KWriting at 0x001a8263... (46 %)[KWriting at 0x001b151e... (48 %)[KWriting at 0x001bb9b8... (50 %)[KWriting at 0x001c50c2... (51 %)[KWriting at 0x001e546c... (53 %)[KWriting at 0x00254fec... (54 %)[KWriting at 0x00263f13... (56 %)[KWriting at 0x0026ae38... (57 %)[KWriting at 0x002736a0... (59 %)[KWriting at 0x0027a212... (60 %)[KWriting at 0x00281284... (62 %)[KWriting at 0x002875f1... (64 %)[KWriting at 0x0028dee6... (65 %)[KWriting at 0x002942a0... (67 %)[KWriting at 0x0029ab67... (68 %)[KWriting at 0x002a142b... (70 %)[KWriting at 0x002a8895... (71 %)[KWriting at 0x002aeef4... (73 %)[KWriting at 0x002b4fd7... (75 %)[KWriting at 0x002bb0be... (76 %)[KWriting at 0x002c324b... (78 %)[KWriting at 0x002cba47... (79 %)[KWriting at 0x002d32c8... (81 %)[KWriting at 0x002da9d2... (82 %)[KWriting at 0x002e3171... (84 %)[KWriting at 0x002e9ad7... (85 %)[KWriting at 0x002f0ac6... (87 %)[KWriting at 0x002f797b... (89 %)[KWriting at 0x002febfb... (90 %)[KWriting at 0x0030593c... (92 %)[KWriting at 0x0030b888... (93 %)[KWriting at 0x003136d7... (95 %)[KWriting at 0x0031a556... (96 %)[KWriting at 0x00321676... (98 %)[KWriting at 0x00328c0e... (100 %)[K
+Wrote 3273024 bytes (1042279 compressed) at 0x00010000 in 16.5 seconds (effective 1590.2 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 119...
+Writing at 0x00008000... (100 %)[K
+Wrote 3072 bytes (119 compressed) at 0x00008000 in 0.0 seconds (effective 3733.4 kbit/s)...
+Hash of data verified.
+Compressed 5242880 bytes to 750905...
+Writing at 0x00b00000... (2 %)[KWriting at 0x00b06e29... (4 %)[KWriting at 0x00b0d790... (6 %)[KWriting at 0x00b143d6... (8 %)[KWriting at 0x00b1a256... (10 %)[KWriting at 0x00b20619... (13 %)[KWriting at 0x00b26748... (15 %)[KWriting at 0x00b2e6bf... (17 %)[KWriting at 0x00b34747... (19 %)[KWriting at 0x00b3ac1a... (21 %)[KWriting at 0x00b4074f... (23 %)[KWriting at 0x00b4690a... (26 %)[KWriting at 0x00b4cf7b... (28 %)[KWriting at 0x00b52bef... (30 %)[KWriting at 0x00b59de4... (32 %)[KWriting at 0x00b5fd0b... (34 %)[KWriting at 0x00b64e23... (36 %)[KWriting at 0x00b6c225... (39 %)[KWriting at 0x00b7277e... (41 %)[KWriting at 0x00b786cf... (43 %)[KWriting at 0x00b7e51d... (45 %)[KWriting at 0x00b8319a... (47 %)[KWriting at 0x00b8cd89... (50 %)[KWriting at 0x00b9f61e... (52 %)[KWriting at 0x00ba4795... (54 %)[KWriting at 0x00ba9e88... (56 %)[KWriting at 0x00baf575... (58 %)[KWriting at 0x00bb6945... (60 %)[KWriting at 0x00bbccc8... (63 %)[KWriting at 0x00bc3f2e... (65 %)[KWriting at 0x00bc9b56... (67 %)[KWriting at 0x00bcee65... (69 %)[KWriting at 0x00bd5628... (71 %)[KWriting at 0x00bdacbd... (73 %)[KWriting at 0x00be15b7... (76 %)[KWriting at 0x00be65a4... (78 %)[KWriting at 0x00beb935... (80 %)[KWriting at 0x00bf15dc... (82 %)[KWriting at 0x00bf84f0... (84 %)[KWriting at 0x00c00709... (86 %)[KWriting at 0x00c05b9d... (89 %)[KWriting at 0x00c0babe... (91 %)[KWriting at 0x00c12937... (93 %)[KWriting at 0x00c189f3... (95 %)[KWriting at 0x00c1e76f... (97 %)[KWriting at 0x00c2c538... (100 %)[K
+Wrote 5242880 bytes (750905 compressed) at 0x00b00000 in 18.2 seconds (effective 2310.2 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/kazeform/2026esp/bug_project
+Executing "/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python /home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 301 --decode-panic backtrace /home/kazeform/2026esp/bug_project/build/sample_project.elf /home/kazeform/2026esp/bug_project/build/bootloader/bootloader.elf -m '/home/kazeform/.espressif/python_env/idf5.5_py3.14_env/bin/python' '/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/tools/idf.py' '-p' '/dev/ttyACM0'"...
+[0;33m--- esp-idf-monitor 1.9.0 on /dev/ttyACM0 115200[0m
+[0;33m--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H[0m
+ESP-ROM:esp32p4-eco6-20251011
+Build:Oct 11 2025
+rst:0x17 (CHIP_USB_UART_RESET),boot:0x10c (SPI_FAST_FLASH_BOOT)
+Core0 Saved PC:0x4fc04830
+Core1 Saved PC:0x4fc06020
+SPI mode:DIO, clock div:2
+load:0x4ffb60d0,len:0x15e4
+load:0x4ffac2c0,len:0xe88
+[0m--- 0x4ffac2c0: [0;33mesp_bootloader_get_description[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/esp_bootloader_format/esp_bootloader_desc.c[0m[0m:[1;31m39[0m
+load:0x4ffaefc0,len:0x3560
+[0m--- 0x4ffaefc0: [0;33mesp_flash_encryption_enabled[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader_support/src/flash_encrypt.c[0m[0m:[1;31m89[0m
+entry 0x4ffac2ca
+[0m--- 0x4ffac2ca: [0;33mcall_start_cpu0[0m[0m at [0;32m/home/kazeform/ProgramFiles/esp_idf_5.5.4/esp-idf-v5.5.4/components/bootloader/subproject/main/bootloader_start.c[0m[0m:[1;31m27[0m
+[0;32mI (27) boot: ESP-IDF v5.5.4 2nd stage bootloader[0m
+[0;32mI (28) boot: compile time Jun 27 2026 17:33:42[0m
+[0;32mI (28) boot: Multicore bootloader[0m
+[0;32mI (30) boot: chip revision: v3.1[0m
+[0;32mI (31) boot: efuse block revision: v1.2[0m
+[0;32mI (34) boot.esp32p4: SPI Speed      : 40MHz[0m
+[0;32mI (38) boot.esp32p4: SPI Mode       : DIO[0m
+[0;32mI (42) boot.esp32p4: SPI Flash Size : 16MB[0m
+[0;32mI (46) boot: Enabling RNG early entropy source...[0m
+[0;32mI (50) boot: Partition Table:[0m
+[0;32mI (53) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (59) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (72) boot:  2 factory          factory app      00 00 00010000 00600000[0m
+[0;32mI (79) boot:  3 storage          Unknown data     01 82 00b00000 00500000[0m
+[0;32mI (86) boot: End of partition table[0m
+[0;32mI (89) esp_image: segment 0: paddr=00010020 vaddr=481f0020 size=1222c0h (1188544) map[0m
+[0;32mI (284) esp_image: segment 1: paddr=001322e8 vaddr=30100000 size=00164h (   356) load[0m
+[0;32mI (286) esp_image: segment 2: paddr=00132454 vaddr=30100170 size=00048h (    72) load[0m
+[0;32mI (289) esp_image: segment 3: paddr=001324a4 vaddr=4ff40000 size=0db74h ( 56180) load[0m
+[0;32mI (306) esp_image: segment 4: paddr=00140020 vaddr=48000020 size=1e08e0h (1968352) map[0m
+[0;32mI (618) esp_image: segment 5: paddr=00320908 vaddr=4ff4db74 size=0a500h ( 42240) load[0m
+[0;32mI (627) esp_image: segment 6: paddr=0032ae10 vaddr=4ff58080 size=04308h ( 17160) load[0m
+[0;32mI (636) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (637) boot: Disabling RNG early entropy source...[0m
+[0;32mI (648) hex_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (648) hex_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (649) hex_psram: DriveStr.    : 0x00 (25 Ohm)[0m
+[0;32mI (649) hex_psram: dev id       : 0x03 (generation 4)[0m
+[0;32mI (654) hex_psram: density      : 0x07 (256 Mbit)[0m
+[0;32mI (658) hex_psram: good-die     : 0x06 (Pass)[0m
+[0;32mI (662) hex_psram: SRF          : 0x02 (Slow Refresh)[0m
+[0;32mI (667) hex_psram: BurstType    : 0x00 ( Wrap)[0m
+[0;32mI (671) hex_psram: BurstLen     : 0x03 (2048 Byte)[0m
+[0;32mI (676) hex_psram: BitMode      : 0x01 (X16 Mode)[0m
+[0;32mI (680) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)[0m
+[0;32mI (685) hex_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (689) MSPI Timing: Enter psram timing tuning[0m
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+[0;32mI (1006) mmu_psram: .rodata xip on psram[0m
+[0;32mI (1254) mmu_psram: .text xip on psram[0m
+[0;32mI (1254) hex_psram: psram CS IO is dedicated[0m
+[0;32mI (1255) cpu_start: Multicore app[0m
+[0;32mI (1691) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (1700) cpu_start: GPIO 38 and 37 are used as console UART I/O pins[0m
+[0;32mI (1701) cpu_start: Pro cpu start user code[0m
+[0;32mI (1701) cpu_start: cpu freq: 400000000 Hz[0m
+[0;32mI (1703) app_init: Application information:[0m
+[0;32mI (1707) app_init: Project name:     sample_project[0m
+[0;32mI (1711) app_init: App version:      78ec4d9[0m
+[0;32mI (1715) app_init: Compile time:     Jun 28 2026 09:21:06[0m
+[0;32mI (1720) app_init: ELF file SHA256:  179dd7bd4...[0m
+[0;32mI (1725) app_init: ESP-IDF:          v5.5.4[0m
+[0;32mI (1729) efuse_init: Min chip rev:     v3.1[0m
+[0;32mI (1733) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (1737) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (1741) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (1748) heap_init: At 4FF60820 len 0005A7A0 (361 KiB): RETENT_RAM[0m
+[0;32mI (1753) heap_init: At 4FFBAFC0 len 00004BF0 (18 KiB): RAM[0m
+[0;32mI (1762) heap_init: At 50108080 len 00007F80 (31 KiB): RTCRAM[0m
+[0;32mI (1764) heap_init: At 301001B8 len 00001E48 (7 KiB): TCM[0m
+[0;32mI (1915) esp_psram: Adding pool of 29568K of PSRAM memory to heap allocator[0m
+[0;32mI (1916) esp_psram: Adding pool of 61K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator[0m
+[0;32mI (1922) esp_psram: Adding pool of 55K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator[0m
+[0;32mI (1934) spi_flash: detected chip: gd[0m
+[0;32mI (1937) spi_flash: flash io: dio[0m
+[0;32mI (1940) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (1946) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (1953) main_task: Started on CPU0[0m
+[0;32mI (1956) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (1964) main_task: Calling app_main()[0m
+[0;32mI (1967) system: System initialization start[0m
+[0;32mI (1971) bsp_lcd: Backlight on[0m
+[0;32mI (1974) bsp_lcd: MIPI DSI PHY powered on[0m
+[0;32mI (1979) ek79007: version: 1.0.4[0m
+[0;32mI (2213) bsp_lcd: LCD init done[0m
+[0;32mI (2213) bsp_lcd: [LCD_DIAG] 1024x600 RGB24 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1800KB dma2d=1[0m
+[0;32mI (2213) bsp_lcd: [LCD_DIAG] active_read=83608KB/s fb0=0x48320a80 fb1=0x484e2b00 fb2=0x486a4b80 psram_free=24280KB internal_free=384KB[0m
+[0;33mW (2225) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[0;32mI (2237) bsp_touch: I2C bus initialized[0m
+[0;32mI (2240) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[1;31mE (2268) lcd_panel.io.i2c: panel_io_i2c_rx_buffer(145): i2c transaction failed[0m
+[1;31mE (2268) GT911: touch_gt911_read_cfg(419): GT911 read error![0m
+[1;31mE (2269) GT911: esp_lcd_touch_new_i2c_gt911(169): GT911 init failed[0m
+[1;31mE (2275) GT911: Error (0x103)! Touch controller GT911 initialization failed![0m
+[0;33mW (2282) bsp_touch: GT911 init at 0x5D failed: ESP_ERR_INVALID_STATE[0m
+[0;32mI (2288) GT911: I2C address initialization procedure skipped - using default GT9xx setup[0m
+[0;32mI (2317) GT911: TouchPad_ID:0x39,0x31,0x31[0m
+[0;32mI (2317) GT911: TouchPad_Config_Version:89[0m
+[0;32mI (2317) bsp_touch: GT911 detected at I2C address 0x14[0m
+[0;32mI (2318) bsp_touch: Touch init done[0m
+[1;31mE (2321) bsp_motor: validate_motor_gpio(73): motor 0 PWM A GPIO is not configured[0m
+[1;31mE (2329) bsp_motor: init_motor_mcpwm(110): motor GPIO validation failed[0m
+[1;31mE (2335) bsp_motor: bsp_motor_init(162): init motor 0 MCPWM failed[0m
+[0;32mI (2341) bsp_encoder: encoder BSP initialized[0m
+[0;32mI (2346) esp_lvgl:adapter: LVGL adapter initialized successfully[0m
+[0;32mI (2354) esp_lvgl:bridge_v9: Initializing hardware resources[0m
+[0;32mI (2356) esp_lvgl:bridge_v9: Hardware resources initialized successfully[0m
+[0;32mI (2363) bsp_lvgl: Display registered (1024x600)[0m
+[0;33mW (2367) esp_lvgl:touch: LV_USE_GESTURE_RECOGNITION is disabled; only single-point pointer events are available[0m
+[0;32mI (2377) esp_lvgl:touch: Touch input device registered successfully (IRQ mode: disabled)[0m
+[0;32mI (2384) bsp_lvgl: Touch registered[0m
+[0;32mI (2388) esp_lvgl:adapter: LVGL task started successfully[0m
+[0;32mI (2389) esp_lvgl:bridge: Initializing hardware resources[0m
+[0;32mI (2393) bsp_lvgl: LVGL adapter started[0m
+[0;32mI (2398) esp_lvgl:bridge: Hardware resources initialized successfully[0m
+[0;32mI (2540) vision_preview: preview initialized: 640x375[0m
+[0;32mI (2541) app_ui_dashboard: [BLUE_MARK] UI marker button installed[0m
+[0;32mI (2613) esp_eth.netif.netif_glue: e8:f6:0a:e1:7a:d1[0m
+[0;32mI (2613) esp_eth.netif.netif_glue: ethernet attached to netif[0m
+[0;32mI (6616) eth_example: Ethernet Started[0m
+[0;32mI (6616) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C[0m
+[0;32mI (6969) vision_app: SPIFFS mounted: 1138/4699 KB[0m
+[0;32mI (6969) app_yolo: Loading model from: /storage/roi224_515.espdl[0m
+[0;32mI (7007) app_yolo: Model file size: 575744 bytes[0m
+[0;32mI (8480) app_yolo: PPA preprocess ready: resize buffer=147 KB align=128B[0m
+[0;32mI (8480) app_yolo: Model loaded. Input: 224x224x3, runtime: multi-core with single-core fallback[0m
+[0;32mI (8489) app_yolo: Input tensor: exponent=-7  scale=0.007812[0m
+[0;32mI (8535) app_yolo: Outputs (6):[0m
+[0;32mI (8535) app_yolo:   'box0' shape=[1, 28, 28, 4] exponent=-4[0m
+[0;32mI (8539) app_yolo:   'box1' shape=[1, 14, 14, 4] exponent=-5[0m
+[0;32mI (8540) app_yolo:   'box2' shape=[1, 7, 7, 4] exponent=-5[0m
+[0;32mI (8557) app_yolo:   'score0' shape=[1, 28, 28, 3] exponent=-1[0m
+[0;32mI (8560) app_yolo:   'score1' shape=[1, 14, 14, 3] exponent=-1[0m
+[0;32mI (8562) app_yolo:   'score2' shape=[1, 7, 7, 3] exponent=-1[0m
+[0;32mI (8562) cam_sensor: MIPI PHY LDO ch3 = 2500 mV[0m
+[0;32mI (8566) cam_sensor: Using shared I2C bus for SCCB[0m
+[0;32mI (8572) sc2336: Detected Camera sensor PID=0xcb3a[0m
+[0;32mI (8575) cam_sensor: Detected: SC2336[0m
+[1;31mE (8578) bsp_lcd: [BLUE_MARK] #1 source=ui_button time_us=6809326 tick=6625 core=1 psram_free=21892KB internal_free=38KB[0m
+[0;32mI (8579) cam_sensor: Format: MIPI_2lane_24Minput_RAW10_640x480_50fps  640x480  50fps[0m
+[0;32mI (8590) bsp_lcd: [LCD_DIAG] 1024x600 RGB24 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1800KB dma2d=1[0m
+[0;32mI (8606) bsp_lcd: [LCD_DIAG] active_read=83608KB/s fb0=0x48320a80 fb1=0x484e2b00 fb2=0x486a4b80 psram_free=21892KB internal_free=38KB[0m
+[0;33mW (8618) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[1;31mE (8629) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (8637) bsp_lcd: [BLUE_MARK] fb_hash t_us=4589741 fb0=575d16bc fb1=1cfabf45 fb2=c8228a5f[0m
+[1;31mE (8645) bsp_lcd: [BLUE_MARK] fb_hash t_us=4689741 fb0=575d16bc fb1=1cfabf45 fb2=c8228a5f[0m
+[1;31mE (8653) bsp_lcd: [BLUE_MARK] fb_hash t_us=4789742 fb0=575d16bc fb1=1cfabf45 fb2=c8228a5f[0m
+[1;31mE (8661) bsp_lcd: [BLUE_MARK] fb_hash t_us=4889742 fb0=575d16bc fb1=1cfabf45 fb2=c8228a5f[0m
+[1;31mE (8669) bsp_lcd: [BLUE_MARK] fb_hash t_us=4989750 fb0=575d16bc fb1=1cfabf45 fb2=c8228a5f[0m
+[1;31mE (8669) bsp_lcd: [BLUE_MARK] fb_hash t_us=5090746 fb0=575d16bc fb1=1cfabf45 fb2=c8228a5f[0m
+[1;31mE (8697) bsp_lcd: [BLUE_MARK] fb_hash t_us=5395767 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;32mI (8707) cam_sensor: 3 × 900 KB RGB888 frame buffers in PSRAM (cache line 128B)[0m
+[1;31mE (8708) bsp_lcd: [BLUE_MARK] fb_hash t_us=5497744 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;32mI (8715) cam_sensor: [CAM_DIAG] active_write=4500KB/s frame=900KB fps=50 write_fps=5 period=200ms duty=200ms buffers=3 psram_free=18291KB[0m
+[1;31mE (8723) bsp_lcd: [BLUE_MARK] fb_hash t_us=5598744 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;32mI (8735) cam_sensor: cam_sensor_init OK  [640x480 RGB888, 900 KB/frame][0m
+[1;31mE (8743) bsp_lcd: [BLUE_MARK] fb_hash t_us=5698753 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (8758) bsp_lcd: [BLUE_MARK] fb_hash t_us=5800761 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;32mI (8750) cam_sensor: [CAM_DIAG] capture #1 receive=0ms max=0ms timeouts=0 core=0 prio=10 stack_hwm=3232[0m
+[1;31mE (8765) bsp_lcd: [BLUE_MARK] fb_hash t_us=5902748 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;32mI (8750) cam_sensor: Streaming started (capture task priority=10 core=0 duty=200ms)[0m
+[1;31mE (8782) bsp_lcd: [BLUE_MARK] fb_hash t_us=6003745 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;32mI (8790) vision_app: vision task created priority=3 core=1 stack=32768B[0m
+[1;31mE (8798) bsp_lcd: [BLUE_MARK] fb_hash t_us=6104743 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (8812) bsp_lcd: [BLUE_MARK] fb_hash t_us=6207742 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;32mI (8804) system: System initialization done[0m
+[1;31mE (8820) bsp_lcd: [BLUE_MARK] fb_hash t_us=6307744 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (8832) bsp_lcd: [BLUE_MARK] fb_hash t_us=6408743 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (8840) bsp_lcd: [BLUE_MARK] fb_hash t_us=6509753 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (8847) bsp_lcd: [BLUE_MARK] fb_hash t_us=6610762 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (8855) bsp_lcd: [BLUE_MARK] fb_hash t_us=6712788 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (8863) bsp_lcd: [BLUE_MARK] fb_hash t_us=6812742 fb0=535e57b5 fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (8871) bsp_lcd: [BLUE_MARK] fb_hash t_us=6860111 fb0=535e57b5 fb1=535e57b5 fb2=6e0375ec[0m
+[0;32mI (8879) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=4500KB/s count=1 timeouts=0 last_receive=0ms max_receive=0ms age=128ms latest=1 app=-1 psram_free=18258KB[0m
+[1;31mE (8897) app_ui_dashboard: [BLUE_MARK] dashboard unavailable heap=33KB psram=18258KB[0m
+[0;32mI (8798) vision_app: vision task started core=1 priority=3 stack_hwm=31464[0m
+[0;32mI (8986) cam_sensor: [CAM_DIAG] capture #2 receive=34ms max=34ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (9210) cam_sensor: [CAM_DIAG] capture #3 receive=58ms max=58ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (9391) cam_sensor: [CAM_DIAG] capture #4 receive=38ms max=58ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (9592) cam_sensor: [CAM_DIAG] capture #5 receive=38ms max=58ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[1;31mE (9715) bsp_lcd: [BLUE_MARK] #2 source=ui_button time_us=7946282 tick=7762 core=1 psram_free=18258KB internal_free=32KB[0m
+[0;32mI (9715) bsp_lcd: [LCD_DIAG] 1024x600 RGB24 dpi=40MHz refresh=46.449Hz fbs=3 fb_size=1800KB dma2d=1[0m
+[0;32mI (9724) bsp_lcd: [LCD_DIAG] active_read=83608KB/s fb0=0x48320a80 fb1=0x484e2b00 fb2=0x486a4b80 psram_free=18258KB internal_free=32KB[0m
+[0;33mW (9735) bsp_lcd: [LCD_DIAG] if blue flash appears, search for: can't fetch data from external memory fast enough, underrun happens[0m
+[1;31mE (9747) bsp_lcd: [BLUE_MARK] fb_hash_history samples=24 interval=100ms sample=512B blocks=8[0m
+[1;31mE (9755) bsp_lcd: [BLUE_MARK] fb_hash t_us=5698753 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9763) bsp_lcd: [BLUE_MARK] fb_hash t_us=5800761 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9771) bsp_lcd: [BLUE_MARK] fb_hash t_us=5902748 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9779) bsp_lcd: [BLUE_MARK] fb_hash t_us=6003745 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9787) bsp_lcd: [BLUE_MARK] fb_hash t_us=6104743 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9794) bsp_lcd: [BLUE_MARK] fb_hash t_us=6207742 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9802) bsp_lcd: [BLUE_MARK] fb_hash t_us=6307744 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9810) bsp_lcd: [BLUE_MARK] fb_hash t_us=6408743 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9818) bsp_lcd: [BLUE_MARK] fb_hash t_us=6509753 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9826) bsp_lcd: [BLUE_MARK] fb_hash t_us=6610762 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9834) bsp_lcd: [BLUE_MARK] fb_hash t_us=6712788 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9842) bsp_lcd: [BLUE_MARK] fb_hash t_us=6812742 fb0=535e57b5 fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (9850) bsp_lcd: [BLUE_MARK] fb_hash t_us=6860111 fb0=535e57b5 fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (9858) bsp_lcd: [BLUE_MARK] fb_hash t_us=6938524 fb0=535e57b5 fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (9866) bsp_lcd: [BLUE_MARK] fb_hash t_us=7037742 fb0=535e57b5 fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (9873) bsp_lcd: [BLUE_MARK] fb_hash t_us=7143979 fb0=535e57b5 fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (9881) bsp_lcd: [BLUE_MARK] fb_hash t_us=7243744 fb0=6e0375ec fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (9889) bsp_lcd: [BLUE_MARK] fb_hash t_us=7346696 fb0=6e0375ec fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (9897) bsp_lcd: [BLUE_MARK] fb_hash t_us=7453260 fb0=6e0375ec fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (9905) bsp_lcd: [BLUE_MARK] fb_hash t_us=7552975 fb0=6e0375ec fb1=535e57b5 fb2=6e0375ec[0m
+[1;31mE (9913) bsp_lcd: [BLUE_MARK] fb_hash t_us=7654951 fb0=6e0375ec fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9921) bsp_lcd: [BLUE_MARK] fb_hash t_us=7755353 fb0=6e0375ec fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9929) bsp_lcd: [BLUE_MARK] fb_hash t_us=7921169 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[1;31mE (9937) bsp_lcd: [BLUE_MARK] fb_hash t_us=7977849 fb0=535e57b5 fb1=535e57b5 fb2=535e57b5[0m
+[0;32mI (9945) cam_sensor: [CAM_DIAG] source=blue_mark streaming=1 frame=640x480 fps=50 active_write=4500KB/s count=6 timeouts=0 last_receive=38ms max_receive=58ms age=152ms latest=0 app=-1 psram_free=18258KB[0m
+[1;31mE (9962) app_ui_dashboard: [BLUE_MARK] dashboard status=未检测到目标 company=无 conf=0 threshold=25 fps=0 infer=22ms cpu1=0 cpu2=0 mem=0 sorted=0 boxes=0 heap=32KB psram=18258KB[0m
+[0;32mI (10006) vision_app: [VISION_DIAG] latest #6 fps=4.97 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=376ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=390ms core=1 prio=3 stack_hwm=29804 internal=29KB psram=18258KB[0m
+[0;32mI (10019) vision_app: [VISION_DIAG] avg samples=6 fps=4.97 ppa=0 images=0 cam_wait=163.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=181.0ms max_run=0ms max_loop=390ms[0m
+[0;32mI (11012) vision_app: [VISION_DIAG] latest #12 fps=5.96 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=176ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=195ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (11025) vision_app: [VISION_DIAG] avg samples=6 fps=5.96 ppa=0 images=0 cam_wait=141.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=161.3ms max_run=0ms max_loop=202ms[0m
+[0;32mI (12208) vision_app: [VISION_DIAG] latest #18 fps=5.02 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (12221) vision_app: [VISION_DIAG] avg samples=6 fps=5.02 ppa=0 images=0 cam_wait=176.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.4ms max_run=0ms max_loop=199ms[0m
+[0;32mI (13209) vision_app: [VISION_DIAG] latest #23 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=179ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=194ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (13222) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=176.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.3ms max_run=0ms max_loop=205ms[0m
+[0;32mI (14214) vision_app: [VISION_DIAG] latest #28 fps=4.98 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=187ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=205ms core=1 prio=3 stack_hwm=29660 internal=30KB psram=18258KB[0m
+[0;32mI (14227) vision_app: [VISION_DIAG] avg samples=5 fps=4.98 ppa=0 images=0 cam_wait=178.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.5ms max_run=0ms max_loop=205ms[0m
+[0;32mI (15409) vision_app: [VISION_DIAG] latest #34 fps=5.02 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (15422) vision_app: [VISION_DIAG] avg samples=6 fps=5.02 ppa=0 images=0 cam_wait=177.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=191.9ms max_run=0ms max_loop=199ms[0m
+[0;32mI (16410) vision_app: [VISION_DIAG] latest #39 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=177ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=193ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (16423) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=176.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.2ms max_run=0ms max_loop=205ms[0m
+[0;32mI (17608) vision_app: [VISION_DIAG] latest #45 fps=5.01 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (17621) vision_app: [VISION_DIAG] avg samples=6 fps=5.01 ppa=0 images=0 cam_wait=178.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.1ms max_run=0ms max_loop=203ms[0m
+[0;32mI (18610) vision_app: [VISION_DIAG] latest #50 fps=4.99 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (18624) vision_app: [VISION_DIAG] avg samples=5 fps=4.99 ppa=0 images=0 cam_wait=175.1ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.5ms max_run=0ms max_loop=204ms[0m
+[0;32mI (19610) vision_app: [VISION_DIAG] latest #55 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=197ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (19623) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=176.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.1ms max_run=0ms max_loop=205ms[0m
+[0;32mI (20611) vision_app: [VISION_DIAG] latest #60 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (20624) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=177.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.2ms max_run=0ms max_loop=199ms[0m
+[0;32mI (21810) vision_app: [VISION_DIAG] latest #66 fps=5.01 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (21823) vision_app: [VISION_DIAG] avg samples=6 fps=5.01 ppa=0 images=0 cam_wait=177.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.9ms max_run=0ms max_loop=202ms[0m
+[0;32mI (22810) vision_app: [VISION_DIAG] latest #71 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (22823) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=177.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.2ms max_run=0ms max_loop=202ms[0m
+[0;32mI (23811) vision_app: [VISION_DIAG] latest #76 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=200ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (23824) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=177.1ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.5ms max_run=0ms max_loop=203ms[0m
+[0;32mI (24811) vision_app: [VISION_DIAG] latest #81 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=180ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=194ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (24824) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=177.2ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.2ms max_run=0ms max_loop=204ms[0m
+[0;32mI (25817) vision_app: [VISION_DIAG] latest #86 fps=4.97 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=205ms core=1 prio=3 stack_hwm=29660 internal=31KB psram=18258KB[0m
+[0;32mI (25830) vision_app: [VISION_DIAG] avg samples=5 fps=4.97 ppa=0 images=0 cam_wait=177.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.4ms max_run=0ms max_loop=205ms[0m
+[0;32mI (27011) vision_app: [VISION_DIAG] latest #92 fps=5.03 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=185ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (27024) vision_app: [VISION_DIAG] avg samples=6 fps=5.03 ppa=0 images=0 cam_wait=177.8ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.3ms max_run=0ms max_loop=200ms[0m
+[0;32mI (28011) vision_app: [VISION_DIAG] latest #97 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=197ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (28024) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=178.0ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.0ms max_run=0ms max_loop=199ms[0m
+[0;32mI (29012) vision_app: [VISION_DIAG] latest #102 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (29025) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=176.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.5ms max_run=0ms max_loop=204ms[0m
+[0;32mI (30012) vision_app: [VISION_DIAG] latest #107 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=186ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=200ms core=1 prio=3 stack_hwm=29660 internal=30KB psram=18258KB[0m
+[0;32mI (30025) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=178.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.5ms max_run=0ms max_loop=200ms[0m
+[0;32mI (31218) vision_app: [VISION_DIAG] latest #113 fps=4.98 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=204ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (31231) vision_app: [VISION_DIAG] avg samples=6 fps=4.98 ppa=0 images=0 cam_wait=177.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=194.2ms max_run=0ms max_loop=204ms[0m
+[0;32mI (32410) vision_app: [VISION_DIAG] latest #119 fps=5.03 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (32423) vision_app: [VISION_DIAG] avg samples=6 fps=5.03 ppa=0 images=0 cam_wait=177.2ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.2ms max_run=0ms max_loop=201ms[0m
+[0;32mI (32596) cam_sensor: [CAM_DIAG] capture #120 receive=38ms max=58ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (33412) vision_app: [VISION_DIAG] latest #124 fps=4.99 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=181ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=196ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (33425) vision_app: [VISION_DIAG] avg samples=5 fps=4.99 ppa=0 images=0 cam_wait=176.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=191.7ms max_run=0ms max_loop=203ms[0m
+[0;32mI (34611) vision_app: [VISION_DIAG] latest #130 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=186ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=200ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (34624) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=0 images=0 cam_wait=177.5ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.4ms max_run=0ms max_loop=202ms[0m
+[0;32mI (35612) vision_app: [VISION_DIAG] latest #135 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (35625) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=176.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.6ms max_run=0ms max_loop=205ms[0m
+[0;32mI (36811) vision_app: [VISION_DIAG] latest #141 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=186ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=200ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (36824) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=0 images=0 cam_wait=178.8ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.3ms max_run=0ms max_loop=200ms[0m
+[0;32mI (37811) vision_app: [VISION_DIAG] latest #146 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=180ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=194ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (37824) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=176.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=191.4ms max_run=0ms max_loop=203ms[0m
+[0;32mI (38811) vision_app: [VISION_DIAG] latest #151 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (38824) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=176.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.1ms max_run=0ms max_loop=205ms[0m
+[0;32mI (39811) vision_app: [VISION_DIAG] latest #156 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (39824) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=177.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.5ms max_run=0ms max_loop=200ms[0m
+[0;32mI (40812) vision_app: [VISION_DIAG] latest #161 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (40825) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=177.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.3ms max_run=0ms max_loop=199ms[0m
+[0;32mI (42011) vision_app: [VISION_DIAG] latest #167 fps=5.01 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=197ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (42024) vision_app: [VISION_DIAG] avg samples=6 fps=5.01 ppa=0 images=0 cam_wait=177.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.2ms max_run=0ms max_loop=205ms[0m
+[0;32mI (43011) vision_app: [VISION_DIAG] latest #172 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=197ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (43024) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=177.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.3ms max_run=0ms max_loop=204ms[0m
+[0;32mI (44211) vision_app: [VISION_DIAG] latest #178 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (44224) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=0 images=0 cam_wait=177.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.3ms max_run=0ms max_loop=205ms[0m
+[0;32mI (45212) vision_app: [VISION_DIAG] latest #183 fps=4.99 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (45225) vision_app: [VISION_DIAG] avg samples=5 fps=4.99 ppa=0 images=0 cam_wait=177.3ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.3ms max_run=0ms max_loop=199ms[0m
+[0;32mI (46213) vision_app: [VISION_DIAG] latest #188 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=177ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=193ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (46226) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=174.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.3ms max_run=0ms max_loop=205ms[0m
+[0;32mI (47412) vision_app: [VISION_DIAG] latest #194 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (47425) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=0 images=0 cam_wait=178.1ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.1ms max_run=0ms max_loop=203ms[0m
+[0;32mI (48412) vision_app: [VISION_DIAG] latest #199 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (48428) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=177.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.2ms max_run=0ms max_loop=200ms[0m
+[0;32mI (49611) vision_app: [VISION_DIAG] latest #205 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (49624) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=0 images=0 cam_wait=178.4ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.1ms max_run=0ms max_loop=204ms[0m
+[0;32mI (50611) vision_app: [VISION_DIAG] latest #210 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=197ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (50624) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=177.7ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.0ms max_run=0ms max_loop=199ms[0m
+[0;32mI (51611) vision_app: [VISION_DIAG] latest #215 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=180ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=194ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (51624) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=175.8ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.3ms max_run=0ms max_loop=202ms[0m
+[0;32mI (52612) vision_app: [VISION_DIAG] latest #220 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=179ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=194ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (52625) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=176.0ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=191.3ms max_run=0ms max_loop=204ms[0m
+[0;32mI (53614) vision_app: [VISION_DIAG] latest #225 fps=4.99 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=183ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=200ms core=1 prio=3 stack_hwm=29660 internal=30KB psram=18258KB[0m
+[0;32mI (53627) vision_app: [VISION_DIAG] avg samples=5 fps=4.99 ppa=0 images=0 cam_wait=175.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.7ms max_run=0ms max_loop=200ms[0m
+[0;32mI (54812) vision_app: [VISION_DIAG] latest #231 fps=5.01 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (54825) vision_app: [VISION_DIAG] avg samples=6 fps=5.01 ppa=0 images=0 cam_wait=178.0ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.9ms max_run=0ms max_loop=199ms[0m
+[0;32mI (56012) vision_app: [VISION_DIAG] latest #237 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=186ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=30KB psram=18258KB[0m
+[0;32mI (56025) vision_app: [VISION_DIAG] avg samples=6 fps=5.00 ppa=0 images=0 cam_wait=178.6ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.1ms max_run=0ms max_loop=199ms[0m
+[0;32mI (56596) cam_sensor: [CAM_DIAG] capture #240 receive=38ms max=58ms timeouts=0 core=0 prio=10 stack_hwm=2192[0m
+[0;32mI (57014) vision_app: [VISION_DIAG] latest #242 fps=4.99 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=200ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (57027) vision_app: [VISION_DIAG] avg samples=5 fps=4.99 ppa=0 images=0 cam_wait=177.0ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.7ms max_run=0ms max_loop=200ms[0m
+[0;32mI (58018) vision_app: [VISION_DIAG] latest #247 fps=4.98 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=205ms core=1 prio=3 stack_hwm=29660 internal=29KB psram=18258KB[0m
+[0;32mI (58031) vision_app: [VISION_DIAG] avg samples=5 fps=4.98 ppa=0 images=0 cam_wait=176.1ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.0ms max_run=0ms max_loop=205ms[0m
+[0;32mI (59211) vision_app: [VISION_DIAG] latest #253 fps=5.03 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=182ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=196ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (59224) vision_app: [VISION_DIAG] avg samples=6 fps=5.03 ppa=0 images=0 cam_wait=177.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.1ms max_run=0ms max_loop=200ms[0m
+[0;32mI (60216) vision_app: [VISION_DIAG] latest #258 fps=4.98 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=185ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=202ms core=1 prio=3 stack_hwm=29660 internal=29KB psram=18258KB[0m
+[0;32mI (60229) vision_app: [VISION_DIAG] avg samples=5 fps=4.98 ppa=0 images=0 cam_wait=176.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.4ms max_run=0ms max_loop=202ms[0m
+[0;32mI (61418) vision_app: [VISION_DIAG] latest #264 fps=4.99 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=204ms core=1 prio=3 stack_hwm=29660 internal=31KB psram=18258KB[0m
+[0;32mI (61431) vision_app: [VISION_DIAG] avg samples=6 fps=4.99 ppa=0 images=0 cam_wait=178.0ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=193.3ms max_run=0ms max_loop=204ms[0m
+[0;32mI (62612) vision_app: [VISION_DIAG] latest #270 fps=5.03 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=198ms core=1 prio=3 stack_hwm=29660 internal=33KB psram=18258KB[0m
+[0;32mI (62625) vision_app: [VISION_DIAG] avg samples=6 fps=5.03 ppa=0 images=0 cam_wait=176.0ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.1ms max_run=0ms max_loop=204ms[0m
+[0;32mI (63613) vision_app: [VISION_DIAG] latest #275 fps=5.00 runtime=single fallback=0 ppa=0 preview=0/3 cam_wait=184ms pre=0ms preprocess=0ms resize=0ms quant=0ms copy=0ms run=0ms decode=0ms preview=0ms loop=199ms core=1 prio=3 stack_hwm=29660 internal=32KB psram=18258KB[0m
+[0;32mI (63626) vision_app: [VISION_DIAG] avg samples=5 fps=5.00 ppa=0 images=0 cam_wait=177.9ms pre=0.0ms preprocess=0.0ms resize=0.0ms quant=0.0ms copy=0.0ms run=0.0ms decode=0.0ms preview=0.0ms loop=192.2ms max_run=0ms max_loop=199ms[0m
+[0m
+Done
+
+Script done on 2026-06-28 09:24:02+08:00 [COMMAND_EXIT_CODE="0"]

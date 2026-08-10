@@ -1,0 +1,202 @@
+I (372) esp_image: segment 1: paddr=001cade8 vaddr=30100000 size=00088h (   136) load
+I (374) esp_image: segment 2: paddr=001cae78 vaddr=4ff00000 size=051a0h ( 20896) load
+I (381) esp_image: segment 3: paddr=001d0020 vaddr=48000020 size=359660h (3511904) map
+I (908) esp_image: segment 4: paddr=00529688 vaddr=4ff051a0 size=12f2ch ( 77612) load
+I (923) esp_image: segment 5: paddr=0053c5bc vaddr=4ff18100 size=0446ch ( 17516) load
+I (928) esp_image: segment 6: paddr=00540a30 vaddr=50108080 size=00020h (    32) load
+I (935) boot: Loaded app from partition at offset 0x10000
+I (935) boot: Disabling RNG early entropy source...
+I (949) hex_psram: vendor id    : 0x0d (AP)
+I (950) hex_psram: Latency      : 0x01 (Fixed)
+I (950) hex_psram: DriveStr.    : 0x00 (25 Ohm)
+I (951) hex_psram: dev id       : 0x03 (generation 4)
+I (955) hex_psram: density      : 0x07 (256 Mbit)
+I (960) hex_psram: good-die     : 0x06 (Pass)
+I (964) hex_psram: SRF          : 0x02 (Slow Refresh)
+I (969) hex_psram: BurstType    : 0x00 ( Wrap)
+I (973) hex_psram: BurstLen     : 0x03 (2048 Byte)
+I (977) hex_psram: BitMode      : 0x01 (X16 Mode)
+I (982) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
+I (987) hex_psram: DriveStrength: 0x00 (1/1)
+I (991) MSPI Timing: Enter psram timing tuning
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+I (1299) mmu_psram: .rodata xip on psram
+I (1561) mmu_psram: .text xip on psram
+I (1562) hex_psram: psram CS IO is dedicated
+I (1562) cpu_start: Multicore app
+I (1962) esp_psram: SPI SRAM memory test OK
+I (1971) cpu_start: GPIO 38 and 37 are used as console UART I/O pins
+I (1971) cpu_start: Pro cpu start user code
+I (1972) cpu_start: cpu freq: 360000000 Hz
+I (1974) app_init: Application information:
+I (1978) app_init: Project name:     sample_project
+I (1982) app_init: App version:      backup/inference-strict-pass-1x
+I (1988) app_init: Compile time:     Jul 17 2026 01:40:22
+I (1993) app_init: ELF file SHA256:  e79d6e732...
+I (1998) app_init: ESP-IDF:          v5.5.4
+I (2002) efuse_init: Min chip rev:     v0.0
+I (2006) efuse_init: Max chip rev:     v1.99 
+I (2010) efuse_init: Chip rev:         v1.0
+I (2014) heap_init: Initializing. RAM available for dynamic allocation:
+I (2020) heap_init: At 4FF24140 len 00016E80 (91 KiB): RETENT_RAM
+I (2026) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
+I (2031) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
+I (2040) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
+I (2042) heap_init: At 30100088 len 00001F78 (7 KiB): TCM
+I (2184) esp_psram: Adding pool of 27520K of PSRAM memory to heap allocator
+I (2185) esp_psram: Adding pool of 26K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
+I (2191) esp_psram: Adding pool of 20K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
+I (2203) spi_flash: detected chip: gd
+I (2206) spi_flash: flash io: qio
+I (2209) sleep_gpio: Configure to isolate all GPIO pins in sleep state
+I (2215) sleep_gpio: Enable automatic switching of GPIO sleep configuration
+I (2222) main_task: Started on CPU0
+I (2225) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (2233) main_task: Calling app_main()
+I (2236) system: System initialization start
+I (2246) bsp_lcd: Backlight LEDC PWM on, default 80%
+I (2246) bsp_lcd: MIPI DSI PHY powered on
+I (2250) ek79007: version: 1.0.4
+I (2453) bsp_lcd: [QoS] AXI ICM tuned: DW_GDMA rd=15 > Cache=4 > CPU=2
+I (2453) bsp_lcd: LCD init done
+I (2453) bsp_touch: I2C bus initialized
+I (2526) GT911: TouchPad_ID:0x39,0x31,0x31
+I (2526) GT911: TouchPad_Config_Version:89
+I (2526) bsp_touch: GT911 detected at I2C address 0x5D
+I (2527) bsp_touch: Touch init done
+I (2532) sc2336: Detected Camera sensor PID=0xcb3a
+I (2660) bsp_cam: camera init: 1024x600 RGB888, 3 buffers, 30fps, streaming
+I (2660) bsp_motor: motor 1 PWM GPIO A=2 B=3
+I (2660) bsp_motor: motor 2 PWM GPIO A=32 B=36
+I (2664) bsp_motor: motor 3 PWM GPIO A=4 B=5
+I (2668) bsp_motor: motor BSP initialized
+I (2671) bsp_motor: motor output enabled
+I (2675) bsp_encoder: encoder BSP initialized
+I (2679) esp_lvgl:adapter: LVGL adapter initialized successfully
+I (2688) esp_lvgl:bridge_v9: Initializing hardware resources
+I (2690) esp_lvgl:bridge_v9: Hardware resources initialized successfully
+I (2697) bsp_lvgl: Display registered (1024x600)
+W (2701) esp_lvgl:touch: LV_USE_GESTURE_RECOGNITION is disabled; only single-point pointer events are available
+I (2711) esp_lvgl:touch: Touch input device registered successfully (IRQ mode: enabled)
+I (2718) bsp_lvgl: Touch registered
+I (2722) esp_lvgl:adapter: LVGL task started successfully
+I (2727) bsp_lvgl: LVGL adapter started
+I (3608) eth_example: metrics interval set to 1000 ms
+I (3608) eth_example: image report enabled
+I (3609) eth_example: metrics report enabled
+I (3619) temperature_sensor: Range [-10°C ~ 80°C], error < 1°C
+I (3843) vision_stable: PPA copy client registered
+I (3898) vision_stable: allocated 3 stable RGB slots (1843200 bytes each)
+
+I (5502) dl::Model: Testing output box0.
+I (5504) dl::Model: Testing output score0.
+I (5510) dl::Model: Testing output box1.
+I (5511) dl::Model: Testing output score1.
+I (5515) dl::Model: Testing output box2.
+I (5515) dl::Model: Testing output score2.
+I (5538) dl::Model: Test Pass!
+W (5538) dl::Model: minimize() will delete unused inference variables, breaking model testing/debugging.
+I (5542) vision_model: loaded model /spiffs/waybill.espdl (score_thr=0.85 nms_thr=0.70)
+
+I (6448) dl::Model: Testing output box0.
+I (6450) dl::Model: Testing output score0.
+I (6457) dl::Model: Testing output box1.
+I (6457) dl::Model: Testing output score1.
+I (6461) dl::Model: Testing output box2.
+I (6461) dl::Model: Testing output score2.
+I (6484) dl::Model: Test Pass!
+W (6484) dl::Model: minimize() will delete unused inference variables, breaking model testing/debugging.
+I (6488) vision_model: loaded model /spiffs/logo.espdl (score_thr=0.60 nms_thr=0.70)
+I (6492) vision_model: active models: waybill=0x00010001 logo=0x00020001
+I (6499) vision_model: 
+I (6501) vision_model: [fixed-test] ===== begin fixed image tests =====
+I (7227) vision_model: [tensor-dump][waybill] live score0 dtype=3 exp=-1 shape=[1,28,28,1] raw_min=-88 raw_max=-5 thr_q=3 sigmoid_max=0.0759
+I (7228) vision_model: [tensor-dump][waybill] live score1 dtype=3 exp=0 shape=[1,14,14,1] raw_min=-47 raw_max=2 thr_q=2 sigmoid_max=0.8808
+I (7240) vision_model: [tensor-dump][waybill] live score2 dtype=3 exp=-1 shape=[1,7,7,1] raw_min=-54 raw_max=-26 thr_q=3 sigmoid_max=0.0000
+I (7253) vision_model: [fixed-test][waybill] image=waybill102460001.bin w=1024 h=600 bytes=1843200 n=1
+I (7261) vision_model: [fixed-test][waybill] i=0 box=[493,128,809,416] cat=0 score=0.881
+I (7269) vision_model: [fixed-test][waybill] best_cat=0 best_score=0.881
+I (7447) vision_model: [tensor-dump][logo1] live score0 dtype=3 exp=-1 shape=[1,28,28,3] raw_min=-84 raw_max=-5 thr_q=1 sigmoid_max=0.0759
+I (7448) vision_model: [tensor-dump][logo1] live score1 dtype=3 exp=-1 shape=[1,14,14,3] raw_min=-82 raw_max=3 thr_q=1 sigmoid_max=0.8176
+I (7460) vision_model: [tensor-dump][logo1] live score2 dtype=3 exp=-2 shape=[1,7,7,3] raw_min=-83 raw_max=-45 thr_q=2 sigmoid_max=0.0000
+I (7473) vision_model: [fixed-test][logo1] image=jt30829206.bin w=308 h=292 bytes=269808 n=1
+I (7481) vision_model: [fixed-test][logo1] i=0 box=[27,166,71,283] cat=0 score=0.818
+I (7488) vision_model: [fixed-test][logo1] best_cat=0 best_score=0.818
+I (7785) vision_model: [tensor-dump][logo2] live score0 dtype=3 exp=-1 shape=[1,28,28,3] raw_min=-62 raw_max=2 thr_q=1 sigmoid_max=0.7311
+I (7786) vision_model: [tensor-dump][logo2] live score1 dtype=3 exp=-1 shape=[1,14,14,3] raw_min=-60 raw_max=2 thr_q=1 sigmoid_max=0.7311
+I (7798) vision_model: [tensor-dump][logo2] live score2 dtype=3 exp=-2 shape=[1,7,7,3] raw_min=-77 raw_max=-43 thr_q=2 sigmoid_max=0.0000
+I (7810) vision_model: [fixed-test][logo2] image=zt31241902.bin w=312 h=419 bytes=392184 n=1
+I (7818) vision_model: [fixed-test][logo2] i=0 box=[125,370,245,418] cat=2 score=0.731
+I (7826) vision_model: [fixed-test][logo2] best_cat=2 best_score=0.731
+I (8014) vision_model: [tensor-dump][logo3] live score0 dtype=3 exp=-1 shape=[1,28,28,3] raw_min=-52 raw_max=0 thr_q=1 sigmoid_max=0.5000
+I (8015) vision_model: [tensor-dump][logo3] live score1 dtype=3 exp=-1 shape=[1,14,14,3] raw_min=-46 raw_max=-16 thr_q=1 sigmoid_max=0.0003
+I (8027) vision_model: [tensor-dump][logo3] live score2 dtype=3 exp=-2 shape=[1,7,7,3] raw_min=-81 raw_max=-43 thr_q=2 sigmoid_max=0.0000
+I (8040) vision_model: [fixed-test][logo3] image=yd29041906.bin w=290 h=419 bytes=364530 n=0
+I (8048) vision_model: [fixed-test][logo3] score=none (n=0)
+I (8055) vision_model: [fixed-test] ===== end fixed image tests =====
+I (8059) vision_model: 
+I (8063) vision: vision started: preview 640x375 at 19,118, ring depth 1
+I (8068) sorting_sim: real IO task prepared in internal RAM, free_internal=55667 largest=21492
+I (8118) esp_eth.netif.netif_glue: 30:ed:a0:e0:f3:b2
+I (8118) esp_eth.netif.netif_glue: ethernet attached to netif
+I (10839) eth_example: Ethernet Started
+I (10839) eth_example: Ethernet Link Up
+I (10840) eth_example: Ethernet HW Addr 30:ed:a0:e0:f3:b2
+I (10840) esp_netif_handlers: eth ip: 192.168.10.2, mask: 255.255.255.0, gw: 192.168.10.1
+I (10848) eth_example: Ethernet Got IP Address
+I (10852) eth_example: ~~~~~~~~~~~
+I (10855) eth_example: ETHIP:192.168.10.2
+I (10859) eth_example: ETHMASK:255.255.255.0
+I (10863) eth_example: ETHGW:192.168.10.1
+I (10867) eth_example: ~~~~~~~~~~~
+I (10874) eth_example: connecting control to host 192.168.10.1:5000
+I (10878) eth_example: control connected to host
+I (10881) eth_example: time synced unix_ms=1784224083059 tz_offset_min=480
+I (10887) sorting_sim: SORT 电机M1: 正转 60%
+I (10891) bsp_motor: motor 1 compare A=0 B=60
+I (10901) eth_example: connecting image to host 192.168.10.1:5001
+I (10904) eth_example: image connected to host
+I (10906) sorting_sim: 硬件分拣调试监视已关闭
+I (10910) bsp_sort_sensor: sort sensor S1 configured on GPIO 53, active level 1
+I (10917) bsp_sort_sensor: sort sensor S2 configured on GPIO 23, active level 1
+W (10924) bsp_sort_sensor: sort sensor S3 GPIO is not configured
+I (10930) bsp_sort_sensor: sort sensor S4 configured on GPIO 22, active level 1
+I (10937) sorting_sim: SORT 真实硬件链路已启用
+I (10942) sorting_sim: SORT 真实硬件链路已启用
+I (10970) sorting_sim: SORT 传感器S1 初始化: raw=0 active=0 valid=1
+I (10970) sorting_sim: SORT 传感器S2 初始化: raw=0 active=0 valid=1
+I (10972) sorting_sim: SORT 传感器S3 初始化: raw=0 active=0 valid=0
+I (10978) sorting_sim: SORT 传感器S4 初始化: raw=0 active=0 valid=1
+E (11093) jpeg.encoder: jpeg_new_encoder_engine(93): no memory for jpeg encoder rxlink
+E (11093) screen_uvc: screen_uvc_start(217): jpeg engine
+W (11110) system: screen UVC stream start failed: ESP_ERR_NO_MEM
+I (11184) system: [ACCEPT_HEAP] integrity=ok free=6836391 min=6810219 largest=6684660 internal_free=26923 internal_largest=21492 dma_free=1791 dma_largest=76 psram_free=6809820 psram_largest=6684660
+I (11198) system: [ACCEPT_TASKS_BEGIN] requested=24 actual=24 stack_unit=1 total_runtime=9151639
+I (11206) system: [ACCEPT_TASK] name,handle,core,priority,state,stack_base,stack_end,allocated_bytes,free_min_bytes,used_max_bytes,region,runtime
+I (11219) system: [ACCEPT_TASK] vision_det,0x4ff7b0e0,1,4,1,0x4ff2ba64,0x4ff2e8e0,11901,9308,2593,internal,590897
+I (11229) system: [ACCEPT_TASK] main,0x4ff29864,0,1,0,0x4ff26dd8,0x4ff29650,10361,4584,5777,internal,5125198
+I (11238) system: [ACCEPT_TASK] IDLE1,0x4ff2a7f4,1,0,1,0x4ff2a1b0,0x4ff2a7a0,1521,1184,337,internal,7044838
+I (11248) system: [ACCEPT_TASK] IDLE0,0x4ff2a02c,0,0,1,0x4ff299e8,0x4ff29fe0,1529,1192,337,internal,1994781
+I (11257) system: [ACCEPT_TASK] lvgl,0x4ff38688,1,5,2,0x4ff4043c,0x4ff443b0,16245,9444,6801,internal,267701
+I (11266) system: [ACCEPT_TASK] eth_control,0x30100a2c,0,4,2,0x49645e10,0x49647e00,8177,5604,2573,psram,18295
+I (11282) system: [ACCEPT_TASK] eth_img_send,0x30101270,0,2,2,0x4964a018,0x4964b810,6137,4092,2045,psram,1694
+I (11287) system: [ACCEPT_TASK] sysmon,0x4ff79c7c,0,3,2,0x4ff78bfc,0x4ff79b70,3957,1832,2125,internal,113997
+I (11306) system: [ACCEPT_TASK] tiT,0x4ff32544,-1,18,2,0x4ff316c0,0x4ff324b0,3569,2768,801,internal,2632
+I (11322) system: [ACCEPT_TASK] cam_isp,0x4ff3f11c,0,2,2,0x4851c1e0,0x4851d150,3953,3184,769,psram,2472
+I (11342) system: [ACCEPT_TASK] sort_real_io,0x4ff7f754,0,4,2,0x4ff7e6d4,0x4ff7f640,3949,1984,1965,internal,15689
+I (11346) system: [ACCEPT_TASK] ipc0,0x4ff25024,0,1,3,0x4ff24be0,0x4ff24fd0,1009,472,537,internal,175343
+I (11355) system: [ACCEPT_TASK] sys_evt,0x30100210,0,20,2,0x4ff32a24,0x4ff33520,2813,848,1965,internal,30516
+I (11364) system: [ACCEPT_TASK] eth_img_prod,0x30101668,0,3,2,0x49647f14,0x49649f10,8189,7676,513,psram,14
+I (11374) system: [ACCEPT_TASK] emac_rx,0x4ff7fe50,-1,15,3,0x4ff30390,0x4ff31380,4081,3552,529,internal,755
+I (11383) system: [ACCEPT_TASK] swdraw,0x4ff3f9ec,0,4,3,0x4ff33dd8,0x4ff35d50,8057,6712,1345,internal,325755
+I (11393) system: [ACCEPT_TASK] isp_task,0x4ff3ed54,0,11,2,0x4ff3dcd4,0x4ff3ec40,3949,1484,2465,internal,96636
+I (11402) system: [ACCEPT_TASK] vision_fetch,0x4ff7c138,0,4,2,0x4ff7c448,0x4ff7d440,4089,3304,785,internal,4270
+I (11412) system: [ACCEPT_TASK] vision_disp,0x4ff7af5c,0,4,2,0x4ff7d5d0,0x4ff7e540,3953,1488,2465,internal,28256
+I (11422) system: [ACCEPT_TASK] esp_timer,0x4ff26a00,0,22,3,0x4ff25980,0x4ff268f0,3953,3448,505,internal,135783
+I (11432) system: [ACCEPT_TASK] dl_mc0,0x4ff1f930,0,4,3,0x4ff1fcf8,0x4ff203f0,1785,928,857,internal,1089539
+I (11442) system: [ACCEPT_TASK] dl_mc1,0x4ff1fa98,1,4,3,0x4ff204f8,0x4ff20bf0,1785,928,857,internal,1060685
+I (11451) system: [ACCEPT_TASK] Tmr Svc,0x4ff2b1fc,-1,1,2,0x4ff2a978,0x4ff2b170,2041,1624,417,internal,11
+I (11497) system: [ACCEPT_TASK] ipc1,0x4ff255ec,1,24,3,0x4ff251a8,0x4ff255a0,1017,616,401,internal,175429
+I (11517) system: [ACCEPT_TASKS_END] actual=24
+I (11517) system: System initialization done
