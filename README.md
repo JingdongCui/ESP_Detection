@@ -1,328 +1,252 @@
-# ESP32-P4 Detection
+# 嵌入式边缘 AI 智能分拣系统
 
-基于 **ESP32-P4** 的视觉检测项目，使用 [ESP-DL](https://github.com/espressif/esp-dl) 推理框架运行 PicoDet 模型实现 Logo 检测，配合 LVGL 提供 UI 显示，支持 RTT 实时日志。
+基于 **ESP32-P4** 的视觉识别与自动分拣系统。设备在边缘端完成图像采集、面单定位、快递公司识别、包裹状态管理和电机调度；Qt 6 上位机负责图像与遥测展示、历史记录、参数配置和远程控制。
 
-## 硬件要求
+系统面向三类快递包裹（极兔、韵达、中通），形成了“视觉感知 → 边缘推理 → 状态融合 → 传送带分流 → 数据上报”的完整闭环。实时识别和安全控制不依赖云端，网络链路用于监控、留存和较长时间尺度的数据分析。
 
-- ESP32-P4 开发板（USB-JTAG 内置，单线调试）
-- 16 MB Flash
-- 摄像头（具体型号见 `agentic/board.md`）
-- LCD 屏（用于 LVGL UI 显示）
+![系统实物](docs/report_assets/system_front_photo.jpg)
 
-## 项目结构
+## 项目亮点
 
-```
-.
-├── main/                              # 应用入口
-│   ├── main.c                         # System_Init + system_monitor_init
-│   ├── system_init.{c,h}              # 系统初始化
-│   ├── system_monitor.{c,h}           # 运行时监控（CPU/内存/cache 统计）
-│   ├── SEGGER_RTT*                    # RTT 日志库（替代 UART printf）
-│   ├── idf_component.yml              # ESP-IDF 组件依赖（lvgl/esp-dl/esp_cam_sensor 等）
-│   └── CMakeLists.txt
-│
-├── components/
-│   ├── bsp/                           # 板级支持包
-│   │   ├── bsp_cam_sensor.c           # MIPI-CSI 摄像头 + cam_cap 任务
-│   │   ├── bsp_lcd.c                  # LCD 面板初始化
-│   │   ├── bsp_touch.c                # GT911 触摸驱动
-│   │   ├── bsp_lvgl_adapter_init.c    # LVGL 适配器初始化（task_priority=5）
-│   │   ├── include/
-│   │   ├── Kconfig                    # bsp 组件 menuconfig
-│   │   └── CMakeLists.txt
-│   ├── UI/                            # LVGL 界面
-│   │   ├── generated/                 #UI 代码
-│   │   ├── sdk/                       # LVGL 相关 SDK
-│   │   ├── simulator/                 # 仿真配置（lv_conf.h 等）
-│   │   └── CMakeLists.txt
-│   └── vision_app/                    # 视觉推理逻辑
-│       ├── vision_app.cpp             # vision_task 主流程
-│       ├── vision_preview.cpp         # 预览渲染
-│       ├── app_yolo.cpp               # PicoDet/YOLO 模型封装
-│       ├── yolo_decode.cpp            # 后处理解码
-│       ├── include/
-│       └── CMakeLists.txt
-│
-├── model/
-│   ├── espdet_pico_416_416_logo.espdl # PicoDet 416×416 Logo 检测模型
-│   └── flash_model.{sh,bat}           # 模型烧录到 SPIFFS 分区的脚本
-│
-├── agentic/                           # JTAG 调试工具链（OpenOCD + GDB + RTT）
-│   ├── esp_target.py                  # 目标控制（烧录/复位/寄存器/内存）
-│   ├── rtt_reader.py                  # SEGGER RTT 日志守护
-│   ├── svd_parser.py                  # SVD 寄存器名称解析
-│   ├── esp-session-{start,stop}.sh    # OpenOCD 会话管理
-│   ├── idf_build.sh                   # idf.py 包装脚本（绕过 Git Bash MSYSTEM）
-│   ├── esp_target_config.json         # 工具链配置（芯片/烧录方式/端口）
-│   ├── board.md                       # 板级硬件描述（GPIO、I2C/SPI、LCD）
-│   ├── chips/                         # 芯片硬件参考（esp32p4.json + .svd）
-│   └── SEGGER_RTT*                    # RTT 源文件备份（按需复制到 main/）
-│
-├── Skills/                            # AI Agent 技能包（Document/superpowers/pua/Find）
-├── assets/                            # 静态资源（图标、示例图等）
-├── docx/                              # 项目设计文档（PSRAM 分析、配置指南等）
-│
-├── partitions.csv                     # 自定义分区：6M factory + 5M spiffs(模型存储)
-├── sdkconfig.defaults                 # menuconfig 默认值（团队共享基线）
-├── sdkconfig                          # menuconfig 实际输出（自动生成，不要手改）
-├── dependencies.lock                  # Component Manager 依赖锁定文件
-├── CMakeLists.txt                     # 顶层项目 CMakeLists
-│
-├── esp-agent.sh                       # agentic 工具链部署/配置向导
-├── test-full-toolchain.sh             # 工具链自检脚本
-├── backtest_run.py                    # 离线回归测试脚本
-│
-├── README.md                          # 本文件
-├── CHANGELOG.md                       # 版本变更记录
-├── CLAUDE.md                          # AI Agent 工作规则与项目约定
-│
-└── build/                             # 编译产物（已在 .gitignore，不入库）
-    ├── flasher_args.json              # 烧录偏移地址权威来源
-    ├── <project>.bin / .elf
-    ├── bootloader/
-    └── partition_table/
+| 方向 | 实现 |
+| --- | --- |
+| 边缘 AI | ESP32-P4 上运行 ESP-DL，两级模型级联完成面单定位和 Logo 分类 |
+| 实时闭环 | 光电传感器建立包裹窗口，视觉结果与传感器时序绑定，调度器驱动三段传送带 |
+| 本地交互 | 1024×600 LCD + LVGL，显示检测结果、置信度、推理耗时、日志和系统资源 |
+| 上位机 | Qt 6 接收 JPEG、metrics 和分拣状态，提供历史统计、阈值/速度配置和设备控制 |
+| 工程化通信 | 控制/遥测与图像分离传输，图像协议兼容 V1/V2，控制支持 `CONTROL_JSON` |
+| 可观测性 | 板端和上位机均提供运行指标、链路状态、图像记录和调试日志 |
+
+## 系统架构
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│                        感知与执行层                          │
+│  SC2336 MIPI 摄像头   光电传感器 S1/S2   三段传送带/电机 A/B/C │
+└──────────────┬──────────────────┬───────────────────────────┘
+               │图像/到位信号      │PWM/状态
+               ▼                  ▲
+┌──────────────────────────────────────────────────────────────┐
+│                     ESP32-P4 边缘控制层                      │
+│  BSP/采集 → 面单检测 → ROI/Logo 分类 → 包裹状态机 → 电机调度  │
+│        LVGL 本地 UI、系统监控、JPEG 快照、Ethernet TCP        │
+└──────────────────────────┬───────────────────────────────────┘
+                           │192.168.10.2 ↔ 192.168.10.1
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│                       Qt 6 上位机                             │
+│  实时看板 · 视觉检测 · 历史记录 · 设备控制 · 系统维护         │
+└──────────────────────────┬───────────────────────────────────┘
+                           │结构化运行上下文
+                           ▼
+                 数据分析与运行优化（可选）
 ```
 
-## 分区表
+一次包裹的处理流程：
 
-| 分区 | 大小 | 偏移 | 用途 |
+1. S1 检测到包裹进入视觉区，调度器创建包裹对象并打开视觉窗口。
+2. SC2336 采集图像，一级模型定位面单区域。
+3. 从面单区域提取 ROI，二级模型识别极兔、韵达或中通，并输出置信度和检测框。
+4. 视觉结果与 S2 等后续传感器事件关联，调度器计算包裹应进入的分流支路。
+5. A/B/C 三段传送带按状态机运行，执行交接延时、超时和占用保护。
+6. 结果在 LCD 上显示，并通过 control/metrics 与 image 两条 TCP 链路发送至上位机。
+
+## 核心功能
+
+### 1. 两级边缘视觉
+
+系统没有直接对整幅传送带画面做粗粒度分类，而是采用“面单检测 → ROI 分类”的级联路径：
+
+- 一级检测：定位包裹面单，抑制背景、包装外观和传送带纹理干扰。
+- 二级分类：在面单 ROI 内识别快递公司 Logo，输出类别、置信度和框坐标。
+- 结果稳定：S1 视觉窗口使用多帧置信度加权投票；窗口关闭或 S2 到达时，以已有票数决定最终类别。
+- 快照策略：每个新包裹只发送一次 JPEG，连续 miss 达到保持阈值后才重新打开下一次抓拍。
+
+### 2. 传感器与电机分拣闭环
+
+分拣调度器维护包裹编号、类别、传感器事件、传送带占用和超时状态，将识别结果转换为可执行的物理动作。
+
+- S1/S2 用于包裹进入、交接和离开状态确认。
+- 三路电机通过双 PWM 控制启停、方向和速度。
+- 默认速度、交接延时、皮带超时和 lost timeout 集中在 `components/bsp/include/sorter_debug_config.h` 配置。
+- B 支路忙时可对主带 A 做运行时限速，避免包裹在分流口堆积。
+- 识别失败包裹按 `CLASS1 → CLASS2 → CLASS3` 循环策略进入兜底分流，避免阻塞流水线。
+
+![实际分拣过程](docs/report_assets/sorting_process_photo.jpg)
+
+### 3. 板端 UI 与系统监控
+
+LVGL 界面覆盖实时看板、参数设置、日志追踪和系统资源页面，支持：
+
+- 实时画面、类别、置信度、推理耗时和当前包裹状态。
+- 屏幕/ISP、检测与叠框、面单/Logo 阈值等参数查看与调整。
+- CPU、任务、堆内存、帧率和链路状态监控。
+- 触摸操作和人工分类弹窗；弹窗期间暂停预览直刷，但不停止采集与推理。
+
+| 板端看板 | 板端设置 | 板端日志 | 板端资源 |
 | --- | --- | --- | --- |
-| nvs | 24K | 0x9000 | 非易失存储 |
-| phy_init | 4K | 0xf000 | 射频校准 |
-| factory | 6M | 0x10000 | 应用固件 |
-| storage | 5M | 0xb00000 | SPIFFS（存放 .espdl 模型） |
+| ![](docs/report_assets/board_ui_dashboard.jpg) | ![](docs/report_assets/board_ui_settings.jpg) | ![](docs/report_assets/board_ui_log.jpg) | ![](docs/report_assets/board_ui_system.jpg) |
 
-## 快速开始
+### 4. Qt 6 上位机
 
-### 1. 环境准备
+上位机工程位于 [`esp32_host_no_inference/`](esp32_host_no_inference/)，采用 Qt Quick/QML + C++ 实现：
 
-- 安装 [ESP-IDF ≥ 5.5](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32p4/get-started/index.html)
-- 激活环境：`. $IDF_PATH/export.sh`（Windows 推荐用 VSCode ESP-IDF 扩展自带的 Git Bash 终端）
+- 性能总览：设备在线状态、吞吐、延迟、类别统计和趋势。
+- 视觉检测：接收 JPEG，叠加面单框和 Logo 框，记录检测历史。
+- 设备控制：屏幕/ISP、检测阈值、A/B/C 速度、图像/指标上报和重启。
+- 系统维护：监听状态、端口、保存目录、运行日志和时间同步。
+- 未连接设备时支持展示模式；控制命令仍以真实连接状态为安全门控。
 
-### 2. 编译
+| 性能总览 | 视觉检测 | 设备控制 | 系统维护 |
+| --- | --- | --- | --- |
+| ![](docs/report_assets/host_page_1_dashboard.png) | ![](docs/report_assets/host_page_2_detection.png) | ![](docs/report_assets/host_page_3_control.png) | ![](docs/report_assets/host_page_4_system.png) |
 
-```bash
-./agentic/idf_build.sh
+## 通信与数据协议
+
+板端默认使用静态链路：板端 `192.168.10.2`，上位机 `192.168.10.1`。
+
+| 链路 | 端口 | 内容 |
+| --- | ---: | --- |
+| control/metrics | 5000 | 控制命令、设备状态、metrics、分拣状态、时间同步 |
+| image | 5001 | 包裹 JPEG 快照，packet type `0x01` |
+
+公共头固定 40 字节，所有多字节字段使用小端序。图像链路兼容两种版本：
+
+- **V1**：payload 为纯 JPEG，类别和百分比置信度放在保留字段中，用于旧固件回退。
+- **V2**：payload 为图像元数据、最多 8 个检测框和干净 JPEG；包含 frame id、采集时间、推理耗时、主类别、千分制置信度及源图尺寸。
+
+设备控制使用 `type=0x11 CONTROL_JSON`，支持 `get/set/action`、状态回传、能力声明和错误响应。上位机连接后自动查询状态，端侧校验参数范围并回传执行后的完整 state。
+
+## 硬件组成
+
+| 模块 | 规格/用途 |
+| --- | --- |
+| 主控 | ESP32-P4，32 MB PSRAM，200 MHz |
+| 显示与触摸 | 1024×600 MIPI DSI/DPI LCD，GT911 |
+| 摄像头 | SC2336 MIPI-CSI，sensor RAW10，ISP 输出 RGB888 |
+| 传感器 | E18-D80NK 光电传感器，检测包裹到位 |
+| 执行机构 | 三段传送带，三路 12 V 直流减速电机与 PWM 驱动 |
+| 机械结构 | 4080 铝型材机架；主带约 100×40 cm，分流带各约 40×40 cm |
+
+![传送带布局](docs/report_assets/conveyor_layout_photo.jpg)
+
+![摄像头安装](docs/report_assets/camera_mount_photo.jpg)
+
+![电源与电机驱动](docs/report_assets/hardware_power_driver_board.jpg)
+
+## 关键实现
+
+### 板端软件分层
+
+```text
+main/system_init.c
+  ├─ BSP：LCD / Touch / Camera / Motor / Encoder / Sensor
+  ├─ UI：LVGL 页面、触摸事件、预览与状态显示
+  ├─ Vision：采集、预处理、ESP-DL 推理、投票与快照触发
+  ├─ Sorter：包裹状态机、传感器去抖、三路电机调度
+  ├─ Ethernet：control/metrics 与 image 双链路
+  ├─ System Monitor：任务、CPU、heap、帧率和链路指标
+  └─ Screen UVC：按 profile 可选启用的屏幕流输出
 ```
 
-首次全量编译 3-10 分钟，增量编译通常 10-30 秒。
+系统初始化顺序按依赖关系组织为：LCD → Touch → Camera → Motor → Encoder → LVGL/UI → System Monitor → Vision → Ethernet → Sorter → UVC。Touch 先建立可复用的 I2C 总线，再交给摄像头侧复用。
 
-### 3. 烧录模型与固件
+### 上位机软件分层
 
-烧录模型到 SPIFFS 分区：
-
-```bash
-cd model && ./flash_model.sh
+```text
+QML 页面层
+  ├─ Dashboard：指标、趋势、在线状态
+  ├─ Detection：JPEG、检测框、历史记录
+  ├─ Control：参数、速度、动作和能力状态
+  └─ Reserve/System：维护、日志、监听与数据目录
+        ↓
+HostController / HostNetworkWorker
+        ↓
+PacketProtocol：V1/V2 头解析、CONTROL_JSON、坐标归一化
+        ↓
+TCP control:5000 / image:5001
 ```
 
-烧录应用固件：
+## 性能记录
 
-```bash
-python3 agentic/esp_target.py flash-and-run build/ --app-only
+以下结果来自已有实测记录，测试条件为真实包裹和室内良好光照：
+
+| 指标 | 结果 |
+| --- | ---: |
+| 三类包裹识别准确率（300 件） | 96.7%（290/300） |
+| 极兔 / 韵达 / 中通准确率 | 98.0% / 93.0% / 99.0% |
+| 端侧推理延迟 | 约 72–75 ms，单阶段测试 P95 约 71.4 ms |
+| 分拣速度 | 20 件/分钟以上 |
+| 安全交接延时 | 100 ms |
+| 图像接收成功率 | 99% 以上 |
+| 图像上传策略 | 每个包裹对象一次 JPEG |
+
+![极兔识别结果](docs/report_assets/board_detection_jt.jpg)
+
+![韵达识别结果](docs/report_assets/board_detection_yd.jpg)
+
+![中通识别结果](docs/report_assets/board_detection_zt.jpg)
+
+## 目录结构
+
+```text
+.
+├── main/                         # 系统启动与初始化编排
+├── components/
+│   ├── bsp/                      # LCD、摄像头、触摸、电机、传感器
+│   ├── vision/                   # 视觉采集、模型、后处理与结果发布
+│   ├── Sorter_app/               # 包裹状态机与电机分拣调度
+│   ├── Ethernet_app/             # TCP 控制、遥测和图像链路
+│   ├── UI/                       # LVGL 页面与生成资源
+│   ├── system_monitor/           # 任务、内存、性能监控
+│   └── screen_uvc/               # 可选屏幕 UVC 输出
+├── model/                        # ESP-DL 模型与模型分区资源
+├── esp32_host_no_inference/      # Qt 6 上位机
+├── docs/report_assets/           # 系统照片、板端 UI、上位机截图
+├── partitions.csv               # factory + storage 分区
+└── sdkconfig.defaults            # ESP-IDF 默认配置
 ```
 
-### 4. 查看日志
+## 构建与运行
 
-启动 RTT 读取器（后台运行）：
+### ESP32-P4 固件
 
-```bash
-python3 agentic/rtt_reader.py --elf build/<project>.elf \
-    --output agentic/.esp-agent/rtt.log --kill-existing
-```
-
-实时查看：
+环境要求：ESP-IDF 5.5.x、ESP32-P4 工具链、已配置的摄像头/LCD/电机硬件。
 
 ```bash
-tail -f agentic/.esp-agent/rtt.log
-```
-
-## 调试工具链
-
-`agentic/` 目录提供完整的 JTAG 调试套件，详见 [CLAUDE.md](CLAUDE.md)：
-
-- `esp_target.py` — 烧录、复位、寄存器检查、内存读写
-- `rtt_reader.py` — SEGGER RTT 实时日志守护
-- `esp-session-{start,stop}.sh` — OpenOCD 会话管理
-- SVD 感知的寄存器名访问（`read-reg GPIO.OUT` 等）
-
----
-
-## 版本管理工作流
-
-本项目使用 Git + GitHub 进行版本管理。每次改动后按以下流程同步到远程仓库。
-
-### 前置准备（仅首次）
-
-如果在中国大陆访问 GitHub 较慢，先给 git 配置 Clash 代理（端口按实际情况替换）：
-
-```bash
-git config --global http.proxy http://127.0.0.1:7897
-git config --global https.proxy http://127.0.0.1:7897
-```
-
-取消代理：
-
-```bash
-git config --global --unset http.proxy
-git config --global --unset https.proxy
-```
-
-### 日常三步走
-
-每次改完代码后：
-
-```bash
-git add 改动的文件         # 或 git add . 提交全部改动
-git commit -m "说明本次改动"
-git push
-```
-
-查看当前改动状态：
-
-```bash
-git status
-```
-
-查看历史提交：
-
-```bash
-git log --oneline
-```
-
-### 提交消息规范（Conventional Commits）
-
-推荐格式：`<类型>: <简短说明>`
-
-| 类型 | 含义 | 示例 |
-| --- | --- | --- |
-| `feat` | 新功能 | `feat: add GT911 touch screen support` |
-| `fix` | 修 bug | `fix: prevent camera buffer overflow` |
-| `docs` | 文档改动 | `docs: update board.md pin mapping` |
-| `refactor` | 重构（不改功能） | `refactor: extract LCD init into bsp` |
-| `perf` | 性能优化 | `perf: enable PSRAM cache prefetch` |
-| `chore` | 杂项（构建、依赖） | `chore: bump lvgl to 9.2.3` |
-
-### 重要版本：CHANGELOG + Tag
-
-阶段性里程碑时（修复重要 bug、发布新功能集合），更新 [CHANGELOG.md](CHANGELOG.md) 并打 tag：
-
-```bash
-# 1. 编辑 CHANGELOG.md，添加新版本条目
-# 2. 提交 CHANGELOG
-git add CHANGELOG.md
-git commit -m "docs: update CHANGELOG for v0.2.0"
-git push
-
-# 3. 打 tag 并推送
-git tag -a v0.2.0 -m "Release v0.2.0: 触摸交互 + 多目标检测"
-git push origin v0.2.0
-```
-
-打 tag 后，GitHub 仓库的 **Releases** 页会自动显示该版本。
-
-### 文件分工
-
-| 文件 | 用途 | 维护频率 |
-| --- | --- | --- |
-| `git log` | 完整提交历史（自动） | 每次 commit |
-| [CHANGELOG.md](CHANGELOG.md) | 给人看的版本变更摘要 | 阶段性更新 |
-| Git tag / GitHub Releases | 重要版本快照 | 里程碑时 |
-| README.md | 项目门面 | 功能/架构变化时 |
-
-### 需要用户维护的核心文件
-
-| 文件 | 作用 | 何时改 |
-| --- | --- | --- |
-| `agentic/board.md` | 板级硬件描述（GPIO、I2C/SPI、LCD、摄像头） | 换板子、加新外设、改飞线 |
-| `partitions.csv` | Flash 分区表 | 调整模型/应用大小、加 OTA |
-| `sdkconfig.defaults` | menuconfig 默认值（团队共享基线） | 启用新外设、改 PSRAM/Flash 模式 |
-| `main/idf_component.yml` | ESP-IDF 组件依赖 | 加/升级第三方组件 |
-| `CMakeLists.txt`（顶层 + main + components） | 构建脚本 | 加新源文件、改组件结构 |
-
----
-
-## 多人协作
-
-### 添加协作者（仓库主操作）
-
-1. 打开仓库 → **Settings** → **Collaborators**
-2. 点 **Add people**，输入协作者的 GitHub 用户名、邮箱或全名
-3. 协作者收到邮件/站内通知，**7 天内** 点 Accept 才生效
-
-个人仓库只有 Write（读写）权限一种，需要更细分级（Triage / Maintain / Admin）请把仓库转到 Organization 下。
-
-### 协作者本地配置（仅首次）
-
-```bash
-git clone https://github.com/XiaoSongTongXue0505/ESP32P4_Detection.git
 cd ESP32P4_Detection
-
-# 配置自己的用户信息
-git config user.name "你的名字"
-git config user.email "你的邮箱"
-
-# 国内访问需配代理（参考"前置准备"章节）
+idf.py set-target esp32p4
+idf.py build
+idf.py -p <串口> flash monitor
 ```
 
-### 分支协作流程（推荐）
+模型文件和分区配置位于 `model/`、`partitions.csv`。首次运行前请确认板级引脚、传感器有效电平和电机默认输出与实际接线一致。
 
-为避免多人直推 main 冲突，按"分支 + PR"工作流：
+### Qt 6 上位机
 
 ```bash
-# 1. 拉最新 main
-git checkout main
-git pull
-
-# 2. 开新分支干活（命名规则见下表）
-git checkout -b feat/touch-support
-
-# 3. 改代码、提交、推送分支
-git add .
-git commit -m "feat: add GT911 touch support"
-git push -u origin feat/touch-support
-
-# 4. 在 GitHub 网页发起 Pull Request → 仓库主 review → merge
-# 5. 合并后清理本地分支
-git checkout main
-git pull
-git branch -d feat/touch-support
+cd esp32_host_no_inference
+cmake -S . -B build/linux-release -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build/linux-release
+./build/linux-release/bin/esp32_host_no_inference
 ```
 
-### 分支命名规则
-
-| 前缀 | 用途 | 示例 |
-| --- | --- | --- |
-| `feat/` | 新功能 | `feat/touch-support`、`feat/multi-class-detect` |
-| `fix/` | 修 bug | `fix/cam-buffer-overflow` |
-| `refactor/` | 重构 | `refactor/extract-bsp` |
-| `perf/` | 性能优化 | `perf/lvgl-fps` |
-| `docs/` | 文档改动 | `docs/update-board-md` |
-| `exp/` | 实验性分支 | `exp/quantize-int4` |
-
-### Pull Request 规范
-
-- **PR 标题**遵循 [Conventional Commits](#提交消息规范-conventional-commits)：`feat: add touch support`
-- **PR 描述**写清楚：改了什么、为什么改、如何验证（最好附 RTT 日志或截图）
-- **小步快跑**：单个 PR 控制在 ~300 行内，方便 review
-- **避免直接推 main**：仓库主可在 Settings → Branches 里给 main 加保护规则（要求 PR、要求 review）
-
-### 处理冲突
-
-`git pull` 时若提示冲突：
+主机网卡建议配置为 `192.168.10.1/24`，并放行 TCP `5000/5001`。上位机协议测试：
 
 ```bash
-# 1. 编辑冲突文件，找 <<<<<<< HEAD ... ======= ... >>>>>>> 标记，手动解决
-# 2. 标记已解决
-git add 冲突文件
-# 3. 完成合并
-git commit
-git push
+cmake -S . -B build/linux-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build build/linux-debug
+ctest --test-dir build/linux-debug --output-on-failure
 ```
 
-**绝不要用 `git push --force` 强推到 main**，会覆盖别人的提交。仅在自己的临时分支上才可强推。
+## 文档与验证记录
 
----
+- [系统信息与架构资料](docs/report_system_information.md)
+- [Ethernet 与 Qt 链路说明](docs/ethernet_qt_link_defense_guide.md)
+- [完整项目报告（Markdown）](docs/competition_report_final.md)
+- [新版系统报告](report_work/嵌入式边缘AI智能分拣系统_报告.md)
+- [上位机协议与构建说明](esp32_host_no_inference/README.md)
 
 ## License
 
-待补充。
+项目中的业务代码、模型和硬件资料用于本项目研究与展示。第三方组件遵循其各自许可证，详见对应组件目录和依赖声明。
