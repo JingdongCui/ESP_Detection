@@ -1,217 +1,188 @@
-# 嵌入式边缘 AI 智能分拣系统
+# ESP32-P4 Embedded Edge AI Sorting System
 
-基于 **ESP32-P4** 的视觉识别与自动分拣系统。设备在边缘端完成图像采集、面单定位、快递公司识别、包裹状态管理和电机调度；Qt 6 上位机负责图像与遥测展示、历史记录、参数配置和远程控制。
-
-系统面向三类快递包裹（极兔、韵达、中通），形成了“视觉感知 → 边缘推理 → 状态融合 → 传送带分流 → 数据上报”的完整闭环。实时识别和安全控制不依赖云端，网络链路用于监控、留存和较长时间尺度的数据分析。
-
-![系统实物](docs/report_assets/system_front_photo.jpg)
-
-## 项目亮点
-
-| 方向 | 实现 |
-| --- | --- |
-| 边缘 AI | ESP32-P4 上运行 ESP-DL，两级模型级联完成面单定位和 Logo 分类 |
-| 实时闭环 | 光电传感器建立包裹窗口，视觉结果与传感器时序绑定，调度器驱动三段传送带 |
-| 本地交互 | 1024×600 LCD + LVGL，显示检测结果、置信度、推理耗时、日志和系统资源 |
-| 上位机 | Qt 6 接收 JPEG、metrics 和分拣状态，提供历史统计、阈值/速度配置和设备控制 |
-| 工程化通信 | 控制/遥测与图像分离传输，图像协议兼容 V1/V2，控制支持 `CONTROL_JSON` |
-| 可观测性 | 板端和上位机均提供运行指标、链路状态、图像记录和调试日志 |
-
-## 系统架构
+基于 **ESP32-P4** 的端侧视觉识别与自动分拣系统。它不是单独运行一个模型的 Demo，而是把摄像头采集、Edge AI、FreeRTOS 任务、传感器时序、电机调度、LVGL UI、TCP 链路和 Qt 6 上位机串成了一条可运行的工程闭环。
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│                        感知与执行层                          │
-│  SC2336 MIPI 摄像头   光电传感器 S1/S2   三段传送带/电机 A/B/C │
-└──────────────┬──────────────────┬───────────────────────────┘
-               │图像/到位信号      │PWM/状态
-               ▼                  ▲
-┌──────────────────────────────────────────────────────────────┐
-│                     ESP32-P4 边缘控制层                      │
-│  BSP/采集 → 面单检测 → ROI/Logo 分类 → 包裹状态机 → 电机调度  │
-│        LVGL 本地 UI、系统监控、JPEG 快照、Ethernet TCP        │
-└──────────────────────────┬───────────────────────────────────┘
-                           │192.168.10.2 ↔ 192.168.10.1
-                           ▼
-┌──────────────────────────────────────────────────────────────┐
-│                       Qt 6 上位机                             │
-│  实时看板 · 视觉检测 · 历史记录 · 设备控制 · 系统维护         │
-└──────────────────────────┬───────────────────────────────────┘
-                           │结构化运行上下文
-                           ▼
-                 数据分析与运行优化（可选）
+SC2336 Camera + S1/S2 Sensors
+        ↓
+ESP32-P4: Waybill Detection → ROI Logo Classification
+        ↓
+Multi-frame Result → Package State Machine → Motor Scheduling
+        ↓                         ↓
+   LVGL 1024×600 UI       TCP control/metrics + JPEG
+                                      ↓
+                              Qt 6 Host Monitor
 ```
 
-一次包裹的处理流程：
+**Keywords:** `ESP32-P4` · `ESP-IDF 5.5.4` · `FreeRTOS` · `ESP-DL` · `LVGL 9` · `MIPI CSI/DSI` · `PPA` · `TCP` · `Qt 6 / QML` · `C/C++`
 
-1. S1 检测到包裹进入视觉区，调度器创建包裹对象并打开视觉窗口。
-2. SC2336 采集图像，一级模型定位面单区域。
-3. 从面单区域提取 ROI，二级模型识别极兔、韵达或中通，并输出置信度和检测框。
-4. 视觉结果与 S2 等后续传感器事件关联，调度器计算包裹应进入的分流支路。
-5. A/B/C 三段传送带按状态机运行，执行交接延时、超时和占用保护。
-6. 结果在 LCD 上显示，并通过 control/metrics 与 image 两条 TCP 链路发送至上位机。
+## Demo / 实机效果
 
-## 核心功能
+![ESP32-P4 分拣系统实物与板端界面](docs/assets/system_front_photo.jpg)
 
-### 1. 两级边缘视觉
+真实检测结果与上位机看板：
 
-系统没有直接对整幅传送带画面做粗粒度分类，而是采用“面单检测 → ROI 分类”的级联路径：
+| 板端识别结果 | Qt 6 上位机看板 |
+| --- | --- |
+| ![板端识别结果](docs/assets/board_detection_jt.jpg) | ![Qt 上位机看板](docs/assets/host_page_1_dashboard.png) |
 
-- 一级检测：定位包裹面单，抑制背景、包装外观和传送带纹理干扰。
-- 二级分类：在面单 ROI 内识别快递公司 Logo，输出类别、置信度和框坐标。
-- 结果稳定：S1 视觉窗口使用多帧置信度加权投票；窗口关闭或 S2 到达时，以已有票数决定最终类别。
-- 快照策略：每个新包裹只发送一次 JPEG，连续 miss 达到保持阈值后才重新打开下一次抓拍。
+![实际分拣过程](docs/assets/sorting_process_photo.jpg)
 
-### 2. 传感器与电机分拣闭环
+<!-- TODO: Add a short real-hardware sorting GIF or video link showing package entry, detection and motor diversion. -->
 
-分拣调度器维护包裹编号、类别、传感器事件、传送带占用和超时状态，将识别结果转换为可执行的物理动作。
+## Highlights / 项目亮点
 
-- S1/S2 用于包裹进入、交接和离开状态确认。
-- 三路电机通过双 PWM 控制启停、方向和速度。
-- 默认速度、交接延时、皮带超时和 lost timeout 集中在 `components/bsp/include/sorter_debug_config.h` 配置。
-- B 支路忙时可对主带 A 做运行时限速，避免包裹在分流口堆积。
-- 识别失败包裹按 `CLASS1 → CLASS2 → CLASS3` 循环策略进入兜底分流，避免阻塞流水线。
+- **端侧两级视觉 Pipeline**：面单整图检测后裁剪 ROI，再进行极兔、韵达、中通 Logo 检测；推理和分拣决策不依赖云端。
+- **视觉结果与物理包裹关联**：S1 上升沿创建包裹编号，视觉结果进入同一包裹轨迹，多帧置信度投票后再交给分拣调度器。
+- **FreeRTOS 多任务架构**：采集、预览、推理、TCP 控制、JPEG 生产/发送和 System Monitor 分工运行，通过 EventGroup、Queue、Mutex 和稳定帧槽传递数据。
+- **可执行的分拣状态机**：维护 A/B/C 三段皮带、S2/S4 交接、占用保护、超时、识别失败兜底和 Emergency Stop，而不是只输出一个分类字符串。
+- **双链路工程化通信**：control/metrics 与 image 分离；TCP 接收端按固定头解析半包/粘包，图像 V2 携带 frame、时间戳、推理耗时、类别和检测框。
+- **板端 + 上位机可观测**：LVGL 显示检测、推理耗时、任务/内存和链路状态；Qt Quick 上位机提供检测历史、趋势、参数控制和设备状态。
 
-![实际分拣过程](docs/report_assets/sorting_process_photo.jpg)
+## System Architecture / 系统架构
 
-### 3. 板端 UI 与系统监控
+```mermaid
+flowchart LR
+    C[SC2336 MIPI Camera] --> BSP[BSP / Capture]
+    S[S1 / S2 photoelectric sensors] --> IO[Real I/O observer]
+    M[Motor A / B / C + encoder] <-- CTRL[Sorter scheduler]
 
-LVGL 界面覆盖实时看板、参数设置、日志追踪和系统资源页面，支持：
+    subgraph E[ESP32-P4 Firmware]
+        BSP --> VF[Vision frame ring]
+        VF --> V[Waybill detector]
+        V --> R[ROI crop]
+        R --> L[Logo classifier]
+        L --> F[Multi-frame fusion]
+        F --> CTRL
+        IO --> CTRL
+        UI[LVGL UI] <--> CTRL
+        MON[System Monitor] --> UI
+        CTRL --> NET[Ethernet TCP]
+        F --> NET
+    end
 
-- 实时画面、类别、置信度、推理耗时和当前包裹状态。
-- 屏幕/ISP、检测与叠框、面单/Logo 阈值等参数查看与调整。
-- CPU、任务、堆内存、帧率和链路状态监控。
-- 触摸操作和人工分类弹窗；弹窗期间暂停预览直刷，但不停止采集与推理。
+    NET -->|control/metrics :5000| H[Qt 6 Host]
+    NET -->|JPEG image :5001| H
+```
 
-| 板端看板 | 板端设置 | 板端日志 | 板端资源 |
-| --- | --- | --- | --- |
-| ![](docs/report_assets/board_ui_dashboard.jpg) | ![](docs/report_assets/board_ui_settings.jpg) | ![](docs/report_assets/board_ui_log.jpg) | ![](docs/report_assets/board_ui_system.jpg) |
+初始化顺序也体现了模块依赖：`LCD → Touch → Camera → Motor → Encoder → LVGL/UI → Monitor → Vision → Ethernet → Sorter`。触摸侧先建立摄像头复用的 I2C 总线，视觉侧随后创建 frame ring、预览任务和推理任务。
 
-### 4. Qt 6 上位机
+## Package Lifecycle / 包裹状态机
 
-上位机工程位于 [`esp32_host_no_inference/`](esp32_host_no_inference/)，采用 Qt Quick/QML + C++ 实现：
+```mermaid
+stateDiagram-v2
+    [*] --> WAITING_VISION: S1 rising edge / package_new
+    WAITING_VISION --> WAITING_AB: vision result
+    WAITING_VISION --> WAITING_AB: vision timeout / fallback class
+    WAITING_AB --> HOLDING_AT_S2: S2 active or timeout
+    HOLDING_AT_S2 --> ON_B_TO_CLASS1: reserve B / class1 route
+    HOLDING_AT_S2 --> ON_B_TO_S4: reserve B / class2 or class3
+    ON_B_TO_CLASS1 --> DONE: S3 event or timeout fallback
+    ON_B_TO_S4 --> HOLDING_AT_S4: S4 active or timeout
+    HOLDING_AT_S4 --> ON_C_EXIT: reserve C / handoff delay
+    ON_C_EXIT --> DONE: encoder distance or fallback timeout
+    WAITING_AB --> ERROR: invalid result / fault
+    HOLDING_AT_S2 --> HOLDING_AT_S2: B occupied / hold
+    HOLDING_AT_S4 --> HOLDING_AT_S4: C occupied / hold
+```
 
-- 性能总览：设备在线状态、吞吐、延迟、类别统计和趋势。
-- 视觉检测：接收 JPEG，叠加面单框和 Logo 框，记录检测历史。
-- 设备控制：屏幕/ISP、检测阈值、A/B/C 速度、图像/指标上报和重启。
-- 系统维护：监听状态、端口、保存目录、运行日志和时间同步。
-- 未连接设备时支持展示模式；控制命令仍以真实连接状态为安全门控。
+当前硬件配置启用 S1=`GPIO22`、S2=`GPIO23`；S3/S4 在配置中保留为 `-1`，因此后两级可由调度器/超时策略接管，但不应在没有对应接线时描述为已完成四传感器实测。传感器实时 I/O 以 10 ms 轮询、20 ms debounce，调度器以 100 ms 周期 tick，并在状态转换时检查占用、交接延时和 timeout。
 
-| 性能总览 | 视觉检测 | 设备控制 | 系统维护 |
-| --- | --- | --- | --- |
-| ![](docs/report_assets/host_page_1_dashboard.png) | ![](docs/report_assets/host_page_2_detection.png) | ![](docs/report_assets/host_page_3_control.png) | ![](docs/report_assets/host_page_4_system.png) |
+## Core Implementation / 核心技术实现
 
-## 通信与数据协议
+### Edge AI Pipeline
 
-板端默认使用静态链路：板端 `192.168.10.2`，上位机 `192.168.10.1`。
+问题是：整幅传送带画面同时包含包装、背景和面单，直接做三分类容易把背景纹理带入决策。当前实现把它拆成两个阶段：
 
-| 链路 | 端口 | 内容 |
+1. `vision_fetch` 从相机 frame ring 获取最新 RGB888 帧；推理前复制到稳定帧槽，避免相机 mmap buffer 在推理期间被回收。
+2. `waybill.espdl` 在整图上定位面单，取最高分框并在 PSRAM 中复制 ROI。
+3. `logo.espdl` 只对 ROI 推理，输出 Logo 框和三类置信度；Logo 框再加回面单左上角偏移，统一回到原图坐标系。
+4. `vision_detect` 将结果裁剪到预览坐标系，生成 LVGL 叠框、日志字段和上传元数据；连续 miss 保持最近一次命中最多 5 帧，避免 UI 抖动。
+
+模型由 ESP-DL 的 `dl::Model + ImagePreprocessor + ESPDetPostProcessor` 组成，模型文件从 SPIFFS 加载，当前默认使用 INT8 模型运行路径。图像帧、ROI 和预览中转缓冲按用途分别使用 PSRAM / DMA-capable memory；PPA 用于预览缩放和 framebuffer 搬运。阈值可从板端 UI/上位机下发，模型选择状态持久化到 NVS。
+
+### FreeRTOS / Data Flow
+
+| Task / 模块 | 职责 | 主要同步方式 |
+| --- | --- | --- |
+| `cam_isp` / camera driver | SC2336 采集与 ISP 输出 | task notification |
+| `vision_fetch` | 获取帧并写入 frame ring | EventGroup + ring Mutex |
+| `vision_disp` | PPA 缩放、画框、更新 LCD 预览 | EventGroup + LVGL lock |
+| `vision_det` | 稳定帧、两级推理、结果融合与上传触发 | EventGroup + stable-frame Mutex |
+| `eth_control` | 控制 JSON、metrics、分拣状态和重连 | TCP receive buffer + EventGroup |
+| `eth_img_prod` / `eth_img_send` | JPEG 编码、队列排队和分块发送 | Queue + image Mutex |
+| `sysmon` | CPU、任务栈、heap、FPS 和链路指标 | snapshot Mutex |
+
+推理 task 不持有 LVGL 锁；预览缩放和画框尽量在锁外完成，最后只在写 framebuffer 时进入 UI 临界区。这一边界是为了避免显示搬运阻塞 ESP-DL worker。
+
+### Sorting State Machine
+
+`sorter_scheduler.c` 保存最多 8 个包裹轨迹，每个轨迹包含包裹编号、类别、所在皮带、状态进入时间、交接时间和 C 段距离。调度器收到三类输入：
+
+- **视觉事件**：将 `waybill → ROI logo` 的最终类别写入对应包裹；
+- **传感器事件**：S1 建包，S2 触发 A→B，后续传感器/编码器用于释放与出料；
+- **时间/占用事件**：皮带被占用时保持包裹，超时后进入 fallback 或结束轨迹。
+
+电机事件通过 BSP 转换为方向、速度和停止/刹车命令。识别失败不让流水线永久等待，而是使用 `CLASS1 → CLASS2 → CLASS3` 循环兜底；`estop` 会对 A/B/C 三路发出 brake，并在解除后重新调度。
+
+### TCP & Qt Host
+
+板端固定链路为 `192.168.10.2 ↔ 192.168.10.1`：
+
+| Channel | Port | 内容 |
 | --- | ---: | --- |
-| control/metrics | 5000 | 控制命令、设备状态、metrics、分拣状态、时间同步 |
-| image | 5001 | 包裹 JPEG 快照，packet type `0x01` |
+| control / metrics | 5000 | `CONTROL_JSON`、设备状态、metrics、包裹/电机事件、time sync |
+| image | 5001 | 新包裹 JPEG 快照及检测元数据 |
 
-公共头固定 40 字节，所有多字节字段使用小端序。图像链路兼容两种版本：
+公共头为 40 字节，接收端先校验 magic/version/header size/payload length，再等待完整 packet，因此 TCP 半包与粘包不会直接被当成一条消息。Image V2 在 JPEG 前携带 32 字节 metadata 和最多 8 个 16 字节检测框，Qt 上位机据此在 QML 中叠加面单框/Logo 框；协议设计细节可参考 [Qt host 图像结果 V2 设计](docs/superpowers/specs/2026-07-16-qt-host-v2-image-result-display-design.md)，Qt host 源码当前作为独立工程维护。
 
-- **V1**：payload 为纯 JPEG，类别和百分比置信度放在保留字段中，用于旧固件回退。
-- **V2**：payload 为图像元数据、最多 8 个检测框和干净 JPEG；包含 frame id、采集时间、推理耗时、主类别、千分制置信度及源图尺寸。
+上位机采用 `QML Page → HostController / HostNetworkWorker → PacketProtocol → TCP` 分层：板端断开时可以展示已有界面，但控制命令仍以真实连接状态为门控。
 
-设备控制使用 `type=0x11 CONTROL_JSON`，支持 `get/set/action`、状态回传、能力声明和错误响应。上位机连接后自动查询状态，端侧校验参数范围并回传执行后的完整 state。
+## Performance / Test Results
 
-## 硬件组成
+以下为仓库已有记录，不代表脱离测试条件的产品指标：
 
-| 模块 | 规格/用途 |
+| 指标 | 已有结果 | 条件 / 说明 |
+| --- | ---: | --- |
+| 三类包裹识别 | 96/100（96%） | 真实包裹，室内自然光，各角度摆放；每类平均，含部分 Logo 被黑色墨痕遮挡样本 |
+| 端侧推理 | 约 72–75 ms | ESP32-P4 实板，两级模型；另有 60 样本记录 P95≈71.5 ms |
+| 分拣速度 | 20 件/分钟以上 | 既有分拣演示记录，具体速度受皮带、间距和传感器配置影响 |
+| 安全交接延时 | 100 ms | 当前默认 `handoff_delay_ms` |
+| 图像接收 | 99% 以上 | 既有 TCP 图像链路记录；应结合具体网络与发送队列配置复测 |
+
+## Hardware & Software Environment
+
+| 项目 | 当前配置 |
 | --- | --- |
-| 主控 | ESP32-P4，32 MB PSRAM，200 MHz |
-| 显示与触摸 | 1024×600 MIPI DSI/DPI LCD，GT911 |
-| 摄像头 | SC2336 MIPI-CSI，sensor RAW10，ISP 输出 RGB888 |
-| 传感器 | E18-D80NK 光电传感器，检测包裹到位 |
-| 执行机构 | 三段传送带，三路 12 V 直流减速电机与 PWM 驱动 |
-| 机械结构 | 4080 铝型材机架；主带约 100×40 cm，分流带各约 40×40 cm |
+| MCU | ESP32-P4，CPU 360 MHz，启动日志显示约 32 MB PSRAM，PSRAM 200 MHz |
+| Camera | SC2336 MIPI CSI，RAW8 1024×600@30；ISP 输出 RGB888 |
+| Display / Touch | 1024×600 MIPI DSI/DPI LCD，GT911 touch |
+| Actuator | A/B/C 三路直流电机 PWM；编码器接口已预留 |
+| Firmware | ESP-IDF 5.5.4、FreeRTOS、LVGL 9.5、ESP-DL、PPA |
+| Host | Qt 6 / Qt Quick / QML，C++，CMake + Ninja |
 
-![传送带布局](docs/report_assets/conveyor_layout_photo.jpg)
-
-![摄像头安装](docs/report_assets/camera_mount_photo.jpg)
-
-![电源与电机驱动](docs/report_assets/hardware_power_driver_board.jpg)
-
-## 关键实现
-
-### 板端软件分层
+## Project Structure
 
 ```text
-main/system_init.c
-  ├─ BSP：LCD / Touch / Camera / Motor / Encoder / Sensor
-  ├─ UI：LVGL 页面、触摸事件、预览与状态显示
-  ├─ Vision：采集、预处理、ESP-DL 推理、投票与快照触发
-  ├─ Sorter：包裹状态机、传感器去抖、三路电机调度
-  ├─ Ethernet：control/metrics 与 image 双链路
-  ├─ System Monitor：任务、CPU、heap、帧率和链路指标
-  └─ Screen UVC：按 profile 可选启用的屏幕流输出
-```
-
-系统初始化顺序按依赖关系组织为：LCD → Touch → Camera → Motor → Encoder → LVGL/UI → System Monitor → Vision → Ethernet → Sorter → UVC。Touch 先建立可复用的 I2C 总线，再交给摄像头侧复用。
-
-### 上位机软件分层
-
-```text
-QML 页面层
-  ├─ Dashboard：指标、趋势、在线状态
-  ├─ Detection：JPEG、检测框、历史记录
-  ├─ Control：参数、速度、动作和能力状态
-  └─ Reserve/System：维护、日志、监听与数据目录
-        ↓
-HostController / HostNetworkWorker
-        ↓
-PacketProtocol：V1/V2 头解析、CONTROL_JSON、坐标归一化
-        ↓
-TCP control:5000 / image:5001
-```
-
-## 性能记录
-
-以下结果来自已有实测记录，测试条件为真实包裹和室内良好光照：
-
-| 指标 | 结果 |
-| --- | ---: |
-| 三类包裹识别准确率（300 件） | 96.7%（290/300） |
-| 极兔 / 韵达 / 中通准确率 | 98.0% / 93.0% / 99.0% |
-| 端侧推理延迟 | 约 72–75 ms，单阶段测试 P95 约 71.4 ms |
-| 分拣速度 | 20 件/分钟以上 |
-| 安全交接延时 | 100 ms |
-| 图像接收成功率 | 99% 以上 |
-| 图像上传策略 | 每个包裹对象一次 JPEG |
-
-![极兔识别结果](docs/report_assets/board_detection_jt.jpg)
-
-![韵达识别结果](docs/report_assets/board_detection_yd.jpg)
-
-![中通识别结果](docs/report_assets/board_detection_zt.jpg)
-
-## 目录结构
-
-```text
-.
-├── main/                         # 系统启动与初始化编排
+ESP32P4_Detection/
+├── main/                         # 启动与初始化编排
 ├── components/
-│   ├── bsp/                      # LCD、摄像头、触摸、电机、传感器
-│   ├── vision/                   # 视觉采集、模型、后处理与结果发布
-│   ├── Sorter_app/               # 包裹状态机与电机分拣调度
-│   ├── Ethernet_app/             # TCP 控制、遥测和图像链路
-│   ├── UI/                       # LVGL 页面与生成资源
-│   ├── system_monitor/           # 任务、内存、性能监控
-│   └── screen_uvc/               # 可选屏幕 UVC 输出
-├── model/                        # ESP-DL 模型与模型分区资源
-├── esp32_host_no_inference/      # Qt 6 上位机
-├── docs/report_assets/           # 系统照片、板端 UI、上位机截图
-├── partitions.csv               # factory + storage 分区
+│   ├── bsp/                      # LCD、Touch、Camera、电机、编码器、传感器
+│   ├── vision/                   # frame ring、模型、ROI、后处理、上传触发
+│   ├── Sorter_app/               # 包裹状态机、传感器融合、电机调度
+│   ├── Ethernet_app/             # TCP control/metrics/image
+│   ├── UI/                       # LVGL 页面与事件绑定
+│   ├── system_monitor/           # CPU、任务、heap、FPS、链路指标
+│   └── screen_uvc/               # 可选 UVC profile，默认未启用
+├── model/                        # waybill.espdl / logo.espdl 等模型资源
+├── docs/assets/                  # README 展示图片
+├── partitions.csv                # Flash 分区
 └── sdkconfig.defaults            # ESP-IDF 默认配置
 ```
 
-## 构建与运行
+## Build & Run
 
-### ESP32-P4 固件
-
-环境要求：ESP-IDF 5.5.x、ESP32-P4 工具链、已配置的摄像头/LCD/电机硬件。
+### ESP32-P4 firmware
 
 ```bash
 cd ESP32P4_Detection
@@ -220,33 +191,22 @@ idf.py build
 idf.py -p <串口> flash monitor
 ```
 
-模型文件和分区配置位于 `model/`、`partitions.csv`。首次运行前请确认板级引脚、传感器有效电平和电机默认输出与实际接线一致。
+烧录前确认 `components/bsp/include/sorter_debug_config.h` 中的 GPIO、传感器有效电平和电机默认输出与实际接线一致。模型分区资源由 `model/` 和 `partitions.csv` 配合使用。
 
-### Qt 6 上位机
+### Qt host
 
-```bash
-cd esp32_host_no_inference
-cmake -S . -B build/linux-release -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build/linux-release
-./build/linux-release/bin/esp32_host_no_inference
-```
+Qt host 为独立工程，使用 Qt 6 / QML / CMake 实现；本仓库保留板端协议、数据字段和链路说明。复现上位机时，将主机地址设为 `192.168.10.1`，监听 TCP `5000/5001`。
 
-主机网卡建议配置为 `192.168.10.1/24`，并放行 TCP `5000/5001`。上位机协议测试：
+## Limitations & Roadmap
 
-```bash
-cmake -S . -B build/linux-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug
-cmake --build build/linux-debug
-ctest --test-dir build/linux-debug --output-on-failure
-```
+- 当前展示固件默认以 S1/S2 实体输入为主，S3/S4 及编码器需要按最终机械接线补齐实机验证。
+- UVC 屏幕流代码已保留，但生产启动路径默认关闭；需要单独 profile 验证 JPEG DMA 内存与视觉延迟。
+- 现有准确率/吞吐数据仍是特定样本和光照条件下的记录，后续应补充按类别、光照和包裹间距分组的 benchmark。
+- 可继续完善异常包裹的机械回收、传感器故障诊断和更细的电机闭环控制。
 
-## 文档与验证记录
+## Documentation
 
-- [系统信息与架构资料](docs/report_system_information.md)
-- [Ethernet 与 Qt 链路说明](docs/ethernet_qt_link_defense_guide.md)
-- [完整项目报告（Markdown）](docs/competition_report_final.md)
-- [新版系统报告](report_work/嵌入式边缘AI智能分拣系统_报告.md)
-- [上位机协议与构建说明](esp32_host_no_inference/README.md)
-
-## License
-
-项目中的业务代码、模型和硬件资料用于本项目研究与展示。第三方组件遵循其各自许可证，详见对应组件目录和依赖声明。
+- [Qt host 图像结果 V2 设计](docs/superpowers/specs/2026-07-16-qt-host-v2-image-result-display-design.md)
+- [同帧图像结果上传设计](docs/superpowers/specs/2026-07-16-same-frame-image-result-upload-design.md)
+- [ISP 参数控制设计](docs/superpowers/specs/2026-07-16-isp-settings-control-design.md)
+- [视觉模型切换设计](docs/superpowers/specs/2026-07-16-vision-model-hot-switch-design.md)
