@@ -1,6 +1,6 @@
 # ESP32-P4 Embedded Edge AI Sorting System
 
-基于 **ESP32-P4** 的端侧视觉识别与自动分拣系统。它不是单独运行一个模型的 Demo，而是把摄像头采集、Edge AI、FreeRTOS 任务、传感器时序、电机调度、LVGL UI、TCP 链路和 Qt 6 上位机串成了一条可运行的工程闭环。
+基于 **ESP32-P4** 的端侧视觉识别与自动分拣系统。系统完成摄像头采集、面单检测、ROI 分类、包裹状态跟踪、传感器输入、电机分拣、LVGL 本地显示、TCP 数据传输和 Qt 6 上位机监控。
 
 ```text
 SC2336 Camera + S1/S2 Sensors
@@ -16,26 +16,32 @@ Multi-frame Result → Package State Machine → Motor Scheduling
 
 **Keywords:** `ESP32-P4` · `ESP-IDF 5.5.4` · `FreeRTOS` · `ESP-DL` · `LVGL 9` · `MIPI CSI/DSI` · `PPA` · `TCP` · `Qt 6 / QML` · `C/C++`
 
-## Demo / 实机效果
+## 实机效果
 
 ![ESP32-P4 分拣系统实物与板端界面](docs/assets/system_front_photo.jpg)
 
-真实检测结果与上位机看板：
+三类包裹的板端实机识别结果：
 
-| 板端识别结果 | Qt 6 上位机看板 |
-| --- | --- |
-| ![板端识别结果](docs/assets/board_detection_jt.jpg) | ![Qt 上位机看板](docs/assets/host_page_1_dashboard.png) |
+![极兔包裹识别结果](docs/assets/board_detection_jt.jpg)
+
+![韵达包裹识别结果](docs/assets/board_detection_yd.jpg)
+
+![中通包裹识别结果](docs/assets/board_detection_zt.jpg)
+
+Qt 6 上位机图像页：
+
+![Qt 6 上位机图像页](docs/assets/host_page_2_detection.png)
 
 ![实际分拣过程](docs/assets/sorting_process_photo.jpg)
 
-<!-- TODO: Add a short real-hardware sorting GIF or video link showing package entry, detection and motor diversion. -->
+<!-- TODO: 补充一段展示包裹进入、识别和电机分拣过程的实机 GIF 或视频链接。 -->
 
 ## Highlights / 项目亮点
 
 - **端侧两级视觉 Pipeline**：面单整图检测后裁剪 ROI，再进行极兔、韵达、中通 Logo 检测；推理和分拣决策不依赖云端。
 - **视觉结果与物理包裹关联**：S1 上升沿创建包裹编号，视觉结果进入同一包裹轨迹，多帧置信度投票后再交给分拣调度器。
 - **FreeRTOS 多任务架构**：采集、预览、推理、TCP 控制、JPEG 生产/发送和 System Monitor 分工运行，通过 EventGroup、Queue、Mutex 和稳定帧槽传递数据。
-- **可执行的分拣状态机**：维护 A/B/C 三段皮带、S2/S4 交接、占用保护、超时、识别失败兜底和 Emergency Stop，而不是只输出一个分类字符串。
+- **可执行的分拣状态机**：维护 A/B/C 三段皮带、S2/S4 交接、占用保护、超时、识别失败兜底和 Emergency Stop，并根据识别类别发出分拣动作。
 - **双链路工程化通信**：control/metrics 与 image 分离；TCP 接收端按固定头解析半包/粘包，图像 V2 携带 frame、时间戳、推理耗时、类别和检测框。
 - **板端 + 上位机可观测**：LVGL 显示检测、推理耗时、任务/内存和链路状态；Qt Quick 上位机提供检测历史、趋势、参数控制和设备状态。
 
@@ -43,26 +49,21 @@ Multi-frame Result → Package State Machine → Motor Scheduling
 
 ```mermaid
 flowchart LR
-    C[SC2336 MIPI Camera] --> BSP[BSP / Capture]
-    S[S1 / S2 photoelectric sensors] --> IO[Real I/O observer]
-    M[Motor A / B / C + encoder] <-- CTRL[Sorter scheduler]
-
-    subgraph E[ESP32-P4 Firmware]
-        BSP --> VF[Vision frame ring]
-        VF --> V[Waybill detector]
-        V --> R[ROI crop]
-        R --> L[Logo classifier]
-        L --> F[Multi-frame fusion]
-        F --> CTRL
-        IO --> CTRL
-        UI[LVGL UI] <--> CTRL
-        MON[System Monitor] --> UI
-        CTRL --> NET[Ethernet TCP]
-        F --> NET
-    end
-
-    NET -->|control/metrics :5000| H[Qt 6 Host]
-    NET -->|JPEG image :5001| H
+    C[SC2336 MIPI Camera] --> VF[Vision Frame Ring]
+    S[S1 S2 Photoelectric Sensors] --> IO[Real IO Observer]
+    VF --> V[Waybill Detector]
+    V --> R[ROI Crop]
+    R --> L[Logo Classifier]
+    L --> F[Multi Frame Fusion]
+    IO --> CTRL[Sorter Scheduler]
+    F --> CTRL
+    CTRL --> M[Motors A B C]
+    CTRL --> UI[LVGL UI]
+    MON[System Monitor] --> UI
+    CTRL --> TCP[Ethernet TCP]
+    F --> TCP
+    TCP -->|control metrics 5000| H[Qt 6 Host]
+    TCP -->|JPEG image 5001| H
 ```
 
 初始化顺序也体现了模块依赖：`LCD → Touch → Camera → Motor → Encoder → LVGL/UI → Monitor → Vision → Ethernet → Sorter`。触摸侧先建立摄像头复用的 I2C 总线，视觉侧随后创建 frame ring、预览任务和推理任务。
@@ -92,7 +93,7 @@ stateDiagram-v2
 
 ### Edge AI Pipeline
 
-问题是：整幅传送带画面同时包含包装、背景和面单，直接做三分类容易把背景纹理带入决策。当前实现把它拆成两个阶段：
+整幅传送带画面同时包含包装、背景和面单。当前实现采用两个阶段：
 
 1. `vision_fetch` 从相机 frame ring 获取最新 RGB888 帧；推理前复制到稳定帧槽，避免相机 mmap buffer 在推理期间被回收。
 2. `waybill.espdl` 在整图上定位面单，取最高分框并在 PSRAM 中复制 ROI。
@@ -113,7 +114,7 @@ stateDiagram-v2
 | `eth_img_prod` / `eth_img_send` | JPEG 编码、队列排队和分块发送 | Queue + image Mutex |
 | `sysmon` | CPU、任务栈、heap、FPS 和链路指标 | snapshot Mutex |
 
-推理 task 不持有 LVGL 锁；预览缩放和画框尽量在锁外完成，最后只在写 framebuffer 时进入 UI 临界区。这一边界是为了避免显示搬运阻塞 ESP-DL worker。
+推理 task 不持有 LVGL 锁；预览缩放和画框尽量在锁外完成，最后只在写 framebuffer 时进入 UI 临界区。目的是避免显示搬运阻塞 ESP-DL worker。
 
 ### Sorting State Machine
 
@@ -134,21 +135,22 @@ stateDiagram-v2
 | control / metrics | 5000 | `CONTROL_JSON`、设备状态、metrics、包裹/电机事件、time sync |
 | image | 5001 | 新包裹 JPEG 快照及检测元数据 |
 
-公共头为 40 字节，接收端先校验 magic/version/header size/payload length，再等待完整 packet，因此 TCP 半包与粘包不会直接被当成一条消息。Image V2 在 JPEG 前携带 32 字节 metadata 和最多 8 个 16 字节检测框，Qt 上位机据此在 QML 中叠加面单框/Logo 框；协议设计细节可参考 [Qt host 图像结果 V2 设计](docs/superpowers/specs/2026-07-16-qt-host-v2-image-result-display-design.md)，Qt host 源码当前作为独立工程维护。
+公共头为 40 字节，接收端先校验 magic/version/header size/payload length，再等待完整 packet，因此 TCP 半包与粘包不会直接被当成一条消息。Image V2 在 JPEG 前携带 32 字节 metadata 和最多 8 个 16 字节检测框，Qt 上位机据此在 QML 中叠加面单框/Logo 框。Qt host 源码当前作为独立工程维护。
 
-上位机采用 `QML Page → HostController / HostNetworkWorker → PacketProtocol → TCP` 分层：板端断开时可以展示已有界面，但控制命令仍以真实连接状态为门控。
+上位机采用 `QML Page → HostController / HostNetworkWorker → PacketProtocol → TCP` 分层：板端断开时仍可查看已有界面；只有连接建立后，界面上的控制操作才会发送到板端。
 
 ## Performance / Test Results
 
-以下为仓库已有记录，不代表脱离测试条件的产品指标：
+测试条件：自然光照，各角度摆放包裹；部分 Logo 被黑色墨痕遮挡。
 
 | 指标 | 已有结果 | 条件 / 说明 |
 | --- | ---: | --- |
-| 三类包裹识别 | 96/100（96%） | 真实包裹，室内自然光，各角度摆放；每类平均，含部分 Logo 被黑色墨痕遮挡样本 |
-| 端侧推理 | 约 72–75 ms | ESP32-P4 实板，两级模型；另有 60 样本记录 P95≈71.5 ms |
-| 分拣速度 | 20 件/分钟以上 | 既有分拣演示记录，具体速度受皮带、间距和传感器配置影响 |
-| 安全交接延时 | 100 ms | 当前默认 `handoff_delay_ms` |
-| 图像接收 | 99% 以上 | 既有 TCP 图像链路记录；应结合具体网络与发送队列配置复测 |
+| 三类识别置信度 | 极兔、韵达、中通均超过 80% | 三张板端实机识别图 |
+| 单轮两级端侧推理 | 约 60–80 ms | 已有实测 P50 67.2 ms、P95 75.0 ms、最大 79.1 ms |
+| 有包裹连续推理 | 约 6–7 FPS | 进入面单检测和 ROI Logo 分类两级推理 |
+| 无包裹连续推理 | 约 13 FPS | 未检测到包裹时跳过二级 Logo 推理 |
+| 分拣速度 | 超过 15 件/分钟 | 实机分拣记录 |
+| 识别正确率 | 超过 95% | 真实包裹测试记录 |
 
 ## Hardware & Software Environment
 
@@ -206,7 +208,6 @@ Qt host 为独立工程，使用 Qt 6 / QML / CMake 实现；本仓库保留板�
 
 ## Documentation
 
-- [Qt host 图像结果 V2 设计](docs/superpowers/specs/2026-07-16-qt-host-v2-image-result-display-design.md)
 - [同帧图像结果上传设计](docs/superpowers/specs/2026-07-16-same-frame-image-result-upload-design.md)
 - [ISP 参数控制设计](docs/superpowers/specs/2026-07-16-isp-settings-control-design.md)
 - [视觉模型切换设计](docs/superpowers/specs/2026-07-16-vision-model-hot-switch-design.md)
