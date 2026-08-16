@@ -1,51 +1,65 @@
-# ESP32-P4 Embedded Edge AI Sorting System
+# ESP32-P4 端侧视觉自动分拣系统
 
-基于 **ESP32-P4** 的端侧视觉识别与自动分拣系统。系统完成摄像头采集、面单检测、ROI 分类、包裹状态跟踪、传感器输入、电机分拣、LVGL 本地显示、TCP 数据传输和 Qt 6 上位机监控。
+这是运行在 **ESP32-P4** 上的端侧视觉自动分拣系统。摄像头采集后依次进行面单检测和 ROI Logo 分类，再结合包裹状态机控制三段传送带；LVGL 提供板端交互，Qt 6 上位机负责监控与控制。
 
 ```text
-SC2336 Camera + S1/S2 Sensors
-        ↓
-ESP32-P4: Waybill Detection → ROI Logo Classification
-        ↓
-Multi-frame Result → Package State Machine → Motor Scheduling
-        ↓                         ↓
-   LVGL 1024×600 UI       TCP control/metrics + JPEG
-                                      ↓
-                              Qt 6 Host Monitor
+Camera
+  ↓
+两级视觉识别
+  ↓
+包裹状态机
+  ↓
+三段传送带分拣
+  ↙              ↘
+LVGL 板端交互    Qt 6 监控与控制
 ```
 
-**Keywords:** `ESP32-P4` · `ESP-IDF 5.5.4` · `FreeRTOS` · `ESP-DL` · `LVGL 9` · `MIPI CSI/DSI` · `PPA` · `TCP` · `Qt 6 / QML` · `C/C++`
+**技术栈：** `ESP32-P4` · `ESP-DL` · `FreeRTOS` · `LVGL` · `Qt 6` · `TCP`
 
 ## 实机效果
 
-![ESP32-P4 分拣系统实物与板端界面](docs/assets/system_front_photo.jpg)
+Qt 6 上位机 Detection 页面：
+
+![Qt 6 上位机图像页](docs/assets/host_page_2_detection.png)
 
 三类包裹的板端实机识别结果：
 
-![极兔包裹识别结果](docs/assets/board_detection_jt.jpg)
+<table>
+  <tr>
+    <th>极兔</th>
+    <th>韵达</th>
+    <th>中通</th>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/board_detection_jt.jpg" alt="极兔包裹识别结果" width="100%"></td>
+    <td><img src="docs/assets/board_detection_yd.jpg" alt="韵达包裹识别结果" width="100%"></td>
+    <td><img src="docs/assets/board_detection_zt.jpg" alt="中通包裹识别结果" width="100%"></td>
+  </tr>
+</table>
 
-![韵达包裹识别结果](docs/assets/board_detection_yd.jpg)
+### 硬件原型 / 实机分拣平台
 
-![中通包裹识别结果](docs/assets/board_detection_zt.jpg)
-
-Qt 6 上位机图像页：
-
-![Qt 6 上位机图像页](docs/assets/host_page_2_detection.png)
+![ESP32-P4 分拣系统实物](docs/assets/system_front_photo.jpg)
 
 ![实际分拣过程](docs/assets/sorting_process_photo.jpg)
 
 <!-- TODO: 补充一段展示包裹进入、识别和电机分拣过程的实机 GIF 或视频链接。 -->
 
-## Highlights / 项目亮点
+## 核心亮点
 
-- **端侧两级视觉 Pipeline**：面单整图检测后裁剪 ROI，再进行极兔、韵达、中通 Logo 检测；推理和分拣决策不依赖云端。
-- **视觉结果与物理包裹关联**：S1 上升沿创建包裹编号，视觉结果进入同一包裹轨迹，多帧置信度投票后再交给分拣调度器。
-- **FreeRTOS 多任务架构**：采集、预览、推理、TCP 控制、JPEG 生产/发送和 System Monitor 分工运行，通过 EventGroup、Queue、Mutex 和稳定帧槽传递数据。
-- **可执行的分拣状态机**：维护 A/B/C 三段皮带、S2/S4 交接、占用保护、超时、识别失败兜底和 Emergency Stop，并根据识别类别发出分拣动作。
-- **双链路工程化通信**：control/metrics 与 image 分离；TCP 接收端按固定头解析半包/粘包，图像 V2 携带 frame、时间戳、推理耗时、类别和检测框。
-- **板端 + 上位机可观测**：LVGL 显示检测、推理耗时、任务/内存和链路状态；Qt Quick 上位机提供检测历史、趋势、参数控制和设备状态。
+- **两级端侧视觉**：面单检测 → ROI Logo 分类，推理和分拣决策不依赖云端。
+- **视觉 + 传感器状态融合**：视觉结果与实际包裹轨迹绑定，多帧投票后进入分拣调度。
+- **FreeRTOS 实时任务架构**：采集、显示、推理、通信和监控独立运行，通过 Queue / EventGroup / Mutex 协作。
+- **自动分拣状态机**：管理三段传送带、传感器交接、占用保护、超时、异常兜底和急停。
+- **板端 + Qt 上位机**：LVGL 显示检测结果，Qt Quick 提供图像、历史、参数和设备监控。
 
-## System Architecture / 系统架构
+## 关键结果
+
+| 端侧两级推理 | 有包裹连续推理 | 识别正确率 | 分拣速度 |
+| ---: | ---: | ---: | ---: |
+| 约 60–80 ms | 约 6–7 FPS | 超过 95% | 超过 15 件/分钟 |
+
+## 系统架构
 
 ```mermaid
 flowchart LR
@@ -68,7 +82,44 @@ flowchart LR
 
 初始化顺序也体现了模块依赖：`LCD → Touch → Camera → Motor → Encoder → LVGL/UI → Monitor → Vision → Ethernet → Sorter`。触摸侧先建立摄像头复用的 I2C 总线，视觉侧随后创建 frame ring、预览任务和推理任务。
 
-## Package Lifecycle / 包裹状态机
+## 核心技术实现
+
+### Edge AI Pipeline
+
+整幅传送带画面同时包含包装、背景和面单。当前实现采用两个阶段：
+
+1. `vision_fetch` 从相机 frame ring 获取最新 RGB888 帧；推理前复制到稳定帧槽，避免相机 mmap buffer 在推理期间被回收。
+2. `waybill.espdl` 在整图上定位面单，取最高分框并在 PSRAM 中复制 ROI。
+3. `logo.espdl` 只对 ROI 推理，输出 Logo 框和三类置信度；Logo 框再加回面单左上角偏移，统一回到原图坐标系。
+4. `vision_detect` 将结果裁剪到预览坐标系，生成 LVGL 叠框、日志字段和上传元数据；连续 miss 保持最近一次命中最多 5 帧，避免 UI 抖动。
+
+模型由 ESP-DL 的 `dl::Model + ImagePreprocessor + ESPDetPostProcessor` 组成，模型文件从 SPIFFS 加载，当前默认使用 INT8 模型运行路径。图像帧、ROI 和预览中转缓冲按用途分别使用 PSRAM / DMA-capable memory；PPA 用于预览缩放和 framebuffer 搬运。阈值可从板端 UI/上位机下发，模型选择状态持久化到 NVS。
+
+### FreeRTOS 任务与数据流
+
+| Task / 模块 | 职责 | 主要同步方式 |
+| --- | --- | --- |
+| `cam_isp` / camera driver | SC2336 采集与 ISP 输出 | task notification |
+| `vision_fetch` | 获取帧并写入 frame ring | EventGroup + ring Mutex |
+| `vision_disp` | PPA 缩放、画框、更新 LCD 预览 | EventGroup + LVGL lock |
+| `vision_det` | 稳定帧、两级推理、结果融合与上传触发 | EventGroup + stable-frame Mutex |
+| `eth_control` | 控制 JSON、metrics、分拣状态和重连 | TCP receive buffer + EventGroup |
+| `eth_img_prod` / `eth_img_send` | JPEG 编码、队列排队和分块发送 | Queue + image Mutex |
+| `sysmon` | CPU、任务栈、heap、FPS 和链路指标 | snapshot Mutex |
+
+推理 task 不持有 LVGL 锁；预览缩放和画框尽量在锁外完成，最后只在写 framebuffer 时进入 UI 临界区。目的是避免显示搬运阻塞 ESP-DL worker。
+
+### 分拣状态机
+
+`sorter_scheduler.c` 保存最多 8 个包裹轨迹，每个轨迹包含包裹编号、类别、所在皮带、状态进入时间、交接时间和 C 段距离。调度器收到三类输入：
+
+- **视觉事件**：将 `waybill → ROI logo` 的最终类别写入对应包裹；
+- **传感器事件**：S1 建包，S2 触发 A→B，后续传感器/编码器用于释放与出料；
+- **时间/占用事件**：皮带被占用时保持包裹，超时后进入 fallback 或结束轨迹。
+
+电机事件通过 BSP 转换为方向、速度和停止/刹车命令。识别失败不让流水线永久等待，而是使用 `CLASS1 → CLASS2 → CLASS3` 循环兜底；`estop` 会对 A/B/C 三路发出 brake，并在解除后重新调度。
+
+#### Package Lifecycle / 包裹状态机
 
 ```mermaid
 stateDiagram-v2
@@ -89,44 +140,7 @@ stateDiagram-v2
 
 当前硬件配置启用 S1=`GPIO22`、S2=`GPIO23`；S3/S4 在配置中保留为 `-1`，因此后两级可由调度器/超时策略接管，但不应在没有对应接线时描述为已完成四传感器实测。传感器实时 I/O 以 10 ms 轮询、20 ms debounce，调度器以 100 ms 周期 tick，并在状态转换时检查占用、交接延时和 timeout。
 
-## Core Implementation / 核心技术实现
-
-### Edge AI Pipeline
-
-整幅传送带画面同时包含包装、背景和面单。当前实现采用两个阶段：
-
-1. `vision_fetch` 从相机 frame ring 获取最新 RGB888 帧；推理前复制到稳定帧槽，避免相机 mmap buffer 在推理期间被回收。
-2. `waybill.espdl` 在整图上定位面单，取最高分框并在 PSRAM 中复制 ROI。
-3. `logo.espdl` 只对 ROI 推理，输出 Logo 框和三类置信度；Logo 框再加回面单左上角偏移，统一回到原图坐标系。
-4. `vision_detect` 将结果裁剪到预览坐标系，生成 LVGL 叠框、日志字段和上传元数据；连续 miss 保持最近一次命中最多 5 帧，避免 UI 抖动。
-
-模型由 ESP-DL 的 `dl::Model + ImagePreprocessor + ESPDetPostProcessor` 组成，模型文件从 SPIFFS 加载，当前默认使用 INT8 模型运行路径。图像帧、ROI 和预览中转缓冲按用途分别使用 PSRAM / DMA-capable memory；PPA 用于预览缩放和 framebuffer 搬运。阈值可从板端 UI/上位机下发，模型选择状态持久化到 NVS。
-
-### FreeRTOS / Data Flow
-
-| Task / 模块 | 职责 | 主要同步方式 |
-| --- | --- | --- |
-| `cam_isp` / camera driver | SC2336 采集与 ISP 输出 | task notification |
-| `vision_fetch` | 获取帧并写入 frame ring | EventGroup + ring Mutex |
-| `vision_disp` | PPA 缩放、画框、更新 LCD 预览 | EventGroup + LVGL lock |
-| `vision_det` | 稳定帧、两级推理、结果融合与上传触发 | EventGroup + stable-frame Mutex |
-| `eth_control` | 控制 JSON、metrics、分拣状态和重连 | TCP receive buffer + EventGroup |
-| `eth_img_prod` / `eth_img_send` | JPEG 编码、队列排队和分块发送 | Queue + image Mutex |
-| `sysmon` | CPU、任务栈、heap、FPS 和链路指标 | snapshot Mutex |
-
-推理 task 不持有 LVGL 锁；预览缩放和画框尽量在锁外完成，最后只在写 framebuffer 时进入 UI 临界区。目的是避免显示搬运阻塞 ESP-DL worker。
-
-### Sorting State Machine
-
-`sorter_scheduler.c` 保存最多 8 个包裹轨迹，每个轨迹包含包裹编号、类别、所在皮带、状态进入时间、交接时间和 C 段距离。调度器收到三类输入：
-
-- **视觉事件**：将 `waybill → ROI logo` 的最终类别写入对应包裹；
-- **传感器事件**：S1 建包，S2 触发 A→B，后续传感器/编码器用于释放与出料；
-- **时间/占用事件**：皮带被占用时保持包裹，超时后进入 fallback 或结束轨迹。
-
-电机事件通过 BSP 转换为方向、速度和停止/刹车命令。识别失败不让流水线永久等待，而是使用 `CLASS1 → CLASS2 → CLASS3` 循环兜底；`estop` 会对 A/B/C 三路发出 brake，并在解除后重新调度。
-
-### TCP & Qt Host
+### TCP 与 Qt 上位机
 
 板端固定链路为 `192.168.10.2 ↔ 192.168.10.1`：
 
@@ -139,7 +153,7 @@ stateDiagram-v2
 
 上位机采用 `QML Page → HostController / HostNetworkWorker → PacketProtocol → TCP` 分层：板端断开时仍可查看已有界面；只有连接建立后，界面上的控制操作才会发送到板端。
 
-## Performance / Test Results
+## 性能与测试结果
 
 测试条件：自然光照，各角度摆放包裹；部分 Logo 被黑色墨痕遮挡。
 
@@ -152,7 +166,7 @@ stateDiagram-v2
 | 分拣速度 | 超过 15 件/分钟 | 实机分拣记录 |
 | 识别正确率 | 超过 95% | 真实包裹测试记录 |
 
-## Hardware & Software Environment
+## 硬件与软件环境
 
 | 项目 | 当前配置 |
 | --- | --- |
@@ -163,7 +177,7 @@ stateDiagram-v2
 | Firmware | ESP-IDF 5.5.4、FreeRTOS、LVGL 9.5、ESP-DL、PPA |
 | Host | Qt 6 / Qt Quick / QML，C++，CMake + Ninja |
 
-## Project Structure
+## 项目结构
 
 ```text
 ESP32P4_Detection/
@@ -182,7 +196,7 @@ ESP32P4_Detection/
 └── sdkconfig.defaults            # ESP-IDF 默认配置
 ```
 
-## Build & Run
+## 构建与运行
 
 ### ESP32-P4 firmware
 
@@ -199,15 +213,9 @@ idf.py -p <串口> flash monitor
 
 Qt host 为独立工程，使用 Qt 6 / QML / CMake 实现；本仓库保留板端协议、数据字段和链路说明。复现上位机时，将主机地址设为 `192.168.10.1`，监听 TCP `5000/5001`。
 
-## Limitations & Roadmap
+## Roadmap / 后续计划
 
 - 当前展示固件默认以 S1/S2 实体输入为主，S3/S4 及编码器需要按最终机械接线补齐实机验证。
 - UVC 屏幕流代码已保留，但生产启动路径默认关闭；需要单独 profile 验证 JPEG DMA 内存与视觉延迟。
 - 现有准确率/吞吐数据仍是特定样本和光照条件下的记录，后续应补充按类别、光照和包裹间距分组的 benchmark。
 - 可继续完善异常包裹的机械回收、传感器故障诊断和更细的电机闭环控制。
-
-## Documentation
-
-- [同帧图像结果上传设计](docs/superpowers/specs/2026-07-16-same-frame-image-result-upload-design.md)
-- [ISP 参数控制设计](docs/superpowers/specs/2026-07-16-isp-settings-control-design.md)
-- [视觉模型切换设计](docs/superpowers/specs/2026-07-16-vision-model-hot-switch-design.md)
