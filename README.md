@@ -2,17 +2,7 @@
 
 这是运行在 **ESP32-P4** 上的端侧视觉自动分拣系统。摄像头采集后依次进行面单检测和 ROI Logo 分类，再结合包裹状态机控制三段传送带；LVGL 提供板端交互，Qt 6 上位机负责监控与控制。
 
-```text
-Camera
-  ↓
-两级视觉识别
-  ↓
-包裹状态机
-  ↓
-三段传送带分拣
-  ↙              ↘
-LVGL 板端交互    Qt 6 监控与控制
-```
+![ESP32-P4 端侧视觉自动分拣流程](docs/assets/sorting-system-flow.png)
 
 **技术栈：** `ESP32-P4` · `ESP-DL` · `FreeRTOS` · `LVGL` · `Qt 6` · `TCP`
 
